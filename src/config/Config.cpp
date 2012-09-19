@@ -400,7 +400,7 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("qry_count", -1);
 
 	Default("max_equal", 1);
-	if (Config.GetInt("bs_mapping") != 1) {
+	if (GetInt("bs_mapping") != 1) {
 		Default("score_match", 5);
 		Default("score_mismatch", -2);
 		Default("score_gap_read", -5);
@@ -411,9 +411,9 @@ _Config::_Config(int argc, char * argv[]) {
 		Default("score_mismatch", -2);
 		Default("score_gap_read", -10);
 		Default("score_gap_ref", -10);
-		Default("score_match_tt", 4);
-		Default("score_mismatch_tc", 4);
 	}
+	Default("score_match_tt", 4);
+	Default("score_mismatch_tc", 4);
 
 	//Silent
 	Default("dualstrand", 1);
