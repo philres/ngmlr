@@ -4,6 +4,68 @@
 #undef module_name
 #define module_name "ALIGN"
 
+//#ifdef STATIC
+
+#include "OclHost.h"
+#include "SWOclCigar.h"
+
+IAlignment * CreateAlignment(int const mode) {
+	//int dev_type = Config.GetInt("ocl_device");
+	int dev_type = CL_DEVICE_TYPE_GPU;
+#ifdef CPU
+	dev_type = CL_DEVICE_TYPE_CPU;
+#else
+#endif
+#ifndef NDEBUG
+	Log.Error("Mode: %d GPU: %d", mode, mode & 0xFF);
+#endif
+	OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("ocl_threads"));
+
+	SWOcl * instance = 0;
+
+//#ifndef NDEBUG
+	//Log.Error("Alignment mode: %d", mode);
+//#endif
+	int ReportType = (mode >> 8) & 0xFF;
+	switch (ReportType) {
+	case 0:
+#ifndef NDEBUG
+		Log.Message("Output: text");
+#endif
+//		instance = new SWOclAlignment(host);
+		//			instance = new SWOclCigar(host);
+		break;
+	case 1:
+#ifndef NDEBUG
+		Log.Message("Output: cigar");
+#endif
+		instance = new SWOclCigar(host);
+		break;
+	default:
+		Log.Error("Unsupported report type %i", mode);
+		break;
+	}
+	return instance;
+}
+
+void DeleteAlignment(IAlignment* instance) {
+	SWOcl * test = (SWOcl *) instance;
+	OclHost * host = test->getHost();
+#ifndef NDEBUG
+	Log.Message("Delete alignment called");
+#endif
+	if (instance != 0) {
+		delete instance;
+		instance = 0;
+	}
+
+	if (host != 0) {
+		delete host;
+		host = 0;
+	}
+}
+//#endif
+
 /*
  *  Aligner ist eine Thread/CUDA/GPU-Einheit zur Berechnung von Scores/Alignments
  *
@@ -86,8 +148,8 @@ public:
 	bool InUse;
 	ulong BusyTime;
 
-	static pfCreateAlignment CreateAlignment;
-	static pfDeleteAlignment DeleteAlignment;
+	//static pfCreateAlignment CreateAlignment;
+	//static pfDeleteAlignment DeleteAlignment;
 
 	Aligner(int const gpu) :
 			m_Mutex(), m_EntryWait(), m_ReturnWait(), m_GPU(gpu), m_OutputFormat(Config.GetInt("format", 0, 2)), m_Kernel(0), m_KernelInit(
@@ -150,8 +212,8 @@ public:
 	}
 };
 
-pfCreateAlignment AlignmentDispatcher::Aligner::CreateAlignment = 0;
-pfDeleteAlignment AlignmentDispatcher::Aligner::DeleteAlignment = 0;
+//pfCreateAlignment AlignmentDispatcher::Aligner::CreateAlignment = 0;
+//pfDeleteAlignment AlignmentDispatcher::Aligner::DeleteAlignment = 0;
 
 AlignmentDispatcher * AlignmentDispatcher::sInstance = 0;
 
@@ -244,8 +306,8 @@ int AlignmentDispatcher::InitAligners() {
 			if (pfC() != cCookie) {
 				Log.Error("Invalid DLL version. Please update and rebuild the DLL from SVN");
 			} else {
-				Aligner::CreateAlignment = (pfCreateAlignment) GetDLLFunc(dll, "CreateAlignment", true);
-				Aligner::DeleteAlignment = (pfDeleteAlignment) GetDLLFunc(dll, "DeleteAlignment", false);
+				//Aligner::CreateAlignment = (pfCreateAlignment) GetDLLFunc(dll, "CreateAlignment", true);
+				//Aligner::DeleteAlignment = (pfDeleteAlignment) GetDLLFunc(dll, "DeleteAlignment", false);
 
 				threadcount = Config.GetInt("gpu", 1, cMaxAligner);
 				Log.Message("Alignment Threads: %i", threadcount);

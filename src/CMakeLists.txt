@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 project(NextGenMap)
 
+include_directories (../lib/mason/opencl)
 include_directories (../include)
 include_directories (parser)
 include_directories (writer)
@@ -55,7 +56,8 @@ add_executable(NGM 	AlignmentDispatcher.cpp
 
 target_link_libraries(NGM z)					
 target_link_libraries(NGM dl)
-target_link_libraries(NGM pthread)	
+target_link_libraries(NGM pthread)
+target_link_libraries(NGM MASonOpenCl)	
 
 if( ${BAMTOOLS_FOUND} )		
 	ADD_LIBRARY(bamtools STATIC IMPORTED)
