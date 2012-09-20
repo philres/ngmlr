@@ -4,6 +4,7 @@ Required software:
 cmake
 zlib (Ubuntu: zlib1g-dev)
 cudatoolkit
+For BAM support Bamtools (http://sourceforge.net/projects/bamtools/) is required
 
 
 1) Build MASon:
