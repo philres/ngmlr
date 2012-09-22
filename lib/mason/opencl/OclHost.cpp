@@ -314,7 +314,7 @@ cl_mem OclHost::allocate(cl_mem_flags flags, size_t size, void * ptr) {
 
 void * OclHost::mapBuffer(cl_mem buffer, size_t offset, size_t size) {
 	cl_int errCode = 0;
-	Log.Message("Pinning %d memory.", size);
+	//Log.Verbose("Pinning %d memory.", size);
 	void * ptr = clEnqueueMapBuffer(oclCommandQueue, buffer, CL_TRUE, CL_MAP_WRITE, offset, size, 0, NULL, NULL, &errCode);
 	//clFlush(oclCommandQueue);
 	checkClError("Unable to map buffer.", errCode);

@@ -160,11 +160,12 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 
 	cl_kernel scoreKernel;
 	switch ((mode & 0xFF)) {
-	case 0:
-//#ifndef NDEBUG
+	case 0: {
+
 		Log.Verbose("Alignment mode: local");
-//#endif
+
 		scoreKernel = swAlignScoreKernel;
+	}
 		break;
 	case 1:
 //#ifndef NDEBUG
@@ -478,7 +479,7 @@ int SWOclCigar::computeAlignmentBatchSize() {
 	block_count = (block_count / mpCount) * mpCount;
 
 	unsigned long largest_alloc = getMaxAllocSize(block_count * threads_per_block);
-	cl_mem testAlloc = 0;
+
 	while (!host->testAllocate(largest_alloc)) {
 		block_count -= mpCount;
 		largest_alloc = getMaxAllocSize(block_count * threads_per_block);

@@ -11,15 +11,16 @@
 
 IAlignment * CreateAlignment(int const mode) {
 	//int dev_type = Config.GetInt("ocl_device");
-	int dev_type = CL_DEVICE_TYPE_GPU;
-#ifdef CPU
-	dev_type = CL_DEVICE_TYPE_CPU;
-#else
-#endif
-#ifndef NDEBUG
-	Log.Error("Mode: %d GPU: %d", mode, mode & 0xFF);
-#endif
-	OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("ocl_threads"));
+	int dev_type = CL_DEVICE_TYPE_CPU;
+
+	if (Config.Exists("gpu")) {
+		dev_type = CL_DEVICE_TYPE_GPU;
+	}
+
+
+	Log.Verbose("Mode: %d GPU: %d", mode, mode & 0xFF);
+
+	OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
 
 	SWOcl * instance = 0;
 
@@ -29,16 +30,16 @@ IAlignment * CreateAlignment(int const mode) {
 	int ReportType = (mode >> 8) & 0xFF;
 	switch (ReportType) {
 	case 0:
-#ifndef NDEBUG
-		Log.Message("Output: text");
-#endif
+
+		Log.Verbose("Output: text");
+
 //		instance = new SWOclAlignment(host);
 		//			instance = new SWOclCigar(host);
 		break;
 		case 1:
-#ifndef NDEBUG
-		Log.Message("Output: cigar");
-#endif
+
+		Log.Verbose("Output: cigar");
+
 		instance = new SWOclCigar(host);
 		break;
 		default:
@@ -99,7 +100,7 @@ private:
 	static NGMTHREADFUNC Run(void* pObj) {
 		Aligner * align = (Aligner*) pObj;
 
-		Log.Message("Alignment Thread for GPU %i startet", align->m_GPU);
+		//Log.Message("Alignment Thread for GPU %i startet", align->m_GPU);
 		NGMLock(&align->m_Mutex);
 		Log.Verbose("Creating alignment kernel on GPU %i", align->m_GPU);
 		align->m_Kernel = CreateAlignment(align->m_GPU | (std::min(align->m_OutputFormat, 1) << 8));
@@ -107,14 +108,14 @@ private:
 		if (align->m_Kernel == 0)
 		Fatal();
 
-		Log.Message("Alignment created for GPU %i.", align->m_GPU);
+		Log.Verbose("Alignment created for GPU %i.", align->m_GPU);
 		NGMSignal(&align->m_ReturnWait);
 
 		while (true) {
 			while (align->m_IvkType <= 0) {
 				if (align->m_Finished) {
 					NGMUnlock(&align->m_Mutex);
-					Log.Message("Alignment Thread for GPU %i finished", align->m_GPU);
+					Log.Verbose("Alignment Thread for GPU %i finished", align->m_GPU);
 					return 0;
 				}
 
@@ -253,9 +254,9 @@ AlignmentDispatcher::AlignmentDispatcher() :
 		Fatal();
 	} else {
 		if (m_TotalAligner > 0)
-		Log.Message("Dispatcher with %i GPU Aligners%s created", m_TotalAligner, (m_CPUEnabled) ? " and additional CPU Aligners" : "");
+		Log.Verbose("Dispatcher with %i GPU Aligners%s created", m_TotalAligner, (m_CPUEnabled) ? " and additional CPU Aligners" : "");
 		else
-		Log.Message("Dispatcher with CPU Aligners created");
+		Log.Verbose("Dispatcher with CPU Aligners created");
 	}
 }
 
@@ -264,15 +265,23 @@ AlignmentDispatcher::~AlignmentDispatcher() {
 
 int AlignmentDispatcher::InitAligners() {
 	typedef int (*pfCookie)();
-	int threadcount = 0;
+	int threadcount = 1;
 
-	threadcount = Config.GetInt("gpu", 1, cMaxAligner);
+	if (Config.Exists("gpu")) {
+		threadcount = Config.GetInt("gpu", 1, cMaxAligner);
+	}
 	Log.Message("Alignment Threads: %i", threadcount);
 	int * gpus = new int[threadcount];
-	Config.GetIntArray("gpu", gpus, threadcount);
+	if (Config.Exists("gpu")) {
+		Config.GetIntArray("gpu", gpus, threadcount);
+	} else {
+		gpus[0] = 0;
+	}
 
 	for (int i = 0; i < threadcount; ++i) {
-		Log.Green("Using GPU %d for alignment/score computation.", gpus[i]);
+		if (Config.Exists("gpu")) {
+			Log.Green("Using GPU %d for alignment/score computation.", gpus[i]);
+		}
 		m_Aligner[i] = new Aligner(gpus[i]);
 	}
 

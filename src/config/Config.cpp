@@ -403,8 +403,8 @@ _Config::_Config(int argc, char * argv[]) {
 	if (GetInt("bs_mapping") != 1) {
 		Default("score_match", 5);
 		Default("score_mismatch", -2);
-		Default("score_gap_read", -5);
-		Default("score_gap_ref", -5);
+		Default("score_gap_read", -6);
+		Default("score_gap_ref", -6);
 	} else {
 		Log.Message("Using bs-mapping scoring scheme");
 		Default("score_match", 4);

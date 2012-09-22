@@ -22,8 +22,8 @@ if(OPENMP_FOUND)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-SET (CMAKE_CXX_FLAGS " -g -O3 -Wall -fopenmp")
-SET (CMAKE_CXX_FLAGS_DEBUG "-D _DEBUG -g3 -O0 -Wall -fopenmp")
+#SET (CMAKE_CXX_FLAGS " -g -O3 -Wall -fopenmp")
+#SET (CMAKE_CXX_FLAGS_DEBUG "-D _DEBUG -g3 -O0 -Wall -fopenmp")
 
 ADD_CUSTOM_COMMAND(
    OUTPUT ${PROJECT_BINARY_DIR}/oclDefines.h
