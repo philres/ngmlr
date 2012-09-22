@@ -32,7 +32,7 @@ ADD_CUSTOM_COMMAND(
    MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/lib/mason/opencl/opencl/oclDefines.cl
 )
 
-message(${PROJECT_SOURCE_DIR}/lib/mason/opencl/opencl/oclSwScore.cl)
+#message(${PROJECT_SOURCE_DIR}/lib/mason/opencl/opencl/oclSwScore.cl)
 ADD_CUSTOM_COMMAND(
    OUTPUT ${PROJECT_BINARY_DIR}/oclSwScore.h
    COMMAND ${oclTool_exe} oclSwScore ${PROJECT_SOURCE_DIR}/lib/mason/opencl/opencl/oclSwScore.cl ${PROJECT_BINARY_DIR}/oclSwScore.h
@@ -105,7 +105,7 @@ add_library(MASonOpenCl    STATIC ${PROJECT_BINARY_DIR}/oclDefines.h
 #target_link_libraries(MASonOpenClCpuS ${OPENCL_LIBRARIES})
 #target_link_libraries(MASonOpenClGpuS ${OPENCL_LIBRARIES})
 
-target_link_libraries(MASonOpenCl ${OPENCL_LIBRARIES})
+target_link_libraries(MASonOpenCl "-Wl,-Bdynamic ${OPENCL_LIBRARIES}")
 #target_link_libraries(MASonOpenClGpu ${OPENCL_LIBRARIES})
 
 

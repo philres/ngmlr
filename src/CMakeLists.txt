@@ -42,15 +42,17 @@ add_executable(NGM 	AlignmentDispatcher.cpp
 
 	#STATIC
     #set(CMAKE_EXE_LINKER_FLAGS -static) 
+    #set(CMAKE_EXE_LINKER_FLAGS " -static -static-libgcc -static-libstdc++")
     #set(CMAKE_FIND_LIBRARY_SUFFIXES .a) 
     #set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)       # remove -Wl,-Bdynamic 
     #set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS) 
     #set(CMAKE_SHARED_LIBRARY_C_FLAGS)         # remove -fPIC 
     #set(CMAKE_SHARED_LIBRARY_CXX_FLAGS) 
     #set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)    # remove -rdynamic 
-    #set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS) 
+    #set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
+     
     # Maybe this works as well, haven't tried yet. 
-	# set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS FALSE) 
+	#set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS FALSE) 
 	#target_link_libraries(NGM /scratch/philipp/src/zlib-1.2.7/zlib/lib/libz.a)
 	#target_link_libraries(NGM /software/ngm/src/bamtools/lib/libbamtools.a)
 

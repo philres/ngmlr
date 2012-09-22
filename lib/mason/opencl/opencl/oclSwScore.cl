@@ -363,6 +363,7 @@ __kernel void oclSW_Score(__global char const * scaff, __global char const * rea
 							pointer = select(pointer, CIGAR_D, (max_cell == left_cell && max_cell != (local_matrix_line[ref_index] + mismatch)));
 							pointer = select(pointer, CIGAR_I, (max_cell == up_cell && max_cell != (local_matrix_line[ref_index] + mismatch)));
 							pointer = select(pointer, CIGAR_STOP, (max_cell == 0));
+							//max_cell > 0 && (max_cell == diag_cell || max_cell == (local_matrix_line[ref_index * threads_per_block] + mismatch) || max_cell == (local_matrix_line[ref_index] + match))
 
 							vstore4(convert_char4(pointer), (ref_index + 1), matrix);
 
