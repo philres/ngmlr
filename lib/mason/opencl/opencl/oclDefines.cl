@@ -87,7 +87,7 @@ __cl_constant float scores[7][7] = { match,    mismatch, mismatch, mismatch, mis
 /*|*/								 mismatch, mismatch, match,    mismatch, mismatch, mismatch, 0,
 /*v*/								 mismatch, mismatch, mismatch, match,    mismatch, mismatch, 0,
 									 mismatch, mismatch, mismatch, mismatch, mismatch, mismatch, 0,
-									 0,        0,        0,        0,        0,        0       , 0       ,
+									 0,        0,        0,        0,        mismatch, mismatch, mismatch,
 									 0,        0,        0,        0,        0,        0       , 0 };
 
 //__cl_constant short scoresS[6][6] = { match, mismatch, mismatch, mismatch, mismatch, mismatch, mismatch, match, mismatch, mismatch, mismatch, mismatch, mismatch, mismatch, match, mismatch, mismatch, mismatch, mismatch, mismatch, mismatch, match, mismatch, mismatch, 0, 0, 0, 0, match, 0, 0, 0, 0, 0, 0, 0 };
@@ -106,7 +106,7 @@ __cl_constant float scoresTC[7][7] = { match,    mismatch,   mismatch, mismatch,
 /*|*/								   mismatch, mismatch,   match,    mismatch, mismatch, mismatch, 0,
 /*v*/								   mismatch, mismatchBS, mismatch, matchBS,  mismatch, mismatch, 0,
  	 	 	 	 	 	 	 	 	   mismatch, mismatch,   mismatch, mismatch, mismatch, mismatch, 0,
- 	 	 	 	 	 	 	 	 	   0,        0,          0,        0,        0,        0       , 0       ,
+ 	 	 	 	 	 	 	 	 	   0,        0,          0,        0,        mismatch, mismatch, mismatch,
  	 	 	 	 	 	 	 	 	   0,        0,          0,        0,        0,        0       , 0 };
 
 //__cl_constant float scoresTC[6][6] = { match, mismatch, mismatch, mismatch, 0, mismatch,

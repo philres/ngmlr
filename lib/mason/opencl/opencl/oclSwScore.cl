@@ -82,12 +82,8 @@ __kernel void oclSW_Score(__global char const * scaff, __global char const * rea
 				int pointer = CIGAR_X;
 
 #ifndef __BS__
-				if (read_char_cache == scaff[ref_index * interleave_number]) {
-					//if (read_char_cache == scaff[ref_index]) {
-					diag_cell += match;//typedef struct {
-					//	short best_ref_index;
-					//	short best_read_index;
-					//} Index;
+				if (read_char_cache == scaff[ref_index * interleave_number]) {					
+					diag_cell += match;//typedef struct {					
 					pointer = CIGAR_EQ;
 				} else if (read_char_cache != 'N' && read_char_cache != line_end) {
 					diag_cell += mismatch;

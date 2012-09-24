@@ -45,7 +45,9 @@ public:
 				i += (NGM.DualStrand()) ? 2 : 1;
 			}
 			if (i == 0) {
-				throw "error";
+				Log.Message("%s (%d) - %s: %s, %s", read->name, read->ReadId, read->Seq, read->Buffer1, read->Buffer2);
+				Log.Error("Couldn't resolve mapping position: %u!", loc.m_Location);
+				Fatal();
 			}
 			i -= (NGM.DualStrand()) ? 2 : 1;
 
