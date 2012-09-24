@@ -205,7 +205,11 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 	cl_mem bsdirection_gpu = 0;
 	static bool const bsMapping = Config.GetInt("bs_mapping") == 1;
 	if (bsMapping) {
-		bsdirection_gpu = host->allocate(CL_MEM_READ_ONLY, batch_size_align * sizeof(cl_char));
+		if (host->isGPU()) {
+			bsdirection_gpu = host->allocate(CL_MEM_READ_ONLY, batch_size_align * sizeof(cl_char));
+		} else {
+			bsdirection_gpu = host->allocate(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, batch_size_align * sizeof(cl_char), (char *) extData);
+		}
 		ciErrNum |= clSetKernelArg(scoreKernel, 4, sizeof(cl_mem), (void *) (&bsdirection_gpu));
 	}
 

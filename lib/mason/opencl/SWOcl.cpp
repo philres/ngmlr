@@ -115,7 +115,12 @@ int SWOcl::BatchScore(int const mode, int const batchSize_, char const * const *
 	cl_mem bsdirection_gpu = 0;
 	static bool const bsMapping = Config.GetInt("bs_mapping") == 1;
 	if (bsMapping) {
-		bsdirection_gpu = host->allocate(CL_MEM_READ_ONLY, batch_size_scoring * sizeof(cl_char));
+		if (host->isGPU()) {
+			bsdirection_gpu = host->allocate(CL_MEM_READ_ONLY, batch_size_scoring * sizeof(cl_char));
+		} else {
+			bsdirection_gpu = host->allocate(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, batch_size_scoring * sizeof(cl_char), (char *) extData);
+		}
+		//bsdirection_gpu = host->allocate(CL_MEM_READ_ONLY, batch_size_scoring * sizeof(cl_char));
 		ciErrNum |= clSetKernelArg(scoreKernel, 3, sizeof(cl_mem), (void *) (&bsdirection_gpu));
 	}
 
