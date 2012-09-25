@@ -49,10 +49,13 @@ bool cDebug = true;
 ILog const *  _log = 0;
 IConfig * _config = 0;
 
+char const * const version = "0.3.1.1";
+
 int main(int argc, char * argv[]) {
 
 	char const * arch[] = { "x86", "x64" };
 	char const * build = (cDebug) ? " (DEBUG)" : "";
+	Log.Message("NextGenMap %s", version);
 	Log.Message("Startup : %s%s (build %s %s)", arch[sizeof(void*) / 4 - 1], build, __DATE__, __TIME__);
 
 	//try {
