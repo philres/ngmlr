@@ -102,7 +102,7 @@ protected:
 
 private:
 	static const int estimateCount = 40000;
-	void debugCS(int& n, float& mi_Threshhold);
+	void debugCS(MappedRead * read, int& n, float& mi_Threshhold);
 
 	LocationScore * tmp;
 	int tmpSize;

@@ -242,7 +242,7 @@ void CS::AddLocationFallback(SequenceLocation const & loc, double const freq) {
 #ifdef _DEBUGCS
 #include <stdio.h>
 
-void CS::debugCS(int& n, float& mi_Threshhold) {
+void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 	FILE* ofp;
 	ofp = fopen("kmers.txt", "w");
 	int count = 0;
@@ -255,31 +255,43 @@ void CS::debugCS(int& n, float& mi_Threshhold) {
 			max = std::max(std::max(max, rTable[i].fScore), rTable[i].rScore);
 			//Correct position
 			int refCount = SequenceProvider.GetRefCount();
-			uint m_Location = rTable[i].m_Location;
+			uint m_Location = ResolveBin(rTable[i].m_Location);
 			int j = 0;
 			while (j < refCount && m_Location >= SequenceProvider.GetRefStart(j)) {
 				j += (NGM.DualStrand()) ? 2 : 1;
 			}
 			if (j == 0) {
-				throw "error";
+				Log.Message("%s (%d) - %s: %s, %s", read->name, read->ReadId, read->Seq, read->Buffer1, read->Buffer2);
+				Log.Error("Couldn't resolve mapping position: %u!", m_Location);
+				Fatal();
 			}
 			j -= (NGM.DualStrand()) ? 2 : 1;
 
 			m_Location -= SequenceProvider.GetRefStart(j);
 			int m_RefId = j;
-
+			int refNameLength = 0;
 			if (rTable[i].fScore > 0.0f) {
+				if(rTable[i].fScore > mi_Threshhold) {
+					Log.Green("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].fScore);
+				} else {
+					Log.Message("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].fScore);
+				}
 				fprintf(ofp, "%d\t%u\t%u\t%i\t%f\n", 1, rTable[i].m_Location, m_Location, m_RefId, rTable[i].fScore);
 				count += 1;
 			}
 			if (rTable[i].rScore > 0.0f) {
+				if(rTable[i].rScore > mi_Threshhold) {
+					Log.Green("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].fScore);
+				} else {
+					Log.Message("%s - Loc: %u (-), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].rScore);
+				}
 				fprintf(ofp, "%d\t%u\t%u\t%i\t%f\n", -1, rTable[i].m_Location, m_Location, m_RefId, rTable[i].rScore);
 				count += 1;
 			}
 		}
 	}
 	fclose(ofp);
-	Log.Green("max = %d", max);
+	Log.Green("max = %f", max);
 	Log.Green("n = %d", n);
 	Log.Green("c = %d", count);
 	Log.Green("t = %f", mi_Threshhold);
@@ -301,8 +313,8 @@ int CS::CollectResultsStd(MappedRead * read) {
 	int n = rListLength;
 
 #ifdef _DEBUGCS
-	Log.Message("Qry #%i got %i results", m_CurrentSeq, m_Candidates);
-	debugCS(n, mi_Threshhold);
+	Log.Message("Qry #%i got %i results", m_CurrentSeq, n);
+	debugCS(read, n, mi_Threshhold);
 #endif
 
 	int index = 0;
