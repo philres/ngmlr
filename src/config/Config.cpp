@@ -431,7 +431,7 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("min_residues", 0);
 
 	//Output Input options
-	Default("parse_all", 0);
+	Default("parse_all", 1);
 	Default("hard_clip", 0);
 	Default("silent_clip", 0);
 

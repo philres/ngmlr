@@ -206,6 +206,10 @@ uint ReadProvider::init(char const * fileName) {
 				}
 			}
 		}
+		if(readCount == 0) {
+			Log.Error("No reads found in input file.");
+			Fatal();
+		}
 		maxLen = (maxLen | 1) + 1;
 		int avgLen = sumLen / readCount;
 		if (maxLen > maxReadLength) {
