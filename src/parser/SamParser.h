@@ -11,7 +11,7 @@
 #include "IParser.h"
 
 
-int const buffer_size = 300;
+int const buffer_size = 10000;
 
 class SamParser: public IParser{
 

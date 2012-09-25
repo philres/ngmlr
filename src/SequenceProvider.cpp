@@ -243,10 +243,12 @@ void _SequenceProvider::Init() {
 		int l = 0;
 		int j = 0;
 
+		char const spacer = '#';
+
 		//Padding to avoid negative mapping positions
 		for(int i = 0; i < 500; ++i) {
-			char c = enc4('N') << 4;
-			c |= enc4('N');
+			char c = enc4(spacer) << 4;
+			c |= enc4(spacer);
 			binRef[binRefIndex++] = c;
 		}
 		while ((l = kseq_read(seq)) >= 0) {
@@ -267,14 +269,14 @@ void _SequenceProvider::Init() {
 			}
 			if (seq->seq.l & 1) {
 				char c = enc4(ref[seq->seq.l - 1]) << 4;
-				c |= enc4('N');
+				c |= enc4(spacer);
 				binRef[binRefIndex++] = c;
 			}
 
 			for(int i = 0; i < 500; ++i) {
 				//N
-				char c = enc4('N') << 4;
-				c |= enc4('N');
+				char c = enc4(spacer) << 4;
+				c |= enc4(spacer);
 				binRef[binRefIndex++] = c;
 			}
 		}

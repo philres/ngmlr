@@ -170,7 +170,8 @@ void SW::SendToPostprocessing(MappedRead * read) {
 
 		int mq = ceil(MAX_MQ * (score_max - score_smax) / score_max);
 //		Log.Message("%s: %f %f -> %d, (%d) => %d", read->name, score_max, score_smax, mq, read->mappingQlty, mq2);
-		read->mappingQlty = std::min(mq, read->mappingQlty);
+		//read->mappingQlty = std::min(mq, read->mappingQlty);
+		read->mappingQlty = mq;
 		read->EqualScoringCount = score_max_count;
 		read->TopScore = score_max_loc;
 	} else {

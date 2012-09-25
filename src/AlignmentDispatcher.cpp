@@ -4,6 +4,69 @@
 #undef module_name
 #define module_name "ALIGN"
 
+//#ifdef STATIC
+
+#include "OclHost.h"
+#include "SWOclCigar.h"
+
+IAlignment * CreateAlignment(int const mode) {
+	//int dev_type = Config.GetInt("ocl_device");
+	int dev_type = CL_DEVICE_TYPE_CPU;
+
+	if (Config.Exists("gpu")) {
+		dev_type = CL_DEVICE_TYPE_GPU;
+	}
+
+
+	Log.Verbose("Mode: %d GPU: %d", mode, mode & 0xFF);
+
+	OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
+
+	SWOcl * instance = 0;
+
+//#ifndef NDEBUG
+	//Log.Error("Alignment mode: %d", mode);
+//#endif
+	int ReportType = (mode >> 8) & 0xFF;
+	switch (ReportType) {
+	case 0:
+
+		Log.Verbose("Output: text");
+
+//		instance = new SWOclAlignment(host);
+		//			instance = new SWOclCigar(host);
+		break;
+		case 1:
+
+		Log.Verbose("Output: cigar");
+
+		instance = new SWOclCigar(host);
+		break;
+		default:
+		Log.Error("Unsupported report type %i", mode);
+		break;
+	}
+	return instance;
+}
+
+void DeleteAlignment(IAlignment* instance) {
+	SWOcl * test = (SWOcl *) instance;
+	OclHost * host = test->getHost();
+#ifndef NDEBUG
+	Log.Message("Delete alignment called");
+#endif
+	if (instance != 0) {
+		delete instance;
+		instance = 0;
+	}
+
+	if (host != 0) {
+		delete host;
+		host = 0;
+	}
+}
+//#endif
+
 /*
  *  Aligner ist eine Thread/CUDA/GPU-Einheit zur Berechnung von Scores/Alignments
  *
@@ -37,22 +100,22 @@ private:
 	static NGMTHREADFUNC Run(void* pObj) {
 		Aligner * align = (Aligner*) pObj;
 
-		Log.Message("Alignment Thread for GPU %i startet", align->m_GPU);
+		//Log.Message("Alignment Thread for GPU %i startet", align->m_GPU);
 		NGMLock(&align->m_Mutex);
 		Log.Verbose("Creating alignment kernel on GPU %i", align->m_GPU);
 		align->m_Kernel = CreateAlignment(align->m_GPU | (std::min(align->m_OutputFormat, 1) << 8));
 		Log.Verbose("Alignment kernel on GPU %i created", align->m_GPU);
 		if (align->m_Kernel == 0)
-			Fatal();
+		Fatal();
 
-		Log.Message("Alignment created for GPU %i.", align->m_GPU);
+		Log.Verbose("Alignment created for GPU %i.", align->m_GPU);
 		NGMSignal(&align->m_ReturnWait);
 
 		while (true) {
 			while (align->m_IvkType <= 0) {
 				if (align->m_Finished) {
 					NGMUnlock(&align->m_Mutex);
-					Log.Message("Alignment Thread for GPU %i finished", align->m_GPU);
+					Log.Verbose("Alignment Thread for GPU %i finished", align->m_GPU);
 					return 0;
 				}
 
@@ -66,13 +129,13 @@ private:
 //			}
 
 			if (align->m_IvkType == 1)
-				align->m_IvkReturn = align->m_Kernel->BatchScore(align->m_IvkMode, align->m_IvkBatchSize, align->m_IvkRefSeqList,
-						align->m_IvkQrySeqList, (float*) align->m_IvkResults, align->m_IvkData);
+			align->m_IvkReturn = align->m_Kernel->BatchScore(align->m_IvkMode, align->m_IvkBatchSize, align->m_IvkRefSeqList,
+					align->m_IvkQrySeqList, (float*) align->m_IvkResults, align->m_IvkData);
 			else if (align->m_IvkType == 2)
-				align->m_IvkReturn = align->m_Kernel->BatchAlign(align->m_IvkMode, align->m_IvkBatchSize, align->m_IvkRefSeqList,
-						align->m_IvkQrySeqList, (Align*) align->m_IvkResults, align->m_IvkData);
+			align->m_IvkReturn = align->m_Kernel->BatchAlign(align->m_IvkMode, align->m_IvkBatchSize, align->m_IvkRefSeqList,
+					align->m_IvkQrySeqList, (Align*) align->m_IvkResults, align->m_IvkData);
 			else
-				align->m_IvkReturn = 0;
+			align->m_IvkReturn = 0;
 
 			align->m_IvkType = 0;
 
@@ -86,12 +149,12 @@ public:
 	bool InUse;
 	ulong BusyTime;
 
-	static pfCreateAlignment CreateAlignment;
-	static pfDeleteAlignment DeleteAlignment;
+	//static pfCreateAlignment CreateAlignment;
+	//static pfDeleteAlignment DeleteAlignment;
 
 	Aligner(int const gpu) :
-			m_Mutex(), m_EntryWait(), m_ReturnWait(), m_GPU(gpu), m_OutputFormat(Config.GetInt("format", 0, 2)), m_Kernel(0), m_KernelInit(
-					false), m_Running(false), m_Finished(false), m_IvkType(0), InUse(false), BusyTime(0) {
+	m_Mutex(), m_EntryWait(), m_ReturnWait(), m_GPU(gpu), m_OutputFormat(Config.GetInt("format", 0, 2)), m_Kernel(0), m_KernelInit(
+			false), m_Running(false), m_Finished(false), m_IvkType(0), InUse(false), BusyTime(0) {
 		NGMInitMutex(&m_Mutex);
 		NGMInitWait(&m_EntryWait);
 		NGMInitWait(&m_ReturnWait);
@@ -136,7 +199,7 @@ public:
 		if (m_Kernel == 0) {
 			NGMLock(&m_Mutex);
 			while (m_Kernel == 0)
-				NGMWait(&m_Mutex, &m_ReturnWait);
+			NGMWait(&m_Mutex, &m_ReturnWait);
 			NGMUnlock(&m_Mutex);
 		}
 		return m_Kernel;
@@ -150,8 +213,8 @@ public:
 	}
 };
 
-pfCreateAlignment AlignmentDispatcher::Aligner::CreateAlignment = 0;
-pfDeleteAlignment AlignmentDispatcher::Aligner::DeleteAlignment = 0;
+//pfCreateAlignment AlignmentDispatcher::Aligner::CreateAlignment = 0;
+//pfDeleteAlignment AlignmentDispatcher::Aligner::DeleteAlignment = 0;
 
 AlignmentDispatcher * AlignmentDispatcher::sInstance = 0;
 
@@ -191,9 +254,9 @@ AlignmentDispatcher::AlignmentDispatcher() :
 		Fatal();
 	} else {
 		if (m_TotalAligner > 0)
-			Log.Message("Dispatcher with %i GPU Aligners%s created", m_TotalAligner, (m_CPUEnabled) ? " and additional CPU Aligners" : "");
+		Log.Verbose("Dispatcher with %i GPU Aligners%s created", m_TotalAligner, (m_CPUEnabled) ? " and additional CPU Aligners" : "");
 		else
-			Log.Message("Dispatcher with CPU Aligners created");
+		Log.Verbose("Dispatcher with CPU Aligners created");
 	}
 }
 
@@ -202,110 +265,30 @@ AlignmentDispatcher::~AlignmentDispatcher() {
 
 int AlignmentDispatcher::InitAligners() {
 	typedef int (*pfCookie)();
-	int threadcount = 0;
+	int threadcount = 1;
 
-	/*** Load GPU DLL ***/
-	if (Config.Exists("gpu") && Config.GetInt("gpu", 0, cMaxAligner) > 0) {
-		char const * gpuDlls[2] = { "libMASonOpenClGpu.so", "libMASonCUDA.so" };
-		char const * gpuDll = 0;
-		if (!Config.Exists("gpu_dll")) {
-			if (Config.GetInt("bs_mapping") == 0) {
-				Log.Message("Detecting alignment dll.");
-				if (CheckDLL(gpuDlls[0])) {
-					gpuDll = gpuDlls[0];
-					Log.Message("Using %s", gpuDll);
-				} else if (CheckDLL(gpuDlls[1])) {
-					gpuDll = gpuDlls[1];
-					Log.Message("Using %s", gpuDll);
-				} else {
-					Log.Error("Error loading GPU DLL. If the MASon libs or not located in standard directories, pleas specifiy mason_path in the config file.");
-					Fatal();
-				}
-			} else {
-				Log.Message("Detecting alignment dll for bs-mapping.");
-				if (CheckDLL(gpuDlls[1])) {
-					gpuDll = gpuDlls[1];
-					Log.Message("Using %s", gpuDll);
-				} else {
-					Log.Error("Error loading GPU DLL. If the MASon libs or not located in standard directories, pleas specifiy mason_path in the config file.");
-					Fatal();
-				}
-			}
-		} else {
-			gpuDll = Config.GetString("gpu_dll");
-			Log.Message("GPU dll specified. Using %s", gpuDll);
-		}
-		int const dll = InitDLL(gpuDll);
-		if (dll == -1) {
-			Log.Error("Error loading GPU DLL");
-			Fatal();
-		} else {
-			pfCookie pfC = (pfCookie) GetDLLFunc(dll, "Cookie", true);
-			if (pfC() != cCookie) {
-				Log.Error("Invalid DLL version. Please update and rebuild the DLL from SVN");
-			} else {
-				Aligner::CreateAlignment = (pfCreateAlignment) GetDLLFunc(dll, "CreateAlignment", true);
-				Aligner::DeleteAlignment = (pfDeleteAlignment) GetDLLFunc(dll, "DeleteAlignment", false);
-
-				threadcount = Config.GetInt("gpu", 1, cMaxAligner);
-				Log.Message("Alignment Threads: %i", threadcount);
-				int * gpus = new int[threadcount];
-				Config.GetIntArray("gpu", gpus, threadcount);
-
-				for (int i = 0; i < threadcount; ++i) {
-					Log.Green("Using GPU %d for alignment/score computation.", gpus[i]);
-					m_Aligner[i] = new Aligner(gpus[i]);
-				}
-
-				delete[] gpus;
-
-				m_ScoreBatchSize = m_Aligner[0]->Kernel()->GetScoreBatchSize();
-				m_AlignBatchSize = m_Aligner[0]->Kernel()->GetAlignBatchSize();
-			}
-		}
-
-		/*** Load CPU DLL ***/
-		//TODO: detect dlls
-	} else {
-		char const * cpuDlls[2] = { "libMASonOpenClCpu.so", "libMASonSSE.so" };
-		char const * cpuDll = 0;
-		if (!Config.Exists("cpu_dll")) {
-			Log.Message("Detecting alignment dll.");
-			if (CheckDLL(cpuDlls[0])) {
-				cpuDll = cpuDlls[0];
-				Log.Message("Using %s", cpuDll);
-			} else if (CheckDLL(cpuDlls[1])) {
-				cpuDll = cpuDlls[1];
-				Log.Message("Using %s", cpuDll);
-			} else {
-				Log.Error("Error loading CPU DLL. If the MASon libs or not located in standard directories, pleas specifiy mason_path in the config file.");
-				Fatal();
-			}
-		} else {
-			cpuDll = Config.GetString("cpu_dll");
-			Log.Message("CPU dll specified. Using %s", cpuDll);
-		}
-		int const cpu_dll = InitDLL(cpuDll);
-		if (cpu_dll == -1)
-			Log.Error("Error loading CPU DLL");
-		else {
-			pfCookie cpuCookie = (pfCookie) GetDLLFunc(cpu_dll, "Cookie", true);
-			if (cpuCookie() != cCookie) {
-				Log.Error("Invalid CPU DLL version. Please update and rebuild the DLL from SVN");
-			} else {
-				m_CreateCPUAlignment = (pfCreateAlignment) GetDLLFunc(cpu_dll, "CreateAlignment", true);
-				m_DeleteCPUAlignment = (pfDeleteAlignment) GetDLLFunc(cpu_dll, "DeleteAlignment", false);
-				m_CPUEnabled = true;
-
-				if (threadcount == 0) {
-					IAlignment * aligner = GetCPUAligner();
-					m_ScoreBatchSize = aligner->GetScoreBatchSize();
-					m_AlignBatchSize = aligner->GetAlignBatchSize();
-				}
-			}
-		}
+	if (Config.Exists("gpu")) {
+		threadcount = Config.GetInt("gpu", 1, cMaxAligner);
 	}
-	/*********************/
+	Log.Message("Alignment Threads: %i", threadcount);
+	int * gpus = new int[threadcount];
+	if (Config.Exists("gpu")) {
+		Config.GetIntArray("gpu", gpus, threadcount);
+	} else {
+		gpus[0] = 0;
+	}
+
+	for (int i = 0; i < threadcount; ++i) {
+		if (Config.Exists("gpu")) {
+			Log.Green("Using GPU %d for alignment/score computation.", gpus[i]);
+		}
+		m_Aligner[i] = new Aligner(gpus[i]);
+	}
+
+	delete[] gpus;
+
+	m_ScoreBatchSize = m_Aligner[0]->Kernel()->GetScoreBatchSize();
+	m_AlignBatchSize = m_Aligner[0]->Kernel()->GetAlignBatchSize();
 
 	return threadcount;
 }

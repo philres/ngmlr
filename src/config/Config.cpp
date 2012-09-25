@@ -400,10 +400,20 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("qry_count", -1);
 
 	Default("max_equal", 1);
-	Default("score_match", 5);
-	Default("score_mismatch", -2);
-	Default("score_gap_read", -5);
-	Default("score_gap_ref", -5);
+	if (GetInt("bs_mapping") != 1) {
+		Default("score_match", 5);
+		Default("score_mismatch", -2);
+		Default("score_gap_read", -6);
+		Default("score_gap_ref", -6);
+	} else {
+		Log.Message("Using bs-mapping scoring scheme");
+		Default("score_match", 4);
+		Default("score_mismatch", -2);
+		Default("score_gap_read", -10);
+		Default("score_gap_ref", -10);
+	}
+	Default("score_match_tt", 4);
+	Default("score_mismatch_tc", 4);
 
 	//Silent
 	Default("dualstrand", 1);
@@ -416,20 +426,19 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("block_multiplier", 2);
 	Default("step_count", 4);
 
-
 	//Filter
 	Default("min_identity", 0);
 	Default("min_residues", 0);
 
 	//Output Input options
-	Default("parse_all", 0);
+	Default("parse_all", 1);
 	Default("hard_clip", 0);
 	Default("silent_clip", 0);
 
 	initialized = true;
 
-	if(Exists("max_consecutive_indels")) {
-		if(Exists("corridor")) {
+	if (Exists("max_consecutive_indels")) {
+		if (Exists("corridor")) {
 			Log.Warning("Unable to use parameter 'max-consecutive-indels. Please remove the 'corridor' entry from the config file and use 'max-consecutive-indels'.");
 		} else {
 			std::stringstream ss;
@@ -437,7 +446,7 @@ _Config::_Config(int argc, char * argv[]) {
 			InternalAdd("corridor", ss.str(), "", true);
 		}
 	}
-	if(Exists("bam")) {
+	if (Exists("bam")) {
 		Default("format", 2);
 	} else {
 		Default("format", 1);

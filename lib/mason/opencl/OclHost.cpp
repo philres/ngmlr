@@ -1,0 +1,577 @@
+/*
+ * OclHost.cpp
+ *
+ *  Created on: May 25, 2011
+ *      Author: philipp_
+ */
+
+#include "OclHost.h"
+
+#include <string.h>
+#include <pthread.h>
+
+
+
+pthread_mutex_t mutext_next_sub_block;
+
+#undef module_name
+#define module_name "OCLHost"
+
+char clPlatformName[1024];
+
+static clCreateSubDevicesEXT_fn pfn_clCreateSubDevicesEXT = NULL;
+
+cl_context OclHost::oclGpuContext = 0;
+int OclHost::contextUserCount = 0;
+
+enum PLATFORM {
+	NVIDIA = 0, AMD = 1
+};
+
+PLATFORM platform;
+
+OclHost::OclHost() :
+	devType(CL_DEVICE_TYPE_GPU) {
+	OclHost(0, 0, 1);
+
+}
+
+OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
+	devType(device_type), maxGlobalMem(0), maxLocalMem(0) {
+	//	if (!isGPU()) {
+	//			gpu_id = 0;
+	//	}
+
+#ifndef NDEBUG
+	Log.Message("Using device number %d", gpu_id);
+#endif
+	initOpenCL(cpu_cores);
+
+	// create command-queues
+	oclDevice = getDevice(gpu_id);
+
+	char device_string[1024];
+	clGetDeviceInfo(oclDevice, CL_DEVICE_NAME, sizeof(device_string), &device_string, NULL);
+	//	if (isGPU()) {
+	Log.Message("Device %d selected (%s)", gpu_id, device_string);
+	//	} else {
+	//		Log.Message("Device %d selected using %d core(s) (%s)", gpu_id, getDeviceInfoInt(CL_DEVICE_MAX_COMPUTE_UNITS), device_string);
+	//	}
+	//	if (!isGPU()) {
+	//		Log.Message("Using %d cores (%d available)", cpu_cores, getDeviceInfoInt(CL_DEVICE_MAX_COMPUTE_UNITS));
+	//	}
+	//clGetDeviceInfo(oclDevice[1], CL_DEVICE_NAME, sizeof(device_string), &device_string, NULL);
+	//Log.Message("Device %d selected (%s)", 1, device_string);
+
+	// create command queue
+	cl_int ciErrNum;
+#ifndef NDEBUG
+	oclCommandQueue = clCreateCommandQueue(oclGpuContext, oclDevice, 0, &ciErrNum);
+#else
+	oclCommandQueue = clCreateCommandQueue(oclGpuContext, oclDevice, 0, &ciErrNum);
+#endif
+
+}
+
+OclHost::~OclHost() {
+	clReleaseCommandQueue(oclCommandQueue);
+	//clReleaseDeviceEXT(oclDevice);
+
+	if (--contextUserCount == 0) {
+#ifndef NDEBUG
+		Log.Message("Releasing ocl context.");
+#endif
+		clReleaseContext(oclGpuContext);
+		oclGpuContext = 0;
+	}
+
+}
+
+void OclHost::checkClError(char const * msg, cl_int ciErrNum) {
+	if (ciErrNum != CL_SUCCESS) {
+		Log.Error("%s\nError: %s", msg, print_cl_errstring(ciErrNum));
+		throw;
+	}
+}
+
+cl_platform_id getPlatformID(char const * const platformName) {
+	cl_int ciErrNum = 0;
+
+	cl_uint platformNumber = 0;
+	ciErrNum |= clGetPlatformIDs(0, 0, &platformNumber);
+	if (ciErrNum == CL_SUCCESS) {
+
+		//cdDevices = (cl_device_id *) malloc(ciDeviceCount
+		//				* sizeof(cl_device_id));
+		// Get OpenCL platform count
+		cl_platform_id clPlatformID[platformNumber];
+		ciErrNum = clGetPlatformIDs(platformNumber, clPlatformID, 0);
+		Log.Message("Available platforms:");
+		for (size_t i = 0; i < platformNumber; ++i) {
+			ciErrNum = clGetPlatformInfo(clPlatformID[i], CL_PLATFORM_NAME, 1024, &clPlatformName, NULL);
+			Log.Message("%s", clPlatformName);
+			if (ciErrNum == CL_SUCCESS) {
+				if (strcasestr(clPlatformName, platformName) != 0) {
+					Log.Message("Selecting OpenCl platform: %s", clPlatformName);
+					ciErrNum = clGetPlatformInfo(clPlatformID[i], CL_PLATFORM_VERSION, 1024, &clPlatformName, NULL);
+					Log.Message("Version: %s", clPlatformName);
+					return clPlatformID[i];
+				}
+			} else {
+				Log.Error("Couldn't get OpenCl platform name. Error: ", ciErrNum);
+			}
+		}
+	} else {
+		Log.Error("Couldn't get OpenCl platform ids. Error: ", ciErrNum);
+	}
+	return 0;
+}
+
+cl_context OclHost::partitionDevice(cl_uint ciDeviceCount, cl_device_id *cdDevices, cl_int cores) {
+	cl_uint numSubDevices = 0;
+	cl_int ciErrNum = 0;
+	cl_context oclCPUContext = clCreateContext(0, ciDeviceCount, cdDevices, NULL, NULL, &ciErrNum);
+	cl_device_id device = getDevice(oclCPUContext, 0);
+	pfn_clCreateSubDevicesEXT = (clCreateSubDevicesEXT_fn) (clGetExtensionFunctionAddress("clCreateSubDevicesEXT"));
+	cl_device_partition_property_ext partitionPrty[3];
+
+	partitionPrty[0] = CL_DEVICE_PARTITION_EQUALLY_EXT;
+	partitionPrty[1] = cores;
+	partitionPrty[2] = CL_PROPERTIES_LIST_END_EXT;
+
+	pfn_clCreateSubDevicesEXT(device, partitionPrty, 0, NULL, &numSubDevices);
+	cl_device_id *subDevices = (cl_device_id*) (malloc(numSubDevices * sizeof(cl_device_id)));
+	pfn_clCreateSubDevicesEXT(device, partitionPrty, numSubDevices, subDevices, NULL);
+	// Create context for sub-devices
+	cl_context context = clCreateContext(0, numSubDevices, subDevices, NULL, NULL, NULL);
+	//#ifndef NDEBUG
+	Log.Message("Dividing CPU into %d devices.", numSubDevices);
+	//#endif
+	free(subDevices);
+	return context;
+}
+
+cl_platform_id OclHost::getPlatform() {
+	//Get the first platform
+	cl_platform_id cpPlatform;
+	if (isGPU()) {
+		cpPlatform = getPlatformID("NVIDIA");
+		platform = NVIDIA;
+		if (cpPlatform == 0) {
+			Log.Warning("NVIDIA Platform not found. Falling back to AMD.");
+			cpPlatform = getPlatformID("AMD");
+			platform = AMD;
+			if (cpPlatform == 0) {
+				Log.Error("No OpenCl platform found.");
+				exit(1);
+			}
+		}
+	} else {
+		cpPlatform = getPlatformID("AMD");
+		if (cpPlatform == 0) {
+			Log.Warning("AMD Platform not found. Falling back to Intel.");
+			cpPlatform = getPlatformID("Intel");
+			if (cpPlatform == 0) {
+				Log.Error("No OpenCl platform found.");
+				exit(1);
+			}
+		}
+	}
+	return cpPlatform;
+}
+
+void OclHost::initOpenCL(unsigned int cores) {
+	//pthread_mutex_lock(&mutext_next_sub_block);
+
+#pragma omp critical
+	{
+		if (contextUserCount == 0) {
+#ifndef NDEBUG
+			Log.Message("Creating ocl context.");
+#endif
+			cl_uint ciDeviceCount = 0;
+			cl_device_id *cdDevices = NULL;
+			cl_int ciErrNum = CL_SUCCESS;
+			cl_platform_id cpPlatform = NULL;
+
+			cpPlatform = getPlatform();
+			//Get the devices
+
+			ciErrNum = clGetDeviceIDs(cpPlatform, devType, 0, NULL, &ciDeviceCount);
+			checkClError("Couldn't get number of OpenCl devices. Error: ", ciErrNum);
+
+			cdDevices = (cl_device_id *) malloc(ciDeviceCount * sizeof(cl_device_id));
+			ciErrNum = clGetDeviceIDs(cpPlatform, devType, ciDeviceCount, cdDevices, NULL);
+			checkClError("Couldn't get OpenCl device ids. Error: ", ciErrNum);
+			//}
+
+			//Create the context
+			if (isGPU() || cores == 0) {
+				oclGpuContext = clCreateContext(0, ciDeviceCount, cdDevices, NULL, NULL, &ciErrNum);
+			} else {
+				oclGpuContext = partitionDevice(ciDeviceCount, cdDevices, cores);
+			}
+			checkClError("Couldn't create OpenCl context. Error: ", ciErrNum);
+			free(cdDevices);
+		}
+		contextUserCount += 1;
+	}
+	//pthread_mutex_unlock(&mutext_next_sub_block);
+}
+
+cl_device_id OclHost::getDevice(cl_context context, unsigned int gpu_id) {
+	size_t szParmDataBytes;
+	cl_device_id* cdDevices;
+
+	cl_uint deviceNumber = 0;
+	//cl_int clErr = clGetContextInfo(context, CL_CONTEXT_NUM_DEVICES, sizeof(cl_uint), &deviceNumber, NULL);
+	//checkClError("Couldn't get context info.", clErr);
+
+	cl_uint clErr = clGetContextInfo(context, CL_CONTEXT_DEVICES, 0, NULL, &szParmDataBytes);
+	checkClError("Couldn't get context info.", clErr);
+
+	deviceNumber = szParmDataBytes / sizeof(cl_device_id);
+	if (gpu_id >= deviceNumber) {
+		Log.Error("Your Pc is equipped with %i devices. You selected device number: %i", deviceNumber, gpu_id);
+		Log.Error("The device ID that you have chosen does not exists. Exiting.");
+		exit(-1);
+	}
+
+	cdDevices = (cl_device_id*) malloc(szParmDataBytes);
+	clGetContextInfo(context, CL_CONTEXT_DEVICES, szParmDataBytes, cdDevices, NULL);
+	checkClError("Couldn't get context info.", clErr);
+
+	cl_device_id device = cdDevices[gpu_id];
+	free(cdDevices);
+
+	return device;
+}
+
+cl_device_id OclHost::getDevice(unsigned int gpu_id) {
+	return getDevice(oclGpuContext, gpu_id);
+}
+
+bool OclHost::checkGlobalMemory(size_t const size) {
+	return true;
+	return (size < ((maxGlobalMem != 0) ? maxGlobalMem : (maxGlobalMem = getDeviceInfoLong(CL_DEVICE_MAX_MEM_ALLOC_SIZE))));
+}
+
+bool OclHost::checkLocalMemory(size_t const size) {
+	return (size < ((maxLocalMem != 0) ? maxLocalMem : (maxLocalMem = getDeviceInfoLong(CL_DEVICE_LOCAL_MEM_SIZE))));
+}
+
+#include <iostream>
+
+bool OclHost::testAllocate(unsigned long size) {
+	if (platform == AMD) {
+//		std::cout << size << " " << (getDeviceInfoLong(CL_DEVICE_MAX_MEM_ALLOC_SIZE)) << std::endl;
+		return size < (getDeviceInfoLong(CL_DEVICE_MAX_MEM_ALLOC_SIZE));
+	}
+
+	//	std::cout << "GPU mem: " << (getDeviceInfoLong(CL_DEVICE_GLOBAL_MEM_SIZE) / 1024 * 1000) * 0.90 << std::endl;
+	cl_ulong gMem = (getDeviceInfoLong(CL_DEVICE_GLOBAL_MEM_SIZE)) * 0.55;
+	if (size < gMem) {
+		cl_int errCode = 0;
+		//		std::cout << "Allocating " << size << std::endl;
+		//		Log.Message("Testing allocation of %ld bytes.", size);
+		//	char * test = new char[size];
+		//	for(size_t i = 0; i < size; ++i) {
+		//		test[i] = 'x';
+		//	}
+		return true;
+		cl_mem mem = clCreateBuffer(oclGpuContext, 0, size, 0, &errCode);
+		if (mem != 0 && errCode == CL_SUCCESS) {
+			clReleaseMemObject(mem);
+			//		delete[] test;
+			//		test = 0;
+			return true;
+		} else {
+			return false;
+		}
+	}
+	return false;
+}
+
+//TODO: remove
+#include <iostream>
+
+cl_mem OclHost::allocate(cl_mem_flags flags, size_t size, void * ptr) {
+	cl_int errCode = 0;
+	cl_mem mem = 0;
+	if (checkGlobalMemory(size)) {
+#ifndef NDEBUG
+		Log.Message("Allocationg %d bytes on opencl device.", size);
+#endif
+		//std::cout << "TEST: " << size << std::endl;
+		mem = clCreateBuffer(oclGpuContext, flags, size, ptr, &errCode);
+		checkClError("Unable to create buffer.", errCode);
+	} else {
+		Log.Error("Unable to allocate %d byte of global memory. Max allocation size is %d on your device. Please reduce batch size.", size, maxGlobalMem);
+		return 0;
+	}
+	return mem;
+}
+
+void * OclHost::mapBuffer(cl_mem buffer, size_t offset, size_t size) {
+	cl_int errCode = 0;
+	//Log.Verbose("Pinning %d memory.", size);
+	void * ptr = clEnqueueMapBuffer(oclCommandQueue, buffer, CL_TRUE, CL_MAP_WRITE, offset, size, 0, NULL, NULL, &errCode);
+	//clFlush(oclCommandQueue);
+	checkClError("Unable to map buffer.", errCode);
+	return ptr;
+}
+
+cl_kernel OclHost::setupKernel(cl_program program, char const * const kernelName) {
+	// Create Kernel
+	cl_int ciErrNum = 0;
+	cl_kernel kernel = clCreateKernel(program, kernelName, &ciErrNum);
+
+	//size_t test = 0;
+	//clGetKernelWorkGroupInfo(kernel, oclDevice, CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, sizeof(size_t), &test,0);
+	//Log.Message("Kernel workgroup size multiple: %d", test);
+
+	checkClError("Unable to create OpenCl kernel.", ciErrNum);
+	return kernel;
+}
+
+cl_program OclHost::setUpProgram(char const * const oclSwScore, std::string buildOptions) {
+
+	//char const * additional_options_nv = " -cl-nv-verbose -cl-fast-relaxed-math";
+	//char * additional_options = 0;
+
+
+	size_t program_length = strlen(oclSwScore);
+	if (strcasestr(clPlatformName, "NVIDIA") != 0) {
+		buildOptions += " -D __NVIDIA__ -cl-nv-verbose -cl-fast-relaxed-math";
+	}
+	cl_int ciErrNum = 0;
+//		Log.Message("Source: %s\n===========================", oclSwScore);
+	// create the program
+	cl_program cpProgram = clCreateProgramWithSource(oclGpuContext, 1, (const char **) &oclSwScore, &program_length, &ciErrNum);
+	checkClError("Unable to build program.", ciErrNum);
+	if (ciErrNum == CL_SUCCESS) {
+
+		// build the program
+		ciErrNum = clBuildProgram(cpProgram, 0, NULL, buildOptions.c_str(), NULL, NULL);
+
+		//checkClError("Unable to build program.", ciErrNum);
+		//clUnloadCompiler();
+		//#ifndef NDEBUG
+		char cBuildLog[10240];
+
+		clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_OPTIONS, sizeof(cBuildLog), cBuildLog, NULL);
+#ifndef NDEBUG
+		Log.Message("Build options: %s", cBuildLog);
+#endif
+
+		cl_build_status status;
+		clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_STATUS, sizeof(status), &status, NULL);
+
+#ifndef _DEBUG
+		if (status != CL_SUCCESS) {
+#endif
+			Log.Message("Build status: %s", print_cl_errstring(status));
+			clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_LOG, sizeof(cBuildLog), cBuildLog, NULL);
+
+			Log.Message("Build log:");
+
+			char * pBuildLog = strtok(cBuildLog, "\n");
+			while (pBuildLog != NULL) {
+				if (strlen(pBuildLog) > 1) {
+					Log.Message("%s", pBuildLog);
+				}
+				pBuildLog = strtok(NULL, "\n");
+			}
+#ifndef _DEBUG
+		}
+#endif
+
+		checkClError("Unable to build program.", ciErrNum);
+		//#endif
+		return cpProgram;
+	} else {
+		Log.Error("Unable to load OpenCl kernel source. Error: %d", ciErrNum);
+	}
+
+	return 0;
+}
+
+int OclHost::getThreadPerMulti() {
+	if (isGPU()) {
+		cl_uint revision = getDeviceInfoInt(CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV);
+
+		int id = 10 * revision + getDeviceInfoLong(CL_DEVICE_COMPUTE_CAPABILITY_MINOR_NV);
+
+		switch (id) {
+			case 10:
+				return 768;
+			case 11:
+				return 768;
+			case 12:
+				return 1024;
+			case 13:
+				return 1024;
+			case 20:
+				return 1536;
+			case 21:
+				return 1536;
+			default:
+				return 1536;
+		}
+	} else {
+		return 256;
+	}
+
+}
+
+//Maybe somebody could tell me how to use template when exporting a class from a dll. Probably not possible?
+cl_uint OclHost::getDeviceInfoInt(cl_device_info info) {
+	cl_uint value = 0;
+	clGetDeviceInfo(oclDevice, info, sizeof(value), &value, 0);
+	return value;
+}
+
+bool OclHost::isGPU() {
+	return devType == CL_DEVICE_TYPE_GPU;
+}
+
+cl_ulong OclHost::getDeviceInfoLong(cl_device_info info) {
+	cl_ulong value = 0;
+	clGetDeviceInfo(oclDevice, info, sizeof(value), &value, 0);
+	return value;
+}
+
+//cl_mem copytoDevice(size_t const size, cl_mem_flags flags, void * data) {
+//	cl_int ciErrNum;
+//	cl_mem gpu_var = clCreateBuffer(oclGpuContext, flags, size, data, &ciErrNum);
+//	if (ciErrNum != CL_SUCCESS) {
+//		Log.Error("Unable to create buffer on device. Error: %d", ciErrNum);
+//	}
+//	return gpu_var;
+//}
+
+void OclHost::writeToDevice(cl_mem buffer, cl_bool blocking_write, size_t offset, size_t size, const void * ptr) {
+
+	cl_int ciErr = clEnqueueWriteBuffer(oclCommandQueue, buffer, blocking_write, offset, size, ptr, 0, NULL, NULL);
+	clFlush(oclCommandQueue);
+	//ciErr = clEnqueueWriteBuffer(oclCommandQueue[1], buffer, blocking_write, offset, size, ptr, 0, NULL, NULL);
+	checkClError("Unable to write to Device.", ciErr);
+}
+
+void OclHost::readFromDevice(cl_mem buffer, cl_bool blocking_read, size_t offset, size_t size, void * ptr, size_t size_of) {
+	cl_int ciErrNum = clEnqueueReadBuffer(oclCommandQueue, buffer, blocking_read, offset, size * size_of, ptr, 0, 0, 0);
+	clFlush(oclCommandQueue);
+	checkClError("Unable to read from device.", ciErrNum);
+}
+
+void OclHost::executeKernel(cl_kernel kernel, const size_t global_work_size, const size_t local_work_size) {
+	cl_int ciErrNum = clEnqueueNDRangeKernel(oclCommandQueue, kernel, 1, 0, &global_work_size, &local_work_size, 0, 0, 0);
+	clFlush(oclCommandQueue);
+	//ciErrNum = clEnqueueNDRangeKernel(oclCommandQueue[1], kernel, 1, 0, &global_work_size, &local_work_size, 0, 0, 0);
+	checkClError("Unable to execute kernel.", ciErrNum);
+}
+
+void OclHost::waitForDevice() {
+	cl_int ciErr = clFinish(oclCommandQueue);
+	//ciErr = clFinish(oclCommandQueue[1]);
+	checkClError("clFinished failed.", ciErr);
+}
+
+char * OclHost::print_cl_errstring(cl_int err) {
+	switch (err) {
+		case CL_SUCCESS:
+			return strdup("Success!");
+		case CL_DEVICE_NOT_FOUND:
+			return strdup("Device not found.");
+		case CL_DEVICE_NOT_AVAILABLE:
+			return strdup("Device not available");
+		case CL_COMPILER_NOT_AVAILABLE:
+			return strdup("Compiler not available");
+		case CL_MEM_OBJECT_ALLOCATION_FAILURE:
+			return strdup("Memory object allocation failure");
+		case CL_OUT_OF_RESOURCES:
+			return strdup("Out of resources");
+		case CL_OUT_OF_HOST_MEMORY:
+			return strdup("Out of host memory");
+		case CL_PROFILING_INFO_NOT_AVAILABLE:
+			return strdup("Profiling information not available");
+		case CL_MEM_COPY_OVERLAP:
+			return strdup("Memory copy overlap");
+		case CL_IMAGE_FORMAT_MISMATCH:
+			return strdup("Image format mismatch");
+		case CL_IMAGE_FORMAT_NOT_SUPPORTED:
+			return strdup("Image format not supported");
+		case CL_BUILD_PROGRAM_FAILURE:
+			return strdup("Program build failure");
+		case CL_MAP_FAILURE:
+			return strdup("Map failure");
+		case CL_INVALID_VALUE:
+			return strdup("Invalid value");
+		case CL_INVALID_DEVICE_TYPE:
+			return strdup("Invalid device type");
+		case CL_INVALID_PLATFORM:
+			return strdup("Invalid platform");
+		case CL_INVALID_DEVICE:
+			return strdup("Invalid device");
+		case CL_INVALID_CONTEXT:
+			return strdup("Invalid context");
+		case CL_INVALID_QUEUE_PROPERTIES:
+			return strdup("Invalid queue properties");
+		case CL_INVALID_COMMAND_QUEUE:
+			return strdup("Invalid command queue");
+		case CL_INVALID_HOST_PTR:
+			return strdup("Invalid host pointer");
+		case CL_INVALID_MEM_OBJECT:
+			return strdup("Invalid memory object");
+		case CL_INVALID_IMAGE_FORMAT_DESCRIPTOR:
+			return strdup("Invalid image format descriptor");
+		case CL_INVALID_IMAGE_SIZE:
+			return strdup("Invalid image size");
+		case CL_INVALID_SAMPLER:
+			return strdup("Invalid sampler");
+		case CL_INVALID_BINARY:
+			return strdup("Invalid binary");
+		case CL_INVALID_BUILD_OPTIONS:
+			return strdup("Invalid build options");
+		case CL_INVALID_PROGRAM:
+			return strdup("Invalid program");
+		case CL_INVALID_PROGRAM_EXECUTABLE:
+			return strdup("Invalid program executable");
+		case CL_INVALID_KERNEL_NAME:
+			return strdup("Invalid kernel name");
+		case CL_INVALID_KERNEL_DEFINITION:
+			return strdup("Invalid kernel definition");
+		case CL_INVALID_KERNEL:
+			return strdup("Invalid kernel");
+		case CL_INVALID_ARG_INDEX:
+			return strdup("Invalid argument index");
+		case CL_INVALID_ARG_VALUE:
+			return strdup("Invalid argument value");
+		case CL_INVALID_ARG_SIZE:
+			return strdup("Invalid argument size");
+		case CL_INVALID_KERNEL_ARGS:
+			return strdup("Invalid kernel arguments");
+		case CL_INVALID_WORK_DIMENSION:
+			return strdup("Invalid work dimension");
+		case CL_INVALID_WORK_GROUP_SIZE:
+			return strdup("Invalid work group size");
+		case CL_INVALID_WORK_ITEM_SIZE:
+			return strdup("Invalid work item size");
+		case CL_INVALID_GLOBAL_OFFSET:
+			return strdup("Invalid global offset");
+		case CL_INVALID_EVENT_WAIT_LIST:
+			return strdup("Invalid event wait list");
+		case CL_INVALID_EVENT:
+			return strdup("Invalid event");
+		case CL_INVALID_OPERATION:
+			return strdup("Invalid operation");
+		case CL_INVALID_GL_OBJECT:
+			return strdup("Invalid OpenGL object");
+		case CL_INVALID_BUFFER_SIZE:
+			return strdup("Invalid buffer size");
+		case CL_INVALID_MIP_LEVEL:
+			return strdup("Invalid mip-map level");
+		default:
+			return strdup("Unknown");
+	}
+}
