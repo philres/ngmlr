@@ -176,7 +176,7 @@ uint ReadProvider::init(char const * fileName) {
 		size_t sumLen = 0;
 
 		bool finish = false;
-		while ((l = parser->parseRead(seq)) >= 0 && !finish) {
+		while ((l = parser->parseRead(seq)) > 0 && !finish) {
 			maxLen = std::max(maxLen, seq->seq.l);
 			minLen = std::min(minLen, seq->seq.l);
 			sumLen += seq->seq.l;
