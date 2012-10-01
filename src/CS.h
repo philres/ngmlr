@@ -90,12 +90,14 @@ protected:
 	}
 
 	inline uint GetBin(uint pos) {
-		static int shift = calc_binshift(Config.GetInt("corridor"));
+		//static int shift = calc_binshift(Config.GetInt("corridor"));
+		static int shift = calc_binshift(12);
 		return pos >> shift;
 	}
 
 	inline uint ResolveBin(uint bin) {
-		static int shift = calc_binshift(Config.GetInt("corridor"));
+//		static int shift = calc_binshift(Config.GetInt("corridor"));
+		static int shift = calc_binshift(12);
 		static uint offset = (shift > 0) ? 1 << (shift - 1) : 0;
 		return (bin << shift) + offset;
 	}

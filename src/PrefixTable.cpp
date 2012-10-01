@@ -194,7 +194,7 @@ static inline int calc_binshift(int corridor) {
 }
 
 inline int GetBin(uint pos) {
-	static int shift = calc_binshift(10);
+	static int shift = calc_binshift(12);
 	return pos >> shift;
 }
 
