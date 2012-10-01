@@ -82,12 +82,14 @@ __kernel void oclSW_Score(__global char const * scaff, __global char const * rea
 				int pointer = CIGAR_X;
 
 #ifndef __BS__
-				if (read_char_cache == scaff[ref_index * interleave_number]) {					
-					diag_cell += match;//typedef struct {					
-					pointer = CIGAR_EQ;
-				} else if (read_char_cache != 'N' && read_char_cache != line_end) {
-					diag_cell += mismatch;
-				}
+				//if (read_char_cache == scaff[ref_index * interleave_number]) {					
+				//	diag_cell += match;//typedef struct {					
+				//	pointer = CIGAR_EQ;
+				//} else if (read_char_cache != 'N' && read_char_cache != line_end) {
+				//	diag_cell += mismatch;
+				//}
+				diag_cell += scores[trans[read_char_cache]][trans[scaff[ref_index * interleave_number]]];
+				pointer = select(CIGAR_X, CIGAR_EQ, (read_char_cache == scaff[ref_index * interleave_number]));
 #else
 				short score = 0;
 				if(direction[global_index] == 0) {
@@ -205,11 +207,12 @@ __kernel void oclSW_Score(__global char const * scaff, __global char const * rea
 					short diag_cell = matrix_lines[ref_index * threads_per_block];
 
 #ifndef __BS__
-					int eq = (read_char_cache == scaff[ref_index * interleave_number]) && read_char_cache != line_end;
-					diag_cell += select(mismatch, match, eq);
-					if (!eq && (read_char_cache == 'N' || read_char_cache == line_end)) {
-						diag_cell -= mismatch;
-					}
+					//int eq = (read_char_cache == scaff[ref_index * interleave_number]) && read_char_cache != line_end;
+					//diag_cell += select(mismatch, match, eq);
+					//if (!eq && (read_char_cache == 'N' || read_char_cache == line_end)) {
+					//	diag_cell -= mismatch;
+					//}
+					diag_cell += scores[trans[read_char_cache]][trans[scaff[ref_index * interleave_number]]];
 #else
 					if(direction[global_index] == 0) {
 						diag_cell += scoresTC[trans[read_char_cache]][trans[scaff[ref_index * interleave_number]]];
