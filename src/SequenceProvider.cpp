@@ -126,8 +126,29 @@ static inline char dec4High(unsigned char c) {
 }
 
 static inline char dec4Low(unsigned char c) {
-	return dec4(c & 0xF);}
+	return dec4(c & 0xF);
+}
 
+SequenceLocation _SequenceProvider::convert(MappedRead * read, uint m_Location) {
+	SequenceLocation loc;
+	int refCount = SequenceProvider.GetRefCount();
+
+	int j = 0;
+	while (j < refCount && m_Location >= SequenceProvider.GetRefStart(j)) {
+		j += (NGM.DualStrand()) ? 2 : 1;
+	}
+	if (j == 0) {
+		Log.Message("%s (%d) - %s: %s, %s", read->name, read->ReadId, read->Seq, read->Buffer1, read->Buffer2);
+		Log.Error("Couldn't resolve mapping position: %u!", m_Location);
+		Fatal();
+	}
+	j -= (NGM.DualStrand()) ? 2 : 1;
+
+	loc.m_Location = m_Location - SequenceProvider.GetRefStart(j);
+	loc.m_RefId = j;
+
+	return loc;
+}
 
 int _SequenceProvider::readEncRefFromFile(char const * fileName) {
 	Log.Message("Reading encoded reference from %s", fileName);
@@ -151,7 +172,6 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName) {
 		Log.Error("Please delete it and run NGM again.");
 		Fatal();
 	}
-
 
 	binRefIdx = new RefIdx[refCount];
 	fread(binRefIdx, sizeof(RefIdx), refCount, fp);
@@ -224,7 +244,7 @@ void _SequenceProvider::Init() {
 
 		long size = getSize(Config.GetString("ref"));
 		Log.Message("Size of reference genome %ld (%ld)", size, UINT_MAX);
-		if(size > UINT_MAX) {
+		if (size > UINT_MAX) {
 			Log.Error("Reference genome too long! NGM can't handle genomes larger than %ld bytes.", UINT_MAX);
 			Fatal();
 		}
@@ -246,7 +266,7 @@ void _SequenceProvider::Init() {
 		char const spacer = '#';
 
 		//Padding to avoid negative mapping positions
-		for(int i = 0; i < 500; ++i) {
+		for (int i = 0; i < 500; ++i) {
 			char c = enc4(spacer) << 4;
 			c |= enc4(spacer);
 			binRef[binRefIndex++] = c;
@@ -273,7 +293,7 @@ void _SequenceProvider::Init() {
 				binRef[binRefIndex++] = c;
 			}
 
-			for(int i = 0; i < 500; ++i) {
+			for (int i = 0; i < 500; ++i) {
 				//N
 				char c = enc4(spacer) << 4;
 				c |= enc4(spacer);
@@ -302,7 +322,7 @@ void _SequenceProvider::Init() {
 				Fatal();
 			}
 		}
-		writeEncRefToFile(refFileName.c_str(), (uint)refCount, binRefSize);
+		writeEncRefToFile(refFileName.c_str(), (uint) refCount, binRefSize);
 	}
 
 	if (NGM.DualStrand())
@@ -318,8 +338,7 @@ void _SequenceProvider::Init() {
 
 }
 
-void _SequenceProvider::DecodeRefSequence(char * const buffer, int n,
-		uint offset, uint bufferLength) {
+void _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offset, uint bufferLength) {
 	uint len = bufferLength - 2;
 	if (NGM.DualStrand()) {
 		n >>= 1;
@@ -337,7 +356,7 @@ void _SequenceProvider::DecodeRefSequence(char * const buffer, int n,
 //		offset = 0;
 //	}
 	uint end = 0;
-	if((offset + len) > GetConcatRefLen()) {
+	if ((offset + len) > GetConcatRefLen()) {
 		end = (offset + len) - GetConcatRefLen();
 		len -= end;
 	}
@@ -370,7 +389,11 @@ void _SequenceProvider::DecodeRefSequence(char * const buffer, int n,
 	if (codedIndex > bufferLength) {
 		Log.Error("nCount: %d, offset: %d, len: %d (%d), seqlen: %d, end: %d, start: %d, index: %d", 0, offset, bufferLength, (int)ceil(len / 2.0), binRefIdx[n].SeqLen, end, start, codedIndex);
 		Log.Error("%.*s", bufferLength, buffer);
-		throw "too long";
+		Fatal();
+	}
+
+	for(int i = codedIndex; i < bufferLength; ++i) {
+		buffer[i] = '\0';
 	}
 }
 

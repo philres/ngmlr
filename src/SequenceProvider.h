@@ -7,6 +7,9 @@
 #include "Types.h"
 #include "NGMThreads.h"
 
+#include "SequenceLocation.h"
+#include "MappedRead.h"
+
 /*
  *  SequenceProvider: Schnittstelle zu den Sequenz-Daten
  */
@@ -26,6 +29,8 @@ public:
 
 	virtual void PagingUpdate();
 	static const int maxRefNameLength = 100;
+
+	SequenceLocation convert(MappedRead * read, uint m_Location);
 
 private:
 
