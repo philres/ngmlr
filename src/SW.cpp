@@ -81,10 +81,6 @@ void SW::DoRun() {
 
 					m_ScoreBuffer[i] = -1;
 
-//					Log.Message("%u %u %u %u", loc.m_Location, corridor, (corridor >> 1), loc.m_Location - (corridor >> 1));
-//					Log.Message("Strand: %c", cur_read->Strand);
-//					Log.Message("Ref:  %.*s", refMaxLen, m_RefBuffer[i]);
-//					Log.Message("Read: %s", m_QryBuffer[i]);
 				}
 //				Log.Message("SW Thread %i launching batch (size=%i)", m_TID, count);
 				Timer tmr;
@@ -101,6 +97,19 @@ void SW::DoRun() {
 				brokenPairs = 0;
 				for (int i = 0; i < count; ++i) {
 					scores[i]->Score.f = m_ScoreBuffer[i];
+
+#ifdef _DEBUGCS
+					MappedRead * cur_read = scores[i]->Read;
+					SequenceLocation loc = scores[i]->Location;
+					SequenceLocation rloc = SequenceProvider.convert(cur_read, loc.m_Location);
+					int refNameLength = 0;
+					Log.Message("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", cur_read->name, loc.m_Location, rloc.m_Location, SequenceProvider.GetRefName(rloc.m_RefId, refNameLength), m_ScoreBuffer[i]);
+					//Log.Message("%u %u %u %u", loc.m_Location, corridor, (corridor >> 1), loc.m_Location - (corridor >> 1));
+					Log.Message("Strand: %c", (loc.m_RefId & 1) ? '-' : '+');
+					Log.Message("Ref:  %.*s", refMaxLen, m_RefBuffer[i]);
+					Log.Message("Read: %s", m_QryBuffer[i]);
+#endif
+
 					if (AtomicInc(&(scores[i]->Read->Calculated)) == scores[i]->Read->numScores()) {
 						SendToPostprocessing(scores[i]->Read);
 					}
