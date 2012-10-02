@@ -161,57 +161,57 @@ void CloseMapping(int const mapping) {
 	Log.Verbose("Mapping %i closed", mapping);
 }
 
-bool CheckDLL(char const * const filename) {
-	Log.Verbose("Checking dll: %s", filename);
-	return dlopen(filename, RTLD_LAZY) != 0;
-}
+//bool CheckDLL(char const * const filename) {
+//	Log.Verbose("Checking dll: %s", filename);
+//	return dlopen(filename, RTLD_LAZY) != 0;
+//}
+//
+//int const InitDLL(char const * const filename) {
+//	try {
+//		void * sdll = dlopen(filename, RTLD_LAZY);
+//
+//		if (!sdll) {
+//			Log.Error("Cannot open library: %s", dlerror());
+//			return -1;
+//		}
+//
+//		int pos = loadedDLLs().size();
+//		loadedDLLs()[pos] = sdll;
+//		pfSetLog SetLog = (pfSetLog) GetDLLFunc(pos, "SetLog");
+//		if (SetLog != 0) {
+//			SetLog(&Log);
+//		}
+//#ifdef _DEBUG
+//		else
+//		Log.Warning("No SetLog method exported from %s", filename);
+//#endif
+//
+//		pfSetConfig SetConfig = (pfSetConfig) GetDLLFunc(pos, "SetConfig");
+//		if (SetConfig != 0) {
+//			SetConfig(&Config);
+//		}
+//#ifdef _DEBUG
+//		else
+//		Log.Warning("No SetConfig method exported from %s", filename);
+//#endif
+//
+//		return pos;
+//	} catch (int err) {
+//		Log.Error("Unable to load DLL %s (Error %i)", filename, err);
+//	}
+//	return -1;
+//}
 
-int const InitDLL(char const * const filename) {
-	try {
-		void * sdll = dlopen(filename, RTLD_LAZY);
-
-		if (!sdll) {
-			Log.Error("Cannot open library: %s", dlerror());
-			return -1;
-		}
-
-		int pos = loadedDLLs().size();
-		loadedDLLs()[pos] = sdll;
-		pfSetLog SetLog = (pfSetLog) GetDLLFunc(pos, "SetLog");
-		if (SetLog != 0) {
-			SetLog(&Log);
-		}
-#ifdef _DEBUG
-		else
-		Log.Warning("No SetLog method exported from %s", filename);
-#endif
-
-		pfSetConfig SetConfig = (pfSetConfig) GetDLLFunc(pos, "SetConfig");
-		if (SetConfig != 0) {
-			SetConfig(&Config);
-		}
-#ifdef _DEBUG
-		else
-		Log.Warning("No SetConfig method exported from %s", filename);
-#endif
-
-		return pos;
-	} catch (int err) {
-		Log.Error("Unable to load DLL %s (Error %i)", filename, err);
-	}
-	return -1;
-}
-
-void * GetDLLFunc(int const dll, char const * const name, bool required) {
-	void * sdll = loadedDLLs()[dll];
-	void * pf = dlsym(sdll, name);
-	if (required && (pf == 0))
-	{
-		Log.Error("Unable to load function %s", name);
-		Fatal();
-	}
-	return pf;
-}
+//void * GetDLLFunc(int const dll, char const * const name, bool required) {
+//	void * sdll = loadedDLLs()[dll];
+//	void * pf = dlsym(sdll, name);
+//	if (required && (pf == 0))
+//	{
+//		Log.Error("Unable to load function %s", name);
+//		Fatal();
+//	}
+//	return pf;
+//}
 
 struct termios alt;
 

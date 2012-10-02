@@ -39,9 +39,9 @@ void Remap(int const mapping, char const * & pData);
 void CloseMapping(int const mapping);
 ulong GetMapLength(int const map);
 
-bool CheckDLL(char const * const filename);
-int const InitDLL(char const * const filename);
-void * GetDLLFunc(int const dll, char const * const name, bool required = true);
+//bool CheckDLL(char const * const filename);
+//int const InitDLL(char const * const filename);
+//void * GetDLLFunc(int const dll, char const * const name, bool required = true);
 
 #ifndef _WIN32
 int _kbhit(void);
