@@ -42,7 +42,8 @@ add_executable(NGM 	AlignmentDispatcher.cpp
 
 	#STATIC
     #set(CMAKE_EXE_LINKER_FLAGS -static) 
-    #set(CMAKE_EXE_LINKER_FLAGS " -static -static-libgcc -static-libstdc++")
+    
+    set(CMAKE_EXE_LINKER_FLAGS " -static-libgcc -static-libstdc++")
     #set(CMAKE_FIND_LIBRARY_SUFFIXES .a) 
     #set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)       # remove -Wl,-Bdynamic 
     #set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS) 
@@ -57,7 +58,7 @@ add_executable(NGM 	AlignmentDispatcher.cpp
 	#target_link_libraries(NGM /software/ngm/src/bamtools/lib/libbamtools.a)
 
 target_link_libraries(NGM z)					
-target_link_libraries(NGM dl)
+#target_link_libraries(NGM dl)
 target_link_libraries(NGM pthread)
 target_link_libraries(NGM MASonOpenCl)	
 

@@ -8,7 +8,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 #add_definitions(-D _DEBUGCS)
 
 SET (CMAKE_CXX_FLAGS " -g -Wall")
-SET (CMAKE_CXX_FLAGS_DEBUG "-D _DEBUG -g3 -Wall")
+SET (CMAKE_CXX_FLAGS_DEBUG "-g3 -Wall")
 
 #include(FindOpenMP)
 FIND_PACKAGE(OpenMP REQUIRED)
