@@ -4,13 +4,14 @@ Required software:
 cmake
 zlib (Ubuntu: zlib1g-dev)
 cudatoolkit
+For BAM support Bamtools (http://sourceforge.net/projects/bamtools/) is required
 
 
 1) Build MASon:
 
-wget http://www.cibiv.at/software/ngm/mason/download/mason-src-08_17_2012.tar.gz
-tar xfvz mason-src-08_17_2012.tar.gz
-cd mason-trunk
+wget https://github.com/Cibiv/MASon/tarball/master -O MASon.tar.gz
+tar xfvz MASon.tar.gz
+cd Cibiv-MASon*
 mkdir -p build/release
 cd build/release/
 cmake -DCMAKE_BUILD_TYPE=Release ../..
@@ -26,9 +27,9 @@ After building you find the compiled libraries in the "mason-trunk/bin" folder.
 
 2) Build NGM:
 
-wget http://www.cibiv.at/software/ngm/NGM/download/ngm-src-08_17_2012.tar.gz
-tar xvfz ngm-src-08_17_2012.tar.gz
-cd ngm-trunk
+wget https://github.com/Cibiv/NextGenMap/tarball/master -O NGM.tar.gz
+tar xvfz NGM.tar.gz
+cd Cibiv-NextGenMap*
 mkdir -p build/release
 cd build/release/
 cmake -DCMAKE_BUILD_TYPE=Release ../..
