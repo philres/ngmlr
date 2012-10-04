@@ -12,7 +12,7 @@ include_directories (log)
 include_directories (config)
 include_directories (.)
 
-add_executable(NGM 	AlignmentDispatcher.cpp
+add_executable(ngm 	AlignmentDispatcher.cpp
 					parser/BamParser.cpp
 					writer/BAMWriter.cpp					
 					core/Buffer.cpp										
@@ -54,19 +54,19 @@ add_executable(NGM 	AlignmentDispatcher.cpp
      
     # Maybe this works as well, haven't tried yet. 
 	#set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS FALSE) 
-	#target_link_libraries(NGM /scratch/philipp/src/zlib-1.2.7/zlib/lib/libz.a)
-	#target_link_libraries(NGM /software/ngm/src/bamtools/lib/libbamtools.a)
+	#target_link_libraries(ngm /scratch/philipp/src/zlib-1.2.7/zlib/lib/libz.a)
+	#target_link_libraries(ngm /software/ngm/src/bamtools/lib/libbamtools.a)
 
-target_link_libraries(NGM z)					
-#target_link_libraries(NGM dl)
-target_link_libraries(NGM pthread)
-target_link_libraries(NGM MASonOpenCl)	
+target_link_libraries(ngm z)					
+#target_link_libraries(ngm dl)
+target_link_libraries(ngm pthread)
+target_link_libraries(ngm MASonOpenCl)	
 
 if( ${BAMTOOLS_FOUND} )		
 	ADD_LIBRARY(bamtools STATIC IMPORTED)
 	SET_TARGET_PROPERTIES(bamtools PROPERTIES IMPORTED_LOCATION ${BAMTOOLS_LIBRARY})
 	include_directories(${BAMTOOLS_INCLUDE_DIRS})
-	TARGET_LINK_LIBRARIES(NGM bamtools)
+	TARGET_LINK_LIBRARIES(ngm bamtools)
 	
 	add_definitions(-D _BAM) 
 endif()
@@ -74,7 +74,7 @@ endif()
 #find_library(HOARD hoard)
 #if(HOARD) 
 #	message(" --Found libhoard: ${HOARD}")	
-#	target_link_libraries(NGM ${HOARD})
+#	target_link_libraries(ngm ${HOARD})
 #else()
 #	message(" --Libhoard not found!")	
 #endif()		

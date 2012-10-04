@@ -1,31 +1,15 @@
 ****Build NGM:****
 
 Required software:
+build-essentials (gcc, …)
 cmake
 zlib (Ubuntu: zlib1g-dev)
-cudatoolkit
+AMD-APP SDK (required for mapping on the CPU or on ATI GPUs)
+cudatoolkit (required for mapping on Nvidia GPUs)
 For BAM support Bamtools (http://sourceforge.net/projects/bamtools/) is required
 
 
-1) Build MASon:
-
-wget https://github.com/Cibiv/MASon/tarball/master -O MASon.tar.gz
-tar xfvz MASon.tar.gz
-cd Cibiv-MASon*
-mkdir -p build/release
-cd build/release/
-cmake -DCMAKE_BUILD_TYPE=Release ../..
-make
-make install (root required)
-
-If you don't have root permissions, please add the path to the MASon libs to yout LD_LIBRARY_PATH:
-
-export LD_LIBRARY_PATH=<mason path>
-
-After building you find the compiled libraries in the "mason-trunk/bin" folder.
-
-
-2) Build NGM:
+Build NGM:
 
 wget https://github.com/Cibiv/NextGenMap/tarball/master -O NGM.tar.gz
 tar xvfz NGM.tar.gz
