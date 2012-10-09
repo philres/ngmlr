@@ -49,7 +49,7 @@ bool cDebug = true;
 ILog const *  _log = 0;
 IConfig * _config = 0;
 
-char const * const version = "0.4.0";
+char const * const version = "0.4.1";
 
 int main(int argc, char * argv[]) {
 
