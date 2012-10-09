@@ -392,7 +392,8 @@ void _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offse
 		Fatal();
 	}
 
-	for(int i = codedIndex; i < bufferLength; ++i) {
+
+	for(uint i = codedIndex; i < bufferLength; ++i) {
 		buffer[i] = '\0';
 	}
 }
