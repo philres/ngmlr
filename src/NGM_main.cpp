@@ -37,6 +37,13 @@ bool CheckOutput() {
 		Help();
 		return false;
 	}
+	if (Config.Exists("qry")) {
+		if (!FileExists(Config.GetString("qry"))) {
+			Log.Error("Query file (%s) does not exist.", Config.GetString("qry"));
+			Help();
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -46,7 +53,7 @@ bool cDebug = false;
 bool cDebug = true;
 #endif
 
-ILog const *  _log = 0;
+ILog const * _log = 0;
 IConfig * _config = 0;
 
 char const * const version = "0.4.2";
@@ -116,16 +123,15 @@ int main(int argc, char * argv[]) {
 	if (Config.Exists("master_cpu"))
 		NGMSetThreadAffinity(0, Config.GetInt("master_cpu"));
 
-	if (CheckOutput()) {
+	if (!Config.Exists("qry") || CheckOutput()) {
 		NGM; // Init Core
 
 		NGM.InitProviders();
 
-		Log.Message("Core initialization complete");
-
 		if (!Config.Exists("qry")) {
-			Log.Message("No qry file specified. Exiting.");
+			Log.Message("Finished building hash table. No qry file specified. Exiting.");
 		} else {
+			Log.Message("Core initialization complete");
 			NGM.StartThreads();
 
 			NGM.MainLoop();
@@ -137,7 +143,7 @@ int main(int argc, char * argv[]) {
 			Log.Message("LocationScore count = %i", LocationScore::sInstanceCount);
 #endif
 			int discarded = NGM.GetReadReadCount() - NGM.GetWrittenReadCount();
-			if(discarded != 0) {
+			if (discarded != 0) {
 				Log.Warning("Reads discarded: %d", discarded);
 			}
 
