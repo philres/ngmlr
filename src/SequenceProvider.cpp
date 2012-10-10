@@ -233,7 +233,7 @@ void _SequenceProvider::Init() {
 
 	CheckFile(refBaseFileName = Config.GetString("ref"), "RefBase");
 
-	refFileName = Config.GetString("ref") + std::string(".enc");
+	refFileName = Config.GetString("ref") + std::string("-enc.ngm");
 
 	if (FileExists(refFileName.c_str())) {
 		//Read

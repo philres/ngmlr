@@ -77,35 +77,56 @@ int * CompactPrefixTable::CountKmerFreq(uint length) {
 	int * freq = new int[length];
 	memset(freq, 0, length);
 
-	//for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
-	int i = 0;
-	lastPrefix = 111111;
-	lastBin = -1;
-	m_CurGenSeq = i;
+	for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
+		lastPrefix = 111111;
+		lastBin = -1;
+		m_CurGenSeq = i;
 
-	if (!NGM.DualStrand() || !(m_CurGenSeq % 2)) {
+		if (!NGM.DualStrand() || !(m_CurGenSeq % 2)) {
 
-		int refCount = SequenceProvider.GetRefCount();
-
-		for (int i = 0; i < refCount; ++i) {
-			uint offset = SequenceProvider.GetRefStart(i);
-
-			uint offset = 0;
-			uint len = SequenceProvider.GetConcatRefLen();
+			uint offset = SequenceProvider.GetRefStart(m_CurGenSeq);
+			uint len = SequenceProvider.GetRefLen(m_CurGenSeq);
 			char * seq = new char[len + 2];
-			SequenceProvider.DecodeRefSequence(seq, m_CurGenSeq, 0, len);
+			SequenceProvider.DecodeRefSequence(seq, m_CurGenSeq, offset, len);
 
 			CS::PrefixIteration(seq, len, &CompactPrefixTable::CountKmer, 0, 0, freq, m_RefSkip, offset);
 			delete[] seq;
 			seq = 0;
 		}
-		//int j = 0;
-		//while (j < refCount && m_Location >= SequenceProvider.GetRefStart(j)) {
-		//	j += (NGM.DualStrand()) ? 2 : 1;
-		//}
 	}
-	//}
 	return freq;
+}
+
+void CompactPrefixTable::Generate() {
+
+	int i = 0;
+	for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
+		lastPrefix = 111111;
+		lastBin = -1;
+
+		m_CurGenSeq = i;
+
+		if (!NGM.DualStrand() || !(m_CurGenSeq % 2)) {
+			Timer t;
+			t.ST();
+
+			uint offset = SequenceProvider.GetRefStart(m_CurGenSeq);
+			uint len = SequenceProvider.GetRefLen(m_CurGenSeq);
+			char * seq = new char[len + 2];
+			SequenceProvider.DecodeRefSequence(seq, m_CurGenSeq, offset, len);
+
+			CS::PrefixIteration(seq, len, &CompactPrefixTable::BuildPrefixTable, 0, 0, this, m_RefSkip, offset);
+			Log.Verbose("Create table for chr %d. Start: %d, Length: %u (%.2fs)", m_CurGenSeq, 0, len, t.ET());
+			delete[] seq;
+			seq = 0;
+		}
+	}
+
+	if (skipBuild == skipCount) {
+		Log.Message("Number of repetitive k-mers ignorde: %d", skipBuild);
+	} else {
+		Log.Error("SkipBuild (%d) != SkipCount (%d)", skipCount, skipBuild);
+	}
 }
 
 uint CompactPrefixTable::createRefTableIndex(uint const length) {
@@ -179,7 +200,7 @@ CompactPrefixTable::CompactPrefixTable() :
 	uint indexLength = (int) pow(4.0, (double) m_PrefixLength);
 
 	std::stringstream refFileName;
-	refFileName << std::string(Config.GetString("ref")) << "_" << m_PrefixLength << "_" << m_RefSkip << ".ht";
+	refFileName << std::string(Config.GetString("ref")) << "-ht-" << m_PrefixLength << "-" << m_RefSkip << ".ngm";
 
 	//if (Config.Exists("cache")) {
 	char * cacheFile = new char[refFileName.str().size() + 1];
@@ -256,40 +277,6 @@ CompactPrefixTable::~CompactPrefixTable() {
 }
 
 extern int lastSeqTotal;
-
-//#include "Partition.h"
-
-void CompactPrefixTable::Generate() {
-
-	int i = 0;
-//	for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
-	lastPrefix = 111111;
-	lastBin = -1;
-
-	m_CurGenSeq = i;
-
-	if (!NGM.DualStrand() || !(m_CurGenSeq % 2)) {
-		Timer t;
-		t.ST();
-
-		uint offset = 0;
-		uint len = SequenceProvider.GetConcatRefLen();
-		char * seq = new char[len + 2];
-		SequenceProvider.DecodeRefSequence(seq, m_CurGenSeq, 0, len);
-
-		CS::PrefixIteration(seq, len, &CompactPrefixTable::BuildPrefixTable, 0, 0, this, m_RefSkip, offset);
-		Log.Verbose("Create table for chr %d. Start: %d, Length: %u (%.2fs)", m_CurGenSeq, 0, len, t.ET());
-		delete[] seq;
-		seq = 0;
-	}
-	//}
-
-	if (skipBuild == skipCount) {
-		Log.Message("Number of repetitive k-mers ignorde: %d", skipBuild);
-	} else {
-		Log.Error("SkipBuild (%d) != SkipCount (%d)", skipCount, skipBuild);
-	}
-}
 
 void CompactPrefixTable::CountKmer(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	int * freq = (int *) data;
