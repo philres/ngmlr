@@ -71,47 +71,47 @@ int main(int argc, char * argv[]) {
 	_log = &Log;
 	_Log::Init(); // Inits logging to file
 
-	//Restart NGM and set proper environment variables
-	if (Config.Exists("mason_path") && !Config.Exists("skip_env")) {
-		char * newArgv[argc + 3];
-		for (int i = 0; i < argc; ++i) {
-			newArgv[i] = argv[i];
-		}
-		newArgv[argc] = "--skip-env";
-		newArgv[argc + 1] = "1";
-		newArgv[argc + 2] = (char *) 0;
-
-		int const length = 3;
-		char * envParms[length] = { NULL, NULL };
-
-		envParms[0] = new char[10000];
-		envParms[1] = new char[10000];
-		int index = 0;
-
-		index += sprintf(envParms[0], "LD_LIBRARY_PATH=");
-		if (Config.Exists("mason_path")) {
-			index += sprintf(envParms[0] + index, "%s", Config.GetString("mason_path"));
-		}
-		if (Config.Exists("lib_path")) {
-			index += sprintf(envParms[0] + index, ":%s", Config.GetString("lib_path"));
-		}
-		if (Config.Exists("vendor_path")) {
-			sprintf(envParms[1], "OPENCL_VENDOR_PATH=%s", Config.GetString("vendor_path"));
-			envParms[2] = NULL;
-		} else {
-			envParms[1] = NULL;
-		}
-
-//			for (int i = 0; i < length; ++i) {
-//				Log.Message("ENV: %s", envParms[i]);
-//			}
-		//BrInitError error;
-		//br_init(&error);
-		//Log.Message("Restarting with environment variables (%s).", br_find_exe(argv[0]));
-		Log.Message("Restarting with environment variables (%s).", argv[0]);
-		int ret = execve(newArgv[0], newArgv, envParms);
-		Log.Error("Couldn't restart NGM. Make sure that all environment variables are set correctly (%d).", ret);
-	}
+//	//Restart NGM and set proper environment variables
+//	if (Config.Exists("mason_path") && !Config.Exists("skip_env")) {
+//		char * newArgv[argc + 3];
+//		for (int i = 0; i < argc; ++i) {
+//			newArgv[i] = argv[i];
+//		}
+//		newArgv[argc] = "--skip-env";
+//		newArgv[argc + 1] = "1";
+//		newArgv[argc + 2] = (char *) 0;
+//
+//		int const length = 3;
+//		char * envParms[length] = { NULL, NULL };
+//
+//		envParms[0] = new char[10000];
+//		envParms[1] = new char[10000];
+//		int index = 0;
+//
+//		index += sprintf(envParms[0], "LD_LIBRARY_PATH=");
+//		if (Config.Exists("mason_path")) {
+//			index += sprintf(envParms[0] + index, "%s", Config.GetString("mason_path"));
+//		}
+//		if (Config.Exists("lib_path")) {
+//			index += sprintf(envParms[0] + index, ":%s", Config.GetString("lib_path"));
+//		}
+//		if (Config.Exists("vendor_path")) {
+//			sprintf(envParms[1], "OPENCL_VENDOR_PATH=%s", Config.GetString("vendor_path"));
+//			envParms[2] = NULL;
+//		} else {
+//			envParms[1] = NULL;
+//		}
+//
+////			for (int i = 0; i < length; ++i) {
+////				Log.Message("ENV: %s", envParms[i]);
+////			}
+//		//BrInitError error;
+//		//br_init(&error);
+//		//Log.Message("Restarting with environment variables (%s).", br_find_exe(argv[0]));
+//		Log.Message("Restarting with environment variables (%s).", argv[0]);
+//		int ret = execve(newArgv[0], newArgv, envParms);
+//		Log.Error("Couldn't restart NGM. Make sure that all environment variables are set correctly (%d).", ret);
+//	}
 
 	if (Config.Exists("master_cpu"))
 		NGMSetThreadAffinity(0, Config.GetInt("master_cpu"));
