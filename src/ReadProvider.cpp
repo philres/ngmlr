@@ -40,11 +40,9 @@ static IRefProvider const * m_RefProvider;
 static RefEntry * m_entry;
 static std::map<SequenceLocation, float> iTable; // fallback
 
-uint const estimateSize = 10000;
+uint const estimateSize = 1000000;
 uint const maxReadLength = 1000;
 
-int * lengthTable;
-int lengthTableIndex;
 float * maxHitTable;
 int maxHitTableIndex;
 int m_CurrentReadLength;
@@ -60,15 +58,20 @@ inline int GetBin(uint pos) {
 }
 
 int CollectResultsFallback() {
-	float max = 0;
+	float maxCurrent = 0;
 
 	for (std::map<SequenceLocation, float>::iterator itr = iTable.begin(); itr != iTable.end(); itr++) {
-		max = std::max(max, itr->second);
+		maxCurrent = std::max(maxCurrent, itr->second);
 	}
 
-	lengthTable[lengthTableIndex++] = iTable.size();
-	maxHitTable[maxHitTableIndex++] = max;
+
+	static const int skip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
+	float max = (seq->seq.l - CS::prefixBasecount + 1) / skip;
+	maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))) * 0.90f + 0.05f;
+	//Log.Message("Result: %f, %f, %f, %f -> %f", maxCurrent, maxCurrent / seq->seq.l, max, max / seq->seq.l, maxHitTable[maxHitTableIndex-1]);
+
 	iTable.clear();
+
 	return 0;
 }
 
@@ -158,10 +161,7 @@ uint ReadProvider::init(char const * fileName) {
 		if (estimate) {
 			Log.Message("Estimating parameter from data.");
 
-			lengthTable = new int[estimateSize];
 			maxHitTable = new float[estimateSize];
-
-			lengthTableIndex = 0;
 			maxHitTableIndex = 0;
 
 			m_RefProvider = NGM.GetRefProvider(0);
@@ -180,6 +180,9 @@ uint ReadProvider::init(char const * fileName) {
 			maxLen = std::max(maxLen, seq->seq.l);
 			minLen = std::min(minLen, seq->seq.l);
 			sumLen += seq->seq.l;
+
+			//Log.Message("Name: %s", seq->name.s);
+			//Log.Message("Read: %s", seq->seq.s);
 
 			readCount += 1;
 			if (estimate && (readCount % 100) == 0 && readCount < estimateSize) {
@@ -206,7 +209,10 @@ uint ReadProvider::init(char const * fileName) {
 				}
 			}
 		}
-		if(readCount == 0) {
+		if (!finish) {
+			Log.Message("Reads found in files: %d", readCount);
+		}
+		if (readCount == 0) {
 			Log.Error("No reads found in input file.");
 			Fatal();
 		}
@@ -236,10 +242,13 @@ uint ReadProvider::init(char const * fileName) {
 				static const int skip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
 				float max = (avgLen - CS::prefixBasecount + 1) / skip;
 				float avg = sum / maxHitTableIndex * 1.0f;
-				Log.Message("Average kmer hits pro read: %f", avg);
+
+				float avgHit = max * avg;
+				Log.Message("Average kmer hits pro read: %f", avgHit);
 				Log.Message("Max possible kmer hit: %f", max);
 
-				m_CsSensitivity = (avg / (max)) * 0.90f + 0.05f;
+				//m_CsSensitivity = (avg / ((max / avgLen))) * 0.90f + 0.05f;
+				m_CsSensitivity = avg;
 				Log.Green("Estimated sensitivity: %f", m_CsSensitivity);
 
 				if (Config.Exists("sensitivity")) {
@@ -265,8 +274,6 @@ uint ReadProvider::init(char const * fileName) {
 			//	Log.Warning("SearchTableLength overwritten by user. Using %d bits", (int)pow(2.0, (double)bits));
 			//}
 			//((_Config*) _config)->Override("cs_tablen", bits);
-
-			delete[] lengthTable;
 			delete[] maxHitTable;
 		} else {
 			Log.Warning("Not enough reads to estimate parameter");
