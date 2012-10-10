@@ -177,7 +177,7 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 	delete[] freqs;
 	freqs = 0;
 
-	Log.Message("Average number of positionsf per prefix: %f", avg);
+	Log.Message("Average number of positions per prefix: %f", avg);
 	Log.Message("%d prefixes are ignored due to the frequency cutoff (%d)", ignoredPrefixes, maxPrefixFreq);
 	Log.Message("Index size: %d byte (%d x %d)", length * sizeof(Index), length, sizeof(Index));
 	Log.Message("Generating index took %.2fs", t.ET());
