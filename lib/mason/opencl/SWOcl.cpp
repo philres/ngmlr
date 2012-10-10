@@ -36,26 +36,26 @@ int SWOcl::BatchScore(int const mode, int const batchSize_, char const * const *
 		Log.Warning("Score for batchSize <= 0");
 		return 0;
 	}
-#ifndef NDEBUG
-	Log.Warning("BatchScore: %d", batchSize_);
-	Log.Warning("Alignment mode: %d", mode);
-
-	int count = 0;
-	for (int i = 0; i < batchSize_; ++i) {
-		//int count[256] = {};
-		bool equal = true;
-		char const * const ref = refSeqList_[i];
-		for (int j = 0; j < config_ref_size - 1 && equal; ++j) {
-			//count[ref[j]]+=1;
-			equal = equal && ((ref[j] == ref[j + 1]) || ref[j + 1] == '\0');
-		}
-		if (equal) {
-			count += 1;
-			Log.Warning("Aligning read to %s", ref);
-		}
-	}
-	Log.Error("Found %d reads homopolymer read.", count);
-#endif
+//#ifndef NDEBUG
+//	Log.Warning("BatchScore: %d", batchSize_);
+//	Log.Warning("Alignment mode: %d", mode);
+//
+//	int count = 0;
+//	for (int i = 0; i < batchSize_; ++i) {
+//		//int count[256] = {};
+//		bool equal = true;
+//		char const * const ref = refSeqList_[i];
+//		for (int j = 0; j < config_ref_size - 1 && equal; ++j) {
+//			//count[ref[j]]+=1;
+//			equal = equal && ((ref[j] == ref[j + 1]) || ref[j + 1] == '\0');
+//		}
+//		if (equal) {
+//			count += 1;
+//			Log.Warning("Aligning read to %s", ref);
+//		}
+//	}
+//
+//#endif
 
 	bool batchSizeDif = !host->isGPU() && (batchSize_ % 4 != 0);
 	int batchSize = (batchSizeDif) ? batchSize_ + 4 : batchSize_;
