@@ -84,14 +84,25 @@ int * CompactPrefixTable::CountKmerFreq(uint length) {
 	m_CurGenSeq = i;
 
 	if (!NGM.DualStrand() || !(m_CurGenSeq % 2)) {
-		uint offset = 0;
-		uint len = SequenceProvider.GetConcatRefLen();
-		char * seq = new char[len + 2];
-		SequenceProvider.DecodeRefSequence(seq, m_CurGenSeq, 0, len);
 
-		CS::PrefixIteration(seq, len, &CompactPrefixTable::CountKmer, 0, 0, freq, m_RefSkip, offset);
-		delete[] seq;
-		seq = 0;
+		int refCount = SequenceProvider.GetRefCount();
+
+		for (int i = 0; i < refCount; ++i) {
+			uint offset = SequenceProvider.GetRefStart(i);
+
+			uint offset = 0;
+			uint len = SequenceProvider.GetConcatRefLen();
+			char * seq = new char[len + 2];
+			SequenceProvider.DecodeRefSequence(seq, m_CurGenSeq, 0, len);
+
+			CS::PrefixIteration(seq, len, &CompactPrefixTable::CountKmer, 0, 0, freq, m_RefSkip, offset);
+			delete[] seq;
+			seq = 0;
+		}
+		//int j = 0;
+		//while (j < refCount && m_Location >= SequenceProvider.GetRefStart(j)) {
+		//	j += (NGM.DualStrand()) ? 2 : 1;
+		//}
 	}
 	//}
 	return freq;
