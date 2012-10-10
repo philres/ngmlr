@@ -263,7 +263,7 @@ void _SequenceProvider::Init() {
 		int l = 0;
 		int j = 0;
 
-		char const spacer = '#';
+		char const spacer = 'N';
 
 		//Padding to avoid negative mapping positions
 		for (int i = 0; i < 500; ++i) {
