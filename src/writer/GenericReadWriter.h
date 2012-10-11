@@ -35,7 +35,7 @@ protected:
 	virtual void DoWriteProlog() = 0;
 	virtual void DoWriteRead(MappedRead const * const read) = 0;
 	virtual void DoWritePair(MappedRead const * const read1, MappedRead const * const read2) = 0;
-	virtual void DoWriteUnmappedRead(MappedRead const * const read) = 0;
+	virtual void DoWriteUnmappedRead(MappedRead const * const read, int flags = 0x4) = 0;
 	virtual void DoWriteEpilog() = 0;
 
 	int Print(const char *format, ...) {

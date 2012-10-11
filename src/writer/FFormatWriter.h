@@ -15,7 +15,7 @@ protected:
 	virtual void DoWriteRead(MappedRead const * const read);
 	virtual void DoWritePair(MappedRead const * const read1, MappedRead const * const read2);
 	virtual void DoWriteUnmappedRead(
-				MappedRead const * const read);
+				MappedRead const * const read, int flags = 0);
 	virtual void DoWriteEpilog();
 };
 

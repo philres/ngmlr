@@ -96,7 +96,7 @@ void FFormatWriter::DoWritePair(MappedRead const * const read1, MappedRead const
 	}
 }
 
-void FFormatWriter::DoWriteUnmappedRead(MappedRead const * const read) {
+void FFormatWriter::DoWriteUnmappedRead(MappedRead const * const read, int flags) {
 
 }
 

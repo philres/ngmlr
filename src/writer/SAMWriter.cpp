@@ -37,13 +37,13 @@ void SAMWriter::DoWriteProlog() {
 }
 
 void SAMWriter::DoWriteRead(MappedRead const * const read) {
-	DoWriteReadGeneric(read, '*', -1, 0, read->mappingQlty);
+	DoWriteReadGeneric(read, "*", -1, 0, read->mappingQlty);
 }
 
-void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const pRefName, int const pLoc, int const pDist,
+void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const * pRefName, int const pLoc, int const pDist,
 		int const mappingQlty, int flags) {
 
-	static bool const hardClip = Config.GetInt("hard_clip", 0, 1) == 1 || Config.GetInt("silent_clip", 0, 1) == 1 ;
+	static bool const hardClip = Config.GetInt("hard_clip", 0, 1) == 1 || Config.GetInt("silent_clip", 0, 1) == 1;
 
 	char const * readseq = read->Seq;
 	//int readlen = read->length;
@@ -52,14 +52,6 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const pRe
 	int readnamelen = read->nameLength;
 
 	char * qltystr = read->qlty;
-	//int qltylen = readlen;
-
-//	if (read->Identity < identity) {
-//		//read is not mapped
-//		flags |= 0x4;
-//	}
-
-//TODO Check if we can compute mapping quality
 
 	if ((read->Strand == '-')) {
 		readseq = read->RevSeq;
@@ -77,7 +69,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const pRe
 	Print("%d\t", mappingQlty);
 
 	Print("%s\t", read->Buffer1);
-	Print("%c\t", pRefName); //Ref. name of the mate/next fragment
+	Print("%s\t", pRefName); //Ref. name of the mate/next fragment
 	Print("%u\t", pLoc + report_offset); //Position of the mate/next fragment
 	Print("%d\t", pDist); //observed Template LENgth
 
@@ -118,7 +110,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const pRe
 	Print("XI:f:%f\t", read->Identity);
 	Print("X0:i:%d\t", read->EqualScoringCount);
 	Print("X1:i:%d\t", read->Calculated - read->EqualScoringCount);
-	Print("XE:i:%d\t", (int)read->s);
+	Print("XE:i:%d\t", (int) read->s);
 	Print("XR:i:%d\t", read->length - read->QStart - read->QEnd);
 	Print("MD:Z:%s", read->Buffer2);
 
@@ -141,18 +133,18 @@ void SAMWriter::DoWritePair(MappedRead const * const read1, MappedRead const * c
 	}
 	if (!read1->hasCandidates() && !read2->hasCandidates()) {
 		//Both mates unmapped
-		DoWriteUnmappedRead(read2);
-		DoWriteUnmappedRead(read1);
+		DoWriteUnmappedRead(read2, flags2 | 0x8);
+		DoWriteUnmappedRead(read1, flags1 | 0x8);
 	} else if (!read1->hasCandidates()) {
 		//First mate unmapped
-		DoWriteReadGeneric(read2, '=', read2->TLS()->Location.m_Location, 0, read2->mappingQlty, flags2 | 0x8);
+		DoWriteReadGeneric(read2, "=", read2->TLS()->Location.m_Location, 0, read2->mappingQlty, flags2 | 0x8);
 		DoWriteUnmappedReadGeneric(read1, read2->TLS()->Location.m_RefId, '=', read2->TLS()->Location.m_Location,
 				read2->TLS()->Location.m_Location, 0, 0, flags1);
 	} else if (!read2->hasCandidates()) {
 		//Second mate unmapped
 		DoWriteUnmappedReadGeneric(read2, read1->TLS()->Location.m_RefId, '=', read1->TLS()->Location.m_Location,
 				read1->TLS()->Location.m_Location, 0, 0, flags2);
-		DoWriteReadGeneric(read1, '=', read1->TLS()->Location.m_Location, 0, read1->mappingQlty, flags1 | 0x8);
+		DoWriteReadGeneric(read1, "=", read1->TLS()->Location.m_Location, 0, read1->mappingQlty, flags1 | 0x8);
 	} else {
 		if (!read1->HasFlag(NGMNames::PairedFail)) {
 			//TODO: Check if correct!
@@ -161,17 +153,29 @@ void SAMWriter::DoWritePair(MappedRead const * const read1, MappedRead const * c
 			flags2 |= 0x2;
 			if (read1->Strand == '+') {
 				distance = read2->TLS()->Location.m_Location + read2->length - read1->TLS()->Location.m_Location;
-				DoWriteReadGeneric(read2, '=', read1->TLS()->Location.m_Location, distance * -1, read2->mappingQlty, flags2);
-				DoWriteReadGeneric(read1, '=', read2->TLS()->Location.m_Location, distance, read1->mappingQlty, flags1 | 0x20);
+				DoWriteReadGeneric(read2, "=", read1->TLS()->Location.m_Location, distance * -1, read2->mappingQlty, flags2);
+				DoWriteReadGeneric(read1, "=", read2->TLS()->Location.m_Location, distance, read1->mappingQlty, flags1 | 0x20);
 			} else if (read2->Strand == '+') {
 				distance = read1->TLS()->Location.m_Location + read1->length - read2->TLS()->Location.m_Location;
 
-				DoWriteReadGeneric(read2, '=', read1->TLS()->Location.m_Location, distance, read2->mappingQlty, flags2 | 0x20);
-				DoWriteReadGeneric(read1, '=', read2->TLS()->Location.m_Location, distance * -1, read1->mappingQlty, flags1);
+				DoWriteReadGeneric(read2, "=", read1->TLS()->Location.m_Location, distance, read2->mappingQlty, flags2 | 0x20);
+				DoWriteReadGeneric(read1, "=", read2->TLS()->Location.m_Location, distance * -1, read1->mappingQlty, flags1);
 			}
 		} else {
-			DoWriteRead(read2);
-			DoWriteRead(read1);
+			int distance = 0;
+			if (read1->Strand == '-') {
+				flags2 |= 0x20;
+			}
+			if (read2->Strand == '-') {
+				flags1 |= 0x20;
+			}
+			DoWriteReadGeneric(read2, SequenceProvider.GetRefName(read1->TLS()->Location.m_RefId, distance),
+					read1->TLS()->Location.m_Location, 0, read2->mappingQlty, flags2);
+			DoWriteReadGeneric(read1, SequenceProvider.GetRefName(read2->TLS()->Location.m_RefId, distance),
+					read2->TLS()->Location.m_Location, 0, read1->mappingQlty, flags1);
+
+			//DoWriteRead(read2);
+			//DoWriteRead(read1);
 			//DoWriteUnmappedRead(read2);
 			//DoWriteUnmappedRead(read1);
 		}
@@ -238,8 +242,8 @@ void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 	Print("\n");
 }
 
-void SAMWriter::DoWriteUnmappedRead(MappedRead const * const read) {
-	DoWriteUnmappedReadGeneric(read, -1, '*', -1, -1, 0, 0, 0);
+void SAMWriter::DoWriteUnmappedRead(MappedRead const * const read, int flags) {
+	DoWriteUnmappedReadGeneric(read, -1, '*', -1, -1, 0, 0, flags | 0x04);
 }
 
 void SAMWriter::DoWriteEpilog() {

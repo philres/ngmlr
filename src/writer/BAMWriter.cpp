@@ -43,14 +43,14 @@ void BAMWriter::DoWriteProlog() {
 	int ref = Config.GetInt("ref_mode");
 
 	if (ref == -1)
-		for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
-			refName = SequenceProvider.GetRefName(i, refNameLength);
-			//Print("@SQ\tSN:%.*s\tLN:%d\n", refNameLength, refName, SequenceProvider.GetRefLen(i));
-			RefData bamRef(std::string(refName, refNameLength), SequenceProvider.GetRefLen(i));
-			refs.push_back(bamRef);
-			if (NGM.DualStrand())
-				++i;
-		}
+	for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
+		refName = SequenceProvider.GetRefName(i, refNameLength);
+		//Print("@SQ\tSN:%.*s\tLN:%d\n", refNameLength, refName, SequenceProvider.GetRefLen(i));
+		RefData bamRef(std::string(refName, refNameLength), SequenceProvider.GetRefLen(i));
+		refs.push_back(bamRef);
+		if (NGM.DualStrand())
+		++i;
+	}
 	else {
 		refName = SequenceProvider.GetRefName(ref * ((NGM.DualStrand()) ? 2 : 1), refNameLength);
 		RefData bamRef(std::string(refName, refNameLength), SequenceProvider.GetRefLen(ref * ((NGM.DualStrand()) ? 2 : 1)));
@@ -72,7 +72,7 @@ void BAMWriter::translate_flag(BamAlignment &al, int flags) {
 	al.SetIsSecondMate(flags & 0x80);
 }
 
-void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const pRefName, int const pLoc, int const pDist,
+void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const pRef, int const pLoc, int const pDist,
 		int const mappingQlty, int flags) {
 
 	static bool const hardClip = Config.GetInt("hard_clip", 0, 1) == 1 || Config.GetInt("silent_clip", 0, 1) == 1;
@@ -103,15 +103,17 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const pRe
 	al.Position = read->TLS()->Location.m_Location;
 
 	if (hardClip)
-		al.QueryBases = std::string(readseq + read->QStart, read->length - read->QStart - read->QEnd);
+	al.QueryBases = std::string(readseq + read->QStart, read->length - read->QStart - read->QEnd);
 	else
-		al.QueryBases = std::string(readseq, readlen);
+	al.QueryBases = std::string(readseq, readlen);
 
 	al.RefID = read->TLS()->Location.m_RefId / 2;
 
 	//Paired
-	if (pRefName == '=')
-		al.MateRefID = read->TLS()->Location.m_RefId / 2;
+	//if (pRefName == '=')
+	//al.MateRefID = read->TLS()->Location.m_RefId / 2;
+	if(pRef > -1)
+		al.MateRefID = pRef / 2;
 	al.MatePosition = pLoc;
 	al.InsertSize = pDist;
 
@@ -128,14 +130,14 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const pRe
 
 	if (qltystr != 0 && qltylen > 0 && qltylen == readlen) {
 		if (hardClip)
-			al.Qualities = std::string(qltystr + read->QStart, read->length - read->QStart - read->QEnd);
+		al.Qualities = std::string(qltystr + read->QStart, read->length - read->QStart - read->QEnd);
 		else
-			al.Qualities = std::string(qltystr, qltylen);
+		al.Qualities = std::string(qltystr, qltylen);
 	} else {
 		if (hardClip)
-			al.Qualities = std::string(read->length - read->QStart - read->QEnd, ':');
+		al.Qualities = std::string(read->length - read->QStart - read->QEnd, ':');
 		else
-			al.Qualities = std::string(readlen, ':');
+		al.Qualities = std::string(readlen, ':');
 	}
 
 	//	//Optional fields
@@ -185,6 +187,7 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 	int qltylen = readlen;
 
 	al.AlignmentFlag = 0;
+	translate_flag(al, flags);
 	al.SetIsMapped(false);
 
 	al.Name = std::string(readname, readnamelen);
@@ -215,11 +218,11 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 }
 
 void BAMWriter::DoWriteRead(MappedRead const * const read) {
-	DoWriteReadGeneric(read, '*', -1, 0, read->mappingQlty);
+	DoWriteReadGeneric(read, -1, -1, 0, read->mappingQlty);
 }
 
-void BAMWriter::DoWriteUnmappedRead(MappedRead const * const read) {
-	DoWriteUnmappedReadGeneric(read, -1, '*', -1, -1, 0, 0, 0);
+void BAMWriter::DoWriteUnmappedRead(MappedRead const * const read, int flags) {
+	DoWriteUnmappedReadGeneric(read, -1, '*', -1, -1, 0, 0, flags);
 }
 
 void BAMWriter::DoWritePair(MappedRead const * const read1, MappedRead const * const read2) {
@@ -237,21 +240,21 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, MappedRead const * c
 	}
 	if (!read1->hasCandidates() && !read2->hasCandidates()) {
 		//Both mates unmapped
-		DoWriteUnmappedRead(read2);
-		DoWriteUnmappedRead(read1);
+		DoWriteUnmappedRead(read2, flags2);
+		DoWriteUnmappedRead(read1, flags1);
 	} else if (!read1->hasCandidates()) {
 		//First mate unmapped
 		flags2 |= 0x8;
 
-		DoWriteReadGeneric(read2, '=', read2->TLS()->Location.m_Location, 0, read2->mappingQlty, flags2);
-		DoWriteUnmappedReadGeneric(read1, read2->TLS()->Location.m_RefId, '=', read2->TLS()->Location.m_Location,
+		DoWriteReadGeneric(read2, -1, read2->TLS()->Location.m_Location, 0, read2->mappingQlty, flags2);
+		DoWriteUnmappedReadGeneric(read1, read2->TLS()->Location.m_RefId, read2->TLS()->Location.m_RefId, read2->TLS()->Location.m_Location,
 				read2->TLS()->Location.m_Location, 0, 0, flags1);
 	} else if (!read2->hasCandidates()) {
 		flags1 |= 0x8;
 		//Second mate unmapped
-		DoWriteUnmappedReadGeneric(read2, read1->TLS()->Location.m_RefId, '=', read1->TLS()->Location.m_Location,
+		DoWriteUnmappedReadGeneric(read2, read1->TLS()->Location.m_RefId, read1->TLS()->Location.m_RefId, read1->TLS()->Location.m_Location,
 				read1->TLS()->Location.m_Location, 0, 0, flags2);
-		DoWriteReadGeneric(read1, '=', read1->TLS()->Location.m_Location, 0, read1->mappingQlty, flags1);
+		DoWriteReadGeneric(read1, -1, read1->TLS()->Location.m_Location, 0, read1->mappingQlty, flags1);
 	} else {
 		if (!read1->HasFlag(NGMNames::PairedFail)) {
 			//TODO: Check if correct!
@@ -260,17 +263,28 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, MappedRead const * c
 			flags2 |= 0x2;
 			if (read1->Strand == '+') {
 				distance = read2->TLS()->Location.m_Location + read2->length - read1->TLS()->Location.m_Location;
-				DoWriteReadGeneric(read2, '=', read1->TLS()->Location.m_Location, distance * -1, read2->mappingQlty, flags2);
-				DoWriteReadGeneric(read1, '=', read2->TLS()->Location.m_Location, distance, read1->mappingQlty, flags1 | 0x20);
+				DoWriteReadGeneric(read2, read2->TLS()->Location.m_RefId, read1->TLS()->Location.m_Location, distance * -1, read2->mappingQlty, flags2);
+				DoWriteReadGeneric(read1, read2->TLS()->Location.m_RefId, read2->TLS()->Location.m_Location, distance, read1->mappingQlty, flags1 | 0x20);
 			} else if (read2->Strand == '+') {
 				distance = read1->TLS()->Location.m_Location + read1->length - read2->TLS()->Location.m_Location;
 
-				DoWriteReadGeneric(read2, '=', read1->TLS()->Location.m_Location, distance, read2->mappingQlty, flags2 | 0x20);
-				DoWriteReadGeneric(read1, '=', read2->TLS()->Location.m_Location, distance * -1, read1->mappingQlty, flags1);
+				DoWriteReadGeneric(read2, read2->TLS()->Location.m_RefId, read1->TLS()->Location.m_Location, distance, read2->mappingQlty, flags2 | 0x20);
+				DoWriteReadGeneric(read1, read2->TLS()->Location.m_RefId, read2->TLS()->Location.m_Location, distance * -1, read1->mappingQlty, flags1);
 			}
 		} else {
-			DoWriteRead(read2);
-			DoWriteRead(read1);
+			if (read1->Strand == '-') {
+				flags2 |= 0x20;
+			}
+			if (read2->Strand == '-') {
+				flags1 |= 0x20;
+			}
+			DoWriteReadGeneric(read2, read1->TLS()->Location.m_RefId,
+					read1->TLS()->Location.m_Location, 0, read2->mappingQlty, flags2);
+			DoWriteReadGeneric(read1, read2->TLS()->Location.m_RefId,
+					read2->TLS()->Location.m_Location, 0, read1->mappingQlty, flags1);
+
+			//DoWriteRead(read2);
+			//DoWriteRead(read1);
 			//DoWriteUnmappedRead(read2);
 			//DoWriteUnmappedRead(read1);
 		}
