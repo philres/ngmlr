@@ -231,7 +231,7 @@ uint ReadProvider::init(char const * fileName) {
 		kseq_destroy(seq);
 		delete parser;
 
-		if (estimate && readCount > estimateSize) {
+		if (estimate && readCount >= estimateSize) {
 			float sum = 0.0f;
 			for (int i = 0; i < maxHitTableIndex; ++i) {
 				sum += maxHitTable[i];
