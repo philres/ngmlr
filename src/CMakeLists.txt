@@ -39,6 +39,7 @@ add_executable(ngm 	AlignmentDispatcher.cpp
 					core/windows.cpp)
 
 
+ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/NGM_main.cpp")
 
 	#STATIC
     #set(CMAKE_EXE_LINKER_FLAGS -static) 
