@@ -67,7 +67,7 @@ int CollectResultsFallback() {
 
 	static const int skip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
 	float max = (seq->seq.l - CS::prefixBasecount + 1) / skip;
-	maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max)));// * 0.90f + 0.05f;
+	maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))) * 0.85f;// + 0.05f;
 	//Log.Message("Result: %f, %f, %f, %f -> %f", maxCurrent, maxCurrent / seq->seq.l, max, max / seq->seq.l, maxHitTable[maxHitTableIndex-1]);
 
 	iTable.clear();
