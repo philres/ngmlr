@@ -4,6 +4,7 @@
 
 #include "Debug.h"
 #include "Timing.h"
+#include "CS.h"
 
 ulong SW::scoreCount = 0;
 
@@ -176,6 +177,14 @@ void SW::SendToPostprocessing(MappedRead * read) {
 				++score_max_count;
 			}
 		}
+
+		//static const int skip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
+		//float max = (read->length - CS::prefixBasecount + 1) / skip;
+
+		//float t = 100.0f * (read->s / max);
+		//float t = 100.0f * (score_max - score_smax) / score_max;
+		//int mq = ceil(log(t * 10.0f + 1) / log(11.0f) * 60.0f);
+		//int mq = ceil(100.0f * (read->s / max));
 
 		int mq = ceil(MAX_MQ * (score_max - score_smax) / score_max);
 //		Log.Message("%s: %f %f -> %d, (%d) => %d", read->name, score_max, score_smax, mq, read->mappingQlty, mq2);
