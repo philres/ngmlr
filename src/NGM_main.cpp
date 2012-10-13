@@ -195,15 +195,15 @@ General:\n\n\
                                 locations that will be evaluated with an sequence alignment.\n\
                                 0 means that all possible mapping locations will be evaluated\n\
                                 1 means that only the best possible mapping location(s) will be evaluated\n\
-                                Higher values will reduce the runtime but also have a negativ effect on maping sensitivity.\n\
+                                Higher values will reduce the runtime but also have a negativ effect on mapping sensitivity.\n\
                                 (default: estimated from input data)\n\
-  -i/--min-identity <0-1>       All reads mapped with an identity lower than this threshold will be reported as unmapped (default: 0.0)\n\
+  -i/--min-identity <0-1>       All reads mapped with an identity lower than this threshold will be reported as unmapped (default: 0.75)\n\
   -R/--min-residues <int>       All reads mapped with lower than <int> residues will be reported as unmapped (default: 0.0)\n\
   -g/--gpu [int,...]            Use GPU(s) for alignment computation (GPU Ids are zero-bassed!).\n\
                                    With -g or --gpu GPU 0 will be used.\n\
                                    With -g 1 or --gpu 1 GPU 1 will be used.\n\
                                    With -g 0,1 or --gpu 0,1 GPU 0 and 1 will be used.\n\
-                                If -g/--gpu is ommitted, alignments will be computed on the CPU (not supported for bs-mapping!)\n\
+                                If -g/--gpu is ommitted, alignments will be computed on the CPU\n\
   --bs-mapping                  Enables bisulfite mapping (For bs-mapping kmer-skip will be applied to\n\
                                 the reads instead of the reference sequence).\n\
   -h/--help                     Prints help and aborts program\n\n\
