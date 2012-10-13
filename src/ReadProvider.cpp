@@ -40,7 +40,7 @@ static IRefProvider const * m_RefProvider;
 static RefEntry * m_entry;
 static std::map<SequenceLocation, float> iTable; // fallback
 
-uint const estimateSize = 1000000;
+uint const estimateSize = 10000;
 uint const maxReadLength = 1000;
 
 float * maxHitTable;
@@ -67,7 +67,7 @@ int CollectResultsFallback() {
 
 	static const int skip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
 	float max = (seq->seq.l - CS::prefixBasecount + 1) / skip;
-	maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))) * 0.85f;// + 0.05f;
+	maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))) * 0.85f + 0.05f;
 	//Log.Message("Result: %f, %f, %f, %f -> %f", maxCurrent, maxCurrent / seq->seq.l, max, max / seq->seq.l, maxHitTable[maxHitTableIndex-1]);
 
 	iTable.clear();
@@ -185,7 +185,7 @@ uint ReadProvider::init(char const * fileName) {
 			//Log.Message("Read: %s", seq->seq.s);
 
 			readCount += 1;
-			if (estimate && (readCount % 100) == 0 && readCount < estimateSize) {
+			if (estimate && (readCount % 10) == 0 && readCount < estimateSize) {
 				ulong mutateFrom;
 				ulong mutateTo;
 				if (NGM.Paired() && (readCount & 1)) {
