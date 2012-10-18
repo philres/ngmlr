@@ -78,7 +78,11 @@ public:
 		if (m_Output) {
 
 			static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
-			static int const minResidues = Config.GetInt("min_residues", 0, 1000);
+			static float minResidues = Config.GetFloat("min_residues", 0, 1000);
+
+			if(minResidues < 1.0f) {
+				minResidues = read->length * minResidues;
+			}
 
 			mapped = mapped && (read->Identity >= minIdentity);
 			mapped = mapped && ((read->length - read->QStart - read->QEnd) >= minResidues);
@@ -95,7 +99,11 @@ public:
 	void WritePair(MappedRead * const read1, MappedRead * const read2) {
 		if (m_Output) {
 			static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
-			static int const minResidues = Config.GetInt("min_residues", 0, 1000);
+			static float minResidues = Config.GetFloat("min_residues", 0, 1000);
+
+			if(minResidues < 1.0f) {
+				minResidues = std::min(read1->length, read2->length) * minResidues;
+			}
 
 			bool mapped1 = read1->hasCandidates() && (read1->Identity >= minIdentity)
 					&& ((read1->length - read1->QStart - read1->QEnd) >= minResidues);
