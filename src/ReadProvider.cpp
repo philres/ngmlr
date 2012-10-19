@@ -40,7 +40,10 @@ static IRefProvider const * m_RefProvider;
 static RefEntry * m_entry;
 static std::map<SequenceLocation, float> iTable; // fallback
 
-uint const estimateSize = 10000;
+//uint const estimateSize = 10000;
+uint const estimateSize = 10000000;
+uint const estimateStepSize = 1000;
+uint const estimateThreshold = 1000;
 uint const maxReadLength = 1000;
 
 float * maxHitTable;
@@ -64,11 +67,12 @@ int CollectResultsFallback() {
 		maxCurrent = std::max(maxCurrent, itr->second);
 	}
 
-
 	static const int skip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
 	float max = (seq->seq.l - CS::prefixBasecount + 1) / skip;
-	maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))) * 0.85f + 0.05f;
-	//Log.Message("Result: %f, %f, %f, %f -> %f", maxCurrent, maxCurrent / seq->seq.l, max, max / seq->seq.l, maxHitTable[maxHitTableIndex-1]);
+	if (max > 1.0f) {
+		maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))) * 0.85f + 0.05f;
+		//Log.Message("Result: %f, %f, %f, %f -> %f", maxCurrent, maxCurrent / seq->seq.l, max, max / seq->seq.l, maxHitTable[maxHitTableIndex-1]);
+	}
 
 	iTable.clear();
 
@@ -185,7 +189,7 @@ uint ReadProvider::init(char const * fileName) {
 			//Log.Message("Read: %s", seq->seq.s);
 
 			readCount += 1;
-			if (estimate && (readCount % 10) == 0 && readCount < estimateSize) {
+			if (estimate && (readCount % estimateStepSize) == 0 && readCount < estimateSize) {
 				ulong mutateFrom;
 				ulong mutateTo;
 				if (NGM.Paired() && (readCount & 1)) {
@@ -218,6 +222,7 @@ uint ReadProvider::init(char const * fileName) {
 		}
 		maxLen = (maxLen | 1) + 1;
 		int avgLen = sumLen / readCount;
+
 		if (maxLen > maxReadLength) {
 			Log.Warning("Max. supported read length is 1000bp. All reads longer than 1000bp will be hard clipped in the output.");
 			maxLen = maxReadLength;
@@ -231,7 +236,7 @@ uint ReadProvider::init(char const * fileName) {
 		kseq_destroy(seq);
 		delete parser;
 
-		if (estimate && readCount >= estimateSize) {
+		if (estimate && readCount >= estimateThreshold) {
 			float sum = 0.0f;
 			for (int i = 0; i < maxHitTableIndex; ++i) {
 				sum += maxHitTable[i];
@@ -244,6 +249,7 @@ uint ReadProvider::init(char const * fileName) {
 				float avg = sum / maxHitTableIndex * 1.0f;
 
 				float avgHit = max * avg;
+
 				Log.Message("Average kmer hits pro read: %f", avgHit);
 				Log.Message("Max possible kmer hit: %f", max);
 
