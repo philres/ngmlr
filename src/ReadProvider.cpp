@@ -254,7 +254,7 @@ uint ReadProvider::init(char const * fileName) {
 				Log.Message("Max possible kmer hit: %f", max);
 
 				//m_CsSensitivity = (avg / ((max / avgLen))) * 0.90f + 0.05f;
-				m_CsSensitivity = avg;
+				m_CsSensitivity = std::min(std::max(0.3f, avg), 0.9f);
 				Log.Green("Estimated sensitivity: %f", m_CsSensitivity);
 
 				if (Config.Exists("sensitivity")) {
