@@ -427,7 +427,7 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("step_count", 4);
 
 	//Filter
-	Default("min_identity", 0.5f);
+	Default("min_identity", 0.65f);
 	Default("min_residues", 0.5f);
 
 	//Output Input options
