@@ -56,7 +56,7 @@ bool cDebug = true;
 ILog const * _log = 0;
 IConfig * _config = 0;
 
-char const * const version = "0.4.2";
+char const * const version = "0.4.3";
 
 int main(int argc, char * argv[]) {
 
@@ -206,6 +206,7 @@ General:\n\n\
                                 If -g/--gpu is ommitted, alignments will be computed on the CPU\n\
   --bs-mapping                  Enables bisulfite mapping (For bs-mapping kmer-skip will be applied to\n\
                                 the reads instead of the reference sequence).\n\
+  --bs-cutoff <int>             Max. number of Ts in a k-mer. All k-mers were the number of Ts is higher than <int> are ignored (default: 8)\n\
   -h/--help                     Prints help and aborts program\n\n\
 Advanced settings:\n\
 \n\

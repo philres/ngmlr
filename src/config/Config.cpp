@@ -435,15 +435,22 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("hard_clip", 0);
 	Default("silent_clip", 0);
 
+	//BS-mapping
+	Default("bs_cutoff", 8);
+
 	initialized = true;
 
 	if (Exists("max_consecutive_indels")) {
 		if (Exists("corridor")) {
-			Log.Warning("Unable to use parameter 'max-consecutive-indels. Please remove the 'corridor' entry from the config file and use 'max-consecutive-indels'.");
+			Log.Warning("The parameter 'corridor' is deprecated. Please remove the 'corridor' entry from the config file and use 'max-consecutive-indels'.");
 		} else {
-			std::stringstream ss;
-			ss << GetInt("max_consecutive_indels", 5, 40) * 2;
-			InternalAdd("corridor", ss.str(), "", true);
+			if (GetInt("max_consecutive_indels") > 40 || GetInt("max_consecutive_indels") < 5) {
+				Log.Error("[CONFIG] Value max_consecutive_indels : %d out of range [5, 40] - using default value", GetInt("max_consecutive_indels"));
+			} else {
+				std::stringstream ss;
+				ss << GetInt("max_consecutive_indels", 5, 40) * 2;
+				InternalAdd("corridor", ss.str(), "", true);
+			}
 		}
 	}
 	if (Exists("bam")) {
