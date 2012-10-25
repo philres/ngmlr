@@ -343,12 +343,24 @@ void SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short 
 	int cigar_offset = 0;
 	int md_offset = 0;
 
+	result.QStart = 0;
+	result.QEnd = 0;
+
 	if ((gpuCigar[gpuCigarOffset] >> 4) > 0) {
-		cigar_offset += printCigarElement('S', gpuCigar[gpuCigarOffset] >> 4, result.pCigar + cigar_offset);
+		if (Config.GetInt("hard_clip") == 1) { //soft clipping
+			cigar_offset += printCigarElement('H', gpuCigar[gpuCigarOffset] >> 4, result.pCigar + cigar_offset);
+		} else if (Config.GetInt("silent_clip") != 1) {
+			cigar_offset += printCigarElement('S', gpuCigar[gpuCigarOffset] >> 4, result.pCigar + cigar_offset);
+		}
 		result.QStart = gpuCigar[gpuCigarOffset] >> 4;
-	} else {
-		result.QStart = 0;
 	}
+
+//	if ((gpuCigar[gpuCigarOffset] >> 4) > 0) {
+//		cigar_offset += printCigarElement('S', gpuCigar[gpuCigarOffset] >> 4, result.pCigar + cigar_offset);
+//		result.QStart = gpuCigar[gpuCigarOffset] >> 4;
+//	} else {
+//		result.QStart = 0;
+//	}
 
 	int match = 0;
 	int mismatch = 0;
@@ -428,11 +440,20 @@ void SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short 
 	}
 
 	if ((gpuCigar[alignment_length - 1] >> 4) > 0) {
-		cigar_offset += printCigarElement('S', gpuCigar[alignment_length - 1] >> 4, result.pCigar + cigar_offset);
+		if (Config.GetInt("hard_clip") == 1) { //soft clipping
+			cigar_offset += printCigarElement('H', gpuCigar[alignment_length - 1] >> 4, result.pCigar + cigar_offset);
+		} else if (Config.GetInt("silent_clip") != 1) {
+			cigar_offset += printCigarElement('S', gpuCigar[alignment_length - 1] >> 4, result.pCigar + cigar_offset);
+		}
 		result.QEnd = gpuCigar[alignment_length - 1] >> 4;
-	} else {
-		result.QEnd = 0;
 	}
+
+//	if ((gpuCigar[alignment_length - 1] >> 4) > 0) {
+//		cigar_offset += printCigarElement('S', gpuCigar[alignment_length - 1] >> 4, result.pCigar + cigar_offset);
+//		result.QEnd = gpuCigar[alignment_length - 1] >> 4;
+//	} else {
+//		result.QEnd = 0;
+//	}
 
 	result.pCigar[cigar_offset] = '\0';
 	result.pMD[md_offset] = '\0';
