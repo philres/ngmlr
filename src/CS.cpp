@@ -125,7 +125,7 @@ void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn f
 //ulong mutateTo = 0x1;
 
 void CS::PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
-	static int const cMutationLocLimit = Config.Exists("cs_mutationlimit") ? Config.GetInt("cs_mutationlimit") : 6;
+	static int const cMutationLocLimit = Config.GetInt("bs_cutoff");
 	ulong const mask = 0x3;
 
 	int mutationLocs = 0;
@@ -349,11 +349,14 @@ int CS::CollectResultsStd(MappedRead * read) {
 	}
 	read->AllocScores(tmp, index);
 
+
+#ifdef _DEBUGCS
 	char const * debugRead = "FCC01PDACXX:4:1101:10342:37018#0/1";
 	if (strcmp(read->name, debugRead) == 0) {
 		Log.Error("Collect results: %d %d", n, read->numScores());
 	}
-//
+#endif
+
 	return 0;
 }
 
@@ -435,8 +438,7 @@ void CS::RunBatch() {
 			try {
 				PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
 				CollectResultsStd(m_CurrentBatch[i]);
-			}
-			catch (int overflow) {
+			} catch (int overflow) {
 //				Log.Verbose("Interrupt on read %i: %i candidates in %i slots filled by %i prefixes containing %i locs",
 //						m_CurrentSeq,
 //						m_Candidates,
@@ -470,8 +472,7 @@ void CS::RunBatch() {
 					PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
 					CollectResultsStd(m_CurrentBatch[i]);
 
-				}
-				catch (int overflow) {
+				} catch (int overflow) {
 					fallback = true;
 					x += 1;
 				}
@@ -552,6 +553,12 @@ void CS::Init() {
 	prefixBasecount = Config.GetInt("kmer", 4, 32);
 	prefixBits = prefixBasecount * 2;
 	prefixMask = ((ulong) 1 << prefixBits) - 1;
+
+	bool m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
+	if (m_EnableBS) {
+		static int const cMutationLocLimit = Config.Exists("bs_cutoff") ? Config.GetInt("bs_cutoff") : 6;
+		Log.Message("BS mapping enabled. Max. number of A/T per k-mer set to %d", cMutationLocLimit);
+	}
 }
 
 CS::CS(bool useBuffer) :
@@ -561,7 +568,6 @@ CS::CS(bool useBuffer) :
 				(int) pow(2, c_SrchTableBitLen)), m_PrefixBaseSkip(0), m_Fallback((c_SrchTableLen <= 0)) // cTableLen <= 0 means always use fallback
 {
 
-//	if (Config.Exists("bs_mapping"))
 	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 
 	if (m_EnableBS) {
