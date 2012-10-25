@@ -41,7 +41,7 @@ static RefEntry * m_entry;
 static std::map<SequenceLocation, float> iTable; // fallback
 
 //uint const estimateSize = 10000;
-uint const estimateSize = 10000000;
+uint const estimateSize = 1000000;
 uint const estimateStepSize = 1000;
 uint const estimateThreshold = 1000;
 uint const maxReadLength = 1000;
@@ -114,7 +114,7 @@ static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateT
 void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos = 0);
 
 void PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
-	static int const cMutationLocLimit = Config.Exists("cs_mutationlimit") ? Config.GetInt("cs_mutationlimit") : 6;
+	static int const cMutationLocLimit = Config.Exists("bs_cutoff") ? Config.GetInt("bs_cutoff") : 6;
 	ulong const mask = 0x3;
 
 	int mutationLocs = 0;
@@ -162,8 +162,9 @@ uint ReadProvider::init(char const * fileName) {
 	size_t maxLen = 0;
 	bool estimate = !(Config.Exists("skip_estimate") && Config.GetInt("skip_estimate"));
 	if (!Config.Exists("qry_max_len") || estimate) {
+		DetermineParser(fileName);
 		if (estimate) {
-			Log.Message("Estimating parameter from data.");
+			Log.Message("Estimating parameter from data");
 
 			maxHitTable = new float[estimateSize];
 			maxHitTableIndex = 0;
@@ -173,7 +174,6 @@ uint ReadProvider::init(char const * fileName) {
 			m_entry->nextEntry = new RefEntry(0);
 		}
 
-		DetermineParser(fileName);
 		int l = 0;
 
 		size_t minLen = 9999999;
@@ -298,8 +298,9 @@ uint ReadProvider::init(char const * fileName) {
 		}
 	}
 
-	DetermineParser(fileName);
 	Log.Message("Initializing took %.3fs", tmr.ET());
+	DetermineParser(fileName);
+
 
 	return 0;
 }
