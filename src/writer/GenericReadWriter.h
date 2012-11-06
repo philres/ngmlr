@@ -14,6 +14,7 @@ public:
 	GenericReadWriter(char const * const filename) {
 		if (!(m_Output = fopen(filename, "wb"))) {
 			Log.Error("Unable to open output file %s", filename);
+			Fatal();
 		}
 		writeBuffer = new char[BUFFER_SIZE];
 		bufferPosition = 0;
