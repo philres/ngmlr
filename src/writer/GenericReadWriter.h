@@ -6,6 +6,7 @@
 
 #include "ILog.h"
 #include "Config.h"
+#include "NGM.h"
 
 #include "MappedRead.h"
 
