@@ -424,14 +424,19 @@ void CompactPrefixTable::saveToFile(char const * fileName, uint const refIndexSi
 	Log.Message("Writing RefTable to %s", fileName);
 	FILE *fp;
 	fp = fopen(fileName, "wb");
-	fwrite(&refTabCookie, sizeof(uint), 1, fp);
-	fwrite(&m_PrefixLength, sizeof(uint), 1, fp);
-	fwrite(&m_RefSkip, sizeof(uint), 1, fp);
-	fwrite(&refIndexSize, sizeof(uint), 1, fp);
-	fwrite(&refTableSize, sizeof(uint), 1, fp);
-	fwrite(RefTableIndex, sizeof(Index), refIndexSize, fp);
-	fwrite(RefTable, sizeof(Location), refTableSize, fp);
-	fclose(fp);
+	if (fp != 0) {
+		fwrite(&refTabCookie, sizeof(uint), 1, fp);
+		fwrite(&m_PrefixLength, sizeof(uint), 1, fp);
+		fwrite(&m_RefSkip, sizeof(uint), 1, fp);
+		fwrite(&refIndexSize, sizeof(uint), 1, fp);
+		fwrite(&refTableSize, sizeof(uint), 1, fp);
+		fwrite(RefTableIndex, sizeof(Index), refIndexSize, fp);
+		fwrite(RefTable, sizeof(Location), refTableSize, fp);
+		fclose(fp);
+	} else {
+		Log.Error("Error while opening file %s for writing.", fileName);
+		Fatal();
+	}
 	Log.Message("Writing to disk took %.2fs", wtmr.ET());
 }
 
