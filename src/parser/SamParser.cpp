@@ -27,7 +27,7 @@ kseq_t * SamParser::init_seq(char const * fileName) {
 }
 
 static inline char * readField(char * lineBuffer, kstring_t & str) {
-	while (*lineBuffer != '\t' && *lineBuffer != '\0') {
+	while (*lineBuffer != '\t' && *lineBuffer != '\0' && *lineBuffer != '\n') {
 		if (str.l + 1 > str.m) {
 			str.m = str.l + 2;
 			kroundup32(str.m);
@@ -51,7 +51,8 @@ size_t SamParser::parseRead(kseq_t *& read) {
 
 	while (gzgets(fp, buffer, buffer_size) != NULL) {
 		char * lineBuffer = buffer;
-		if (*lineBuffer != '@') {
+
+		if (*lineBuffer != '@' && *lineBuffer != '\n') {
 
 			//Name
 			lineBuffer = readField(lineBuffer, read->name);
