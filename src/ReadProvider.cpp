@@ -413,7 +413,8 @@ void ReadProvider::DetermineParser(char const * fileName) {
 	gzFile fp = gzopen(fileName, "r");
 	if (!fp) {
 		//File does not exist
-		Log.Error("File does not exist ",fileName);
+		Log.Error("File %s does not exist!",fileName);
+		Fatal();
 	}
 	char * buffer = new char[1000];
 	while (gzgets(fp, buffer, 1000) > 0 && buffer[0] == '@') {
