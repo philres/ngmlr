@@ -425,7 +425,7 @@ void ReadProvider::DetermineParser(char const * fileName) {
 			count++;
 		}
 	}
-	if (count > 10) {
+	if (count >= 10) {
 		Log.Message("Input is SAM");
 		parser = new SamParser();
 	} else {
