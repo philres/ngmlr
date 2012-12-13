@@ -29,7 +29,7 @@ int kCount = 0;
 //int const cThreshhold = 2;
 
 //Default values
-int x_SrchTableBitLen = 20;
+int x_SrchTableBitLen = 24;
 //Number of bases per batch
 //int const cBatchSize = 1800000;
 int const cBatchSize = 1000000;
@@ -222,10 +222,10 @@ void CS::AddLocationStd(uint const m_Location, bool const reverse, double const 
 	}
 
 	//Compute max k-mer weight for this read
-	if (score > maxHitNumber) {
-		maxHitNumber = score;
-		currentThresh = (maxHitNumber * m_CsSensitivity);
-	}
+	//if (score > maxHitNumber) {
+	//	maxHitNumber = score;
+	//	currentThresh = (maxHitNumber * m_CsSensitivity);
+	//}
 
 	//If kmer-weight larger than threshold -> add to rList.
 	if (!(rTable[hpo].state & 0x80000000) && score >= currentThresh) {
@@ -319,13 +319,13 @@ int CS::CollectResultsStd(MappedRead * read) {
 
 	int index = 0;
 	if (2 * n > tmpSize) {
-		tmpSize = tmpSize * 1.5f;
+		tmpSize = 2 * n * 1.5f;
 		Log.Verbose("Increasing size of location buffer to %d", tmpSize);
 		delete[] tmp;
 		tmp = new LocationScore[tmpSize];
 	}
 	for (int i = 0; i < n; ++i) {
-
+//		Log.Message("%d", index);
 		CSTableEntry temp = rTable[rList[i]];
 
 		//Log.Verbose("Location <%i, %i> with Score %f", temp.Location.m_Location, temp.Location.m_RefId, temp.Score.f);
@@ -407,7 +407,7 @@ void CS::RunBatch() {
 		currentState = 2 * i;
 		rListLength = 0;
 		maxHitNumber = 0.0f;
-		currentThresh = 0.0f;
+		currentThresh = 2.0f;
 		//weightSum = 0.0f;
 		kCount = 0;
 
