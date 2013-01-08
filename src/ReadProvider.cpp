@@ -68,9 +68,13 @@ int CollectResultsFallback() {
 	}
 
 	static const int skip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
-	float max = (seq->seq.l - CS::prefixBasecount + 1) / skip;
-	if (max > 1.0f) {
-		maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))) * 0.85f + 0.05f;
+	//float max = (seq->seq.l - CS::prefixBasecount + 1) / skip;
+
+	int max = ceil((seq->seq.l - CS::prefixBasecount + 1) / skip * 1.0);
+
+
+	if (max > 1.0f && maxCurrent <= max ) {
+		maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max)));// * 0.85f + 0.05f;
 		//Log.Message("Result: %f, %f, %f, %f -> %f", maxCurrent, maxCurrent / seq->seq.l, max, max / seq->seq.l, maxHitTable[maxHitTableIndex-1]);
 	}
 
@@ -245,13 +249,15 @@ uint ReadProvider::init(char const * fileName) {
 			float m_CsSensitivity = 0.0f;
 			if (!m_EnableBS) {
 				static const int skip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
-				float max = (avgLen - CS::prefixBasecount + 1) / skip;
+				//float max = (avgLen - CS::prefixBasecount + 1) / skip;
+				int max = ceil((avgLen - CS::prefixBasecount + 1) / skip * 1.0);
 				float avg = sum / maxHitTableIndex * 1.0f;
 
 				float avgHit = max * avg;
 
 				Log.Message("Average kmer hits pro read: %f", avgHit);
-				Log.Message("Max possible kmer hit: %f", max);
+				Log.Message("Max possible kmer hit: %d", max);
+				Log.Message("Max possible kmer hit (old): %f", (avgLen - CS::prefixBasecount + 1) / skip);
 
 				//m_CsSensitivity = (avg / ((max / avgLen))) * 0.90f + 0.05f;
 				m_CsSensitivity = std::min(std::max(0.3f, avg), 0.9f);
