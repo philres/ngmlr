@@ -2,6 +2,7 @@
 
 #include <memory.h>
 #include <stdlib.h>
+#include <cmath>
 
 #include "NGM.h"
 #include "Timing.h"
@@ -224,7 +225,7 @@ void CS::AddLocationStd(uint const m_Location, bool const reverse, double const 
 	//Compute max k-mer weight for this read
 	if (score > maxHitNumber) {
 		maxHitNumber = score;
-		currentThresh = (maxHitNumber * m_CsSensitivity);
+		currentThresh = round(maxHitNumber * m_CsSensitivity);
 	}
 
 	//If kmer-weight larger than threshold -> add to rList.
