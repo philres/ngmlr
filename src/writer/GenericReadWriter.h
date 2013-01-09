@@ -90,10 +90,12 @@ public:
 			mapped = mapped && ((read->length - read->QStart - read->QEnd) >= minResidues);
 
 			if (mapped) {
+				NGM.AddMappedRead(read->ReadId);
 				DoWriteRead(read);
 			} else {
 				DoWriteUnmappedRead(read);
 			}
+			NGM.AddWrittenRead(read->ReadId);
 			Flush();
 		}
 	}
@@ -116,9 +118,16 @@ public:
 
 			if (!mapped1) {
 				read1->clearScores(false);
+				//NGM.AddUnmappedRead(read1, MFAIL_IDENT);
+			} else {
+				NGM.AddMappedRead(read1->ReadId);
 			}
 			if (!mapped2) {
 				read2->clearScores(false);
+				//NGM.AddUnmappedRead(read2, MFAIL_IDENT);
+			} else {
+				NGM.AddMappedRead(read2->ReadId);
+
 			}
 			//Log.Verbose("Output paired 1: hC %d, R: %d %d, I: %f %f", read1->hasCandidates(), ((read1->length - read1->QStart - read1->QEnd)), minResidues, read1->Identity >= minIdentity, minIdentity);
 			//Log.Verbose("%d %d %d", read1->length, read1->QStart, read1->QEnd);
@@ -126,6 +135,10 @@ public:
 			//Log.Verbose("%d %d %d", read2->length, read2->QStart, read2->QEnd);
 
 			DoWritePair(read1, read2);
+
+			NGM.AddWrittenRead(read1->ReadId);
+			NGM.AddWrittenRead(read2->ReadId);
+
 
 			Flush();
 		}

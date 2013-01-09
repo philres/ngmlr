@@ -64,12 +64,12 @@ public:
 		if (NGM.Paired() && read->Paired != 0) {
 			if (read->Paired->HasFlag(NGMNames::DeletionPending)) {
 				m_Writer->WritePair(read, read->Paired);
-				NGM.AddWrittenRead(read->ReadId);
-				NGM.AddWrittenRead(read->Paired->ReadId);
+				//NGM.AddWrittenRead(read->ReadId);
+				//NGM.AddWrittenRead(read->Paired->ReadId);
 			}
 		} else {
 			m_Writer->WriteRead(read, mapped);
-			NGM.AddWrittenRead(read->ReadId);
+			//NGM.AddWrittenRead(read->ReadId);
 		}
 		NGM.ReleaseOutputLock();
 	}

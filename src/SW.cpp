@@ -224,7 +224,7 @@ void SW::SendToPostprocessing(MappedRead * read) {
 void SW::SendSeToBuffer(MappedRead* read) {
 
 	if (!read->hasCandidates()) {
-		NGM.AddUnmappedRead(read, MFAIL_NOCAND);
+		//NGM.AddUnmappedRead(read, MFAIL_NOCAND);
 		NGM.SaveRead(read, false);
 
 		Log.Verbose("Read %s (%i) not mapped (no candidates/scores)", read->name, read->ReadId);
@@ -242,7 +242,7 @@ void SW::SendSeToBuffer(MappedRead* read) {
 	//		}
 
 	NGM.bSWO.Write(&read, 1);
-	NGM.AddMappedRead(read->ReadId);
+	//NGM.AddMappedRead(read->ReadId);
 
 //TODO: fix
 //	int score_max_loc = read->TopScore;
@@ -342,8 +342,8 @@ void SW::PairedReadSelection(MappedRead * read1, MappedRead * read2) {
 		NGM.bSWO.Write(&read1, 1);
 		NGM.bSWO.Write(&read2, 1);
 
-		NGM.AddMappedRead(read1->ReadId);
-		NGM.AddMappedRead(read2->ReadId);
+		//NGM.AddMappedRead(read1->ReadId);
+		//NGM.AddMappedRead(read2->ReadId);
 
 		tCount += 1;
 		tSum += distance;
