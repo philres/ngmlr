@@ -72,9 +72,8 @@ int CollectResultsFallback() {
 
 	int max = ceil((seq->seq.l - CS::prefixBasecount + 1) / skip * 1.0);
 
-
-	if (max > 1.0f && maxCurrent <= max ) {
-		maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max)));// * 0.85f + 0.05f;
+	if (max > 1.0f && maxCurrent <= max) {
+		maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))); // * 0.85f + 0.05f;
 		//Log.Message("Result: %f, %f, %f, %f -> %f", maxCurrent, maxCurrent / seq->seq.l, max, max / seq->seq.l, maxHitTable[maxHitTableIndex-1]);
 	}
 
@@ -184,36 +183,38 @@ uint ReadProvider::init(char const * fileName) {
 		size_t sumLen = 0;
 
 		bool finish = false;
-		while ((l = parser->parseRead(seq)) > 0 && !finish) {
-			maxLen = std::max(maxLen, seq->seq.l);
-			minLen = std::min(minLen, seq->seq.l);
-			sumLen += seq->seq.l;
+		while ((l = parser->parseRead(seq)) >= 0 && !finish) {
+			if (l > 0) {
+				maxLen = std::max(maxLen, seq->seq.l);
+				minLen = std::min(minLen, seq->seq.l);
+				sumLen += seq->seq.l;
 
-			//Log.Message("Name: %s", seq->name.s);
-			//Log.Message("Read: %s", seq->seq.s);
+//				Log.Message("Name: %s", seq->name.s);
+//				Log.Message("Read: %s", seq->seq.s);
 
-			readCount += 1;
-			if (estimate && (readCount % estimateStepSize) == 0 && readCount < estimateSize) {
-				ulong mutateFrom;
-				ulong mutateTo;
-				if (NGM.Paired() && (readCount & 1)) {
-					//Second mate
-					mutateFrom = 0x0;
-					mutateTo = 0x3;
-				} else {
-					//First mate
-					mutateFrom = 0x2;
-					mutateTo = 0x1;
-				}
-				m_CurrentReadLength = seq->seq.l;
-				CS::PrefixIteration((char const *) seq->seq.s, (uint) seq->seq.l, fnc, mutateFrom, mutateTo, (void *) this, (uint) 0,
-						(uint) 0);
-				CollectResultsFallback();
-			} else if (readCount == (estimateSize + 1)) {
-				if ((maxLen - minLen) < 10) {
-					finish = true;
-				} else {
-					Log.Warning("454/Ion Torrent data set detected. Determining max. read length now.");
+				readCount += 1;
+				if (estimate && (readCount % estimateStepSize) == 0 && readCount < estimateSize) {
+					ulong mutateFrom;
+					ulong mutateTo;
+					if (NGM.Paired() && (readCount & 1)) {
+						//Second mate
+						mutateFrom = 0x0;
+						mutateTo = 0x3;
+					} else {
+						//First mate
+						mutateFrom = 0x2;
+						mutateTo = 0x1;
+					}
+					m_CurrentReadLength = seq->seq.l;
+					CS::PrefixIteration((char const *) seq->seq.s, (uint) seq->seq.l, fnc, mutateFrom, mutateTo, (void *) this, (uint) 0,
+							(uint) 0);
+					CollectResultsFallback();
+				} else if (readCount == (estimateSize + 1)) {
+					if ((maxLen - minLen) < 10) {
+						finish = true;
+					} else {
+						Log.Warning("Reads don't have the same length. Determining max. read length now.");
+					}
 				}
 			}
 		}
@@ -303,10 +304,8 @@ uint ReadProvider::init(char const * fileName) {
 			Log.Message("Sensitivity parameter set to 0.5");
 		}
 	}
-
 	Log.Message("Initializing took %.3fs", tmr.ET());
 	DetermineParser(fileName);
-
 
 	return 0;
 }
@@ -321,9 +320,9 @@ MappedRead * ReadProvider::NextRead(int const id) {
 	static int const qryMaxLen = Config.GetInt("qry_max_len");
 	MappedRead * read = 0;
 	int l = parser->parseRead(seq);
-//	Log.Message("Name (%d): %s", seq->name.l, seq->name.s);
-//	Log.Message("Seq  (%d): %s", seq->seq.l, seq->seq.s);
-//	Log.Message("Qual (%d): %s", seq->qual.l, seq->qual.s);
+	//Log.Message("Name (%d): %s", seq->name.l, seq->name.s);
+	//Log.Message("Seq  (%d): %s", seq->seq.l, seq->seq.s);
+	//Log.Message("Qual (%d): %s", seq->qual.l, seq->qual.s);
 	if (l >= 0) {
 		if (seq->seq.l == seq->qual.l || seq->qual.l == 0) {
 			read = new MappedRead(id, qryMaxLen);
@@ -343,17 +342,23 @@ MappedRead * ReadProvider::NextRead(int const id) {
 			//Sequence
 			read->Seq = new char[qryMaxLen];
 			memset(read->Seq, '\0', qryMaxLen);
-			read->length = std::min(seq->seq.l, (size_t) qryMaxLen - 1);
-			int nCount = 0;
-			for (int i = 0; i < read->length; ++i) {
-				char c = toupper(seq->seq.s[i]);
-				if (c == 'A' || c == 'T' || c == 'C' || c == 'G') {
-					read->Seq[i] = c;
-				} else {
-					read->Seq[i] = 'N';
-					nCount += 1;
-				}
+			if (seq->seq.l != 0) {
+				read->length = std::min(seq->seq.l, (size_t) qryMaxLen - 1);
+				int nCount = 0;
+				for (int i = 0; i < read->length; ++i) {
+					char c = toupper(seq->seq.s[i]);
+					if (c == 'A' || c == 'T' || c == 'C' || c == 'G') {
+						read->Seq[i] = c;
+					} else {
+						read->Seq[i] = 'N';
+						nCount += 1;
+					}
 
+				}
+			} else {
+				Log.Verbose("Empty read found (%s). Filling with Ns.", seq->name.s);
+				read->length = qryMaxLen - 2;
+				memset(read->Seq, 'N', read->length);
 			}
 //			if (nCount > qryMaxLen * 0.5f) {
 //				Log.Warning("Discarding read %s (too many Ns)", read->name);
@@ -374,10 +379,10 @@ MappedRead * ReadProvider::NextRead(int const id) {
 				read->qlty[read->length] = '\0';
 			}
 
-//			Log.Message("%s", read->name);
-//			Log.Message("%s", read->Seq);
+//			Log.Message("Name: %s", read->name);
+//			Log.Message("Seq:  %s", read->Seq);
 //			if (read->qlty != 0)
-//				Log.Message("%s", read->qlty);
+//				Log.Message("Qlty: %s", read->qlty);
 			NGM.AddReadRead(read->ReadId);
 		} else {
 			Log.Error("Discarding read %s. Length of read not equal length of quality values.", seq->name.s);
