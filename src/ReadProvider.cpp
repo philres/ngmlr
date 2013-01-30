@@ -326,7 +326,7 @@ MappedRead * ReadProvider::NextRead(int const id) {
 //	Log.Message("Qual (%d): %s", seq->qual.l, seq->qual.s);
 	if (l >= 0) {
 		if (seq->seq.l == seq->qual.l || seq->qual.l == 0) {
-			read = new MappedRead(id);
+			read = new MappedRead(id, qryMaxLen);
 
 			//Name
 			static size_t const MAX_READNAME_LENGTH = 100;

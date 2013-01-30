@@ -25,6 +25,8 @@ public:
 	//is computed for this read, Calculated is increased by one
 	volatile int Calculated; // Amount of Scores updated by SW
 
+	int const qryMaxLen;
+
 	int TopScore; // Position of TopScore
 	volatile int Lock; // sync for paired read selection
 	int EqualScoringID; // Number of equal scoring result for this read
@@ -62,7 +64,7 @@ public:
 	static volatile int sInstanceCount;
 #endif
 
-	MappedRead(int const readid);
+	MappedRead(int const readid, int const qrymaxlen);
 	~MappedRead();
 
 	// Saves score to this Read and returns a pointer to the saved object

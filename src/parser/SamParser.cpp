@@ -6,7 +6,7 @@
  */
 
 #include "SamParser.h"
-#include "Config.h"
+//#include "Config.h"
 #include "Log.h"
 
 kseq_t * SamParser::init_seq(char const * fileName) {
@@ -18,7 +18,8 @@ kseq_t * SamParser::init_seq(char const * fileName) {
 
 	buffer = new char[buffer_size];
 
-	parse_all = Config.Exists("parse_all") && Config.GetInt("parse_all") == 1;
+	//parse_all = Config.Exists("parse_all") && Config.GetInt("parse_all") == 1;
+	parse_all = true;
 	if (!parse_all) {
 		Log.Warning("Skipping all mapped reads in SAM file.");
 	}

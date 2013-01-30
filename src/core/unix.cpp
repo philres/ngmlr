@@ -9,9 +9,9 @@
 #include <fcntl.h>
 #include <dlfcn.h>
 #include "Log.h"
-#include "Config.h"
+//#include "Config.h"
 
-#include "NGM.h"
+//#include "NGM.h"
 
 #include <map>
 #include <termios.h>

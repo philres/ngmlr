@@ -24,6 +24,8 @@ private:
 	friend void __Log::Init();
 };
 
+void Fatal();
+
 #undef Log
 #define Log _Log::Instance()
 #define Logger _Log::Instance()

@@ -192,7 +192,6 @@ private:
 
 #define NGM _NGM::Instance()
 
-void Fatal();
 void Help();
 
 #endif

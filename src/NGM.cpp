@@ -493,9 +493,4 @@ void _NGM::MainLoop() {
 	}
 }
 
-void Fatal() {
-	Terminating = true;
-	Log.Error("This error is fatal. Quitting...");
-	ResetConsole();
-	exit(1);
-}
+
