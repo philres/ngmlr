@@ -38,3 +38,5 @@ include_directories(${OPENCL_INCLUDE_DIRS})
 
 add_subdirectory(lib/mason/opencl)
 add_subdirectory(src)
+
+add_subdirectory(utils/paired)
