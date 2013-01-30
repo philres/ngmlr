@@ -22,7 +22,7 @@ NGMStats * NGMStats::InitStats(char const * const AppName)
 
 	if (key == (key_t)-1)
 	{
-		Log.Warning("Unable to obtain stats smem key (error %i)", errno);
+		Log.Verbose("Unable to obtain stats smem key (error %i)", errno);
 	}
 	else
 	{
@@ -30,7 +30,7 @@ NGMStats * NGMStats::InitStats(char const * const AppName)
 
 		if (shm_id == -1)
 		{
-			Log.Warning("Unable to get stats smem (error %i)", errno);
+			Log.Verbose("Unable to get stats smem (error %i)", errno);
 		}
 		else
 		{
@@ -45,7 +45,7 @@ NGMStats * NGMStats::InitStats(char const * const AppName)
 			}
 			else
 			{
-				Log.Warning("Unable to access stats smem (error %i)", errno);
+				Log.Verbose("Unable to access stats smem (error %i)", errno);
 			}
 		}
 	}
