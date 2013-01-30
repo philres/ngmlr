@@ -257,7 +257,7 @@ uint ReadProvider::init(char const * fileName) {
 
 				Log.Message("Average kmer hits pro read: %f", avgHit);
 				Log.Message("Max possible kmer hit: %d", max);
-				Log.Message("Max possible kmer hit (old): %f", (avgLen - CS::prefixBasecount + 1) / skip);
+				//Log.Message("Max possible kmer hit (old): %f", (avgLen - CS::prefixBasecount + 1) / skip);
 
 				//m_CsSensitivity = (avg / ((max / avgLen))) * 0.90f + 0.05f;
 				m_CsSensitivity = std::min(std::max(0.3f, avg), 0.9f);
