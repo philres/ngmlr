@@ -141,15 +141,15 @@ void MappedRead::clearScores(bool const keepTop) {
 	if (TopScore != -1 && Scores != 0) {
 		LocationScore tmp = *TLS();
 
-		delete[] Scores;
-
 		if (keepTop) {
-			Scores = new LocationScore[1];
+			//Scores = new LocationScore[1];
+			//Scores = (LocationScore *)realloc(Scores, 1 * sizeof(LocationScore));
 			Scores[0] = tmp;
 			TopScore = 0;
 			iScores = 1;
 			nScores = 1;
 		} else {
+			delete[] Scores;
 			TopScore = -1;
 			iScores = 0;
 			nScores = 0;
