@@ -21,8 +21,11 @@ public:
 
 	static ulong alignmentCount;
 
+	int * RefStartPos;
+
 	Output(const char* const filename) :
 			m_Filename(filename) {
+		RefStartPos = 0;
 	}
 
 	void DoRun();
@@ -37,39 +40,57 @@ public:
 
 	void SaveRead(MappedRead* read, bool mapped = true) {
 		if (mapped) {
-			//Correct position
-			int refCount = SequenceProvider.GetRefCount();
-			SequenceLocation loc = read->TLS()->Location;
-			int i = 0;
-			while (i < refCount && loc.m_Location >= SequenceProvider.GetRefStart(i)) {
-				i += (NGM.DualStrand()) ? 2 : 1;
-			}
-			if (i == 0) {
-				Log.Message("%s (%d) - %s: %s, %s", read->name, read->ReadId, read->Seq, read->Buffer1, read->Buffer2);
-				Log.Error("Couldn't resolve mapping position: %u!", loc.m_Location);
-				Fatal();
-			}
-			i -= (NGM.DualStrand()) ? 2 : 1;
 
-			loc.m_Location -= SequenceProvider.GetRefStart(i);
-			loc.m_RefId = i;
+			static int refCount = SequenceProvider.GetRefCount();
+			if (RefStartPos == 0) {
+				RefStartPos = new int[refCount / ((NGM.DualStrand()) ? 2 : 1)];
+				int i = 0;
+				int j = 0;
+				while (i < refCount/* && loc.m_Location >= SequenceProvider.GetRefStart(i)*/) {
+					RefStartPos[j++] = SequenceProvider.GetRefStart(i);
+					i += (NGM.DualStrand()) ? 2 : 1;
+				}
+			}
+
+			SequenceLocation loc = read->TLS()->Location;
+			//SequenceLocation test = loc;
+//			int i = 0;
+//			while (i < refCount && loc.m_Location >= SequenceProvider.GetRefStart(i)) {
+//				i += (NGM.DualStrand()) ? 2 : 1;
+//			}
+//			if (i == 0) {
+//				Log.Message("%s (%d) - %s: %s, %s", read->name, read->ReadId, read->Seq, read->Buffer1, read->Buffer2);
+//				Log.Error("Couldn't resolve mapping position: %u!", loc.m_Location);
+//				Fatal();
+//			}
+//			i -= (NGM.DualStrand()) ? 2 : 1;
+
+//Correct position
+			int * upper = std::upper_bound(RefStartPos, RefStartPos + (refCount / ((NGM.DualStrand()) ? 2 : 1)), loc.m_Location);
+			ptrdiff_t refId = ((upper - 1) - RefStartPos) * ((NGM.DualStrand()) ? 2 : 1);
+			//loc.m_Location -= SequenceProvider.GetRefStart(i);
+			loc.m_Location -= *(upper - 1);
+			loc.m_RefId = refId;
+			//loc.m_RefId = i;
 			read->TLS()->Location = loc;
 
 			if (read->Strand == '-') {
 				if (read->qlty != 0)
 					std::reverse(read->qlty, read->qlty + strlen(read->qlty));
 			}
+
+			//if (SequenceProvider.GetRefStart(i) != *(low - 1) || i != refId) {
+			//	Log.Error("%u %u %u %u", SequenceProvider.GetRefStart(i), i, *(low - 1), refId);
+			//	getchar();
+			//}
 		}
 		NGM.AquireOutputLock();
 		if (NGM.Paired() && read->Paired != 0) {
 			if (read->Paired->HasFlag(NGMNames::DeletionPending)) {
 				m_Writer->WritePair(read, read->Paired);
-				//NGM.AddWrittenRead(read->ReadId);
-				//NGM.AddWrittenRead(read->Paired->ReadId);
 			}
 		} else {
 			m_Writer->WriteRead(read, mapped);
-			//NGM.AddWrittenRead(read->ReadId);
 		}
 		NGM.ReleaseOutputLock();
 	}
