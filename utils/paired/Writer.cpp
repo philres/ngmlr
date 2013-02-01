@@ -13,10 +13,10 @@
 
 Writer::Writer(char const * const fileName) {
 
-	data.open((std::string(fileName)).c_str(), std::ios::out);
+	data.open((std::string(fileName)).c_str());
 	//idx.open((std::string(fileName) + ".idx").c_str(), std::ios::binary);
 
-	data.exceptions(ofstream::failbit | ofstream::badbit);
+	//data.exceptions(ofstream::failbit | ofstream::badbit);
 	//idx.exceptions(ofstream::failbit | ofstream::badbit);
 }
 

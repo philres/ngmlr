@@ -41,7 +41,7 @@ struct Sequence {
 	int fragPos;
 };
 
-char seperator = '.';
+char seperator = '/';
 
 // actually platform specific.../care
 ulong const FileSize(char const * const filename) {
@@ -310,7 +310,12 @@ int main(int argc, char **argv) {
 		nPairs += parseNext(pairs, read1, writer, 0, pairNumber);
 		nPairs += parseNext(pairs, read2, writer, 1, pairNumber);
 
-		eof = (read1 == 0 && read2 == 0) || count > 1000;
+		count += 1;
+		eof = (read1 == 0 && read2 == 0);
+
+		if(count % 10000 == 0) {
+			Log.Progress("Processed: %d", count);
+		}
 	}
 
 	Log.Message("Reads read: %d", nReads);
