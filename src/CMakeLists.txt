@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 project(NextGenMap)
 
+include_directories (../lib/bamtools/src/api)
 include_directories (../lib/mason/opencl)
 include_directories (../include)
 include_directories (parser)
@@ -56,21 +57,22 @@ ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/NGM_main.c
     # Maybe this works as well, haven't tried yet. 
 	#set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS FALSE) 
 	#target_link_libraries(ngm /scratch/philipp/src/zlib-1.2.7/zlib/lib/libz.a)
-	#target_link_libraries(ngm /software/ngm/src/bamtools/lib/libbamtools.a)
+	
 
 target_link_libraries(ngm z)					
 #target_link_libraries(ngm dl)
 target_link_libraries(ngm pthread)
-target_link_libraries(ngm MASonOpenCl)	
+target_link_libraries(ngm MASonOpenCl)
+#target_link_libraries(ngm /software/ngm/src/bamtools/lib/libbamtools.a)	
 
-if( ${BAMTOOLS_FOUND} )		
-	ADD_LIBRARY(bamtools STATIC IMPORTED)
-	SET_TARGET_PROPERTIES(bamtools PROPERTIES IMPORTED_LOCATION ${BAMTOOLS_LIBRARY})
-	include_directories(${BAMTOOLS_INCLUDE_DIRS})
-	TARGET_LINK_LIBRARIES(ngm bamtools)
+#if( ${BAMTOOLS_FOUND} )		
+	#ADD_LIBRARY(bamtools STATIC)
+	#SET_TARGET_PROPERTIES(bamtools PROPERTIES IMPORTED_LOCATION ${BAMTOOLS_LIBRARY})
+	#include_directories(${BAMTOOLS_INCLUDE_DIRS})
+	TARGET_LINK_LIBRARIES(ngm BamTools-static)
 	
 	add_definitions(-D _BAM) 
-endif()
+#endif()
 
 #find_library(HOARD hoard)
 #if(HOARD) 
