@@ -14,8 +14,8 @@ file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 #add_definitions(-D VERBOSE)
 #add_definitions(-D _DEBUGCS)
 
-SET (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g  -L${PROJECT_SOURCE_DIR}/bin/amd-app-sdk -Wl,-rpath,'$ORIGIN/amd-app-sdk/'")
-SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -Wall  -L${PROJECT_SOURCE_DIR}/bin/amd-app-sdk -Wl,-rpath,'$ORIGIN/amd-app-sdk/'")
+SET (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g  -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'$ORIGIN/amd-app-sdk/'")
+SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -Wall  -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'$ORIGIN/amd-app-sdk/'")
 
 #include(FindOpenMP)
 FIND_PACKAGE(OpenMP REQUIRED)
