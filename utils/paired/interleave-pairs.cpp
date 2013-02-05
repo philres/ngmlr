@@ -4,12 +4,15 @@
  *  Created on: Jan 29, 2013
  *      Author: philipp_
  */
+#include "interleave-pairs.h"
+
 #include <zlib.h>
 #include <stdio.h>
 #include <limits.h>
 #include <iostream>
 #include <map>
 #include <cstring>
+#include <tclap/CmdLine.h>
 
 #include "Log.h"
 #include "kseq.h"
@@ -29,7 +32,8 @@ using std::endl;
 using std::map;
 using std::string;
 
-ILog const * _log = 0;
+#undef module_name
+#define module_name "MAIN"
 
 struct nString {
 	char * s;
@@ -42,22 +46,6 @@ struct Sequence {
 };
 
 char seperator = '/';
-
-// actually platform specific.../care
-ulong const FileSize(char const * const filename) {
-	FILE * fp = fopen(filename, "rb");
-	if (fp == 0) {
-		Log.Warning("Tried to get size of nonexistant file %s", filename);
-		return 0;
-	}
-
-	if (fseek(fp, 0, SEEK_END) != 0)
-		return 0;
-
-	ulong end = ftell(fp);
-	fclose(fp);
-	return end;
-}
 
 IParser * DetermineParser(char const * fileName) {
 	IParser * parser = 0;
@@ -78,12 +66,12 @@ IParser * DetermineParser(char const * fileName) {
 		}
 	}
 	if (count >= 10) {
-		Log.Message("Input is SAM");
+		Log.Message("%s is SAM", fileName);
 		parser = new SamParser();
 	} else {
 		if (strncmp(buffer, "BAM", 3) == 0) {
 #ifdef _BAM
-			Log.Message("Input is BAM");
+			Log.Message("%s is BAM", fileName);
 			parser= new BamParser();
 #else
 			Log.Error("BAM input detected. NGM was compiled without BAM support!");
@@ -91,9 +79,9 @@ IParser * DetermineParser(char const * fileName) {
 #endif
 		} else {
 			if (buffer[0] == '>') {
-				Log.Message("Input is Fasta");
+				Log.Message("%s is FASTA", fileName);
 			} else {
-				Log.Message("Input is Fastq");
+				Log.Message("%s is FASTQ", fileName);
 			}
 			parser = new FastXParser();
 		}
@@ -258,103 +246,98 @@ int parseNext(map<string, MappedRead *> & pairs, MappedRead * read, Writer * wri
 	return 0;
 }
 
-int main(int argc, char **argv) {
-	kseq_t *seq1;
-	kseq_t *seq2;
+int interleave_pairs(int argc, char **argv) {
 
-	_log = &Log;
-	_Log::Init(); // Inits logging to file
+	try {
 
-	Writer * writer = new FastqWriter(argv[3]);
+		TCLAP::CmdLine cmd("Interleaves paired end reads from two FASTA/Q files into one FASTQ file.", ' ', "0.1", false);
 
-	IParser * parser1 = DetermineParser(argv[1]);
-	seq1 = parser1->init_seq(argv[1]);
-	IParser * parser2 = DetermineParser(argv[2]);
-	seq2 = parser2->init_seq(argv[2]);
+		TCLAP::ValueArg<std::string> leftArg("1", "m1", "Upstream mates (FASTA/Q)", true, "", "file");
+		TCLAP::ValueArg<std::string> rightArg("2", "m2", "Downstream mates (FASTA/Q)", true, "", "file");
 
-	int l1 = 0;
-	int l2 = 0;
-//	int count = 0;
-//	while ((l1 = parser1->parseRead(seq1)) > 0 && (l2 = parser2->parseRead(seq2)) > 0) {
-//
-//		//Log.Message("Name: %s", seq1->name.s);
-//		//Log.Message("Read: %s", seq1->seq.s);
-//		writer->writeRead(seq1->name.s, seq1->name.l, seq1->seq.s, seq1->seq.l, seq1->qual.s, seq1->qual.l);
-//
-//		//Log.Message("Name: %s", seq2->name.s);
-//		//Log.Message("Read: %s", seq2->seq.s);
-//		writer->writeRead(seq2->name.s, seq2->name.l, seq2->seq.s, seq2->seq.l, seq2->qual.s, seq2->qual.l);
-//
-//		if (count++ > 1000) {
-//			return 0;
-//		}
-//	}
+		TCLAP::ValueArg<std::string> outArg("o", "output", "Output file", true, "", "file");
+		TCLAP::ValueArg<std::string> unpairedArg("u", "unpaired", "Write reads without mate to this file.", false, "", "file");
 
-	map<string, MappedRead *> pairs;
+		TCLAP::ValueArg<char> delimiterArg("d", "delimiter", "The character that precedes the 1 and 2 in the input files.", false, '/',
+				"char");
 
-	int pairNumber = 0;
-	bool eof = false;
-	MappedRead * read1 = 0;
-	MappedRead * read2 = 0;
-	int count = 0;
-	int nPairs = 0;
-	int nReads = 0;
-	while (!eof) {
-		read1 = NextRead(parser1, seq1, 0);
-		if (read1 != 0)
-			nReads++;
-		read2 = NextRead(parser2, seq2, 1);
-		if (read2 != 0)
-			nReads++;
+		TCLAP::SwitchArg noprogressArg("", "noprogress", "Suppress progress output.", cmd, false);
 
-		nPairs += parseNext(pairs, read1, writer, 0, pairNumber);
-		nPairs += parseNext(pairs, read2, writer, 1, pairNumber);
+		cmd.add(delimiterArg);
+		cmd.add(unpairedArg);
+		cmd.add(outArg);
+		cmd.add(rightArg);
+		cmd.add(leftArg);
 
-		count += 1;
-		eof = (read1 == 0 && read2 == 0);
+		cmd.parse(argc, argv);
 
-		if(count % 10000 == 0) {
-			Log.Progress("Processed: %d", count);
+		//Log.Message("Interleave %s and %s to %s (delimiter %c)", leftArg.getValue().c_str(), rightArg.getValue().c_str(), outArg.getValue().c_str(), delimiterArg.getValue());
+
+		kseq_t *seq1;
+		kseq_t *seq2;
+
+		_log = &Log;
+		_Log::Init(); // Inits logging to file
+
+		Writer * writer = new FastqWriter(outArg.getValue().c_str());
+
+		IParser * parser1 = DetermineParser(leftArg.getValue().c_str());
+		seq1 = parser1->init_seq(leftArg.getValue().c_str());
+		IParser * parser2 = DetermineParser(rightArg.getValue().c_str());
+		seq2 = parser2->init_seq(rightArg.getValue().c_str());
+
+		int l1 = 0;
+		int l2 = 0;
+
+		bool progess = !noprogressArg.getValue();
+
+		map<string, MappedRead *> pairs;
+
+		int pairNumber = 0;
+		bool eof = false;
+		MappedRead * read1 = 0;
+		MappedRead * read2 = 0;
+		int count = 0;
+		int nPairs = 0;
+		int nReads = 0;
+		while (!eof) {
+			read1 = NextRead(parser1, seq1, 0);
+			if (read1 != 0)
+				nReads++;
+			read2 = NextRead(parser2, seq2, 1);
+			if (read2 != 0)
+				nReads++;
+
+			nPairs += parseNext(pairs, read1, writer, 0, pairNumber);
+			nPairs += parseNext(pairs, read2, writer, 1, pairNumber);
+
+			count += 1;
+			eof = (read1 == 0 && read2 == 0);
+
+			if (count % 1000 == 0 && progess) {
+				Log.Progress("Processed: %d", count);
+			}
 		}
+
+		int nUnmappedRead = 0;
+		if (unpairedArg.getValue() != "" && pairs.size() > 0) {
+			Log.Message("Writing unpaired reads to %s", unpairedArg.getValue().c_str());
+			Writer * unmappedWriter = new FastqWriter(unpairedArg.getValue().c_str());
+			for (map<string, MappedRead *>::iterator it = pairs.begin(); it != pairs.end(); it++) {
+				MappedRead * read = it->second;
+				unmappedWriter->writeRead(read);
+				nUnmappedRead += 1;
+			}
+		}
+
+		Log.Message("Reads found in files: %d", nReads);
+		Log.Message("Proper paires found: %d", nPairs);
+		Log.Message("Unpaired reads found: %d", nUnmappedRead);
+
+	} catch (TCLAP::ArgException &e) // catch any exceptions
+	{
+		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
 	}
-
-	Log.Message("Reads read: %d", nReads);
-	Log.Message("Proper paires found: %d", nPairs);
-
-//		int writtenReads = 2 * pairNumber + pairs.size();
-//		int lineNumber = pairNumber + pairs.size();
-//		if (pairs.size() > 0) {
-//			for (map<string, Entry *>::iterator it = pairs.begin(); it != pairs.end(); it++) {
-//				Entry * entry = it->second;
-//
-//				bool valid = checkRead(entry);
-//				if (entry->first) {
-//					//writerLeft.writeIndexEntryRead(entry, valid);
-//					writerLeft->writeRead(entry, maxReadLengthLeft);
-//					//left
-//					for (vector<Statistics*>::iterator i = jops_left.begin(); i != jops_left.end(); i++) {
-//						(*(*i)).add(entry->sequence);
-//					}
-//					writerRight->writeDummy(maxReadLengthLeft);
-//					//Dummy entry: has to be ignored
-//					//writerRight.writeIndexEntryRead(entry, false);
-//				} else {
-//					writerRight->writeRead(entry, maxReadLengthRight);
-//					//writerRight.writeIndexEntryRead(entry, valid);
-//					//right
-//					for (vector<Statistics*>::iterator i = jops_right.begin(); i != jops_right.end(); i++) {
-//						(*(*i)).add(entry->sequence);
-//					}
-//					writerLeft->writeDummy(maxReadLengthRight);
-//					//Dummy entry: has to be ignored
-//					//writerLeft.writeIndexEntryRead(entry, false);
-//				}
-//				//			if (outputPosition != outputPositionDummy) {
-//				//				//TODO:
-//				//				throw "Invalid output position in function convertPairs.";
-//				//			}
-//			}
-//		}
 
 	return 0;
 }
