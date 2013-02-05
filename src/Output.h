@@ -67,7 +67,7 @@ public:
 
 //Correct position
 			int * upper = std::upper_bound(RefStartPos, RefStartPos + (refCount / ((NGM.DualStrand()) ? 2 : 1)), loc.m_Location);
-			ptrdiff_t refId = ((upper - 1) - RefStartPos) * ((NGM.DualStrand()) ? 2 : 1);
+			std::ptrdiff_t refId = ((upper - 1) - RefStartPos) * ((NGM.DualStrand()) ? 2 : 1);
 			//loc.m_Location -= SequenceProvider.GetRefStart(i);
 			loc.m_Location -= *(upper - 1);
 			loc.m_RefId = refId;

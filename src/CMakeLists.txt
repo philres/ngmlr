@@ -13,7 +13,9 @@ include_directories (log)
 include_directories (config)
 include_directories (.)
 
-add_executable(ngm 	AlignmentDispatcher.cpp
+configure_file( Version.h.in ${CMAKE_SOURCE_DIR}/src/Version.h )
+
+add_executable(ngm-core 	AlignmentDispatcher.cpp
 					parser/BamParser.cpp
 					writer/BAMWriter.cpp					
 					core/Buffer.cpp										
@@ -56,20 +58,20 @@ ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/NGM_main.c
      
     # Maybe this works as well, haven't tried yet. 
 	#set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS FALSE) 
-	#target_link_libraries(ngm /scratch/philipp/src/zlib-1.2.7/zlib/lib/libz.a)
+	#target_link_libraries(ngm-core /scratch/philipp/src/zlib-1.2.7/zlib/lib/libz.a)
 	
 
-target_link_libraries(ngm z)					
-#target_link_libraries(ngm dl)
-target_link_libraries(ngm pthread)
-target_link_libraries(ngm MASonOpenCl)
-#target_link_libraries(ngm /software/ngm/src/bamtools/lib/libbamtools.a)	
+target_link_libraries(ngm-core z)					
+#target_link_libraries(ngm-core dl)
+target_link_libraries(ngm-core pthread)
+target_link_libraries(ngm-core MASonOpenCl)
+#target_link_libraries(ngm-core /software/ngm/src/bamtools/lib/libbamtools.a)	
 
 #if( ${BAMTOOLS_FOUND} )		
 	#ADD_LIBRARY(bamtools STATIC)
 	#SET_TARGET_PROPERTIES(bamtools PROPERTIES IMPORTED_LOCATION ${BAMTOOLS_LIBRARY})
 	#include_directories(${BAMTOOLS_INCLUDE_DIRS})
-	TARGET_LINK_LIBRARIES(ngm BamTools-static)
+	TARGET_LINK_LIBRARIES(ngm-core BamTools-static)
 	
 	add_definitions(-D _BAM) 
 #endif()
@@ -77,7 +79,7 @@ target_link_libraries(ngm MASonOpenCl)
 #find_library(HOARD hoard)
 #if(HOARD) 
 #	message(" --Found libhoard: ${HOARD}")	
-#	target_link_libraries(ngm ${HOARD})
+#	target_link_libraries(ngm-core ${HOARD})
 #else()
 #	message(" --Libhoard not found!")	
 #endif()		

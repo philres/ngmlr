@@ -50,7 +50,8 @@ add_library(MASonOpenCl    STATIC ${PROJECT_BINARY_DIR}/oclDefines.h
 							${PROJECT_BINARY_DIR}/oclSwCigar.h
 							OclHost.cpp SWOcl.cpp SWOclAlignment.cpp SWOclCigar.cpp Timer.cpp)	
 
-target_link_libraries(MASonOpenCl "-Wl,-Bdynamic ${OPENCL_LIBRARIES}")
+#target_link_libraries(MASonOpenCl "-Wl,-Bdynamic -lOpenCL")
+target_link_libraries(MASonOpenCl "-Wl,-Bdynamic${OPENCL_LIBRARIES}")
 #target_link_libraries(MASonOpenClGpu ${OPENCL_LIBRARIES})
 
 ADD_CUSTOM_TARGET(opencl  

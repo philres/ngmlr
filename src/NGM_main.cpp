@@ -10,12 +10,14 @@
 #endif
 
 #include <unistd.h>
+#include <sstream>
 
 #include "NGM.h"
 
 #include "SW.h"
 #include "CS.h"
 #include "Output.h"
+#include "Version.h"
 
 #include "Timing.h"
 
@@ -56,13 +58,16 @@ bool cDebug = true;
 ILog const * _log = 0;
 IConfig * _config = 0;
 
-char const * const version = "0.4.4";
+//char const * const version = "0.4.4";
 
 int main(int argc, char * argv[]) {
 
+	std::stringstream version;
+	version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
+
 	char const * arch[] = { "x86", "x64" };
 	char const * build = (cDebug) ? " (DEBUG)" : "";
-	Log.Message("NextGenMap %s", version);
+	Log.Message("NextGenMap %s", version.str().c_str());
 	Log.Message("Startup : %s%s (build %s %s)", arch[sizeof(void*) / 4 - 1], build, __DATE__, __TIME__);
 
 	//try {

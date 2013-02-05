@@ -30,4 +30,4 @@ endif()
 
 add_subdirectory(src/example)
 
-install (FILES "${PROJECT_SOURCE_DIR}/include/IAlignment.h" "${PROJECT_SOURCE_DIR}/include/ILog.h" "${PROJECT_SOURCE_DIR}/include/IConfig.h" DESTINATION include)
+#install (FILES "${PROJECT_SOURCE_DIR}/include/IAlignment.h" "${PROJECT_SOURCE_DIR}/include/ILog.h" "${PROJECT_SOURCE_DIR}/include/IConfig.h" DESTINATION include)

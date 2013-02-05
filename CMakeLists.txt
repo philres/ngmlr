@@ -1,14 +1,21 @@
 cmake_minimum_required(VERSION 2.8)
 project(NextGenMap)
 
+set( NGM_VERSION_MAJOR 0 )
+set( NGM_VERSION_MINOR 4 )
+set( NGM_VERSION_BUILD 4 )
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
+
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin/ngm-${NGM_VERSION_MAJOR}.${NGM_VERSION_MINOR}.${NGM_VERSION_BUILD}/)
+file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 
 #add_definitions(-D INSTANCE_COUNTING) 
 #add_definitions(-D VERBOSE)
 #add_definitions(-D _DEBUGCS)
 
-SET (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g ")
-SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -Wall")
+SET (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g  -L${PROJECT_SOURCE_DIR}/bin/amd-app-sdk -Wl,-rpath,'$ORIGIN/amd-app-sdk/'")
+SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -Wall  -L${PROJECT_SOURCE_DIR}/bin/amd-app-sdk -Wl,-rpath,'$ORIGIN/amd-app-sdk/'")
 
 #include(FindOpenMP)
 FIND_PACKAGE(OpenMP REQUIRED)
@@ -18,24 +25,33 @@ if(OPENMP_FOUND)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-FIND_PACKAGE(OpenCL REQUIRED)
-if(OPENCL_FOUND)
-	MESSAGE(STATUS "OpenCL include dir: ${OPENCL_INCLUDE_DIRS}")
-endif()
+#FIND_PACKAGE(OpenCL REQUIRED)
+#if(OPENCL_FOUND)
+#	MESSAGE(STATUS "OpenCL include dir: ${OPENCL_INCLUDE_DIRS}")
+#endif()
+add_subdirectory(opencl-sdk)
+set(OPENCL_LIBRARIES " -lOpenCL")
+
 FIND_PACKAGE(ZLIB REQUIRED)
 #FIND_PACKAGE(Bamtools QUIET COMPONENTS)
 
 #ADD_DEFINITIONS(-g -O3)
 
+    #SET (CMAKE_EXE_LINKER_FLAGS
+    #"${CMAKE_EXE_LINKER_FLAGS} -L${PROJECT_SOURCE_DIR}/bin/openecl/lib -Wl,-rpath,'$ORIGIN/amd-app-sdk/'" )
+
+    #SET (CMAKE_SHARED_LINKER_FLAGS
+    #"${CMAKE_SHARED_LINKER_FLAGS} -L${PROJECT_SOURCE_DIR}/bin/opencl/lib -Wl,-rpath,'$ORIGIN/amd-app-sdk'" )
+
 #SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'" )
-#SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN/mason:$ORIGIN/amd-app/lib/x86_64'" )
+#SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN:$ORIGIN/amd-app-sdk'" )
 #SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN/mason:$ORIGIN/amd-app/lib/x86_64'" )
 
-
 add_subdirectory(lib/bamtools)
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin/)
 
-include_directories(${OPENCL_INCLUDE_DIRS})
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/opencl-sdk/AMD-APP-SDK-v2.8-RC-lnx64/include")
+#LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/bin/amd-app-sdk")
+#include_directories(${OPENCL_INCLUDE_DIRS})
 
 add_subdirectory(lib/mason/opencl)
 add_subdirectory(src)
