@@ -23,6 +23,7 @@ else()
 	)
 	
 	file(REMOVE_RECURSE ${EXECUTABLE_OUTPUT_PATH}opencl/lib)
+	file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}opencl/lib)
 	file(RENAME "${CMAKE_CURRENT_BINARY_DIR}/AMD-APP-SDK-v2.8-RC-lnx64/lib/x86_64/" "${EXECUTABLE_OUTPUT_PATH}opencl/lib")
 	
 	#MESSAGE(STATUS "Cleaning up")
