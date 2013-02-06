@@ -303,7 +303,7 @@ int printCigarElement(char const op, short const length, char * cigar) {
 	return offset;
 }
 
-void debugCigar(int op, int length) {
+bool debugCigar(int op, int length) {
 	switch (op) {
 	case CIGAR_M:
 		Log.Message("CIGAR: %d M", length);
@@ -333,9 +333,11 @@ void debugCigar(int op, int length) {
 		Log.Message("CIGAR: %d X", length);
 		break;
 	default:
-		Log.Error("Invalid cigar operator.");
-		exit(1);
+		//Log.Error("Invalid cigar operator.");
+		//exit(1);
+		return false;
 	}
+	return true;
 }
 
 bool SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short const * const gpuCigar, char const * const refSeq,
@@ -431,9 +433,10 @@ bool SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short 
 			read_index += length;
 			break;
 		default:
-			Log.Warning("Invalid cigar string found in alignment.");
-			Log.Message("Ref: %s", refSeq);
-			Log.Message("Qry: %s", qrySeq);
+			Log.Warning("Unable to compute alignment for:");
+			Log.Warning("Ref: %s", refSeq);
+			Log.Warning("Qry: %s", qrySeq);
+			Log.Warning("This aligment will be discarded. No other alignments will be affected");
 			return false;
 		}
 	}

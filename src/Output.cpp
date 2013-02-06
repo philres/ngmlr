@@ -198,6 +198,7 @@ void Output::DoRun() {
 
 			for (int i = 0; i < aligned; ++i) {
 				MappedRead * cur_read = reads[i];
+
 				Log.Verbose("Process aligned read %i,%i (%s)", i, cur_read->ReadId, cur_read->name);
 				int id = cur_read->ReadId;
 

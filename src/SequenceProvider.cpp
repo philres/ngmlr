@@ -338,7 +338,7 @@ void _SequenceProvider::Init() {
 
 }
 
-void _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offset, uint bufferLength) {
+bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offset, uint bufferLength) {
 	uint len = bufferLength - 2;
 	if (NGM.DualStrand()) {
 		n >>= 1;
@@ -346,8 +346,8 @@ void _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offse
 //	Log.Message("%u %u %u", offset, bufferLength, binRefIdx[n].SeqLen);
 	//if (offset >= binRefIdx[n].SeqLen || offset < 0) {
 	if (offset >= GetConcatRefLen() || offset < 0) {
-		Log.Error("Invalid reference location. Offset: %d", offset);
-		Fatal();
+		Log.Verbose("Invalid reference location. Offset: %d", offset);
+		return false;
 	}
 //	int nCount = 0;
 //	if (offset < 0) {
@@ -396,6 +396,7 @@ void _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offse
 	for(uint i = codedIndex; i < bufferLength; ++i) {
 		buffer[i] = '\0';
 	}
+	return true;
 }
 
 char const * _SequenceProvider::GetRefName(int n, int & len) const {

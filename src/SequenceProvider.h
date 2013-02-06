@@ -19,7 +19,7 @@ public:
 	static void Cleanup();
 
 	virtual void Init();
-	void DecodeRefSequence(char* const buffer, int n, uint offset, uint len);
+	bool DecodeRefSequence(char* const buffer, int n, uint offset, uint len);
 	// Gets the length of read/reference string n
 	virtual uint GetRefLen(int n) const;
 	virtual uint GetConcatRefLen() const;
