@@ -218,10 +218,11 @@ void Output::DoRun() {
 						m_EqualScoringBuffer[id].push_back(cur_read);
 						if (m_EqualScoringBuffer[id].size() == cur_read->EqualScoringCount) {
 							//Alignments for all equal scoring positions of this reads are computed
+							//Warning: TAKE CARE OF UNMAPPABLE READ (INVALID CIGAR STRING0
 							saveEqualScoring(id);
 						}
 					} else {
-						SaveRead(cur_read);
+						SaveRead(cur_read, alignBuffer[i].Score != -1.0f);
 						NGM.GetReadProvider()->DisposeRead(cur_read);
 					}
 				} else {

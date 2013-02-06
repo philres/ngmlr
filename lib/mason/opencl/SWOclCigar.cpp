@@ -246,8 +246,10 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 			bsFrom = 'A';
 			bsTo = 'G';
 		}
-		computeCigarMD(results[i], gpu_return_values[offset + alignments_per_thread * 3 + k], gpuCigar,
-				refSeqList[i] + gpu_return_values[offset + k], qrySeqList[i], bsFrom, bsTo);
+		if (!computeCigarMD(results[i], gpu_return_values[offset + alignments_per_thread * 3 + k], gpuCigar,
+				refSeqList[i] + gpu_return_values[offset + k], qrySeqList[i], bsFrom, bsTo)) {
+			results[i].Score = -1.0f;
+		}
 		results[i].PositionOffset = gpu_return_values[offset + k];
 	}
 	Log.Verbose("CPU Time: %.3fs", cpuTimer.ET());
@@ -336,7 +338,7 @@ void debugCigar(int op, int length) {
 	}
 }
 
-void SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short const * const gpuCigar, char const * const refSeq,
+bool SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short const * const gpuCigar, char const * const refSeq,
 		char const * const qrySeq, char const bsFrom, char const bsTo) {
 
 	static bool const bsMapping = Config.GetInt("bs_mapping") == 1;
@@ -429,8 +431,10 @@ void SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short 
 			read_index += length;
 			break;
 		default:
-			Log.Error("Invalid cigar string: %d", op);
-			exit(1);
+			Log.Warning("Invalid cigar string found in alignment.");
+			Log.Message("Ref: %s", refSeq);
+			Log.Message("Qry: %s", qrySeq);
+			return false;
 		}
 	}
 	md_offset += sprintf(result.pMD + md_offset, "%d", md_eq_length);
@@ -460,6 +464,7 @@ void SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short 
 
 	result.Identity = match * 1.0f / total;
 	result.NM = mismatch;
+	return true;
 }
 
 long SWOclCigar::getMaxAllocSize(int const batch_size) {

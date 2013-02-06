@@ -33,7 +33,7 @@ private:
 	void runSwBatchKernel(cl_kernel swScoreAlign, const int batchSize, const char * const * const qrySeqList,
 			const char * const * const refSeqList, char * bsDirection, cl_mem & results_gpu, cl_mem & alignments, short * const result,
 			short * calignments, cl_mem & matrix_gpu, cl_mem & bsdirection_gpu);
-	void computeCigarMD(Align & result, int const gpuCigarOffset, short const * const gpuCigar, char const * const refSeq, char const * const qrySeq, char const bsFrom, char const bsTo);
+	bool computeCigarMD(Align & result, int const gpuCigarOffset, short const * const gpuCigar, char const * const refSeq, char const * const qrySeq, char const bsFrom, char const bsTo);
 
 	int computeAlignmentBatchSize();
 
