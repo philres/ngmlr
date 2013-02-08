@@ -24,6 +24,8 @@ NGMOnceControl once_control = NGM_ONCE_INIT;
 
 int rwd;
 
+int warningCount = 0;
+
 void Init() {
 	pInstance = new _Log();
 	InitConsole();
@@ -195,6 +197,14 @@ void _Log::_Message(int lvl, char const * const title, char const * const s, ...
 	 va_end(args);
 	 */
 	NGMUnlock(&__Log::mutex);
+
+        if(lvl == 1) {
+                warningCount += 1;
+                if(warningCount > 100) {
+                        printf("Max number of warnings reached!\nPlease report this issue on http://github.com/Cibiv/NextGenMap/issues!\n");
+                        Fatal();
+                }
+        }
 
 }
 
