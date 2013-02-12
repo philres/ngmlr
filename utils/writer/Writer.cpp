@@ -7,17 +7,48 @@
 
 #include "Writer.h"
 
+#include <string.h>
+
+#include <stdio.h>
+#include <stdarg.h>
+
+#include "Log.h"
 //#include "kseq.h"
 //#include <zlib.h>
 //#include <stdio.h>
 
+int Writer::Print(const char *format, ...) {
+	va_list arg;
+	int done;
+
+	va_start(arg, format);
+	done = vsprintf(writeBuffer + bufferPosition, format, arg);
+	bufferPosition += done;
+	va_end(arg);
+	return done;
+}
+
+void Writer::Flush(bool last) {
+	if (bufferPosition > BUFFER_LIMIT || last) {
+		fwrite(writeBuffer, sizeof(char), bufferPosition, m_Output);
+		bufferPosition = 0;
+		fflush(m_Output);
+	}
+}
+
 Writer::Writer(char const * const fileName) {
-
-	data.open((std::string(fileName)).c_str());
-	//idx.open((std::string(fileName) + ".idx").c_str(), std::ios::binary);
-
-	//data.exceptions(ofstream::failbit | ofstream::badbit);
-	//idx.exceptions(ofstream::failbit | ofstream::badbit);
+	if (!(m_Output = fopen(fileName, "wb"))) {
+		Log.Error("Unable to open output file %s", fileName);
+		Fatal();
+	}
+	writeBuffer = new char[BUFFER_SIZE];
+	bufferPosition = 0;
+	Log.Message("Opening %s for writing.", fileName);
+//	data.open((std::string(fileName)).c_str());
+//	//idx.open((std::string(fileName) + ".idx").c_str(), std::ios::binary);
+//
+//	data.exceptions(ofstream::failbit | ofstream::badbit);
+//	//idx.exceptions(ofstream::failbit | ofstream::badbit);
 }
 
 void Writer::toUpperCase(char * sequence, int sequenceLength) {
@@ -29,7 +60,8 @@ void Writer::toUpperCase(char * sequence, int sequenceLength) {
 }
 
 Writer::~Writer() {
-	data.close();
+	Flush(true);
+	fclose(m_Output);
 }
 
 //void NgmWriter::WriteHeader(unsigned int seqCount, unsigned int seqFieldWith,

@@ -73,12 +73,13 @@ int main(int argc, char **argv) {
 			char const * name = "ngm-utils interleave";
 			argv[1] = const_cast<char *>(name);
 			interleave_pairs(argc - 1, argv + 1);
+		} else {
+			throw TCLAP::ArgException("Invalid value found", "program");
 		}
-
 
 	} catch (TCLAP::ArgException &e) // catch any exceptions
 	{
-		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
+		std::cerr << "Error: " << e.error() << " for arg " << e.argId() << std::endl;
 	}
 
 	return 0;

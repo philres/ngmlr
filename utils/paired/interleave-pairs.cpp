@@ -337,6 +337,8 @@ int interleave_pairs(int argc, char **argv) {
 	} catch (TCLAP::ArgException &e) // catch any exceptions
 	{
 		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
+	} catch (std::ios_base::failure &e) {
+		std::cerr << "Error: " << e.what() << std::endl;
 	}
 
 	return 0;

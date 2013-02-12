@@ -20,7 +20,12 @@ public:
 	}
 
 	virtual void writeRead(MappedRead * read) {
-		data << "@" << read->name << std::endl << read->Seq << std::endl << "+" << std::endl << read->qlty << std::endl;
+		Print("@%s\n", read->name);
+		Print("%s\n", read->Seq);
+		Print("+\n");
+		Print("%s\n", read->qlty);
+		//data << "@" << read->name << std::endl << read->Seq << std::endl << "+" << std::endl << read->qlty << std::endl;
+		Flush();
 	}
 
 	virtual ~FastqWriter() {

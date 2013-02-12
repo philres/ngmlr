@@ -8,12 +8,8 @@
 #ifndef NGMWRITER_H_
 #define NGMWRITER_H_
 
-#include <fstream>
-#include <string.h>
-
 #include "MappedRead.h"
 
-using std::ofstream;
 
 //struct kseq_t;
 
@@ -21,8 +17,16 @@ using std::ofstream;
 
 class Writer {
 
+private:
+	FILE * m_Output;
+
+	static int const BUFFER_SIZE = 17000000;
+	static int const BUFFER_LIMIT = 16000000;
+
+	char * writeBuffer;
+	int bufferPosition;
+
 protected:
-	ofstream data;
 
 //	void WriteHeader(unsigned int seqCount,
 //			unsigned int seqFieldWith, unsigned int flags,
@@ -32,6 +36,10 @@ protected:
 
 public:
 	Writer(char const * const fileName);
+
+	int Print(const char *format, ...);
+
+	void Flush(bool last = false);
 
 	virtual void writeRead(MappedRead * read) = 0;
 
