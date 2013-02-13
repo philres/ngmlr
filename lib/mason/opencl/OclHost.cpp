@@ -209,6 +209,8 @@ void OclHost::initOpenCL(unsigned int cores) {
 			checkClError("Couldn't get OpenCl device ids. Error: ", ciErrNum);
 			//}
 
+			//Partitioning temporarily disabled
+			cores = 0;
 			//Create the context
 			if (isGPU() || cores == 0) {
 				oclGpuContext = clCreateContext(0, ciDeviceCount, cdDevices, NULL, NULL, &ciErrNum);
