@@ -39,7 +39,7 @@ endif()
 add_subdirectory(opencl-sdk)
 set(OPENCL_LIBRARIES " -lOpenCL")
 
-FIND_PACKAGE(ZLIB REQUIRED)
+#FIND_PACKAGE(ZLIB REQUIRED)
 #FIND_PACKAGE(Bamtools QUIET COMPONENTS)
 
 #ADD_DEFINITIONS(-g -O3)
@@ -54,7 +54,8 @@ FIND_PACKAGE(ZLIB REQUIRED)
 #SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN:$ORIGIN/amd-app-sdk'" )
 #SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN/mason:$ORIGIN/amd-app/lib/x86_64'" )
 
-add_subdirectory(lib/bamtools)
+add_subdirectory(lib/zlib-1.2.7)
+add_subdirectory(lib/bamtools-2.2.3)
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/opencl-sdk/AMD-APP-SDK-v2.8-RC-lnx64/include")
 #LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/bin/amd-app-sdk")

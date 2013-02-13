@@ -23,4 +23,6 @@ add_executable(ngm-utils main.cpp
 								
  					)		
 
-target_link_libraries(ngm-utils z)
+TARGET_LINK_LIBRARIES(ngm-utils zlibstatic)
+#TARGET_LINK_LIBRARIES(ngm-utils zlib)
+#target_link_libraries(ngm-utils z)

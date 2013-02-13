@@ -47,7 +47,7 @@ ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/NGM_main.c
 	#STATIC
     #set(CMAKE_EXE_LINKER_FLAGS -static) 
     
-    set(CMAKE_EXE_LINKER_FLAGS " -static-libgcc -static-libstdc++")
+    #set(CMAKE_EXE_LINKER_FLAGS " -static-libgcc -static-libstdc++")
     #set(CMAKE_FIND_LIBRARY_SUFFIXES .a) 
     #set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)       # remove -Wl,-Bdynamic 
     #set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS) 
@@ -61,7 +61,7 @@ ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/NGM_main.c
 	#target_link_libraries(ngm-core /scratch/philipp/src/zlib-1.2.7/zlib/lib/libz.a)
 	
 
-target_link_libraries(ngm-core z)					
+#target_link_libraries(ngm-core z)					
 #target_link_libraries(ngm-core dl)
 target_link_libraries(ngm-core pthread)
 target_link_libraries(ngm-core MASonOpenCl)
@@ -72,6 +72,8 @@ target_link_libraries(ngm-core MASonOpenCl)
 	#SET_TARGET_PROPERTIES(bamtools PROPERTIES IMPORTED_LOCATION ${BAMTOOLS_LIBRARY})
 	#include_directories(${BAMTOOLS_INCLUDE_DIRS})
 	TARGET_LINK_LIBRARIES(ngm-core BamTools-static)
+	TARGET_LINK_LIBRARIES(ngm-core zlibstatic)
+	#TARGET_LINK_LIBRARIES(ngm-core zlib)
 	
 	add_definitions(-D _BAM) 
 #endif()
