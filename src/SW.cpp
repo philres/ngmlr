@@ -103,7 +103,7 @@ void SW::DoRun() {
 				for (int i = 0; i < count; ++i) {
 					scores[i]->Score.f = m_ScoreBuffer[i];
 
-#ifdef _DEBUGCS
+#ifdef _DEBUGSW
 					MappedRead * cur_read = scores[i]->Read;
 					SequenceLocation loc = scores[i]->Location;
 					SequenceLocation rloc = SequenceProvider.convert(cur_read, loc.m_Location);

@@ -71,10 +71,10 @@ _NGM::_NGM() :
 	memset(m_BlockedThreads, 0, cMaxStage * sizeof(int));
 	memset(m_ToBlock, 0, cMaxStage * sizeof(int));
 	if (m_Paired && !m_DualStrand)
-		Log.Error("Logical error: Paired read mode without dualstrand search.");
+	Log.Error("Logical error: Paired read mode without dualstrand search.");
 
 	if (Config.Exists("cs_maxRefsPerEntry"))
-		RefEntry::MaxRefsPerEntry = Config.GetInt("cs_maxRefsPerEntry");
+	RefEntry::MaxRefsPerEntry = Config.GetInt("cs_maxRefsPerEntry");
 
 }
 
@@ -129,7 +129,7 @@ void _NGM::StartThread(NGMTask * task, int cpu) {
 	m_Threads[m_NextThread] = NGMCreateThread(&_NGM::ThreadFunc, task, true);
 
 	if (cpu != -1)
-		NGMSetThreadAffinity(&m_Threads[m_NextThread], cpu);
+	NGMSetThreadAffinity(&m_Threads[m_NextThread], cpu);
 
 	++m_StageThreadCount[task->GetStage()];
 	++m_NextThread;
@@ -271,6 +271,13 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 	m_CurCount -= desBatchSize;
 
 	NGMUnlock(&m_Mutex);
+
+
+#ifdef _DEBUGCS
+	if(m_CurStart > 10000) {
+		list.clear();
+	}
+#endif
 	return list;
 }
 
@@ -315,7 +322,7 @@ void _NGM::InitQuit() {
 		Log.Message("%i Threads still active", m_ActiveThreads);
 		for (int i = 0; i < cMaxStage; ++i) {
 			if (m_StageThreadCount[i] > 0)
-				Log.Message("Stage %i got %i threads still running", i, m_StageThreadCount[i]);
+			Log.Message("Stage %i got %i threads still running", i, m_StageThreadCount[i]);
 		}
 		exit(-1);
 	}
@@ -407,14 +414,17 @@ bool _NGM::CanSwitch() {
 void _NGM::StartThreads() {
 	int threadcount = Config.GetInt("cpu_threads", 1, 0);
 
+#ifdef _DEBUGCS
+	threadcount = 1;
+#endif
 	//m_ToBlock[0] = 1;
 	//m_ToBlock[2] = threadcount-1;
 
 	StartCS(threadcount);
 	int swthreads = threadcount / 1;
 	//int swthreads = threadcount;
-	if (swthreads < 2)
-		swthreads = 2;
+	//if (swthreads < 2)
+	//	swthreads = 2;
 	//int swthreads = 1;
 	StartSW(swthreads);
 
@@ -468,7 +478,7 @@ void _NGM::MainLoop() {
 			char ch = _getch();
 			if (ch == 'q')
 				NGM.InitQuit();
-		}
+			}
 		loads[0] *= 0.25;
 		loads[0] += (NGM.bCSSW.Load() * 0.75f);
 		loads[1] /= 2;
@@ -492,5 +502,4 @@ void _NGM::MainLoop() {
 #endif
 	}
 }
-
 
