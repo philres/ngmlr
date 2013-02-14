@@ -48,6 +48,8 @@ static const struct option long_options[] =
 		{ "hard-clip",                  no_argument      , 0, 0 },
 		{ "silent-clip",                no_argument      , 0, 0 },
 		{ "bs-cutoff",                  required_argument, 0, 0 },
+		{ "kmer-min",                   required_argument, 0, 0 },
+		{ "max-cmrs",                 required_argument, 0, 0 },
 	0 };
 
 #endif /* OPTIONS_H_ */

@@ -10,7 +10,7 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
-
+#include <climits>
 #include <memory.h>
 #include <ctype.h>
 #include <unistd.h>
@@ -388,6 +388,8 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("cpu_threads", 1);
 
 	Default("kmer", 13);
+	Default("kmer_min", 0);
+	Default("max_cmrs", INT_MAX);
 	Default("kmer_skip", 2);
 	Default("mode", 0);
 //	Default("topn", 1);

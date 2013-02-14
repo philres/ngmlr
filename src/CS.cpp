@@ -333,8 +333,9 @@ int CS::CollectResultsStd(MappedRead * read) {
 	if (kCount > max)
 		read->mappingQlty = 0;
 	read->s = maxHitNumber;
-	//float mi_Threshhold = std::max(2, currentThresh);
-	float mi_Threshhold = currentThresh;
+	static float const mink = Config.GetFloat("kmer_min");
+	float mi_Threshhold = std::max(mink, currentThresh);
+	//float mi_Threshhold = currentThresh;
 	int n = rListLength;
 
 #ifdef _DEBUGCS
@@ -374,7 +375,9 @@ int CS::CollectResultsStd(MappedRead * read) {
 			toInsert->Read = read;
 		}
 	}
-	read->AllocScores(tmp, index);
+	static int const maxScores = Config.GetInt("max_cmrs");
+	if (index < maxScores)
+		read->AllocScores(tmp, index);
 
 #ifdef _DEBUGCS
 	char const * debugRead = "FCC01PDACXX:4:1101:10342:37018#0/1";
