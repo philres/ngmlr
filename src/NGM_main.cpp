@@ -182,7 +182,7 @@ Input/Output:\n\
                                 If this parameter is omitted, default values will be used.\n\
   -r/--reference <path>         Path to the reference genome (format: FASTA, can be gzipped).\n\
   -q/--query <path>             Path to the read file. Valid input formats are: FASTA/Q (gzipped), SAM/BAM\n\
-                                If the query file is omitted, NGM will only preprocess the reference.\n\
+                                If the query file is omitted, NGM will only pre-process the reference.\n\
   -p/--paired                   Input data is paired end. (default: off)\n\
   -I/--min-insert-size          The minimum insert size for paired end alignments (default: 0)\n\
   -X/--max-insert-size          The maximum insert size for paired end alignments (default: 1000)\n\
@@ -200,15 +200,15 @@ General:\n\n\
                                 locations that will be evaluated with an sequence alignment.\n\
                                 0 means that all possible mapping locations will be evaluated\n\
                                 1 means that only the best possible mapping location(s) will be evaluated\n\
-                                Higher values will reduce the runtime but also have a negativ effect on mapping sensitivity.\n\
+                                Higher values will reduce the runtime but also have a negative effect on mapping sensitivity.\n\
                                 (default: estimated from input data)\n\
   -i/--min-identity <0-1>       All reads mapped with an identity lower than this threshold will be reported as unmapped (default: 0.75)\n\
   -R/--min-residues <int>       All reads mapped with lower than <int> residues will be reported as unmapped (default: 0.0)\n\
-  -g/--gpu [int,...]            Use GPU(s) for alignment computation (GPU Ids are zero-bassed!).\n\
+  -g/--gpu [int,...]            Use GPU(s) for alignment computation (GPU Ids are zero-based!).\n\
                                    With -g or --gpu GPU 0 will be used.\n\
                                    With -g 1 or --gpu 1 GPU 1 will be used.\n\
                                    With -g 0,1 or --gpu 0,1 GPU 0 and 1 will be used.\n\
-                                If -g/--gpu is ommitted, alignments will be computed on the CPU\n\
+                                If -g/--gpu is omitted, alignments will be computed on the CPU\n\
   --bs-mapping                  Enables bisulfite mapping (For bs-mapping kmer-skip will be applied to\n\
                                 the reads instead of the reference sequence).\n\
   --bs-cutoff <int>             Max. number of Ts in a k-mer. All k-mers were the number of Ts is higher than <int> are ignored (default: 8)\n\
@@ -232,7 +232,7 @@ Advanced settings:\n\
 ulong const FileSize(char const * const filename) {
 	FILE * fp = fopen(filename, "rb");
 	if (fp == 0) {
-		Log.Warning("Tried to get size of nonexistant file %s", filename);
+		Log.Warning("Tried to get size of nonexistent file %s", filename);
 		return 0;
 	}
 
