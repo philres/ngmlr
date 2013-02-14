@@ -386,7 +386,7 @@ int CS::CollectResultsStd(MappedRead * read) {
 	}
 #endif
 
-	return 0;
+	return index;
 }
 
 int CS::CollectResultsFallback(MappedRead * read) {
@@ -425,10 +425,12 @@ void CS::SendToBuffer(MappedRead * read) {
 void CS::Cleanup() {
 }
 
-void CS::RunBatch() {
+int CS::RunBatch() {
 	PrefixIterationFn pFunc = &CS::PrefixSearch;
 	if (m_EnableBS)
 		pFunc = &CS::PrefixMutateSearch;
+
+	int nScoresSum = 0;
 
 	for (size_t i = 0; i < m_CurrentBatch.size(); ++i) {
 
@@ -466,7 +468,7 @@ void CS::RunBatch() {
 		if (!fallback) {
 			try {
 				PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
-				CollectResultsStd(m_CurrentBatch[i]);
+				nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
 			} catch (int overflow) {
 //				Log.Verbose("Interrupt on read %i: %i candidates in %i slots filled by %i prefixes containing %i locs",
 //						m_CurrentSeq,
@@ -499,7 +501,7 @@ void CS::RunBatch() {
 					currentThresh = 0.0f;
 
 					PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
-					CollectResultsStd(m_CurrentBatch[i]);
+					nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
 
 				} catch (int overflow) {
 					fallback = true;
@@ -519,6 +521,8 @@ void CS::RunBatch() {
 		SendToBuffer(m_CurrentBatch[i]);
 #endif
 	}
+
+	return nScoresSum;
 }
 
 void CS::DoRun() {
@@ -553,7 +557,7 @@ void CS::DoRun() {
 		tmr.ST();
 
 		NGM.bCSSW.Register();
-		RunBatch();
+		int nCRMsSum = RunBatch();
 		NGM.bCSSW.Release();
 
 		float elapsed = tmr.ET();
@@ -562,6 +566,7 @@ void CS::DoRun() {
 		NGM.Stats->csTime = elapsed;
 		NGM.Stats->csLength = c_SrchTableBitLen;
 		NGM.Stats->csOverflows = m_Overflows;
+		NGM.Stats->avgnCRMS = nCRMsSum / m_CurrentBatch.size();
 
 		if (!Config.Exists("search_table_length")) {
 			if (m_Overflows <= 5 && !up && c_SrchTableBitLen > 8) {

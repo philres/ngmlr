@@ -47,6 +47,7 @@ struct NGMStats
 	float csTime;
 	int csLength;
 	int csOverflows;
+	int avgnCRMS;
 
 	float validPairs;
 	float insertSize;

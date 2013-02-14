@@ -71,7 +71,7 @@ protected:
 	int CollectResultsFallback(MappedRead* read);
 	void FilterScore(LocationScore* score);
 	void CheckFallback();
-	virtual void RunBatch();
+	virtual int RunBatch();
 	void SendToBuffer(MappedRead* read);
 	CSTableEntry* rTable; // standard
 	int currentState;
