@@ -202,7 +202,7 @@ General:\n\n\
                                 1 means that only the best possible mapping location(s) will be evaluated\n\
                                 Higher values will reduce the runtime but also have a negative effect on mapping sensitivity.\n\
                                 (default: estimated from input data)\n\
-  -i/--min-identity <0-1>       All reads mapped with an identity lower than this threshold will be reported as unmapped (default: 0.75)\n\
+  -i/--min-identity <0-1>       All reads mapped with an identity lower than this threshold will be reported as unmapped (default: 0.65)\n\
   -R/--min-residues <int>       All reads mapped with lower than <int> residues will be reported as unmapped (default: 0.0)\n\
   -g/--gpu [int,...]            Use GPU(s) for alignment computation (GPU Ids are zero-based!).\n\
                                    With -g or --gpu GPU 0 will be used.\n\

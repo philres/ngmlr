@@ -42,7 +42,7 @@ void Output::saveEqualScoring(int id) {
 			*itr = 0;
 			--esc;
 		} else
-			citr = itr;
+		citr = itr;
 		++itr;
 	}
 	int esid = 0;
@@ -161,32 +161,32 @@ void Output::DoRun() {
 					}
 
 					SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), cur_read->TLS()->Location.m_RefId,
-							cur_read->TLS()->Location.m_Location - (corridor >> 1), refMaxLen);
+					cur_read->TLS()->Location.m_Location - (corridor >> 1), refMaxLen);
 
 					cur_read->AllocBuffers();
 					alignBuffer[i].pBuffer1 = cur_read->Buffer1;
 					alignBuffer[i].pBuffer2 = cur_read->Buffer2;
 
-					//Log.Message("%s: %s", cur_read->name, refBuffer[i]);
-					//Log.Message("%s: %s", cur_read->name, qryBuffer[i]);
 				} else {
-					Log.Message("Unmapped read submitted to alignment computation!");
-					Fatal();
-//					char * refDummy = const_cast<char *>(refBuffer[i]);
-//					memset(refDummy, '\0', refMaxLen);
-//					qryBuffer[i] = dummy; //SequenceProvider.GetQrySequence(cur_read->ReadId);
-//
-//					alignBuffer[i].pBuffer1 = dBuffer;
-//					alignBuffer[i].pBuffer2 = dBuffer + dbLen / 2;
+					Log.Warning("Unmapped read submitted to alignment computation!");
+					//Fatal();
+					char * refDummy = const_cast<char *>(refBuffer[i]);
+					memset(refDummy, '\0', refMaxLen);
+					qryBuffer[i] = dummy;//SequenceProvider.GetQrySequence(cur_read->ReadId);
+
+					alignBuffer[i].pBuffer1 = dBuffer;
+					alignBuffer[i].pBuffer2 = dBuffer + dbLen / 2;
 
 				}
+				//Log.Message("%s: %s", cur_read->name, refBuffer[i]);
+				//Log.Message("%s: %s", cur_read->name, qryBuffer[i]);
 			}
 
 			Log.Verbose("Thread %i invoking alignment (count = %i)", m_TID, count);
 			Timer x;
 			x.ST();
 			int aligned = NGM.Aligner()->BatchAlign(alignmode | (std::max(outputformat, 1) << 8), count, refBuffer, qryBuffer, alignBuffer,
-					(m_EnableBS) ? m_DirBuffer : 0);
+			(m_EnableBS) ? m_DirBuffer : 0);
 			//int aligned = count;
 
 			if (aligned == count) {
@@ -227,8 +227,11 @@ void Output::DoRun() {
 						NGM.GetReadProvider()->DisposeRead(cur_read);
 					}
 				} else {
-					Log.Message("Unmapped read detected during alignment computation!");
-					Fatal();
+					Log.Warning("Unmapped read detected during alignment computation!");
+					throw "geh scheiszen";
+					SaveRead(cur_read, false);
+					NGM.GetReadProvider()->DisposeRead(cur_read);
+					//Fatal();
 				}
 			} // for
 			Log.Verbose("Output Thread %i finished batch in %.2fs", m_TID, tmr.ET());

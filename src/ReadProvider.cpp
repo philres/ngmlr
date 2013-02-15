@@ -390,7 +390,7 @@ MappedRead * ReadProvider::NextRead(int const id) {
 		}
 	} else {
 		if (l == -1) {
-			Log.Message("End of input file reached.");
+			Log.Verbose("End of input file reached.");
 		} else {
 			Log.Error("Error while parsing read %d (%d)", id, l);
 			Fatal();

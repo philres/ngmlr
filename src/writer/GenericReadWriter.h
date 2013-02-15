@@ -129,6 +129,7 @@ public:
 				NGM.AddMappedRead(read2->ReadId);
 
 			}
+
 			//Log.Verbose("Output paired 1: hC %d, R: %d %d, I: %f %f", read1->hasCandidates(), ((read1->length - read1->QStart - read1->QEnd)), minResidues, read1->Identity >= minIdentity, minIdentity);
 			//Log.Verbose("%d %d %d", read1->length, read1->QStart, read1->QEnd);
 			//Log.Verbose("Output paired 2: hC %d, R: %d %d, I: %f %f", read2->hasCandidates(), ((read2->length - read2->QStart - read2->QEnd)), minResidues, read2->Identity >= minIdentity, minIdentity);

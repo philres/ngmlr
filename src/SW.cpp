@@ -119,8 +119,8 @@ void SW::DoRun() {
 						SendToPostprocessing(scores[i]->Read);
 					}
 				}
-				NGM.Stats->validPairs = (count - brokenPairs) * 100.0f / count;
-				NGM.Stats->insertSize = tSum / tCount;
+//				NGM.Stats->validPairs = (count - brokenPairs) * 100.0f / count;
+//				NGM.Stats->insertSize = tSum / tCount;
 //				Log.Warning("Finished post processing in %.2fs", y.ET());
 			} else {
 				Log.Verbose("Nothing to do...waiting");
@@ -200,29 +200,29 @@ void SW::SendToPostprocessing(MappedRead * read) {
 		read->mappingQlty = 0;
 	}
 
-	if (NGM.Paired() && (!read->HasFlag(NGMNames::PairedFail))) {
-		if (read->Paired == 0) {
-			Log.Error("No read pair found.");
-			Fatal();
-		}
-		Log.Verbose("[PAIRED] SW::SendToPostprocessing: %i (%s)", read->ReadId, read->name);
-		// Paired read finished score calculation
-		// -> race condition here: both paired reads could enter at the same time
-		//Log.Message("%d %d", read->Paired->Calculated, read->Paired->nScores());
-		if (read->Paired->Calculated > -1 && read->Paired->Calculated == read->Paired->numScores()) {
-			if (read->ReadId < read->Paired->ReadId) {
-				if (AtomicInc(&read->Lock) == 1) {
-					PairedReadSelection(read, read->Paired);
-				}
-			} else {
-				if (AtomicInc(&read->Paired->Lock) == 1) {
-					PairedReadSelection(read->Paired, read);
-				}
-			}
-		}
-	} else {
+//	if (NGM.Paired() && (!read->HasFlag(NGMNames::PairedFail))) {
+//		if (read->Paired == 0) {
+//			Log.Error("No read pair found.");
+//			Fatal();
+//		}
+//		Log.Verbose("[PAIRED] SW::SendToPostprocessing: %i (%s)", read->ReadId, read->name);
+//		// Paired read finished score calculation
+//		// -> race condition here: both paired reads could enter at the same time
+//		//Log.Message("%d %d", read->Paired->Calculated, read->Paired->nScores());
+//		if (read->Paired->Calculated > -1 && read->Paired->Calculated == read->Paired->numScores()) {
+//			if (read->ReadId < read->Paired->ReadId) {
+//				if (AtomicInc(&read->Lock) == 1) {
+//					PairedReadSelection(read, read->Paired);
+//				}
+//			} else {
+//				if (AtomicInc(&read->Paired->Lock) == 1) {
+//					PairedReadSelection(read->Paired, read);
+//				}
+//			}
+//		}
+//	} else {
 		SendSeToBuffer(read);
-	}
+	//}
 }
 
 void SW::SendSeToBuffer(MappedRead* read) {
@@ -244,6 +244,9 @@ void SW::SendSeToBuffer(MappedRead* read) {
 	//			score_max_count = 1;
 	//			read->EqualScoringCount = 1;
 	//		}
+
+
+	//Log.Green("Single: %f", read->TLS()->Score.f);
 
 	NGM.bSWO.Write(&read, 1);
 	//NGM.AddMappedRead(read->ReadId);
@@ -323,18 +326,29 @@ void SW::PairedReadSelection(MappedRead * read1, MappedRead * read2) {
 	//TODO: fast selection for equal scoring positions.
 	int TopScore1 = -1;
 	int TopScore2 = -1;
+
+	//float maxScore1 = 0;
+	//float maxScore2 = 0;
+
 	for (int i = 0; i < read1->numScores(); ++i) {
+		//maxScore1 = std::max(maxScore1, read1->Scores[i].Score.f);
 		for (int j = 0; j < read2->numScores(); ++j) {
+			//maxScore2 = std::max(maxScore2, read2->Scores[j].Score.f);
 			if (CheckPairs(&read1->Scores[i], &read2->Scores[j], topScore, distance, equalScoreFound)) {
 				TopScore1 = i;
 				TopScore2 = j;
+				Log.Green("Accepted - %f + %f", read1->Scores[i].Score.f, read2->Scores[j].Score.f);
+			} else {
+				Log.Error("Not accepted - %f + %f", read1->Scores[i].Score.f, read2->Scores[j].Score.f);
 			}
 		}
 	}
 
-	if (TopScore1 != -1) {
+	if (TopScore1 != -1) { //&& (read1->Scores[TopScore1].Score.f + read2->Scores[TopScore2].Score.f) > (maxScore1 + maxScore2) * 0.9f) {
 		read1->TopScore = TopScore1;
 		read2->TopScore = TopScore2;
+
+		//Log.Green("Read 1: %f, Read 2: %f", read1->TLS()->Score.f, read2->TLS()->Score.f);
 
 		Log.Verbose("Read pairing found: R %i (#%i) at <%i, %i> Score %f, R %i (#%i) at <%i, %i> Score %f / Distance %i",
 				read1->ReadId, read1->TopScore, read1->Scores[read1->TopScore].Location.m_Location,
@@ -375,14 +389,14 @@ bool SW::CheckPairs(LocationScore * ls1, LocationScore * ls2, float & topScore, 
 						ls2->Location.m_Location - ls1->Location.m_Location + ls2->Read->length :
 						ls1->Location.m_Location - ls2->Location.m_Location + ls1->Read->length;
 
-		if (distance > _NGM::sPairMinDistance && distance < _NGM::sPairMaxDistance) {
+		if (true && distance > _NGM::sPairMinDistance && distance < _NGM::sPairMaxDistance) {
 //			Log.Green("[%d, %d] Score: %f, Distance: %d (%u - %u), AVG: %d", ls1->Read->ReadId, ls2->Read->ReadId, ls1->Score.f + ls2->Score.f, distance, ls2->Location.m_Location, ls1->Location.m_Location, tSum / tCount);
 			float f = ls1->Score.f + ls2->Score.f;
-			if (f > topScore) {
+			if (f > topScore * 1.00f) {
 				topScore = f;
 				dst = distance;
 				return true;
-			} else if (f == topScore) {
+			} else if (f == topScore * 1.00f) {
 				equalScore = true;
 				Log.Verbose("Found a pair (%d, %d) with same score (%f). Choosing pair according to insert size.", ls1->Read->ReadId, ls2->Read->ReadId, f);
 				int avg = tSum / tCount;
