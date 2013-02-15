@@ -54,6 +54,9 @@ set(OPENCL_LIBRARIES " -lOpenCL")
 #SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN:$ORIGIN/amd-app-sdk'" )
 #SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN/mason:$ORIGIN/amd-app/lib/x86_64'" )
 
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/lib/zlib-1.2.7")
+include_directories("${PROJECT_SOURCE_DIR}/lib/zlib-1.2.7")
+
 add_subdirectory(lib/zlib-1.2.7)
 add_subdirectory(lib/bamtools-2.2.3)
 
