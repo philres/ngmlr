@@ -228,9 +228,9 @@ void Output::DoRun() {
 					}
 				} else {
 					Log.Warning("Unmapped read detected during alignment computation!");
-					throw "geh scheiszen";
-					SaveRead(cur_read, false);
-					NGM.GetReadProvider()->DisposeRead(cur_read);
+					//throw "geh scheiszen";
+					//SaveRead(cur_read, false);
+					//NGM.GetReadProvider()->DisposeRead(cur_read);
 					//Fatal();
 				}
 			} // for
