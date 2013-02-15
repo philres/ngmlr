@@ -278,13 +278,13 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 			int m_RefId = j;
 			int refNameLength = 0;
 			if (rTable[i].fScore > 0.0f) {
-				if(rTable[i].fScore > mi_Threshhold) {
+				if(rTable[i].fScore >= mi_Threshhold) {
 #ifdef _DEBUGCSVERBOSE
 					Log.Green("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].fScore);
 #endif
 				} else {
 #ifdef _DEBUGCSVERBOSE
-					Log.Message("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].fScore);
+					//Log.Message("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].fScore);
 #endif
 				}
 #ifdef _DEBUGCSKMERS
@@ -293,13 +293,13 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 				count += 1;
 			}
 			if (rTable[i].rScore > 0.0f) {
-				if(rTable[i].rScore > mi_Threshhold) {
+				if(rTable[i].rScore >= mi_Threshhold) {
 #ifdef _DEBUGCSVERBOSE
 					Log.Green("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].fScore);
 #endif
 				} else {
 #ifdef _DEBUGCSVERBOSE
-					Log.Message("%s - Loc: %u (-), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].rScore);
+					//Log.Message("%s - Loc: %u (-), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].rScore);
 #endif
 				}
 #ifdef _DEBUGCSKMERS
@@ -359,6 +359,7 @@ int CS::CollectResultsStd(MappedRead * read) {
 		//Log.Verbose("Location <%i, %i> with Score %f", temp.Location.m_Location, temp.Location.m_RefId, temp.Score.f);
 		if (temp.fScore >= mi_Threshhold) {
 //			read->AddScore(temp.fScore, ResolveBin(temp.m_Location), false);
+			//Log.Error("%f", temp.fScore);
 			LocationScore * toInsert = &tmp[index++];
 			toInsert->Score.f = temp.fScore;
 			toInsert->Location.m_Location = ResolveBin(temp.m_Location);
@@ -369,6 +370,7 @@ int CS::CollectResultsStd(MappedRead * read) {
 		if (temp.rScore >= mi_Threshhold) {
 			//read->AddScore(temp.rScore, ResolveBin(temp.m_Location), true);
 			LocationScore * toInsert = &tmp[index++];
+			//Log.Error("%f", temp.rScore);
 			toInsert->Score.f = temp.rScore;
 			toInsert->Location.m_Location = ResolveBin(temp.m_Location);
 			toInsert->Location.m_RefId = true;
@@ -514,6 +516,7 @@ int CS::RunBatch() {
 		}
 
 #ifdef _DEBUGCS
+		Log.Warning("You are in DEBUGCS mode. Program quits after CMR search.")
 		NGM.AddMappedRead(m_CurrentBatch[i]->ReadId);
 		delete m_CurrentBatch[i];
 		m_CurrentBatch[i] = 0;
