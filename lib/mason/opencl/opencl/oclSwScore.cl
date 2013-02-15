@@ -404,8 +404,9 @@ __kernel void oclSW_Score(__global char const * scaff, __global char const * rea
 					float4 * matrix_lines = l_matrix_lines + local_index * corridor_length;
 
 					float4 curr_max = (float4)(-1.0f);
-					if (read[0] != line_end) {
-						//printf("Ref: %s\n", scaff);
+					if (read[0] != line_end) {						
+						//printf("Ref:  %s\n", scaff);
+						//printf("Read: %s\n", read);
 						//Init matrix lines
 						for (short i = 0; i < corridor_length; ++i) {
 							matrix_lines[i] = null4;
