@@ -30,7 +30,6 @@ int Writer::Print(const char *format, ...) {
 
 void Writer::Flush(bool last) {
 	if (bufferPosition > BUFFER_LIMIT || last) {
-		Log.Message("Flushing %d chars.", bufferPosition);
 		if(fwrite(writeBuffer, sizeof(char), bufferPosition, m_Output) != bufferPosition) {
 			throw "Couldn't write to file";
 		}
