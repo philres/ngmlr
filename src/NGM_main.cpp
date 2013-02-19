@@ -219,7 +219,7 @@ Advanced settings:\n\
   --kmer-skip <int>             Number of k-mers to skip when building the lookup table from\n\
                                 the reference(default: 2)\n\
   --kmer-min <int>              Minimal number of k-mer hits required to consider a region a CMR. (default: 0)\n\
-  --max-cmrs <int>              Reads that have more than <int> CMRs are ignored. (default: infinite)\
+  --max-cmrs <int>              Reads that have more than <int> CMRs are ignored. (default: infinite)\n\
   -m/mode [0|1]                 Alignment mode: 0 = local, 1 = semi-global. (default: 0)\n\
   -C/--max-consec-indels <int>  Maximum number of consecutive indels allowed. (default: computed from input)\n\
 \n\
