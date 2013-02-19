@@ -201,14 +201,14 @@ int parseNext(map<string, MappedRead *> & pairs, MappedRead * read, Writer * wri
 				entryRight = pairs[nameLeft];
 				if (pairs[nameLeft]->ReadId == 0) {
 					cout << "Warning: Found read pair in a single file (Name: " << nameLeft
-							<< ")! Do you have two reads with the same name in one file?" << std::endl;
+					<< ")! Do you have two reads with the same name in one file?" << std::endl;
 				}
 			} else {
 				entryRight = entryLeft;
 				entryLeft = pairs[nameLeft];
 				if (!pairs[nameLeft]->ReadId == 0) {
 					cout << "Warning: Found read pair in a single file (Name: " << nameLeft
-							<< ")! Do you have two reads with the same name in one file?" << std::endl;
+					<< ")! Do you have two reads with the same name in one file?" << std::endl;
 				}
 			}
 //
@@ -279,6 +279,8 @@ int interleave_pairs(int argc, char **argv) {
 		_log = &Log;
 		_Log::Init(); // Inits logging to file
 
+		seperator = delimiterArg.getValue();
+
 		Writer * writer = new FastqWriter(outArg.getValue().c_str());
 
 		IParser * parser1 = DetermineParser(leftArg.getValue().c_str());
@@ -314,11 +316,15 @@ int interleave_pairs(int argc, char **argv) {
 			count += 1;
 			eof = (read1 == 0 && read2 == 0);
 
-			if (count % 1000 == 0 && progess) {
+			if (count % 10000 == 0 && progess) {
 				Log.Progress("Processed: %d", count);
+				if(nPairs == 0) {
+					Log.Error("0 proper pairs were found in the last 20000 reads. Please check if the seperator is set correctly or if you are using the correct files.");
+					Fatal();
+				}
 			}
 		}
-
+		delete writer; writer = 0;
 		int nUnmappedRead = 0;
 		if (unpairedArg.getValue() != "" && pairs.size() > 0) {
 			Log.Message("Writing unpaired reads to %s", unpairedArg.getValue().c_str());
@@ -339,6 +345,8 @@ int interleave_pairs(int argc, char **argv) {
 		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
 	} catch (std::ios_base::failure &e) {
 		std::cerr << "Error: " << e.what() << std::endl;
+	} catch(char const * msg) {
+		std::cerr << "Exception: " << msg << std::endl;
 	}
 
 	return 0;
