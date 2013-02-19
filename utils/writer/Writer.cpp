@@ -13,9 +13,9 @@
 #include <stdarg.h>
 
 #include "Log.h"
-//#include "kseq.h"
-//#include <zlib.h>
-//#include <stdio.h>
+
+#undef module_name
+#define module_name "WRITER"
 
 int Writer::Print(const char *format, ...) {
 	va_list arg;
@@ -30,7 +30,10 @@ int Writer::Print(const char *format, ...) {
 
 void Writer::Flush(bool last) {
 	if (bufferPosition > BUFFER_LIMIT || last) {
-		fwrite(writeBuffer, sizeof(char), bufferPosition, m_Output);
+		Log.Message("Flushing %d chars.", bufferPosition);
+		if(fwrite(writeBuffer, sizeof(char), bufferPosition, m_Output) != bufferPosition) {
+			throw "Couldn't write to file";
+		}
 		bufferPosition = 0;
 		fflush(m_Output);
 	}
