@@ -67,4 +67,8 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}/opencl-sdk/AMD-APP-SDK-v2.8-RC-
 add_subdirectory(lib/mason/opencl)
 add_subdirectory(src)
 
+add_subdirectory("lib/libStatGen-1.0.8")
+MESSAGE("${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.8/libStatGen-1.0.8/include")
+include_directories("${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.8/libStatGen-1.0.8/include")
+
 add_subdirectory(utils)

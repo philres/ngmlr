@@ -11,6 +11,7 @@
 
 #include "Log.h"
 #include "paired/interleave-pairs.h"
+#include "filter/filter.h"
 
 using std::string;
 using TCLAP::ValuesConstraint;
@@ -55,13 +56,14 @@ int main(int argc, char **argv) {
 
 		TCLAP::CmdLine cmd("", ' ', "0.1", false);
 
-
-
-		std::vector < std::string > allowed;
+		std::vector<std::string> allowed;
 		allowed.push_back("interleave");
+		allowed.push_back("filter");
 		ValuesConstraint<string> allowedVals(allowed);
 
-		UnlabeledValueArg<string> nolabel("program", "Name of the program you want to use. Available programs: interleave", true, "string", "name", &allowedVals);
+		UnlabeledValueArg<string> nolabel("program",
+				"Name of the program you want to use. Available programs: interleave",
+				true, "string", "name", &allowedVals);
 
 		cmd.add(nolabel);
 
@@ -69,17 +71,22 @@ int main(int argc, char **argv) {
 		argv[0] = const_cast<char *>(name.c_str());
 		cmd.parse(std::min(argc, 2), argv);
 
-		if(nolabel.getValue() == allowed[0]) {
+		if (nolabel.getValue() == allowed[0]) {
 			char const * name = "ngm-utils interleave";
 			argv[1] = const_cast<char *>(name);
 			interleave_pairs(argc - 1, argv + 1);
+		} else if (nolabel.getValue() == allowed[1]) {
+			char const * name = "ngm-utils filter";
+			argv[1] = const_cast<char *>(name);
+			filter(argc - 1, argv + 1);
 		} else {
 			throw TCLAP::ArgException("Invalid value found", "program");
 		}
 
 	} catch (TCLAP::ArgException &e) // catch any exceptions
 	{
-		std::cerr << "Error: " << e.error() << " for arg " << e.argId() << std::endl;
+		std::cerr << "Error: " << e.error() << " for arg " << e.argId()
+				<< std::endl;
 	}
 
 	return 0;

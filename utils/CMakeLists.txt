@@ -15,6 +15,7 @@ include_directories (.)
 add_executable(ngm-utils main.cpp
 								paired/interleave-pairs.cpp
 								writer/Writer.cpp
+								filter/filter.cpp
 								../src/parser/SamParser.cpp
 								../src/log/Logging.cpp
 								../src/core/unix.cpp
@@ -24,5 +25,7 @@ add_executable(ngm-utils main.cpp
  					)		
 
 TARGET_LINK_LIBRARIES(ngm-utils zlibstatic)
-#TARGET_LINK_LIBRARIES(ngm-utils zlib)
+
+MESSAGE("${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.8/libStatGen-1.0.8/libStatGen.a")
+TARGET_LINK_LIBRARIES(ngm-utils ${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.8/libStatGen-1.0.8/libStatGen.a)
 #target_link_libraries(ngm-utils z)
