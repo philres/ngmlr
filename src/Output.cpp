@@ -6,21 +6,9 @@
 
 #include <string.h>
 
-#include "FFormatWriter.h"
-#include "SAMWriter.h"
-
-#ifdef _BAM
-#include "BAMWriter.h"
-#endif
-
-//TODO: remove
-#include <iostream>
-
 ulong Output::alignmentCount = 0;
 
 //static inline void rev(char * s);
-
-char const * const cFormatNames[] = { "Plain Text", "SAM", "BAM" };
 
 void Output::saveEqualScoring(int id) {
 	typedef std::list<MappedRead*> TReadList;
@@ -74,198 +62,148 @@ void Output::saveEqualScoring(int id) {
 	m_EqualScoringBuffer.erase(it);
 }
 
-//TODO: remove
-#include <iostream>
+void Output::flush() {
+	DoRun();
+	nReads = 0;
+}
+
+void Output::addRead(MappedRead * read) {
+	if (!read->hasCandidates()) {
+		SaveRead(read, false);
+	} else {
+		reads[nReads++] = read;
+		if (nReads == 4096) {
+			DoRun();
+			nReads = 0;
+		}
+	}
+}
 
 void Output::DoRun() {
-	char const * const output_name = Config.GetString("output");
-	int const outputformat = NGM.GetOutputFormat();
-	int const alignmode = Config.GetInt("mode", 0, 1);
 
-	bool m_EnableBS = false;
-//	if (Config.Exists("bs_mapping"))
-	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
+	int count = nReads;
+	Timer tmr;
+	tmr.ST();
 
-	Log.Message("Writing output to %s (Format: %s)", output_name, cFormatNames[outputformat]);
+	if (count > 0) {
+		alignmentCount += count;
+		for (int i = 0; i < count; ++i) {
+			MappedRead * cur_read = reads[i];
+			if (cur_read->hasCandidates()) {
+				cur_read->Strand = Strand(cur_read);
 
-#ifdef _BAM
-	m_Writer =
-	(outputformat == 0) ?
-	(GenericReadWriter*) new FFormatWriter(output_name) :
-	(outputformat == 1) ?
-	(GenericReadWriter*) new SAMWriter(output_name) :
-	(GenericReadWriter*) new BAMWriter(output_name);
-#else
-	m_Writer = (outputformat == 0) ? (GenericReadWriter*) new FFormatWriter(output_name) : (GenericReadWriter*) new SAMWriter(output_name);
-#endif
+				// Bei Mapping am Minus-Strang, Position bez�glich +-Strang reporten
+				if (cur_read->Strand == '-') {
+					qryBuffer[i] = cur_read->RevSeq;
+					//Log.Message("Rev Seq: %s", qryBuffer[i]);
 
-	m_Writer->WriteProlog();
-
-	int const batchSize = NGM.Aligner()->GetAlignBatchSize();
-	Log.Message("Alignment batchsize = %i", batchSize);
-
-	int const corridor = Config.GetInt("corridor");
-	static int const refMaxLen = ((Config.GetInt("qry_max_len") + corridor) | 1) + 1;
-
-	MappedRead ** reads = new MappedRead*[batchSize];
-
-	char const * * qryBuffer = new char const *[batchSize];
-	char const * * refBuffer = new char const *[batchSize];
-
-	for (int i = 0; i < batchSize; ++i) {
-		refBuffer[i] = new char[refMaxLen];
-	}
-
-	char * m_DirBuffer = new char[batchSize];
-
-	Align * alignBuffer = new Align[batchSize];
-	int dbLen = std::max(1, Config.GetInt("qry_max_len")) * 8;
-	char * dBuffer = new char[dbLen];
-
-	char * dummy = new char[refMaxLen];
-	memset(dummy, '\0', refMaxLen);
-	//dummy[Config.GetInt("qry_max_len") - 1] = '\0';
-
-	while (NGM.ThreadActive(m_TID, GetStage()) && (NGM.StageActive(GetStage() - 1) || NGM.bSWO.Count() > 0)) {
-		int count = NGM.bSWO.Read(reads, batchSize);
-		Timer tmr;
-		tmr.ST();
-
-		if (count > 0) {
-			alignmentCount += count;
-			for (int i = 0; i < count; ++i) {
-				MappedRead * cur_read = reads[i];
-				if (cur_read->hasCandidates()) {
-					cur_read->Strand = Strand(cur_read);
-
-					// Bei Mapping am Minus-Strang, Position bez�glich +-Strang reporten
-					if (cur_read->Strand == '-') {
-						qryBuffer[i] = cur_read->RevSeq;
-						//Log.Message("Rev Seq: %s", qryBuffer[i]);
-
-						// RefId auf +-Strang setzen
-						--cur_read->TLS()->Location.m_RefId;
-						if (NGM.Paired()) {
-							m_DirBuffer[i] = !(cur_read->ReadId & 1);
-						} else {
-							m_DirBuffer[i] = 1;
-						}
-
+					// RefId auf +-Strang setzen
+					--cur_read->TLS()->Location.m_RefId;
+					if (NGM.Paired()) {
+						m_DirBuffer[i] = !(cur_read->ReadId & 1);
 					} else {
-						qryBuffer[i] = cur_read->Seq;
-						if (NGM.Paired()) {
-							m_DirBuffer[i] = cur_read->ReadId & 1; //0 if first pair
-						} else {
-							m_DirBuffer[i] = 0;
-						}
+						m_DirBuffer[i] = 1;
 					}
 
-					SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), cur_read->TLS()->Location.m_RefId,
-					cur_read->TLS()->Location.m_Location - (corridor >> 1), refMaxLen);
-
-					cur_read->AllocBuffers();
-					alignBuffer[i].pBuffer1 = cur_read->Buffer1;
-					alignBuffer[i].pBuffer2 = cur_read->Buffer2;
-
 				} else {
-					Log.Warning("Unmapped read submitted to alignment computation!");
-					//Fatal();
-					char * refDummy = const_cast<char *>(refBuffer[i]);
-					memset(refDummy, '\0', refMaxLen);
-					qryBuffer[i] = dummy;//SequenceProvider.GetQrySequence(cur_read->ReadId);
-
-					alignBuffer[i].pBuffer1 = dBuffer;
-					alignBuffer[i].pBuffer2 = dBuffer + dbLen / 2;
-
+					qryBuffer[i] = cur_read->Seq;
+					if (NGM.Paired()) {
+						m_DirBuffer[i] = cur_read->ReadId & 1; //0 if first pair
+					} else {
+						m_DirBuffer[i] = 0;
+					}
 				}
-				//Log.Message("%s: %s", cur_read->name, refBuffer[i]);
-				//Log.Message("%s: %s", cur_read->name, qryBuffer[i]);
-			}
 
-			Log.Verbose("Thread %i invoking alignment (count = %i)", m_TID, count);
-			Timer x;
-			x.ST();
-			int aligned = NGM.Aligner()->BatchAlign(alignmode | (std::max(outputformat, 1) << 8), count, refBuffer, qryBuffer, alignBuffer,
-			(m_EnableBS) ? m_DirBuffer : 0);
-			//int aligned = count;
+				SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), cur_read->TLS()->Location.m_RefId,
+						cur_read->TLS()->Location.m_Location - (corridor >> 1), refMaxLen);
 
-			if (aligned == count) {
-				Log.Verbose("Output Thread %i finished batch (Size = %i, Elapsed: %.2fs)", m_TID, count, x.ET());
-//				Log.Message("Align done");
+				cur_read->AllocBuffers();
+				alignBuffer[i].pBuffer1 = cur_read->Buffer1;
+				alignBuffer[i].pBuffer2 = cur_read->Buffer2;
+
 			} else {
-				Log.Error("Error aligning outputs (%i of %i aligned)", aligned, count);
+				Log.Warning("Unmapped read submitted to alignment computation!");
+
+				Fatal();
+				char * refDummy = const_cast<char *>(refBuffer[i]);
+				memset(refDummy, '\0', refMaxLen);
+				qryBuffer[i] = dummy;//SequenceProvider.GetQrySequence(cur_read->ReadId);
+
+				alignBuffer[i].pBuffer1 = dBuffer;
+				alignBuffer[i].pBuffer2 = dBuffer + dbLen / 2;
+
 			}
+			//Log.Message("%s: %s", cur_read->name, refBuffer[i]);
+			//Log.Message("%s: %s", cur_read->name, qryBuffer[i]);
+		}
 
-			for (int i = 0; i < aligned; ++i) {
-				MappedRead * cur_read = reads[i];
+		Log.Verbose("Thread %i invoking alignment (count = %i)", 0, count);
+		Timer x;
+		x.ST();
+		int aligned =
+				aligner->BatchAlign(alignmode | (std::max(outputformat, 1) << 8), count, refBuffer, qryBuffer, alignBuffer,
+						(m_EnableBS) ? m_DirBuffer : 0);
+		//int aligned = count;
 
-				Log.Verbose("Process aligned read %i,%i (%s)", i, cur_read->ReadId, cur_read->name);
-				int id = cur_read->ReadId;
+		if (aligned == count) {
+			Log.Verbose("Output Thread %i finished batch (Size = %i, Elapsed: %.2fs)", 0, count, x.ET());
+//				Log.Message("Align done");
+		} else {
+			Log.Error("Error aligning outputs (%i of %i aligned)", aligned, count);
+		}
 
-				if (cur_read->hasCandidates()) {
-					cur_read->TLS()->Location.m_Location += alignBuffer[i].PositionOffset - (corridor >> 1);
-					//cur_read->TLS()->Score.f = alignBuffer[i].Score; // TODO: Align liefert keine Scores
-					cur_read->Identity = alignBuffer[i].Identity;
-					cur_read->NM = alignBuffer[i].NM;
-					cur_read->QStart = alignBuffer[i].QStart;
-					cur_read->QEnd = alignBuffer[i].QEnd;
+		for (int i = 0; i < aligned; ++i) {
+			MappedRead * cur_read = reads[i];
+
+			Log.Verbose("Process aligned read %i,%i (%s)", i, cur_read->ReadId, cur_read->name);
+			int id = cur_read->ReadId;
+
+			if (cur_read->hasCandidates()) {
+				cur_read->TLS()->Location.m_Location +=
+						alignBuffer[i].PositionOffset - (corridor >> 1);
+				//cur_read->TLS()->Score.f = alignBuffer[i].Score; // TODO: Align liefert keine Scores
+				cur_read->Identity = alignBuffer[i].Identity;
+				cur_read->NM = alignBuffer[i].NM;
+				cur_read->QStart = alignBuffer[i].QStart;
+				cur_read->QEnd = alignBuffer[i].QEnd;
 
 //					Log.Message("%s: %d %d %f -> %s, %s", cur_read->name, cur_read->QStart, cur_read->QEnd, cur_read->Identity, cur_read->Buffer1, cur_read->Buffer2);
 
-					//TODO: fix equal scoring
-					if (false && cur_read->EqualScoringCount > 1) {
-						Log.Error("Should not be here! Equal scoring not supported at the moment.");
-						//Reads maps to several locations with an equal score
-						m_EqualScoringBuffer[id].push_back(cur_read);
-						if (m_EqualScoringBuffer[id].size() == cur_read->EqualScoringCount) {
-							//Alignments for all equal scoring positions of this reads are computed
-							//Warning: TAKE CARE OF UNMAPPABLE READ (INVALID CIGAR STRING0
-							saveEqualScoring(id);
-						}
-					} else {
-						SaveRead(cur_read, alignBuffer[i].Score != -1.0f);
-						NGM.GetReadProvider()->DisposeRead(cur_read);
+#ifdef _DEBUGOUT
+					Log.Message("Read:   %s", cur_read->name);
+					Log.Message("Score: %f", cur_read->TLS()->Score.f);
+					Log.Message("Seq:    %s", cur_read->Seq);
+					Log.Message("CIGAR:  %s", cur_read->Buffer1);
+					Log.Message("MD:     %s", cur_read->Buffer2);
+#endif
+
+				//TODO: fix equal scoring
+				if (false && cur_read->EqualScoringCount > 1) {
+					Log.Error("Should not be here! Equal scoring not supported at the moment.");
+					//Reads maps to several locations with an equal score
+					m_EqualScoringBuffer[id].push_back(cur_read);
+					if (m_EqualScoringBuffer[id].size() == cur_read->EqualScoringCount) {
+						//Alignments for all equal scoring positions of this reads are computed
+						//Warning: TAKE CARE OF UNMAPPABLE READ (INVALID CIGAR STRING0
+						saveEqualScoring(id);
 					}
 				} else {
-					Log.Warning("Unmapped read detected during alignment computation!");
-					//throw "geh scheiszen";
-					//SaveRead(cur_read, false);
-					//NGM.GetReadProvider()->DisposeRead(cur_read);
-					//Fatal();
+					SaveRead(cur_read, alignBuffer[i].Score != -1.0f);
+					NGM.GetReadProvider()->DisposeRead(cur_read);
 				}
-			} // for
-			Log.Verbose("Output Thread %i finished batch in %.2fs", m_TID, tmr.ET());
-		} // if count > 0
-		else {
-			Log.Message("Nothing to do...waiting");
-			Sleep(500);
-		}
-	} // while
-
-	Log.Message("Freeing resources...");
-	delete[] m_DirBuffer;
-	m_DirBuffer = 0;
-
-	delete[] dummy;
-	dummy = 0;
-
-	for (int i = 0; i < batchSize; ++i) {
-		delete[] refBuffer[i];
-		refBuffer[i] = 0;
+			} else {
+				Log.Warning("Unmapped read detected during alignment computation!");
+				//throw "geh scheiszen";
+				//SaveRead(cur_read, false);
+				//NGM.GetReadProvider()->DisposeRead(cur_read);
+				//Fatal();
+			}
+		} // for
+		Log.Verbose("Output Thread %i finished batch in %.2fs", 0, tmr.ET());
+	} // if count > 0
+	else {
+		Log.Message("Nothing to do...waiting");
 	}
-	delete[] qryBuffer;
-	delete[] refBuffer;
-	delete[] alignBuffer;
-
-	delete[] reads;
-	delete[] dBuffer;
-
-	Log.Message("Finalizing output...");
-	m_Writer->WriteEpilog();
-
-	delete m_Writer;
-
-	Log.Message("Output finished");
 }
 
 //static inline char cpl(char c)

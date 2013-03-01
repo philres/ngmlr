@@ -17,7 +17,7 @@ class OclHost {
 
 	private:
 		cl_device_type const devType;
-		cl_context partitionDevice(cl_uint ciDeviceCount, cl_device_id *cdDevices, cl_int cores);
+		cl_context partitionDevice(cl_platform_id platform, cl_uint ciDeviceCount, cl_device_id *cdDevices, cl_int cores);
 		cl_device_id getDevice(cl_context context, unsigned int gpu_id);
     cl_platform_id getPlatform();
 	public:

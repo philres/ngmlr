@@ -14,7 +14,8 @@ include_directories (.)
 
 configure_file( Version.h.in ${CMAKE_SOURCE_DIR}/src/Version.h )
 
-add_executable(ngm-core 	AlignmentDispatcher.cpp
+add_executable(ngm-core 	
+#                   AlignmentDispatcher.cpp
 					parser/BamParser.cpp
 					writer/BAMWriter.cpp					
 					core/Buffer.cpp										
@@ -34,7 +35,8 @@ add_executable(ngm-core 	AlignmentDispatcher.cpp
 					parser/SamParser.cpp
 					writer/SAMWriter.cpp
 					SequenceProvider.cpp
-					SW.cpp
+					#SW.cpp
+					SWwoBuffer.cpp
 					core/unix.cpp
 					core/unix_threads.cpp
 					core/windows_threads.cpp

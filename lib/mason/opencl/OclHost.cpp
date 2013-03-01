@@ -50,8 +50,10 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 
 	char device_string[1024];
 	char driver_string[1024];
-	clGetDeviceInfo(oclDevice, CL_DEVICE_NAME, sizeof(device_string), &device_string, NULL);
-	clGetDeviceInfo(oclDevice, CL_DRIVER_VERSION, sizeof(driver_string), &driver_string, NULL);
+	clGetDeviceInfo(oclDevice, CL_DEVICE_NAME, sizeof(device_string),
+			&device_string, NULL);
+	clGetDeviceInfo(oclDevice, CL_DRIVER_VERSION, sizeof(driver_string),
+			&driver_string, NULL);
 	//	if (isGPU()) {
 	Log.Message("Device %s selected (ID: %d, Driver: %s)", device_string,gpu_id, driver_string);
 
@@ -67,7 +69,8 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 	// create command queue
 	cl_int ciErrNum;
 #ifndef NDEBUG
-	oclCommandQueue = clCreateCommandQueue(oclGpuContext, oclDevice, 0, &ciErrNum);
+	oclCommandQueue = clCreateCommandQueue(oclGpuContext, oclDevice, 0,
+			&ciErrNum);
 #else
 	oclCommandQueue = clCreateCommandQueue(oclGpuContext, oclDevice, 0, &ciErrNum);
 #endif
@@ -109,12 +112,14 @@ cl_platform_id getPlatformID(char const * const platformName) {
 		ciErrNum = clGetPlatformIDs(platformNumber, clPlatformID, 0);
 		Log.Message("Available platforms:");
 		for (size_t i = 0; i < platformNumber; ++i) {
-			ciErrNum = clGetPlatformInfo(clPlatformID[i], CL_PLATFORM_NAME, 1024, &clPlatformName, NULL);
+			ciErrNum = clGetPlatformInfo(clPlatformID[i], CL_PLATFORM_NAME,
+					1024, &clPlatformName, NULL);
 			Log.Message("%s", clPlatformName);
 			if (ciErrNum == CL_SUCCESS) {
 				if (strcasestr(clPlatformName, platformName) != 0) {
 					Log.Message("Selecting OpenCl platform: %s", clPlatformName);
-					ciErrNum = clGetPlatformInfo(clPlatformID[i], CL_PLATFORM_VERSION, 1024, &clPlatformName, NULL);
+					ciErrNum = clGetPlatformInfo(clPlatformID[i],
+							CL_PLATFORM_VERSION, 1024, &clPlatformName, NULL);
 					Log.Message("Platform: %s", clPlatformName);
 					//ciErrNum = clGetDeviceInfo(oclDevice, CL_DRIVER_VERSION, 1024, &clPlatformName, NULL);
 					//ciErrNum = clGetPlatformInfo(clPlatformID[i], CL_DRIVER_VERSION, 1024, &clPlatformName, NULL);
@@ -131,11 +136,18 @@ cl_platform_id getPlatformID(char const * const platformName) {
 	return 0;
 }
 
-cl_context OclHost::partitionDevice(cl_uint ciDeviceCount, cl_device_id *cdDevices, cl_int cores) {
+cl_context OclHost::partitionDevice(cl_platform_id platform, cl_uint ciDeviceCount,
+		cl_device_id *cdDevices, cl_int cores) {
 	cl_uint numSubDevices = 0;
 	cl_int ciErrNum = 0;
-	cl_context oclCPUContext = clCreateContext(0, ciDeviceCount, cdDevices, NULL, NULL, &ciErrNum);
-	cl_device_id device = getDevice(oclCPUContext, 0);
+//	cl_context oclCPUContext = clCreateContext(0, ciDeviceCount, cdDevices,
+//			NULL, NULL, &ciErrNum);
+	//cl_device_id device_id = 0;
+
+	Log.Message("%d", ciDeviceCount);
+//	clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, 1, &device_id, &ciDeviceCount);
+//	Log.Message("%d", ciDeviceCount);
+
 	pfn_clCreateSubDevicesEXT = (clCreateSubDevicesEXT_fn) (clGetExtensionFunctionAddress("clCreateSubDevicesEXT"));
 	cl_device_partition_property_ext partitionPrty[3];
 
@@ -143,15 +155,21 @@ cl_context OclHost::partitionDevice(cl_uint ciDeviceCount, cl_device_id *cdDevic
 	partitionPrty[1] = cores;
 	partitionPrty[2] = CL_PROPERTIES_LIST_END_EXT;
 
-	pfn_clCreateSubDevicesEXT(device, partitionPrty, 0, NULL, &numSubDevices);
-	cl_device_id *subDevices = (cl_device_id*) (malloc(numSubDevices * sizeof(cl_device_id)));
-	pfn_clCreateSubDevicesEXT(device, partitionPrty, numSubDevices, subDevices, NULL);
+
+	pfn_clCreateSubDevicesEXT(cdDevices[0], partitionPrty, 0, NULL, &numSubDevices);
+	Log.Message("%d", numSubDevices);
+	cl_device_id *subDevices = (cl_device_id*) (malloc(
+			numSubDevices * sizeof(cl_device_id)));
+	pfn_clCreateSubDevicesEXT(cdDevices[0], partitionPrty, numSubDevices, subDevices, NULL);
 	// Create context for sub-devices
-	cl_context context = clCreateContext(0, numSubDevices, subDevices, NULL, NULL, NULL);
+	cl_context context = clCreateContext(0, numSubDevices, subDevices, NULL,
+			NULL, NULL);
 	//#ifndef NDEBUG
 	Log.Message("Dividing CPU into %d devices.", numSubDevices);
 	//#endif
 	free(subDevices);
+//	clReleaseDevice(device);
+//	clReleaseContext(oclCPUContext);
 	return context;
 }
 
@@ -201,21 +219,27 @@ void OclHost::initOpenCL(unsigned int cores) {
 			cpPlatform = getPlatform();
 			//Get the devices
 
-			ciErrNum = clGetDeviceIDs(cpPlatform, devType, 0, NULL, &ciDeviceCount);
-			checkClError("Couldn't get number of OpenCl devices. Error: ", ciErrNum);
+			ciErrNum = clGetDeviceIDs(cpPlatform, devType, 0, NULL,
+					&ciDeviceCount);
+			checkClError("Couldn't get number of OpenCl devices. Error: ",
+					ciErrNum);
 
-			cdDevices = (cl_device_id *) malloc(ciDeviceCount * sizeof(cl_device_id));
-			ciErrNum = clGetDeviceIDs(cpPlatform, devType, ciDeviceCount, cdDevices, NULL);
+			cdDevices = (cl_device_id *) malloc(
+					ciDeviceCount * sizeof(cl_device_id));
+			ciErrNum = clGetDeviceIDs(cpPlatform, devType, ciDeviceCount,
+					cdDevices, NULL);
 			checkClError("Couldn't get OpenCl device ids. Error: ", ciErrNum);
 			//}
 
 			//Partitioning temporarily disabled
-			cores = 0;
+			cores = 1;
 			//Create the context
 			if (isGPU() || cores == 0) {
-				oclGpuContext = clCreateContext(0, ciDeviceCount, cdDevices, NULL, NULL, &ciErrNum);
+				oclGpuContext = clCreateContext(0, ciDeviceCount, cdDevices,
+						NULL, NULL, &ciErrNum);
 			} else {
-				oclGpuContext = partitionDevice(ciDeviceCount, cdDevices, cores);
+				oclGpuContext = partitionDevice(cpPlatform, ciDeviceCount, cdDevices,
+						cores);
 			}
 			checkClError("Couldn't create OpenCl context. Error: ", ciErrNum);
 			free(cdDevices);
@@ -233,18 +257,20 @@ cl_device_id OclHost::getDevice(cl_context context, unsigned int gpu_id) {
 	//cl_int clErr = clGetContextInfo(context, CL_CONTEXT_NUM_DEVICES, sizeof(cl_uint), &deviceNumber, NULL);
 	//checkClError("Couldn't get context info.", clErr);
 
-	cl_uint clErr = clGetContextInfo(context, CL_CONTEXT_DEVICES, 0, NULL, &szParmDataBytes);
+	cl_uint clErr = clGetContextInfo(context, CL_CONTEXT_DEVICES, 0, NULL,
+			&szParmDataBytes);
 	checkClError("Couldn't get context info.", clErr);
 
 	deviceNumber = szParmDataBytes / sizeof(cl_device_id);
 	if (gpu_id >= deviceNumber) {
-		Log.Error("Your Pc is equipped with %i devices. You selected device number: %i", deviceNumber, gpu_id);
-		Log.Error("The device ID that you have chosen does not exists. Exiting.");
-		exit(-1);
+		Log.Warning("Your Pc is equipped with %i devices. You selected device number: %i", deviceNumber + 1, gpu_id);
+		Log.Warning("Falling back to device 0.");
+		gpu_id = 0;
 	}
 
 	cdDevices = (cl_device_id*) malloc(szParmDataBytes);
-	clGetContextInfo(context, CL_CONTEXT_DEVICES, szParmDataBytes, cdDevices, NULL);
+	clGetContextInfo(context, CL_CONTEXT_DEVICES, szParmDataBytes, cdDevices,
+			NULL);
 	checkClError("Couldn't get context info.", clErr);
 
 	cl_device_id device = cdDevices[gpu_id];
@@ -259,11 +285,18 @@ cl_device_id OclHost::getDevice(unsigned int gpu_id) {
 
 bool OclHost::checkGlobalMemory(size_t const size) {
 	return true;
-	return (size < ((maxGlobalMem != 0) ? maxGlobalMem : (maxGlobalMem = getDeviceInfoLong(CL_DEVICE_MAX_MEM_ALLOC_SIZE))));
+	return (size
+			< ((maxGlobalMem != 0) ?
+					maxGlobalMem :
+					(maxGlobalMem = getDeviceInfoLong(
+							CL_DEVICE_MAX_MEM_ALLOC_SIZE))));
 }
 
 bool OclHost::checkLocalMemory(size_t const size) {
-	return (size < ((maxLocalMem != 0) ? maxLocalMem : (maxLocalMem = getDeviceInfoLong(CL_DEVICE_LOCAL_MEM_SIZE))));
+	return (size
+			< ((maxLocalMem != 0) ?
+					maxLocalMem :
+					(maxLocalMem = getDeviceInfoLong(CL_DEVICE_LOCAL_MEM_SIZE))));
 }
 
 #include <iostream>
@@ -321,13 +354,15 @@ cl_mem OclHost::allocate(cl_mem_flags flags, size_t size, void * ptr) {
 void * OclHost::mapBuffer(cl_mem buffer, size_t offset, size_t size) {
 	cl_int errCode = 0;
 	//Log.Verbose("Pinning %d memory.", size);
-	void * ptr = clEnqueueMapBuffer(oclCommandQueue, buffer, CL_TRUE, CL_MAP_WRITE, offset, size, 0, NULL, NULL, &errCode);
+	void * ptr = clEnqueueMapBuffer(oclCommandQueue, buffer, CL_TRUE,
+			CL_MAP_WRITE, offset, size, 0, NULL, NULL, &errCode);
 	//clFlush(oclCommandQueue);
 	checkClError("Unable to map buffer.", errCode);
 	return ptr;
 }
 
-cl_kernel OclHost::setupKernel(cl_program program, char const * const kernelName) {
+cl_kernel OclHost::setupKernel(cl_program program,
+		char const * const kernelName) {
 	// Create Kernel
 	cl_int ciErrNum = 0;
 	cl_kernel kernel = clCreateKernel(program, kernelName, &ciErrNum);
@@ -340,7 +375,8 @@ cl_kernel OclHost::setupKernel(cl_program program, char const * const kernelName
 	return kernel;
 }
 
-cl_program OclHost::setUpProgram(char const * const oclSwScore, std::string buildOptions) {
+cl_program OclHost::setUpProgram(char const * const oclSwScore,
+		std::string buildOptions) {
 
 	//char const * additional_options_nv = " -cl-nv-verbose -cl-fast-relaxed-math";
 	//char * additional_options = 0;
@@ -352,31 +388,36 @@ cl_program OclHost::setUpProgram(char const * const oclSwScore, std::string buil
 	cl_int ciErrNum = 0;
 //		Log.Message("Source: %s\n===========================", oclSwScore);
 	// create the program
-	cl_program cpProgram = clCreateProgramWithSource(oclGpuContext, 1, (const char **) &oclSwScore, &program_length, &ciErrNum);
+	cl_program cpProgram = clCreateProgramWithSource(oclGpuContext, 1,
+			(const char **) &oclSwScore, &program_length, &ciErrNum);
 	checkClError("Unable to build program.", ciErrNum);
 	if (ciErrNum == CL_SUCCESS) {
 
 		// build the program
-		ciErrNum = clBuildProgram(cpProgram, 0, NULL, buildOptions.c_str(), NULL, NULL);
+		ciErrNum = clBuildProgram(cpProgram, 0, NULL, buildOptions.c_str(),
+				NULL, NULL);
 
 		//checkClError("Unable to build program.", ciErrNum);
 		//clUnloadCompiler();
 		//#ifndef NDEBUG
 		char cBuildLog[10240];
 
-		clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_OPTIONS, sizeof(cBuildLog), cBuildLog, NULL);
+		clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_OPTIONS,
+				sizeof(cBuildLog), cBuildLog, NULL);
 #ifndef NDEBUG
 		Log.Message("Build options: %s", cBuildLog);
 #endif
 
 		cl_build_status status;
-		clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_STATUS, sizeof(status), &status, NULL);
+		clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_STATUS,
+				sizeof(status), &status, NULL);
 
 #ifndef _DEBUG
 		if (status != CL_SUCCESS) {
 #endif
 			Log.Message("Build status: %s", print_cl_errstring(status));
-			clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_LOG, sizeof(cBuildLog), cBuildLog, NULL);
+			clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_LOG,
+					sizeof(cBuildLog), cBuildLog, NULL);
 
 			Log.Message("Build log:");
 
@@ -403,9 +444,11 @@ cl_program OclHost::setUpProgram(char const * const oclSwScore, std::string buil
 
 int OclHost::getThreadPerMulti() {
 	if (isGPU()) {
-		cl_uint revision = getDeviceInfoInt(CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV);
+		cl_uint revision = getDeviceInfoInt(
+				CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV);
 
-		int id = 10 * revision + getDeviceInfoLong(CL_DEVICE_COMPUTE_CAPABILITY_MINOR_NV);
+		int id = 10 * revision
+				+ getDeviceInfoLong(CL_DEVICE_COMPUTE_CAPABILITY_MINOR_NV);
 
 		switch (id) {
 		case 10:
@@ -455,22 +498,28 @@ cl_ulong OclHost::getDeviceInfoLong(cl_device_info info) {
 //	return gpu_var;
 //}
 
-void OclHost::writeToDevice(cl_mem buffer, cl_bool blocking_write, size_t offset, size_t size, const void * ptr) {
+void OclHost::writeToDevice(cl_mem buffer, cl_bool blocking_write,
+		size_t offset, size_t size, const void * ptr) {
 
-	cl_int ciErr = clEnqueueWriteBuffer(oclCommandQueue, buffer, blocking_write, offset, size, ptr, 0, NULL, NULL);
+	cl_int ciErr = clEnqueueWriteBuffer(oclCommandQueue, buffer, blocking_write,
+			offset, size, ptr, 0, NULL, NULL);
 	clFlush(oclCommandQueue);
 	//ciErr = clEnqueueWriteBuffer(oclCommandQueue[1], buffer, blocking_write, offset, size, ptr, 0, NULL, NULL);
 	checkClError("Unable to write to Device.", ciErr);
 }
 
-void OclHost::readFromDevice(cl_mem buffer, cl_bool blocking_read, size_t offset, size_t size, void * ptr, size_t size_of) {
-	cl_int ciErrNum = clEnqueueReadBuffer(oclCommandQueue, buffer, blocking_read, offset, size * size_of, ptr, 0, 0, 0);
+void OclHost::readFromDevice(cl_mem buffer, cl_bool blocking_read,
+		size_t offset, size_t size, void * ptr, size_t size_of) {
+	cl_int ciErrNum = clEnqueueReadBuffer(oclCommandQueue, buffer,
+			blocking_read, offset, size * size_of, ptr, 0, 0, 0);
 	clFlush(oclCommandQueue);
 	checkClError("Unable to read from device.", ciErrNum);
 }
 
-void OclHost::executeKernel(cl_kernel kernel, const size_t global_work_size, const size_t local_work_size) {
-	cl_int ciErrNum = clEnqueueNDRangeKernel(oclCommandQueue, kernel, 1, 0, &global_work_size, &local_work_size, 0, 0, 0);
+void OclHost::executeKernel(cl_kernel kernel, const size_t global_work_size,
+		const size_t local_work_size) {
+	cl_int ciErrNum = clEnqueueNDRangeKernel(oclCommandQueue, kernel, 1, 0,
+			&global_work_size, &local_work_size, 0, 0, 0);
 	clFlush(oclCommandQueue);
 	//ciErrNum = clEnqueueNDRangeKernel(oclCommandQueue[1], kernel, 1, 0, &global_work_size, &local_work_size, 0, 0, 0);
 	checkClError("Unable to execute kernel.", ciErrNum);

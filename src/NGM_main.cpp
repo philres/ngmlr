@@ -14,7 +14,7 @@
 
 #include "NGM.h"
 
-#include "SW.h"
+//#include "SW.h"
 #include "CS.h"
 #include "Output.h"
 #include "Version.h"
@@ -140,7 +140,7 @@ int main(int argc, char * argv[]) {
 			NGM.StartThreads();
 
 			NGM.MainLoop();
-			Log.Message("Scores computed: %ld", SW::scoreCount);
+			//Log.Message("Scores computed: %ld", SW::scoreCount);
 			Log.Message("Alignments computed: %ld", Output::alignmentCount);
 #ifdef INSTANCE_COUNTING
 			Log.Green("Counts:");

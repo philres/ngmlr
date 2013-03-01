@@ -33,9 +33,9 @@ else()
 	#file(REMOVE_RECURSE  "default-install_lnx_64.pl" "Install-AMD-APP.sh")	
 endif()
 
-
 file(WRITE "${EXECUTABLE_OUTPUT_PATH}/opencl/vendor/amdocl64.icd" "libamdocl64.so")
-file(WRITE "${EXECUTABLE_OUTPUT_PATH}/opencl/vendor/nvidia.icd" "libcuda.so")
+file(WRITE "${EXECUTABLE_OUTPUT_PATH}/opencl/vendor/nvidiaold.icd" "libcuda.so")
+file(WRITE "${EXECUTABLE_OUTPUT_PATH}/opencl/vendor/nvidia.icd" "libnvidia-opencl.so.1")
 
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ngm" "#!/bin/bash
 

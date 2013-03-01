@@ -7,12 +7,16 @@
 #include "PrefixTable.h"
 #include "ReadProvider.h"
 #include "Output.h"
+#include "FFormatWriter.h"
+#include "SAMWriter.h"
+#include "BAMWriter.h"
+
 #include <limits.h>
 
 //#include "CS.h"
 #include "CS.h"
 
-#include "SW.h"
+//#include "SW.h"
 
 #undef module_name
 #define module_name "NGM"
@@ -49,7 +53,7 @@ _NGM & _NGM::Instance() {
 }
 
 _NGM::_NGM() :
-		Stats(NGMStats::InitStats(AppName)), bCSSW("CSSW", 1000000, &Stats->Buffer1), bSWO("SWO", 1000000, &Stats->Buffer2), m_ActiveThreads(
+		Stats(NGMStats::InitStats(AppName)), m_ActiveThreads(
 				0), m_NextThread(0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(Config.GetInt("paired") != 0),
 #ifdef _BAM
 				m_OutputFormat( Config.GetInt("format", 0, 2) ),
@@ -66,6 +70,8 @@ _NGM::_NGM() :
 	NGMInitWait(&m_CSWait);
 	NGMInitMutex(&m_SchedulerMutex);
 	NGMInitWait(&m_SchedulerWait);
+
+	writer = 0;
 
 	memset(m_StageThreadCount, 0, cMaxStage * sizeof(int));
 	memset(m_BlockedThreads, 0, cMaxStage * sizeof(int));
@@ -148,8 +154,29 @@ void _NGM::AddUnmappedRead(MappedRead const * const read, int reason) {
 //	}
 }
 
-void _NGM::SaveRead(MappedRead* read, bool mapped) {
-	m_Output->SaveRead(read, mapped);
+//void _NGM::SaveRead(MappedRead* read, bool mapped) {
+//	m_Output->SaveRead(read, mapped);
+//}
+
+GenericReadWriter * _NGM::getWriter(const char* const filename) {
+	int const outputformat = NGM.GetOutputFormat();
+	char const * const output_name = Config.GetString("output");
+	if (writer == 0) {
+		writer =
+				(outputformat == 0) ?
+						(GenericReadWriter*) new FFormatWriter(
+								output_name) :
+				(outputformat == 1) ?
+						(GenericReadWriter*) new SAMWriter(output_name) :
+						(GenericReadWriter*) new BAMWriter(output_name);
+		writer->WriteProlog();
+	}
+	return writer;
+}
+
+void _NGM::ReleaseWriter() {
+	delete writer;
+	writer = 0;
 }
 
 int _NGM::GetUnmappedReadCount() const {
@@ -242,8 +269,8 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 	}
 
 	if (m_CurCount == 0) {
-		AlignmentDispatcher::Instance()->ResetLoad();
-
+		//AlignmentDispatcher::Instance()->ResetLoad();
+		Log.Error("Here!!");
 		m_CurStart = m_ReadStart;
 		m_CurCount = m_ReadCount;
 		NGMSignal(&m_CSWait);
@@ -343,13 +370,13 @@ IReadProvider * _NGM::GetReadProvider() {
 	return m_ReadProvider;
 }
 
-void _NGM::ReleaseRefProvider(int const tid) {
-
-}
-
-void _NGM::ReleaseReadProvider() {
-
-}
+//void _NGM::ReleaseRefProvider(int const tid) {
+//
+//}
+//
+//void _NGM::ReleaseReadProvider() {
+//
+//}
 
 bool _NGM::ThreadActive(int tid, int stage) {
 	if (m_ToBlock[stage] > 0) {
@@ -377,39 +404,39 @@ bool _NGM::ThreadActive(int tid, int stage) {
 	return true;
 }
 
-// Called every 50ms
-void _NGM::UpdateScheduler(float load1, float load2) {
-	return; // disabled
-	if (load1 > 0.75f) {
-		NGMLock(&m_SchedulerMutex);
-		if (m_BlockedThreads[2] > 1 && CanSwitch()) {
-			++m_ToBlock[0];
-			--m_ToBlock[2];
-			NGMSignal(&m_SchedulerWait);
-			Log.Green("Switching thread CS->SW");
-		}
-		NGMUnlock(&m_SchedulerMutex);
-	} else if (load1 < 0.25f) {
-		NGMLock(&m_SchedulerMutex);
-		if (m_BlockedThreads[0] > 1 && CanSwitch()) {
-			--m_ToBlock[0];
-			++m_ToBlock[2];
-			NGMSignal(&m_SchedulerWait);
-			Log.Green("Switching thread SW->CS");
-		}
-		NGMUnlock(&m_SchedulerMutex);
-	}
-}
+//// Called every 50ms
+//void _NGM::UpdateScheduler(float load1, float load2) {
+//	return; // disabled
+//	if (load1 > 0.75f) {
+//		NGMLock(&m_SchedulerMutex);
+//		if (m_BlockedThreads[2] > 1 && CanSwitch()) {
+//			++m_ToBlock[0];
+//			--m_ToBlock[2];
+//			NGMSignal(&m_SchedulerWait);
+//			Log.Green("Switching thread CS->SW");
+//		}
+//		NGMUnlock(&m_SchedulerMutex);
+//	} else if (load1 < 0.25f) {
+//		NGMLock(&m_SchedulerMutex);
+//		if (m_BlockedThreads[0] > 1 && CanSwitch()) {
+//			--m_ToBlock[0];
+//			++m_ToBlock[2];
+//			NGMSignal(&m_SchedulerWait);
+//			Log.Green("Switching thread SW->CS");
+//		}
+//		NGMUnlock(&m_SchedulerMutex);
+//	}
+//}
 
-bool _NGM::CanSwitch() {
-	static ulong lastswitch = 0;
-	ulong now = GetTickCount();
-	if (lastswitch + 1000 < now) {
-		lastswitch = now;
-		return true;
-	} else
-		return false;
-}
+//bool _NGM::CanSwitch() {
+//	static ulong lastswitch = 0;
+//	ulong now = GetTickCount();
+//	if (lastswitch + 1000 < now) {
+//		lastswitch = now;
+//		return true;
+//	} else
+//		return false;
+//}
 
 void _NGM::StartThreads() {
 	int threadcount = Config.GetInt("cpu_threads", 1, 0);
@@ -421,12 +448,12 @@ void _NGM::StartThreads() {
 	//m_ToBlock[2] = threadcount-1;
 
 	StartCS(threadcount);
-	int swthreads = threadcount / 1;
+	//int swthreads = threadcount / 1;
 	//int swthreads = threadcount;
 	//if (swthreads < 2)
 	//	swthreads = 2;
 	//int swthreads = 1;
-	StartSW(swthreads);
+	//StartSW(1);
 
 }
 
@@ -445,15 +472,76 @@ void _NGM::StartCS(int cs_threadcount) {
 	delete[] cpu_affinities;
 }
 
-void _NGM::StartSW(int sw_threadcount) {
-	for (int i = 0; i < sw_threadcount; ++i) {
-		SW * sw = new SW();
-		NGM.StartThread(sw);
+//void _NGM::StartSW(int sw_threadcount) {
+//	for (int i = 0; i < sw_threadcount; ++i) {
+//		SW * sw = new SW();
+//		NGM.StartThread(sw);
+//	}
+
+	//m_Output = new Output(Config.GetString("output"));
+	//NGM.StartThread(m_Output);
+//}
+
+#include "OclHost.h"
+#include "SWOclCigar.h"
+
+IAlignment * _NGM::CreateAlignment(int const mode) {
+	//int dev_type = Config.GetInt("ocl_device");
+	int dev_type = CL_DEVICE_TYPE_CPU;
+
+	if (Config.Exists("gpu")) {
+		dev_type = CL_DEVICE_TYPE_GPU;
 	}
 
-	m_Output = new Output(Config.GetString("output"));
-	NGM.StartThread(m_Output);
+
+	Log.Verbose("Mode: %d GPU: %d", mode, mode & 0xFF);
+
+	OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
+
+	SWOcl * instance = 0;
+
+//#ifndef NDEBUG
+	//Log.Error("Alignment mode: %d", mode);
+//#endif
+	int ReportType = (mode >> 8) & 0xFF;
+	switch (ReportType) {
+	case 0:
+
+		Log.Verbose("Output: text");
+
+//		instance = new SWOclAlignment(host);
+		//			instance = new SWOclCigar(host);
+		break;
+		case 1:
+
+		Log.Verbose("Output: cigar");
+
+		instance = new SWOclCigar(host);
+		break;
+		default:
+		Log.Error("Unsupported report type %i", mode);
+		break;
+	}
+	return instance;
 }
+
+void _NGM::DeleteAlignment(IAlignment* instance) {
+	SWOcl * test = (SWOcl *) instance;
+	OclHost * host = test->getHost();
+#ifndef NDEBUG
+	Log.Message("Delete alignment called");
+#endif
+	if (instance != 0) {
+		delete instance;
+		instance = 0;
+	}
+
+	if (host != 0) {
+		delete host;
+		host = 0;
+	}
+}
+
 
 //TODO: remove
 #include "MappedRead.h"
@@ -479,12 +567,12 @@ void _NGM::MainLoop() {
 			if (ch == 'q')
 				NGM.InitQuit();
 			}
-		loads[0] *= 0.25;
-		loads[0] += (NGM.bCSSW.Load() * 0.75f);
-		loads[1] /= 2;
-		loads[1] += (NGM.bSWO.Load() / 2);
+		//loads[0] *= 0.25;
+		//loads[0] += (NGM.bCSSW.Load() * 0.75f);
+		//loads[1] /= 2;
+		//loads[1] += (NGM.bSWO.Load() / 2);
 
-		UpdateScheduler(loads[0], loads[1]);
+//		UpdateScheduler(loads[0], loads[1]);
 		int processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
 		if (!NGM.Paired()) {
 			Log.Progress("Mapped: %d, Buffer: %.2f %.2f, CS: %d %d %d %.2f", processed, loads[0], loads[1], NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->csTime);

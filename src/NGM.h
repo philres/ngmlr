@@ -13,14 +13,16 @@
 #include "NGMThreads.h"
 #include "MappedRead.h"
 
+
 #include "NGMStats.h"
 
 #include "NGMTask.h"
 
-#include "Aligner.h"
+//#include "Aligner.h"
 //#include "Partition.h"
 #include "IRefProvider.h"
 #include "IReadProvider.h"
+#include "IAlignment.h"
 
 //#include "ReadBuffer.h"
 //#include "CSCache.h"
@@ -39,6 +41,8 @@
 #undef module_name
 #define module_name "NGM"
 
+class GenericReadWriter;
+
 #include "MapFails.h"
 
 class _NGM
@@ -53,7 +57,7 @@ public:
 	inline bool Paired() const { return m_Paired; }
 	inline int GetOutputFormat() const { return m_OutputFormat; }
 
-	IAlignment * Aligner() const { return AlignmentDispatcher::Instance(); }
+	//IAlignment * Aligner() const { return AlignmentDispatcher::Instance(); }
 
 	void GeneratePartitions();
 
@@ -61,6 +65,9 @@ public:
 	~_NGM();
 
 	void InitProviders();
+
+	IAlignment * CreateAlignment(int const mode);
+	void DeleteAlignment(IAlignment* instance);
 
 	void StartThread( NGMTask * task, int cpu = -1 );
 
@@ -82,6 +89,9 @@ public:
 	void StartThreads();
 	void MainLoop();
 
+	GenericReadWriter * getWriter(const char* const filename);
+	void ReleaseWriter();
+
 	bool StageActive( int stage )
 	{
 		return GetStageThreadCount(stage) > 0;
@@ -95,13 +105,14 @@ public:
 	bool ThreadActive( int tid, int stage );
 
 	IRefProvider const * GetRefProvider(int const tid);
-	void ReleaseRefProvider(int const tid);
+//	void ReleaseRefProvider(int const tid);
 
 	IReadProvider * GetReadProvider();
-	void ReleaseReadProvider();
+//	void ReleaseReadProvider();
 
-	void SaveRead(MappedRead* read, bool mapped = true);
+	//void SaveRead(MappedRead* read, bool mapped = true);
 
+	void FinishStage( int tid );
 
 	//bool LastPartition();
 	//void BufferRead(MappedRead * read);
@@ -109,8 +120,8 @@ public:
 	NGMStats * Stats;
 
 	// Switch to a list accessed by Stage?
-	Buffer<LocationScore*> bCSSW;	// Buffer CS -> SW
-	Buffer<MappedRead*> bSWO;	// Buffer SW -> Output
+	//Buffer<LocationScore*> bCSSW;	// Buffer CS -> SW
+	//Buffer<MappedRead*> bSWO;	// Buffer SW -> Output
 
 	static char const * AppName;
 	static int sPairMinDistance;
@@ -121,16 +132,16 @@ private:
 	static void Init();
 
 	friend void NGMTask::FinishStage();
-	void FinishStage( int tid );
+
 	void FinishThread( int tid );
 	int GetStart();
 	int GetCount();
 
 	void StartCS(int threads);
-	void StartSW(int threads);
+//	void StartSW(int threads);
 
-	void UpdateScheduler(float, float);
-	bool CanSwitch();
+//	void UpdateScheduler(float, float);
+//	bool CanSwitch();
 
 	friend int main(int argc, char* argv[]);
 	static _NGM * pInstance;
@@ -152,6 +163,7 @@ private:
 //	volatile int m_ReadsBuffered;
 
 //	volatile bool m_RefGenPending;
+	GenericReadWriter * writer;
 
 	NGMMutex m_Mutex;
 	NGMMutex m_OutputMutex;
