@@ -18,14 +18,14 @@ class OclHost {
 	private:
 		cl_device_type const devType;
 		cl_context partitionDevice(cl_platform_id platform, cl_uint ciDeviceCount, cl_device_id *cdDevices, cl_int cores);
-		cl_device_id getDevice(cl_context context, unsigned int gpu_id);
+//		cl_device_id getDevice(cl_context context, unsigned int gpu_id);
     cl_platform_id getPlatform();
 	public:
 		OclHost();
 		OclHost(int const device_type, int gpu_id, int const cpu_cores);
 		virtual ~OclHost();
 		void initOpenCL(unsigned int gpu_id);
-		cl_device_id getDevice(unsigned int gpu_id);
+//		cl_device_id getDevice(unsigned int gpu_id);
 		char *print_cl_errstring(cl_int err);
 		void checkClError(const char *msg, cl_int ciErrNum);
 		cl_program setUpProgram(const char * const oclSwScore, std::string buildOptions);
@@ -58,6 +58,9 @@ class OclHost {
 
 		static int contextUserCount;
 		static cl_context oclGpuContext;
+		static cl_device_id * devices;
+
+		//cl_device_id * devices;
 //		cl_context oclGpuContext;
 		cl_command_queue oclCommandQueue;
 		cl_device_id oclDevice;

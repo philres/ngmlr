@@ -451,7 +451,7 @@ __kernel void oclSW_Score(__global char const * scaff, __global char const * rea
 						}
 					}
 					vstore4(curr_max, global_index, results);
-
+					//printf("%f %f %f %f\n", curr_max.s0, curr_max.s1, curr_max.s2, curr_max.s3); 
 				}
 
 				__kernel void oclSW_wSSE(__global char const * scaff, __global char const * read, __global float * results) {

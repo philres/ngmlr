@@ -396,12 +396,14 @@ int CS::CollectResultsStd(MappedRead * read) {
 	if (index < maxScores)
 		read->AllocScores(tmp, index);
 
-#ifdef _DEBUGCS
-	char const * debugRead = "FCC01PDACXX:4:1101:10342:37018#0/1";
-	if (strcmp(read->name, debugRead) == 0) {
-		Log.Error("Collect results: %d %d", n, read->numScores());
-	}
-#endif
+
+//	//TODO: remove
+//	char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
+//	if (strcmp(read->name, debugRead) == 0) {
+//		Log.Error("Collect results: %d %d", n, read->numScores());
+//		getchar();
+//	}
+
 
 	return index;
 }
@@ -427,9 +429,10 @@ void CS::SendToBuffer(MappedRead * read, SWwoBuffer * sw, Output * out) {
 		//if (count < NGM.bCSSW.Capacity()) {
 		//NGM.bCSSW.WriteR(read->Scores, count);
 
+		read->Calculated = 0;
 		sw->addRead(read->Scores, count);
 
-		read->Calculated = 0;
+
 		++m_WrittenReads;
 		//}	else {
 //			Log.Error("Read %i discarded due to buffer overflow", read->ReadId);
@@ -458,6 +461,11 @@ int CS::RunBatch(SWwoBuffer * sw, Output * out) {
 	for (size_t i = 0; i < m_CurrentBatch.size(); ++i) {
 
 		m_CurrentSeq = m_CurrentBatch[i]->ReadId;
+//		//TODO: remove
+//		if(strcmp("adb-100bp-20mio-paired.000000558.2", m_CurrentBatch[i]->name) == 0) {
+//			Log.Error("Read %s: candidate search %d", m_CurrentBatch[i]->name, m_TID);
+//			getchar();
+//		}
 		currentState = 2 * i;
 		rListLength = 0;
 		maxHitNumber = 0.0f;
@@ -555,11 +563,15 @@ void CS::DoRun() {
 	Log.Verbose("Launching CS Thread %i (NGM Thread %i)", m_CSThreadID, m_TID);
 
 	IAlignment * aligner;
+	IAlignment * aligner2;
 	int gpu = m_TID;
+//	int gpu = 0;
 	if(Config.Exists("gpu")) {
 		gpu = gpu % Config.GetInt("gpu");
 	}
+	NGM.AquireOutputLock();
 	aligner = NGM.CreateAlignment(gpu | (std::min(Config.GetInt("format", 0, 2), 1) << 8));
+	NGM.ReleaseOutputLock();
 	Output * out = new Output(Config.GetString("output"), aligner);
 	SWwoBuffer * sw = new SWwoBuffer(aligner, out);
 

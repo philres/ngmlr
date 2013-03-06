@@ -31,6 +31,14 @@ void SWwoBuffer::DoRun() {
 	if (iScores != 0) {
 		for (int i = 0; i < iScores; ++i) {
 			MappedRead * cur_read = scores[i]->Read;
+
+//			//TODO: remove
+//			char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
+//			if (strcmp(cur_read->name, debugRead) == 0) {
+//				Log.Error("Queueing score computation.");
+//				getchar();
+//			}
+
 			SequenceLocation loc = scores[i]->Location;
 			if (NGM.DualStrand() && (loc.m_RefId & 1)) {
 				// RefId auf +-Strang setzen
@@ -65,8 +73,11 @@ void SWwoBuffer::DoRun() {
 		Timer tmr;
 		tmr.ST();
 		SWwoBuffer::scoreCount += iScores;
-		int res = aligner->BatchScore(m_AlignMode, iScores, m_RefBuffer, m_QryBuffer, m_ScoreBuffer,
-				(m_EnableBS) ? m_DirBuffer : 0);
+		int res = 0;
+//		NGM.AquireOutputLock();
+		res = aligner->BatchScore(m_AlignMode, iScores, m_RefBuffer,
+				m_QryBuffer, m_ScoreBuffer, (m_EnableBS) ? m_DirBuffer : 0);
+//		NGM.ReleaseOutputLock();
 		if (res != iScores)
 			Log.Error("SW Kernel couldnt calculate all scores (%i out of %i)", res, iScores);
 
@@ -75,6 +86,14 @@ void SWwoBuffer::DoRun() {
 		y.ST();
 		brokenPairs = 0;
 		for (int i = 0; i < iScores; ++i) {
+
+//			//TODO: remove
+//			char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
+//			if (strcmp(scores[i]->Read->name, debugRead) == 0) {
+//				Log.Error("Score: %f", m_ScoreBuffer[i]);
+//				getchar();
+//			}
+
 			scores[i]->Score.f = m_ScoreBuffer[i];
 
 #ifdef _DEBUGSW
@@ -87,10 +106,17 @@ void SWwoBuffer::DoRun() {
 			Log.Message("Strand: %c", (loc.m_RefId & 1) ? '-' : '+');
 			Log.Message("Ref:  %.*s", refMaxLen, m_RefBuffer[i]);
 			Log.Message("Read: %s", m_QryBuffer[i]);
+			getchar();
 #endif
 
+			//TODO: remove
+//			if (strcmp(scores[i]->Read->name, debugRead) == 0) {
+//				Log.Error("%d %d %d", scores[i]->Read->Calculated, ++scores[i]->Read->Calculated, scores[i]->Read->numScores());
+//				scores[i]->Read->Calculated -= 1;
+//			}
+
 			if (++scores[i]->Read->Calculated == scores[i]->Read->numScores()) {
-			//if (AtomicInc(&(scores[i].Read->Calculated)) == scores[i].Read->numScores()) {
+//			if (AtomicInc(&(scores[i]->Read->Calculated)) == scores[i]->Read->numScores()) {
 				SendToPostprocessing(scores[i]->Read);
 			}
 		}
@@ -103,6 +129,14 @@ void SWwoBuffer::SendToPostprocessing(MappedRead * read) {
 	// Program runs in Paired mode and current read got a pair
 	Log.Verbose("[SINGLE] SW::SendToPostprocessing: %i (%s)", read->ReadId, read->name);
 	if (read->hasCandidates()) {
+
+//		//TODO: remove
+//		char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
+//		if (strcmp(read->name, debugRead) == 0) {
+//			Log.Error("SendToPostprocessing");
+//			getchar();
+//		}
+
 		float score_max = 0;
 		float score_smax = 0;
 		int score_max_loc = 0;
@@ -170,8 +204,24 @@ void SWwoBuffer::SendToPostprocessing(MappedRead * read) {
 	//}
 }
 
+int scount = 0;
+
 void SWwoBuffer::addRead(LocationScore * newScores, int count) {
 
+	if(count == 0) {
+		Log.Error("count == 0");
+		Fatal();
+	}
+//	//TODO: remove
+//	char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
+//	if (strcmp(newScores[0].Read->name, debugRead) == 0) {
+//		Log.Error("Adding score computations for read %s: %d", newScores[0].Read->name, count);
+//		getchar();
+//	}
+
+//	if(count >= swBatchSize) {
+//		Log.Warning("Read found (%d)!!", ++scount);
+//	}
 	for (int i = 0; i < count; ++i) {
 		Log.Verbose("Adding score %d to buffer.", iScores);
 		scores[iScores++] = &newScores[i];
@@ -215,8 +265,6 @@ void SWwoBuffer::SendSeToBuffer(MappedRead* read) {
 	//		}
 
 	//Log.Green("Single: %f", read->TLS()->Score.f);
-
-
 
 	out->addRead(read);
 	//TODO: AddRead to Output

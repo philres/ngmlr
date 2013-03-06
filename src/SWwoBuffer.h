@@ -54,7 +54,7 @@ private:
 
 	IAlignment * aligner;
 	Output * out;
-	static const int swBatchSize = 4096 * 128;
+	const int swBatchSize;
 
 	//std::list<MappedRead*> m_ReadBuffer;
 	//	bool CommitReads();
@@ -62,7 +62,7 @@ public:
 	static ulong scoreCount;
 
 	SWwoBuffer(IAlignment * mAligner, Output * mOut) :
-			m_AlignMode(Config.GetInt("mode", 0, 1)), aligner(mAligner), out(mOut) {
+			m_AlignMode(Config.GetInt("mode", 0, 1)), aligner(mAligner), out(mOut), swBatchSize(aligner->GetScoreBatchSize() / 2) {
 
 		m_QryBuffer = 0;
 		m_RefBuffer = 0;

@@ -7,6 +7,9 @@
 #include <list>
 #include <algorithm>
 
+#include "FFormatWriter.h"
+#include "SAMWriter.h"
+#include "BAMWriter.h"
 
 #undef module_name
 #define module_name "OUT"
@@ -48,6 +51,8 @@ private:
 	std::map<int, std::list<MappedRead*> > m_EqualScoringBuffer;
 	void saveEqualScoring(int id);
 
+	static bool first;
+
 	static bool EqualScoringSortPredicate(MappedRead * lhs, MappedRead * rhs) {
 		return (lhs->Strand == rhs->Strand) ? lhs->TLS()->Location.m_Location < rhs->TLS()->Location.m_Location : lhs->Strand < rhs->Strand;
 	}
@@ -67,7 +72,7 @@ public:
 
 	Output(const char* const filename, IAlignment * mAligner) :
 			m_Filename(filename),
-			batchSize(4096),
+			batchSize(mAligner->GetAlignBatchSize() / 2),
 			output_name(Config.GetString("output")),
 			outputformat(NGM.GetOutputFormat()),
 			alignmode(Config.GetInt("mode", 0, 1)),
@@ -81,31 +86,37 @@ public:
 		nReads = 0;
 
 
-
-
 		m_EnableBS = false;
 		m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 
+		int const outputformat = NGM.GetOutputFormat();
+//			char const * const output_name = Config.GetString("output");
 //		Log.Message("Writing output to %s (Format: %s)", output_name, cFormatNames[outputformat]);
 //
-//#ifdef _BAM
-//		m_Writer =
-//		(outputformat == 0) ?
-//		(GenericReadWriter*) new FFormatWriter(output_name) :
-//		(outputformat == 1) ?
-//		(GenericReadWriter*) new SAMWriter(output_name) :
-//		(GenericReadWriter*) new BAMWriter(output_name);
-//#else
-//		m_Writer =
-//				(outputformat == 0) ? (GenericReadWriter*) new FFormatWriter(output_name) : (GenericReadWriter*) new SAMWriter(output_name);
-//#endif
-//
-//		m_Writer->WriteProlog();
+
+
+						m_Writer =
+						(outputformat == 0) ?
+						(GenericReadWriter*) new FFormatWriter(
+								NGM.getWriter()) :
+						(outputformat == 1) ?
+						(GenericReadWriter*) new SAMWriter(NGM.getWriter()) :
+						(GenericReadWriter*) new BAMWriter(NGM.getWriter());
+
+
+						///NGMLock(&m_Mutex);
+						if(first) {
+							Log.Green("Wrinting Prolog!");
+							m_Writer->WriteProlog();
+							first = false;
+						}
+						///NGMUnlock(&m_Mutex);
 
 //		int const batchSize = NGM.Aligner()->GetAlignBatchSize();
-		m_Writer = NGM.getWriter(output_name);
+		//m_Writer = NGM.getWriter(output_name);
 
-		NGMInitMutex(&m_Mutex);
+
+//		NGMInitMutex(&m_Mutex);
 
 		Log.Message("Alignment batchsize = %i", batchSize);
 
@@ -131,6 +142,7 @@ public:
 	}
 
 	virtual ~Output() {
+		delete m_Writer;
 		Log.Message("Freeing resources...");
 		delete[] m_DirBuffer;
 		m_DirBuffer = 0;
@@ -158,6 +170,7 @@ public:
 	}
 
 	void DoRun();
+
 
 	int GetStage() const {
 		return 4;
@@ -201,7 +214,7 @@ public:
 		}
 
 		//NGMLock(&m_Mutex);
-		NGM.AquireOutputLock();
+//		NGM.AquireOutputLock();
 //#pragma omp critical
 	//	{
 		if (NGM.Paired() && read->Paired != 0) {
@@ -232,7 +245,7 @@ public:
 		} else {
 			m_Writer->WriteRead(read, mapped);
 		}
-		NGM.ReleaseOutputLock();
+//		NGM.ReleaseOutputLock();
 		//NGMUnlock(&m_Mutex);
 	//}
 

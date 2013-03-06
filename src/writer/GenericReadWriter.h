@@ -1,24 +1,27 @@
 #ifndef __GENERICREADWRITER_H__
 #define __GENERICREADWRITER_H__
 
-#include <stdio.h>
-#include <stdarg.h>
 
 #include "ILog.h"
 #include "Config.h"
 #include "NGM.h"
 
 #include "MappedRead.h"
+#include "FileWriter.h"
 
 class GenericReadWriter {
 
 public:
 
-	GenericReadWriter(char const * const filename) {
-		if (!(m_Output = fopen(filename, "wb"))) {
-			Log.Error("Unable to open output file %s", filename);
-			Fatal();
-		}
+	//GenericReadWriter(char const * const filename) {
+	GenericReadWriter(FileWriter * writer) {
+//		if (!(m_Output = fopen(filename, "wb"))) {
+//			Log.Error("Unable to open output file %s", filename);
+//			Fatal();
+//		}
+//		m_Output = file;
+		m_Writer = writer;
+
 		writeBuffer = new char[BUFFER_SIZE];
 		bufferPosition = 0;
 
@@ -30,10 +33,10 @@ public:
 	}
 	virtual ~GenericReadWriter() {
 		Log.Green("Releasing writer.");
-		if (m_Output) {
-			Flush(true);
-			fclose(m_Output);
-		}
+//		if (m_Output) {
+		m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer, true);
+			//fclose(m_Output);
+//		}
 	}
 protected:
 
@@ -45,47 +48,44 @@ protected:
 			0x4) = 0;
 	virtual void DoWriteEpilog() = 0;
 
+
+	static int const BUFFER_SIZE = 17000000;
+		static int const BUFFER_LIMIT = 16000000;
+
+		char * writeBuffer;
+		int bufferPosition;
+
+
+	float identity;
+
+	FileWriter * m_Writer;
+
 	int Print(const char *format, ...) {
 		int done;
+//		NGMLock(&m_OutputMutex);
 		va_list arg;
-
 
 		va_start(arg, format);
 		done = vsprintf(writeBuffer + bufferPosition, format, arg);
 		bufferPosition += done;
 		va_end(arg);
+//		NGMUnlock(&m_OutputMutex);
 		return done;
 
 	}
 
-	void Flush(bool last = false) {
-		if (bufferPosition > BUFFER_LIMIT || last) {
-			fwrite(writeBuffer, sizeof(char), bufferPosition, m_Output);
-			bufferPosition = 0;
-			fflush(m_Output);
-		}
-	}
-
-	float identity;
-
 private:
 
-	FILE * m_Output;
-
-	static int const BUFFER_SIZE = 17000000;
-	static int const BUFFER_LIMIT = 16000000;
-
-	char * writeBuffer;
-	int bufferPosition;
 
 public:
 	void WriteProlog() {
-		if (m_Output)
-			DoWriteProlog();
+//		if (m_Output)
+		DoWriteProlog();
+		m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer, true);
 	}
 
 	void WriteRead(MappedRead const * const read, bool mapped = true) {
-		if (m_Output) {
+//		if (m_Output) {
 
 			static float const minIdentity = Config.GetFloat("min_identity",
 					0.0f, 1.0f);
@@ -97,8 +97,8 @@ public:
 
 			mapped = mapped && (read->Identity >= minIdentity);
 			mapped = mapped
-					&& ((read->length - read->QStart - read->QEnd)
-							>= minResidues);
+			&& ((read->length - read->QStart - read->QEnd)
+					>= minResidues);
 
 			if (mapped) {
 				NGM.AddMappedRead(read->ReadId);
@@ -107,29 +107,29 @@ public:
 				DoWriteUnmappedRead(read);
 			}
 			NGM.AddWrittenRead(read->ReadId);
-			Flush();
-		}
+			m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer);
+//		}
 	}
 
 	void WritePair(MappedRead * const read1, MappedRead * const read2) {
-		if (m_Output) {
+//		if (m_Output) {
 			static float const minIdentity = Config.GetFloat("min_identity",
 					0.0f, 1.0f);
 			static float minResidues = Config.GetFloat("min_residues", 0, 1000);
 
 			if (minResidues < 1.0f) {
 				minResidues = std::min(read1->length, read2->length)
-						* minResidues;
+				* minResidues;
 			}
 
 			bool mapped1 = read1->hasCandidates()
-					&& (read1->Identity >= minIdentity)
-					&& ((read1->length - read1->QStart - read1->QEnd)
-							>= minResidues);
+			&& (read1->Identity >= minIdentity)
+			&& ((read1->length - read1->QStart - read1->QEnd)
+					>= minResidues);
 			bool mapped2 = read2->hasCandidates()
-					&& (read2->Identity >= minIdentity)
-					&& ((read2->length - read2->QStart - read2->QEnd)
-							>= minResidues);
+			&& (read2->Identity >= minIdentity)
+			&& ((read2->length - read2->QStart - read2->QEnd)
+					>= minResidues);
 
 			if (!mapped1) {
 				read1->clearScores(false);
@@ -155,8 +155,8 @@ public:
 			NGM.AddWrittenRead(read1->ReadId);
 			NGM.AddWrittenRead(read2->ReadId);
 
-			Flush();
-		}
+			m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer);
+//		}
 	}
 
 //	void WriteRead(std::list<MappedRead const * const> reads) {
@@ -167,9 +167,11 @@ public:
 //		}
 //	}
 	void WriteEpilog() {
-		if (m_Output)
-			DoWriteEpilog();
+//		if (m_Output)
+		DoWriteEpilog();
 	}
 };
+
+
 
 #endif

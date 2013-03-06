@@ -16,7 +16,11 @@
 
 using std::stringstream;
 
+#ifndef ECLIPSE
 #include "oclSwCigar.h"
+#else
+char const * const oclSwCigar = "dummy";
+#endif
 
 #define pCigar pBuffer1
 #define pMD pBuffer2
@@ -185,8 +189,11 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 	cl_mem c_scaff_gpu = scaffold_gpu;
 	if (host->isGPU()) {
 		c_scaff_gpu = host->allocate(CL_MEM_READ_WRITE, ref_data_size * sizeof(cl_char));
+//#pragma omp critical
+		{
 		ciErrNum |= clSetKernelArg(interleaveKernel, 0, sizeof(cl_mem), (void *) (&scaffold_gpu));
 		ciErrNum |= clSetKernelArg(interleaveKernel, 1, sizeof(cl_mem), &c_scaff_gpu);
+		}
 	} else {
 		c_scaff_gpu = scaffold_gpu;
 	}
@@ -197,11 +204,14 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 
 	cl_mem alignments_gpu = host->allocate(CL_MEM_READ_WRITE, batch_size_align * alignment_length * 2 * sizeof(cl_short));
 
+//#pragma omp critical
+		{
 	//Set parameter
 	ciErrNum |= clSetKernelArg(scoreKernel, 0, sizeof(cl_mem), (void *) (&c_scaff_gpu));
 	ciErrNum |= clSetKernelArg(scoreKernel, 1, sizeof(cl_mem), (void *) (&reads_gpu));
 	ciErrNum |= clSetKernelArg(scoreKernel, 2, sizeof(cl_mem), &results_gpu);
 	ciErrNum |= clSetKernelArg(scoreKernel, 3, sizeof(cl_mem), &matrix_gpu);
+		}
 	cl_mem bsdirection_gpu = 0;
 	static bool const bsMapping = Config.GetInt("bs_mapping") == 1;
 	if (bsMapping) {
@@ -210,14 +220,20 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 		} else {
 			bsdirection_gpu = host->allocate(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, batch_size_align * sizeof(cl_char), (char *) extData);
 		}
+//#pragma omp critical
+		{
 		ciErrNum |= clSetKernelArg(scoreKernel, 4, sizeof(cl_mem), (void *) (&bsdirection_gpu));
+		}
 	}
 
+//#pragma omp critical
+		{
 	ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 0, sizeof(cl_mem), (void *) (&c_scaff_gpu));
 	ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 1, sizeof(cl_mem), (void*) (&reads_gpu));
 	ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 2, sizeof(cl_mem), &results_gpu);
 	ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 3, sizeof(cl_mem), &matrix_gpu);
 	ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 4, sizeof(cl_mem), &alignments_gpu);
+		}
 
 	host->checkClError("Unable to set kernel parameters", ciErrNum);
 

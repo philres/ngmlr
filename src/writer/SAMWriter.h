@@ -5,8 +5,10 @@
 
 class SAMWriter: public GenericReadWriter {
 	public:
-		SAMWriter(char const * const filename) :
-			GenericReadWriter(filename) {
+//		SAMWriter(char const * const filename) :
+//			GenericReadWriter(filename) {
+	SAMWriter(FileWriter * file) :
+				GenericReadWriter(file) {
 
 		}
 

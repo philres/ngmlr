@@ -7,9 +7,7 @@
 #include "PrefixTable.h"
 #include "ReadProvider.h"
 #include "Output.h"
-#include "FFormatWriter.h"
-#include "SAMWriter.h"
-#include "BAMWriter.h"
+#include "FileWriter.h"
 
 #include <limits.h>
 
@@ -26,8 +24,6 @@ NGMOnceControl _NGM::once_control = NGM_ONCE_INIT;
 char const * _NGM::AppName = 0;
 int _NGM::sPairMinDistance = 0;
 int _NGM::sPairMaxDistance = INT_MAX;
-
-Output * m_Output;
 
 namespace __NGM {
 inline int min(int a, int b) {
@@ -53,16 +49,24 @@ _NGM & _NGM::Instance() {
 }
 
 _NGM::_NGM() :
-		Stats(NGMStats::InitStats(AppName)), m_ActiveThreads(
-				0), m_NextThread(0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(Config.GetInt("paired") != 0),
+		Stats(NGMStats::InitStats(AppName)), m_ActiveThreads(0), m_NextThread(
+				0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(
+				Config.GetInt("paired") != 0),
 #ifdef _BAM
-				m_OutputFormat( Config.GetInt("format", 0, 2) ),
+				m_OutputFormat(Config.GetInt("format", 0, 2)),
 #else
 				m_OutputFormat(Config.GetInt("format", 0, 1)),
 #endif
-				m_ReadStart(GetStart()), m_ReadCount(GetCount()), m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(
-						false), m_UnmappedReads(0), m_MappedReads(0), m_WrittenReads(0), m_ReadReads(0), m_ReadProvider(0)/*, m_Cache(0),m_ReadBuffer(
+				m_ReadStart(GetStart()), m_ReadCount(GetCount()), m_CurStart(0), m_CurCount(
+						0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(
+						false), m_UnmappedReads(0), m_MappedReads(0), m_WrittenReads(
+						0), m_ReadReads(0), m_ReadProvider(0)/*, m_Cache(0),m_ReadBuffer(
  0)*/{
+
+
+	char const * const output_name = Config.GetString("output");
+	m_Output = new FileWriter(output_name);
+
 	Log.Message("NGM Core initialization");
 	NGMInitMutex(&m_Mutex);
 	NGMInitMutex(&m_OutputMutex);
@@ -77,10 +81,10 @@ _NGM::_NGM() :
 	memset(m_BlockedThreads, 0, cMaxStage * sizeof(int));
 	memset(m_ToBlock, 0, cMaxStage * sizeof(int));
 	if (m_Paired && !m_DualStrand)
-	Log.Error("Logical error: Paired read mode without dualstrand search.");
+		Log.Error("Logical error: Paired read mode without dualstrand search.");
 
 	if (Config.Exists("cs_maxRefsPerEntry"))
-	RefEntry::MaxRefsPerEntry = Config.GetInt("cs_maxRefsPerEntry");
+		RefEntry::MaxRefsPerEntry = Config.GetInt("cs_maxRefsPerEntry");
 
 }
 
@@ -102,6 +106,9 @@ void _NGM::InitProviders() {
 _NGM::~_NGM() {
 	//if (m_ReadBuffer != 0)
 	//	delete m_ReadBuffer;
+
+	if(m_Output != 0)
+		delete m_Output;
 
 	if (m_RefProvider != 0)
 		delete m_RefProvider;
@@ -158,25 +165,40 @@ void _NGM::AddUnmappedRead(MappedRead const * const read, int reason) {
 //	m_Output->SaveRead(read, mapped);
 //}
 
-GenericReadWriter * _NGM::getWriter(const char* const filename) {
-	int const outputformat = NGM.GetOutputFormat();
-	char const * const output_name = Config.GetString("output");
-	if (writer == 0) {
-		writer =
-				(outputformat == 0) ?
-						(GenericReadWriter*) new FFormatWriter(
-								output_name) :
-				(outputformat == 1) ?
-						(GenericReadWriter*) new SAMWriter(output_name) :
-						(GenericReadWriter*) new BAMWriter(output_name);
-		writer->WriteProlog();
-	}
-	return writer;
-}
+FileWriter * _NGM::getWriter() {
+
+
+//	FILE * m_Output = 0;
+//	if (!(m_Output = fopen(Config.GetString("output"), "w"))) {
+//		Log.Error("Unable to open output file %s", filename);
+//		Fatal();
+//	}
+//			if(m_Output == 0) {
+//				m_Output = new FileWriter(filename);
+//			}
+
+//			GenericReadWriter * m_Writer = 0;
+//			if (m_Writer == 0) {
+//				m_Writer =
+//				(outputformat == 0) ?
+//				(GenericReadWriter*) new FFormatWriter(
+//						m_Output) :
+//				(outputformat == 1) ?
+//				(GenericReadWriter*) new SAMWriter(m_Output) :
+//				(GenericReadWriter*) new BAMWriter(m_Output);
+//				if(writer == 0) {
+//					writer = m_Writer;
+//					writer->WriteProlog();
+//				}
+//			}
+			return m_Output;
+		}
 
 void _NGM::ReleaseWriter() {
-	delete writer;
-	writer = 0;
+//	fclose(m_Output);
+	delete m_Output; m_Output = 0;
+//	delete writer;
+//	writer = 0;
 }
 
 int _NGM::GetUnmappedReadCount() const {
@@ -298,7 +320,6 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 	m_CurCount -= desBatchSize;
 
 	NGMUnlock(&m_Mutex);
-
 
 #ifdef _DEBUGCS
 	if(m_CurStart > 10000) {
@@ -478,8 +499,8 @@ void _NGM::StartCS(int cs_threadcount) {
 //		NGM.StartThread(sw);
 //	}
 
-	//m_Output = new Output(Config.GetString("output"));
-	//NGM.StartThread(m_Output);
+//m_Output = new Output(Config.GetString("output"));
+//NGM.StartThread(m_Output);
 //}
 
 #include "OclHost.h"
@@ -493,10 +514,10 @@ IAlignment * _NGM::CreateAlignment(int const mode) {
 		dev_type = CL_DEVICE_TYPE_GPU;
 	}
 
-
 	Log.Verbose("Mode: %d GPU: %d", mode, mode & 0xFF);
 
-	OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
+	OclHost * host = new OclHost(dev_type, mode & 0xFF,
+			Config.GetInt("cpu_threads"));
 
 	SWOcl * instance = 0;
 
@@ -542,7 +563,6 @@ void _NGM::DeleteAlignment(IAlignment* instance) {
 	}
 }
 
-
 //TODO: remove
 #include "MappedRead.h"
 #include "LocationScore.h"
@@ -550,6 +570,9 @@ void _NGM::DeleteAlignment(IAlignment* instance) {
 volatile bool Terminating = false;
 
 void _NGM::MainLoop() {
+
+
+
 	float loads[2] = { 0, 0 };
 	//_Log::FilterLevel(1);
 #ifdef _WIN32
@@ -567,10 +590,10 @@ void _NGM::MainLoop() {
 			if (ch == 'q')
 				NGM.InitQuit();
 			}
-		//loads[0] *= 0.25;
-		//loads[0] += (NGM.bCSSW.Load() * 0.75f);
-		//loads[1] /= 2;
-		//loads[1] += (NGM.bSWO.Load() / 2);
+			//loads[0] *= 0.25;
+			//loads[0] += (NGM.bCSSW.Load() * 0.75f);
+			//loads[1] /= 2;
+			//loads[1] += (NGM.bSWO.Load() / 2);
 
 //		UpdateScheduler(loads[0], loads[1]);
 		int processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());

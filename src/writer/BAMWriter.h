@@ -9,8 +9,10 @@
 
 class BAMWriter: public GenericReadWriter {
 public:
-	BAMWriter(char const * const filename) :
-			GenericReadWriter(filename), file(filename) {
+//	BAMWriter(char const * const filename) :
+//			GenericReadWriter(filename), file(filename) {
+	BAMWriter(FileWriter * file) :
+				GenericReadWriter(file), file(0) {
 	}
 
 protected:

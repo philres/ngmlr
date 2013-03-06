@@ -6,7 +6,8 @@
 class FFormatWriter : public GenericReadWriter
 {
 public:
-	FFormatWriter(char const * const filename) : GenericReadWriter( filename )
+	//FFormatWriter(char const * const filename) : GenericReadWriter( filename )
+	FFormatWriter(FileWriter * file) : GenericReadWriter( file )
 	{
 	}
 

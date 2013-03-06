@@ -23,6 +23,7 @@
 #include "IRefProvider.h"
 #include "IReadProvider.h"
 #include "IAlignment.h"
+#include "FileWriter.h"
 
 //#include "ReadBuffer.h"
 //#include "CSCache.h"
@@ -89,7 +90,7 @@ public:
 	void StartThreads();
 	void MainLoop();
 
-	GenericReadWriter * getWriter(const char* const filename);
+	FileWriter * getWriter();
 	void ReleaseWriter();
 
 	bool StageActive( int stage )
@@ -156,6 +157,8 @@ private:
 	int const m_OutputFormat;
 	int m_ReadStart;
 	int m_ReadCount;
+
+	FileWriter * m_Output;
 
 	volatile int m_CurStart;
 	volatile int m_CurCount;

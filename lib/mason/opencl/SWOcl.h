@@ -65,8 +65,9 @@ protected:
 	int config_ref_size;
 
 	OclHost * host;
-	static int programUserCount;
-	static cl_program clProgram;
+	//static int programUserCount;
+//	static cl_program clProgram;
+	cl_program clProgram;
 
 	cl_kernel swScoringKernel;
 	cl_kernel swScoringKernelGlobal;

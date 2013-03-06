@@ -7,6 +7,7 @@
 #include <string.h>
 
 ulong Output::alignmentCount = 0;
+bool Output::first = true;
 
 //static inline void rev(char * s);
 
@@ -68,11 +69,17 @@ void Output::flush() {
 }
 
 void Output::addRead(MappedRead * read) {
+//	//TODO: remove
+//	char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
+//	if (strcmp(read->name, debugRead) == 0) {
+//		Log.Error("add alignment computation");
+//		getchar();
+//	}
 	if (!read->hasCandidates()) {
 		SaveRead(read, false);
 	} else {
 		reads[nReads++] = read;
-		if (nReads == 4096) {
+		if (nReads == batchSize) {
 			DoRun();
 			nReads = 0;
 		}
@@ -89,6 +96,12 @@ void Output::DoRun() {
 		alignmentCount += count;
 		for (int i = 0; i < count; ++i) {
 			MappedRead * cur_read = reads[i];
+//			//TODO: remove
+//			char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
+//			if (strcmp(cur_read->name, debugRead) == 0) {
+//				Log.Error("Queueing alignment computation.");
+//				getchar();
+//			}
 			if (cur_read->hasCandidates()) {
 				cur_read->Strand = Strand(cur_read);
 
@@ -140,9 +153,11 @@ void Output::DoRun() {
 		Log.Verbose("Thread %i invoking alignment (count = %i)", 0, count);
 		Timer x;
 		x.ST();
-		int aligned =
-				aligner->BatchAlign(alignmode | (std::max(outputformat, 1) << 8), count, refBuffer, qryBuffer, alignBuffer,
+		int aligned = 0;
+//		NGM.AquireOutputLock();
+				aligned = aligner->BatchAlign(alignmode | (std::max(outputformat, 1) << 8), count, refBuffer, qryBuffer, alignBuffer,
 						(m_EnableBS) ? m_DirBuffer : 0);
+//		NGM.ReleaseOutputLock();
 		//int aligned = count;
 
 		if (aligned == count) {
@@ -154,6 +169,13 @@ void Output::DoRun() {
 
 		for (int i = 0; i < aligned; ++i) {
 			MappedRead * cur_read = reads[i];
+//
+//			//TODO: remove
+//			char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
+//			if (strcmp(cur_read->name, debugRead) == 0) {
+//				Log.Error("Alignment computed");
+//				getchar();
+//			}
 
 			Log.Verbose("Process aligned read %i,%i (%s)", i, cur_read->ReadId, cur_read->name);
 			int id = cur_read->ReadId;

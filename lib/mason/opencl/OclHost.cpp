@@ -17,10 +17,11 @@ pthread_mutex_t mutext_next_sub_block;
 
 char clPlatformName[1024];
 
-static clCreateSubDevicesEXT_fn pfn_clCreateSubDevicesEXT = NULL;
+//static clCreateSubDevicesEXT_fn pfn_clCreateSubDevicesEXT = NULL;
 
 cl_context OclHost::oclGpuContext = 0;
 int OclHost::contextUserCount = 0;
+cl_device_id * OclHost::devices = 0;
 
 enum PLATFORM {
 	NVIDIA = 0, AMD = 1
@@ -36,44 +37,107 @@ OclHost::OclHost() :
 
 OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 		devType(device_type), maxGlobalMem(0), maxLocalMem(0) {
-	//	if (!isGPU()) {
-	//			gpu_id = 0;
-	//	}
+//		if (!isGPU()) {
+//				gpu_id = 0;
+//		}
 
+	cl_int ciErrNum = CL_SUCCESS;
 #ifndef NDEBUG
 	Log.Message("Using device number %d", gpu_id);
 #endif
-	initOpenCL(cpu_cores);
+//#pragma omp critical
+//	{
+	if (contextUserCount == 0) {
+#ifndef NDEBUG
+		Log.Message("Creating ocl context.");
+#endif
+		cl_uint ciDeviceCount = 0;
+		//cl_device_id *cdDevices = NULL;
+
+		cl_platform_id cpPlatform = NULL;
+
+		cpPlatform = getPlatform();
+		//Get the devices
+
+		//Get number of devices
+		ciErrNum = clGetDeviceIDs(cpPlatform, devType, 0, NULL, &ciDeviceCount);
+		checkClError("Couldn't get number of OpenCl devices. Error: ",
+				ciErrNum);
+
+		if (isGPU()) {
+			Log.Message("%d GPU devices found.", ciDeviceCount);
+
+			//Getting device ids
+			devices = (cl_device_id *) malloc(
+					ciDeviceCount * sizeof(cl_device_id));
+			ciErrNum = clGetDeviceIDs(cpPlatform, devType, ciDeviceCount,
+					devices, NULL);
+			checkClError("Couldn't get OpenCl device ids. Error: ", ciErrNum);
+
+			//Create context
+			oclGpuContext = clCreateContext(0, ciDeviceCount, devices, NULL,
+					NULL, &ciErrNum);
+			checkClError("Couldn't create context. Error: ", ciErrNum);
+			Log.Message("Context for GPU devices created.");
+		} else {
+			if (ciDeviceCount > 1) {
+				Log.Error("More than one CPU device found.");
+				exit(-1);
+			}
+			Log.Message("%d CPU device found.", ciDeviceCount);
+
+			cl_device_id device_id;
+			ciErrNum = clGetDeviceIDs(cpPlatform, CL_DEVICE_TYPE_CPU, 1,
+					&device_id, NULL);
+			checkClError("Couldn't get CPU device id. Error: ", ciErrNum);
+
+			cl_device_partition_property props[3];
+
+			props[0] = CL_DEVICE_PARTITION_EQUALLY;  // Equally
+			props[1] = 1;                  // 4 compute units per sub-device
+			props[2] = 0;
+
+			devices = (cl_device_id *) malloc(256 * sizeof(cl_device_id));
+			ciErrNum = clCreateSubDevices(device_id, props, 256, devices,
+					&ciDeviceCount);
+			checkClError("Couldn't create sub-devices. Error: ", ciErrNum);
+
+			Log.Message("%d CPU cores available.", ciDeviceCount);
+
+			//Create context
+			oclGpuContext = clCreateContext(0, ciDeviceCount, devices, NULL,
+					NULL, &ciErrNum);
+			checkClError("Couldn't create context. Error: ", ciErrNum);
+
+		}
+	}
+	contextUserCount += 1;
+	//}
+
+	oclDevice = devices[gpu_id];
+	//Create context
+	//oclGpuContext = clCreateContext(0, 1, &oclDevice, NULL, NULL, &ciErrNum);
+	//checkClError("Couldn't create context. Error: ", ciErrNum);
 
 	// create command-queues
-	oclDevice = getDevice(gpu_id);
-
 	char device_string[1024];
 	char driver_string[1024];
 	clGetDeviceInfo(oclDevice, CL_DEVICE_NAME, sizeof(device_string),
 			&device_string, NULL);
 	clGetDeviceInfo(oclDevice, CL_DRIVER_VERSION, sizeof(driver_string),
 			&driver_string, NULL);
-	//	if (isGPU()) {
+
 	Log.Message("Device %s selected (ID: %d, Driver: %s)", device_string,gpu_id, driver_string);
 
-	//	} else {
-	//		Log.Message("Device %d selected using %d core(s) (%s)", gpu_id, getDeviceInfoInt(CL_DEVICE_MAX_COMPUTE_UNITS), device_string);
-	//	}
-	//	if (!isGPU()) {
-	//		Log.Message("Using %d cores (%d available)", cpu_cores, getDeviceInfoInt(CL_DEVICE_MAX_COMPUTE_UNITS));
-	//	}
-	//clGetDeviceInfo(oclDevice[1], CL_DEVICE_NAME, sizeof(device_string), &device_string, NULL);
-	//Log.Message("Device %d selected (%s)", 1, device_string);
-
 	// create command queue
-	cl_int ciErrNum;
+//	cl_int ciErrNum;
 #ifndef NDEBUG
 	oclCommandQueue = clCreateCommandQueue(oclGpuContext, oclDevice, 0,
 			&ciErrNum);
 #else
 	oclCommandQueue = clCreateCommandQueue(oclGpuContext, oclDevice, 0, &ciErrNum);
 #endif
+	checkClError("Couldn't create command queue for device: ", ciErrNum);
 
 }
 
@@ -110,7 +174,7 @@ cl_platform_id getPlatformID(char const * const platformName) {
 		// Get OpenCL platform count
 		cl_platform_id clPlatformID[platformNumber];
 		ciErrNum = clGetPlatformIDs(platformNumber, clPlatformID, 0);
-		Log.Message("Available platforms:");
+		Log.Message("Available platforms: %d", platformNumber);
 		for (size_t i = 0; i < platformNumber; ++i) {
 			ciErrNum = clGetPlatformInfo(clPlatformID[i], CL_PLATFORM_NAME,
 					1024, &clPlatformName, NULL);
@@ -136,8 +200,8 @@ cl_platform_id getPlatformID(char const * const platformName) {
 	return 0;
 }
 
-cl_context OclHost::partitionDevice(cl_platform_id platform, cl_uint ciDeviceCount,
-		cl_device_id *cdDevices, cl_int cores) {
+cl_context OclHost::partitionDevice(cl_platform_id platform,
+		cl_uint ciDeviceCount, cl_device_id *cdDevices, cl_int cores) {
 	cl_uint numSubDevices = 0;
 	cl_int ciErrNum = 0;
 //	cl_context oclCPUContext = clCreateContext(0, ciDeviceCount, cdDevices,
@@ -148,22 +212,24 @@ cl_context OclHost::partitionDevice(cl_platform_id platform, cl_uint ciDeviceCou
 //	clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, 1, &device_id, &ciDeviceCount);
 //	Log.Message("%d", ciDeviceCount);
 
-	pfn_clCreateSubDevicesEXT = (clCreateSubDevicesEXT_fn) (clGetExtensionFunctionAddress("clCreateSubDevicesEXT"));
-	cl_device_partition_property_ext partitionPrty[3];
+	//pfn_clCreateSubDevicesEXT = (clCreateSubDevicesEXT_fn) (clGetExtensionFunctionAddress("clCreateSubDevicesEXT"));
+	cl_device_partition_property partitionPrty[3];
 
 	partitionPrty[0] = CL_DEVICE_PARTITION_EQUALLY_EXT;
-	partitionPrty[1] = cores;
+	partitionPrty[1] = 1;
 	partitionPrty[2] = CL_PROPERTIES_LIST_END_EXT;
 
-
-	pfn_clCreateSubDevicesEXT(cdDevices[0], partitionPrty, 0, NULL, &numSubDevices);
+//	pfn_clCreateSubDevicesEXT(cdDevices[0], partitionPrty, 0, NULL, &numSubDevices);
+	clCreateSubDevices(cdDevices[0], partitionPrty, 0, NULL, &numSubDevices);
 	Log.Message("%d", numSubDevices);
 	cl_device_id *subDevices = (cl_device_id*) (malloc(
 			numSubDevices * sizeof(cl_device_id)));
-	pfn_clCreateSubDevicesEXT(cdDevices[0], partitionPrty, numSubDevices, subDevices, NULL);
+	clCreateSubDevices(cdDevices[0], partitionPrty, numSubDevices, subDevices,
+			NULL);
 	// Create context for sub-devices
-	cl_context context = clCreateContext(0, numSubDevices, subDevices, NULL,
-			NULL, NULL);
+	cl_context context = clCreateContext(0, 1, subDevices, NULL, NULL,
+			&ciErrNum);
+	checkClError("BLABLABLAB", ciErrNum);
 	//#ifndef NDEBUG
 	Log.Message("Dividing CPU into %d devices.", numSubDevices);
 	//#endif
@@ -205,82 +271,7 @@ cl_platform_id OclHost::getPlatform() {
 void OclHost::initOpenCL(unsigned int cores) {
 	//pthread_mutex_lock(&mutext_next_sub_block);
 
-#pragma omp critical
-	{
-		if (contextUserCount == 0) {
-#ifndef NDEBUG
-			Log.Message("Creating ocl context.");
-#endif
-			cl_uint ciDeviceCount = 0;
-			cl_device_id *cdDevices = NULL;
-			cl_int ciErrNum = CL_SUCCESS;
-			cl_platform_id cpPlatform = NULL;
-
-			cpPlatform = getPlatform();
-			//Get the devices
-
-			ciErrNum = clGetDeviceIDs(cpPlatform, devType, 0, NULL,
-					&ciDeviceCount);
-			checkClError("Couldn't get number of OpenCl devices. Error: ",
-					ciErrNum);
-
-			cdDevices = (cl_device_id *) malloc(
-					ciDeviceCount * sizeof(cl_device_id));
-			ciErrNum = clGetDeviceIDs(cpPlatform, devType, ciDeviceCount,
-					cdDevices, NULL);
-			checkClError("Couldn't get OpenCl device ids. Error: ", ciErrNum);
-			//}
-
-			//Partitioning temporarily disabled
-			cores = 1;
-			//Create the context
-			if (isGPU() || cores == 0) {
-				oclGpuContext = clCreateContext(0, ciDeviceCount, cdDevices,
-						NULL, NULL, &ciErrNum);
-			} else {
-				oclGpuContext = partitionDevice(cpPlatform, ciDeviceCount, cdDevices,
-						cores);
-			}
-			checkClError("Couldn't create OpenCl context. Error: ", ciErrNum);
-			free(cdDevices);
-		}
-		contextUserCount += 1;
-	}
 	//pthread_mutex_unlock(&mutext_next_sub_block);
-}
-
-cl_device_id OclHost::getDevice(cl_context context, unsigned int gpu_id) {
-	size_t szParmDataBytes;
-	cl_device_id* cdDevices;
-
-	cl_uint deviceNumber = 0;
-	//cl_int clErr = clGetContextInfo(context, CL_CONTEXT_NUM_DEVICES, sizeof(cl_uint), &deviceNumber, NULL);
-	//checkClError("Couldn't get context info.", clErr);
-
-	cl_uint clErr = clGetContextInfo(context, CL_CONTEXT_DEVICES, 0, NULL,
-			&szParmDataBytes);
-	checkClError("Couldn't get context info.", clErr);
-
-	deviceNumber = szParmDataBytes / sizeof(cl_device_id);
-	if (gpu_id >= deviceNumber) {
-		Log.Warning("Your Pc is equipped with %i devices. You selected device number: %i", deviceNumber + 1, gpu_id);
-		Log.Warning("Falling back to device 0.");
-		gpu_id = 0;
-	}
-
-	cdDevices = (cl_device_id*) malloc(szParmDataBytes);
-	clGetContextInfo(context, CL_CONTEXT_DEVICES, szParmDataBytes, cdDevices,
-			NULL);
-	checkClError("Couldn't get context info.", clErr);
-
-	cl_device_id device = cdDevices[gpu_id];
-	free(cdDevices);
-
-	return device;
-}
-
-cl_device_id OclHost::getDevice(unsigned int gpu_id) {
-	return getDevice(oclGpuContext, gpu_id);
 }
 
 bool OclHost::checkGlobalMemory(size_t const size) {
@@ -330,9 +321,6 @@ bool OclHost::testAllocate(unsigned long size) {
 	}
 	return false;
 }
-
-//TODO: remove
-#include <iostream>
 
 cl_mem OclHost::allocate(cl_mem_flags flags, size_t size, void * ptr) {
 	cl_int errCode = 0;
@@ -518,8 +506,11 @@ void OclHost::readFromDevice(cl_mem buffer, cl_bool blocking_read,
 
 void OclHost::executeKernel(cl_kernel kernel, const size_t global_work_size,
 		const size_t local_work_size) {
-	cl_int ciErrNum = clEnqueueNDRangeKernel(oclCommandQueue, kernel, 1, 0,
+	cl_int ciErrNum;
+
+	ciErrNum = clEnqueueNDRangeKernel(oclCommandQueue, kernel, 1, 0,
 			&global_work_size, &local_work_size, 0, 0, 0);
+
 	clFlush(oclCommandQueue);
 	//ciErrNum = clEnqueueNDRangeKernel(oclCommandQueue[1], kernel, 1, 0, &global_work_size, &local_work_size, 0, 0, 0);
 	checkClError("Unable to execute kernel.", ciErrNum);

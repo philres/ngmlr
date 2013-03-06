@@ -12,14 +12,14 @@ file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 
 #add_definitions(-D INSTANCE_COUNTING)
 #VERBOSE OUTPUT 
-add_definitions(-D VERBOSE)
+#add_definitions(-D VERBOSE)
 #DEBUG OUTPUT FOR CS (FILE: cs-results.txt)
-add_definitions(-D _DEBUGCS)
+#add_definitions(-D _DEBUGCS)
 #DEBUG OUTPUT FOR CS (CONSOLE)
-add_definitions(-D _DEBUGCSVERBOSE)
+#add_definitions(-D _DEBUGCSVERBOSE)
 #DEBUG OUTPUT FOR SCORE COMPTATION
-add_definitions(-D _DEBUGSW)
-add_definitions(-D _DEBUGOUT)
+#add_definitions(-D _DEBUGSW)
+#add_definitions(-D _DEBUGOUT)
 
 SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -g -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'\$ORIGIN/amd-app-sdk/'")
 SET (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'\$ORIGIN/amd-app-sdk/'")
