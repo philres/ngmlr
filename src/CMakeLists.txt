@@ -15,10 +15,8 @@ include_directories (.)
 configure_file( Version.h.in ${CMAKE_SOURCE_DIR}/src/Version.h )
 
 add_executable(ngm-core 	
-#                   AlignmentDispatcher.cpp
 					parser/BamParser.cpp
-					writer/BAMWriter.cpp					
-					core/Buffer.cpp										
+					writer/BAMWriter.cpp																	
 					config/Config.cpp					
 					CS.cpp					
 					misc/Debug.cpp					
@@ -29,14 +27,13 @@ add_executable(ngm-core
 					NGM.cpp
 					core/NGMStats.cpp
 					core/NGMTask.cpp
-					Output.cpp
+					AlignmentBuffer.cpp
 					PrefixTable.cpp														
 					ReadProvider.cpp
 					parser/SamParser.cpp
 					writer/SAMWriter.cpp
-					SequenceProvider.cpp
-					#SW.cpp
-					SWwoBuffer.cpp
+					SequenceProvider.cpp					
+					ScoreBuffer.cpp
 					core/unix.cpp
 					core/unix_threads.cpp
 					core/windows_threads.cpp

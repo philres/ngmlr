@@ -10,14 +10,14 @@
 
 #include "IAlignment.h"
 #include "NGM.h"
-#include "Output.h"
+#include "AlignmentBuffer.h"
 
 #include <list>
 
 #undef module_name
 #define module_name "SWwoBuffer"
 
-class SWwoBuffer {
+class ScoreBuffer {
 public:
 private:
 	const int m_AlignMode;
@@ -53,7 +53,7 @@ private:
 	int iScores;
 
 	IAlignment * aligner;
-	Output * out;
+	AlignmentBuffer * out;
 	const int swBatchSize;
 
 	//std::list<MappedRead*> m_ReadBuffer;
@@ -61,7 +61,7 @@ private:
 public:
 	static ulong scoreCount;
 
-	SWwoBuffer(IAlignment * mAligner, Output * mOut) :
+	ScoreBuffer(IAlignment * mAligner, AlignmentBuffer * mOut) :
 			m_AlignMode(Config.GetInt("mode", 0, 1)), aligner(mAligner), out(mOut), swBatchSize(aligner->GetScoreBatchSize() / 2) {
 
 		m_QryBuffer = 0;
@@ -93,7 +93,7 @@ public:
 		iScores = 0;
 	}
 
-	~SWwoBuffer() {
+	~ScoreBuffer() {
 		Log.Verbose("SW dtor");
 		delete[] m_DirBuffer;
 		m_DirBuffer = 0;

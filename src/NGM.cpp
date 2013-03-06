@@ -6,7 +6,7 @@
 #include "Debug.h"
 #include "PrefixTable.h"
 #include "ReadProvider.h"
-#include "Output.h"
+//#include "Output.h"
 #include "FileWriter.h"
 
 #include <limits.h>
@@ -57,7 +57,7 @@ _NGM::_NGM() :
 #else
 				m_OutputFormat(Config.GetInt("format", 0, 1)),
 #endif
-				m_ReadStart(GetStart()), m_ReadCount(GetCount()), m_CurStart(0), m_CurCount(
+				m_CurStart(0), m_CurCount(
 						0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(
 						false), m_UnmappedReads(0), m_MappedReads(0), m_WrittenReads(
 						0), m_ReadReads(0), m_ReadProvider(0)/*, m_Cache(0),m_ReadBuffer(
@@ -83,9 +83,6 @@ _NGM::_NGM() :
 	if (m_Paired && !m_DualStrand)
 		Log.Error("Logical error: Paired read mode without dualstrand search.");
 
-	if (Config.Exists("cs_maxRefsPerEntry"))
-		RefEntry::MaxRefsPerEntry = Config.GetInt("cs_maxRefsPerEntry");
-
 }
 
 void _NGM::InitProviders() {
@@ -99,7 +96,7 @@ void _NGM::InitProviders() {
 		m_ReadProvider = new ReadProvider();
 		uint readCount = m_ReadProvider->init(Config.GetString("qry"));
 //		Log.Message("Read count %d", readCount);
-		NGM.UpdateReadCount(readCount);
+//		NGM.UpdateReadCount(readCount);
 	}
 }
 
@@ -254,23 +251,23 @@ void _NGM::FinishThread(int tid) {
 	m_Tasks[tid] = 0;
 }
 
-void _NGM::UpdateReadCount(int n) {
-	if ((m_ReadCount < 0) || ((m_ReadStart + m_ReadCount) > n))
-		m_ReadCount = n - m_ReadStart;
-
-	/*	if (Config.Exists("continue_from"))
-	 {
-	 int bufferPartition = -1;
-	 m_ReadBuffer = ReadBuffer::ContinueFrom(std::string(Config.GetString("continue_from")), m_ReadStart, m_ReadCount, bufferPartition);
-	 m_CurrentPartition = bufferPartition;
-	 m_ReadsBuffered = m_ReadCount;
-	 Log.Green("Restarting from partition %i", m_CurrentPartition);
-	 }
-	 else
-	 {*/
-	//m_ReadBuffer = ReadBuffer::GenerateNew(m_ReadStart, m_ReadCount);
-	//}*/
-}
+//void _NGM::UpdateReadCount(int n) {
+//	if ((m_ReadCount < 0) || ((m_ReadStart + m_ReadCount) > n))
+//		m_ReadCount = n - m_ReadStart;
+//
+//	/*	if (Config.Exists("continue_from"))
+//	 {
+//	 int bufferPartition = -1;
+//	 m_ReadBuffer = ReadBuffer::ContinueFrom(std::string(Config.GetString("continue_from")), m_ReadStart, m_ReadCount, bufferPartition);
+//	 m_CurrentPartition = bufferPartition;
+//	 m_ReadsBuffered = m_ReadCount;
+//	 Log.Green("Restarting from partition %i", m_CurrentPartition);
+//	 }
+//	 else
+//	 {*/
+//	//m_ReadBuffer = ReadBuffer::GenerateNew(m_ReadStart, m_ReadCount);
+//	//}*/
+//}
 
 #ifdef _DEBUG
 void TestMem();
@@ -291,10 +288,9 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 	}
 
 	if (m_CurCount == 0) {
-		//AlignmentDispatcher::Instance()->ResetLoad();
-		Log.Error("Here!!");
-		m_CurStart = m_ReadStart;
-		m_CurCount = m_ReadCount;
+//		m_CurStart = m_ReadStart;
+//		m_CurCount = m_ReadCount;
+		m_CurStart = 0;
 		NGMSignal(&m_CSWait);
 	}
 

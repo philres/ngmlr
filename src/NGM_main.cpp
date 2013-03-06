@@ -16,7 +16,7 @@
 
 //#include "SW.h"
 #include "CS.h"
-#include "Output.h"
+//#include "Output.h"
 #include "Version.h"
 
 #include "Timing.h"
@@ -141,7 +141,7 @@ int main(int argc, char * argv[]) {
 
 			NGM.MainLoop();
 			//Log.Message("Scores computed: %ld", SW::scoreCount);
-			Log.Message("Alignments computed: %ld", Output::alignmentCount);
+			Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
 #ifdef INSTANCE_COUNTING
 			Log.Green("Counts:");
 			Log.Message("MappedRead count = %i (max %i)", MappedRead::sInstanceCount, MappedRead::maxSeqCount);

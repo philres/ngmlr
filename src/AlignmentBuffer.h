@@ -20,7 +20,7 @@ char Strand(MappedRead * read);
 
 char const * const cFormatNames[3] = { "Plain Text", "SAM", "BAM" };
 
-class Output {
+class AlignmentBuffer {
 
 private:
 
@@ -70,7 +70,7 @@ public:
 
 	IAlignment * aligner;
 
-	Output(const char* const filename, IAlignment * mAligner) :
+	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
 			m_Filename(filename),
 			batchSize(mAligner->GetAlignBatchSize() / 2),
 			output_name(Config.GetString("output")),
@@ -118,7 +118,7 @@ public:
 
 //		NGMInitMutex(&m_Mutex);
 
-		Log.Message("Alignment batchsize = %i", batchSize);
+		Log.Verbose("Alignment batchsize = %i", batchSize);
 
 		reads = new MappedRead*[batchSize];
 
@@ -141,7 +141,7 @@ public:
 
 	}
 
-	virtual ~Output() {
+	virtual ~AlignmentBuffer() {
 		delete m_Writer;
 		Log.Message("Freeing resources...");
 		delete[] m_DirBuffer;

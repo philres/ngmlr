@@ -9,7 +9,6 @@
 #include "Config.h"
 #include "PlatformSpecifics.h"
 #include "SequenceProvider.h"
-#include "Buffer.h"
 #include "NGMThreads.h"
 #include "MappedRead.h"
 
@@ -18,15 +17,10 @@
 
 #include "NGMTask.h"
 
-//#include "Aligner.h"
-//#include "Partition.h"
 #include "IRefProvider.h"
 #include "IReadProvider.h"
 #include "IAlignment.h"
 #include "FileWriter.h"
-
-//#include "ReadBuffer.h"
-//#include "CSCache.h"
 
 #ifdef _WIN32
 #define _CRTDBG_MAP_ALLOC
@@ -155,8 +149,9 @@ private:
 	bool const m_DualStrand;
 	bool const m_Paired;
 	int const m_OutputFormat;
-	int m_ReadStart;
-	int m_ReadCount;
+
+//	int m_ReadStart;
+//	int m_ReadCount;
 
 	FileWriter * m_Output;
 
@@ -197,7 +192,7 @@ private:
 //	PartitionList GeneratePartitions(std::list<int> SeqIds, long PartitionThreshhold, long Overlap);
 //	std::list<int> GetRefConfig();
 
-	void UpdateReadCount(int n);
+//	void UpdateReadCount(int n);
 
 	friend class _SequenceProvider;
 };

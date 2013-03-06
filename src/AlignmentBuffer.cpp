@@ -1,17 +1,17 @@
+#include "AlignmentBuffer.h"
+
 #include <stdio.h>
-
-#include "Timing.h"
-#include "Output.h"
-#include "Debug.h"
-
 #include <string.h>
 
-ulong Output::alignmentCount = 0;
-bool Output::first = true;
+#include "Timing.h"
+#include "Debug.h"
+
+ulong AlignmentBuffer::alignmentCount = 0;
+bool AlignmentBuffer::first = true;
 
 //static inline void rev(char * s);
 
-void Output::saveEqualScoring(int id) {
+void AlignmentBuffer::saveEqualScoring(int id) {
 	typedef std::list<MappedRead*> TReadList;
 	TReadList reads = m_EqualScoringBuffer[id];
 	//							if (Config.GetInt("bowtie_mode") == 0) {
@@ -63,12 +63,12 @@ void Output::saveEqualScoring(int id) {
 	m_EqualScoringBuffer.erase(it);
 }
 
-void Output::flush() {
+void AlignmentBuffer::flush() {
 	DoRun();
 	nReads = 0;
 }
 
-void Output::addRead(MappedRead * read) {
+void AlignmentBuffer::addRead(MappedRead * read) {
 //	//TODO: remove
 //	char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
 //	if (strcmp(read->name, debugRead) == 0) {
@@ -86,7 +86,7 @@ void Output::addRead(MappedRead * read) {
 	}
 }
 
-void Output::DoRun() {
+void AlignmentBuffer::DoRun() {
 
 	int count = nReads;
 	Timer tmr;

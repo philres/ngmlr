@@ -6,7 +6,7 @@
 #include "SequenceLocation.h"
 #include "MappedRead.h"
 #include "RefEntry.h"
-#include "SWwoBuffer.h"
+#include "ScoreBuffer.h"
 
 #include <map>
 #include <stdlib.h>
@@ -72,8 +72,8 @@ protected:
 	int CollectResultsFallback(MappedRead* read);
 	void FilterScore(LocationScore* score);
 	void CheckFallback();
-	virtual int RunBatch(SWwoBuffer * sw, Output * out);
-	void SendToBuffer(MappedRead* read, SWwoBuffer * sw, Output * out);
+	virtual int RunBatch(ScoreBuffer * sw, AlignmentBuffer * out);
+	void SendToBuffer(MappedRead* read, ScoreBuffer * sw, AlignmentBuffer * out);
 	CSTableEntry* rTable; // standard
 	int currentState;
 	int* rList;

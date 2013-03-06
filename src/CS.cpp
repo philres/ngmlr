@@ -7,7 +7,7 @@
 #include "NGM.h"
 #include "Timing.h"
 #include "Debug.h"
-#include "Output.h"
+#include "AlignmentBuffer.h"
 
 #undef module_name
 #define module_name "CS"
@@ -19,9 +19,6 @@ static const LocationScore sInvalidLocationScore(sInvalidLocation, 0, 0); // { s
 #ifdef _DEBUGCS
 FILE* ofp2;
 #endif
-
-// Default-Werte
-int RefEntry::MaxRefsPerEntry = 100; // Anzahl Positionen, die pro RefEntry-Knoten gespeichert werden
 
 volatile int CS::s_ThreadCount = 0;
 
@@ -396,14 +393,12 @@ int CS::CollectResultsStd(MappedRead * read) {
 	if (index < maxScores)
 		read->AllocScores(tmp, index);
 
-
 //	//TODO: remove
 //	char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
 //	if (strcmp(read->name, debugRead) == 0) {
 //		Log.Error("Collect results: %d %d", n, read->numScores());
 //		getchar();
 //	}
-
 
 	return index;
 }
@@ -413,7 +408,8 @@ int CS::CollectResultsFallback(MappedRead * read) {
 	return 0;
 }
 
-void CS::SendToBuffer(MappedRead * read, SWwoBuffer * sw, Output * out) {
+void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
+		AlignmentBuffer * out) {
 	if (read == 0)
 		return;
 
@@ -431,7 +427,6 @@ void CS::SendToBuffer(MappedRead * read, SWwoBuffer * sw, Output * out) {
 
 		read->Calculated = 0;
 		sw->addRead(read->Scores, count);
-
 
 		++m_WrittenReads;
 		//}	else {
@@ -451,7 +446,7 @@ void CS::Cleanup() {
 	NGM.ReleaseWriter();
 }
 
-int CS::RunBatch(SWwoBuffer * sw, Output * out) {
+int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 	PrefixIterationFn pFunc = &CS::PrefixSearch;
 	if (m_EnableBS)
 		pFunc = &CS::PrefixMutateSearch;
@@ -562,18 +557,27 @@ int CS::RunBatch(SWwoBuffer * sw, Output * out) {
 void CS::DoRun() {
 	Log.Verbose("Launching CS Thread %i (NGM Thread %i)", m_CSThreadID, m_TID);
 
-	IAlignment * aligner;
-	IAlignment * aligner2;
+	IAlignment * oclAligner;
 	int gpu = m_TID;
-//	int gpu = 0;
-	if(Config.Exists("gpu")) {
-		gpu = gpu % Config.GetInt("gpu");
+	if (Config.Exists("gpu")) {
+		int threadcount = 1;
+		static const int cMaxAligner = 32;
+		threadcount = Config.GetInt("gpu", 1, cMaxAligner);
+		int * gpus = new int[threadcount];
+		if (Config.Exists("gpu")) {
+			Config.GetIntArray("gpu", gpus, threadcount);
+		} else {
+			gpus[0] = 0;
+		}
+		gpu = gpus[m_TID % threadcount];
 	}
+	Log.Message("Thread %d using C/GPU device %d", m_TID, gpu);
+
 	NGM.AquireOutputLock();
-	aligner = NGM.CreateAlignment(gpu | (std::min(Config.GetInt("format", 0, 2), 1) << 8));
+	oclAligner = NGM.CreateAlignment(gpu | (std::min(Config.GetInt("format", 0, 2), 1) << 8));
+	AlignmentBuffer * alignmentBuffer = new AlignmentBuffer(Config.GetString("output"), oclAligner);
+	ScoreBuffer * scoreBuffer = new ScoreBuffer(oclAligner, alignmentBuffer);
 	NGM.ReleaseOutputLock();
-	Output * out = new Output(Config.GetString("output"), aligner);
-	SWwoBuffer * sw = new SWwoBuffer(aligner, out);
 
 	int x_SrchTableLen = (int) pow(2, x_SrchTableBitLen);
 
@@ -603,10 +607,8 @@ void CS::DoRun() {
 		Log.Verbose("CS Thread %i got batch (len %i)", m_TID, m_CurrentBatch.size());
 		tmr.ST();
 
-		//NGM.bCSSW.Register();
-		int nCRMsSum = RunBatch(sw, out);
-		sw->flush();
-		//NGM.bCSSW.Release();
+		int nCRMsSum = RunBatch(scoreBuffer, alignmentBuffer);
+		scoreBuffer->flush();
 
 		float elapsed = tmr.ET();
 		Log.Verbose("CS Thread %i finished batch (len %i) with %i overflows, length %d (elapsed: %.3fs)", m_TID, m_CurrentBatch.size(), m_Overflows, c_SrchTableBitLen, elapsed);
@@ -633,9 +635,9 @@ void CS::DoRun() {
 		m_Overflows = 0;
 	}
 
-	delete sw; sw = 0;
-	delete out; out = 0;
-	NGM.DeleteAlignment(aligner);
+	delete scoreBuffer; scoreBuffer = 0;
+	delete alignmentBuffer; alignmentBuffer = 0;
+	NGM.DeleteAlignment(oclAligner);
 	Log.Verbose("CS Thread %i finished (%i reads processed, %i reads written, %i reads discarded)", m_TID, m_ProcessedReads, m_WrittenReads, m_DiscardedReads);
 }
 void CS::Init() {

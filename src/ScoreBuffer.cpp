@@ -5,7 +5,7 @@
  *      Author: philipp_
  */
 
-#include "SWwoBuffer.h"
+#include "ScoreBuffer.h"
 
 #include <cmath>
 
@@ -13,9 +13,9 @@
 #include "Debug.h"
 #include "Timing.h"
 #include "CS.h"
-#include "Output.h"
+#include "AlignmentBuffer.h"
 
-ulong SWwoBuffer::scoreCount = 0;
+ulong ScoreBuffer::scoreCount = 0;
 
 //static int refMaxLen = 0;
 //static int qryMaxLen = 0;
@@ -26,7 +26,7 @@ long tCount = 1;
 long tSum = 0;
 long brokenPairs = 0;
 
-void SWwoBuffer::DoRun() {
+void ScoreBuffer::DoRun() {
 
 	if (iScores != 0) {
 		for (int i = 0; i < iScores; ++i) {
@@ -72,7 +72,7 @@ void SWwoBuffer::DoRun() {
 //				Log.Message("SW Thread %i launching batch (size=%i)", m_TID, count);
 		Timer tmr;
 		tmr.ST();
-		SWwoBuffer::scoreCount += iScores;
+		ScoreBuffer::scoreCount += iScores;
 		int res = 0;
 //		NGM.AquireOutputLock();
 		res = aligner->BatchScore(m_AlignMode, iScores, m_RefBuffer,
@@ -124,7 +124,7 @@ void SWwoBuffer::DoRun() {
 	}
 }
 
-void SWwoBuffer::SendToPostprocessing(MappedRead * read) {
+void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 
 	// Program runs in Paired mode and current read got a pair
 	Log.Verbose("[SINGLE] SW::SendToPostprocessing: %i (%s)", read->ReadId, read->name);
@@ -206,7 +206,7 @@ void SWwoBuffer::SendToPostprocessing(MappedRead * read) {
 
 int scount = 0;
 
-void SWwoBuffer::addRead(LocationScore * newScores, int count) {
+void ScoreBuffer::addRead(LocationScore * newScores, int count) {
 
 	if(count == 0) {
 		Log.Error("count == 0");
@@ -232,9 +232,9 @@ void SWwoBuffer::addRead(LocationScore * newScores, int count) {
 	}
 }
 
-Output * out;
+AlignmentBuffer * out;
 
-void SWwoBuffer::flush() {
+void ScoreBuffer::flush() {
 	DoRun();
 	iScores = 0;
 //	NGM.bSWO.Release();
@@ -243,7 +243,7 @@ void SWwoBuffer::flush() {
 
 }
 
-void SWwoBuffer::SendSeToBuffer(MappedRead* read) {
+void ScoreBuffer::SendSeToBuffer(MappedRead* read) {
 
 	if (!read->hasCandidates()) {
 		//NGM.AddUnmappedRead(read, MFAIL_NOCAND);

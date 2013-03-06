@@ -13,7 +13,7 @@
 pthread_mutex_t mutext_next_sub_block;
 
 #undef module_name
-#define module_name "OCLHost"
+#define module_name "OPENCL"
 
 char clPlatformName[1024];
 
@@ -52,8 +52,6 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 		Log.Message("Creating ocl context.");
 #endif
 		cl_uint ciDeviceCount = 0;
-		//cl_device_id *cdDevices = NULL;
-
 		cl_platform_id cpPlatform = NULL;
 
 		cpPlatform = getPlatform();
@@ -65,8 +63,6 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 				ciErrNum);
 
 		if (isGPU()) {
-			Log.Message("%d GPU devices found.", ciDeviceCount);
-
 			//Getting device ids
 			devices = (cl_device_id *) malloc(
 					ciDeviceCount * sizeof(cl_device_id));
@@ -79,17 +75,38 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 					NULL, &ciErrNum);
 			checkClError("Couldn't create context. Error: ", ciErrNum);
 			Log.Message("Context for GPU devices created.");
+
+			Log.Message("%d GPU device(s) found: ", ciDeviceCount);
+			for (int i = 0; i < ciDeviceCount; ++i) {
+				char device_string[1024];
+				char driver_string[1024];
+				clGetDeviceInfo(devices[i], CL_DEVICE_NAME,
+						sizeof(device_string), &device_string, NULL);
+				clGetDeviceInfo(devices[i], CL_DRIVER_VERSION,
+						sizeof(driver_string), &driver_string, NULL);
+				Log.Message("Device %d: %s (Driver: %s)", i, device_string, driver_string);
+			}
+
 		} else {
 			if (ciDeviceCount > 1) {
 				Log.Error("More than one CPU device found.");
 				exit(-1);
 			}
-			Log.Message("%d CPU device found.", ciDeviceCount);
 
 			cl_device_id device_id;
 			ciErrNum = clGetDeviceIDs(cpPlatform, CL_DEVICE_TYPE_CPU, 1,
 					&device_id, NULL);
 			checkClError("Couldn't get CPU device id. Error: ", ciErrNum);
+
+			Log.Message("%d CPU device found.", ciDeviceCount);
+			char device_string[1024];
+			char driver_string[1024];
+			clGetDeviceInfo(device_id, CL_DEVICE_NAME,
+					sizeof(device_string), &device_string, NULL);
+			clGetDeviceInfo(device_id, CL_DRIVER_VERSION,
+					sizeof(driver_string), &driver_string, NULL);
+			Log.Message("Device %d: %s (Driver: %s)", 0, device_string, driver_string);
+
 
 			cl_device_partition_property props[3];
 
@@ -119,18 +136,7 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 	//oclGpuContext = clCreateContext(0, 1, &oclDevice, NULL, NULL, &ciErrNum);
 	//checkClError("Couldn't create context. Error: ", ciErrNum);
 
-	// create command-queues
-	char device_string[1024];
-	char driver_string[1024];
-	clGetDeviceInfo(oclDevice, CL_DEVICE_NAME, sizeof(device_string),
-			&device_string, NULL);
-	clGetDeviceInfo(oclDevice, CL_DRIVER_VERSION, sizeof(driver_string),
-			&driver_string, NULL);
-
-	Log.Message("Device %s selected (ID: %d, Driver: %s)", device_string,gpu_id, driver_string);
-
 	// create command queue
-//	cl_int ciErrNum;
 #ifndef NDEBUG
 	oclCommandQueue = clCreateCommandQueue(oclGpuContext, oclDevice, 0,
 			&ciErrNum);
