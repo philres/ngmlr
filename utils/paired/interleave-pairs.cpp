@@ -173,7 +173,7 @@ MappedRead * NextRead(IParser * parser, kseq_t *seq, int const id) {
 		}
 	} else {
 		if (l == -1) {
-			Log.Message("End of input file reached.");
+			Log.Verbose("End of input file reached.");
 		} else {
 			Log.Error("Error while parsing read %d (%d)", id, l);
 			Fatal();
@@ -334,6 +334,7 @@ int interleave_pairs(int argc, char **argv) {
 				unmappedWriter->writeRead(read);
 				nUnmappedRead += 1;
 			}
+			delete unmappedWriter; unmappedWriter = 0;
 		}
 
 		Log.Message("Reads found in files: %d", nReads);
