@@ -571,7 +571,7 @@ void CS::DoRun() {
 		}
 		gpu = gpus[m_TID % threadcount];
 	}
-	Log.Message("Thread %d using C/GPU device %d", m_TID, gpu);
+	Log.Verbose("Thread %d using C/GPU device %d", m_TID, gpu);
 
 	NGM.AquireOutputLock();
 	oclAligner = NGM.CreateAlignment(gpu | (std::min(Config.GetInt("format", 0, 2), 1) << 8));

@@ -32,7 +32,6 @@ public:
 		}
 	}
 	virtual ~GenericReadWriter() {
-		Log.Green("Releasing writer.");
 //		if (m_Output) {
 		m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer, true);
 			//fclose(m_Output);
