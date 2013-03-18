@@ -83,17 +83,17 @@ void _Config::InternalAdd(std::string name, std::string value, std::string arr_d
 		Log.Warning("Ignoring redefinition of %s (current value = %s, tried to override with %s)", name.c_str(), InternalGet(name).c_str(), value.c_str());
 	} else {
 		if (name == "logfile" || name == "output")
-			value = add_timestamp(value);
+		value = add_timestamp(value);
 
 		if (name == "qry_end")
-			Log.Warning("Parameter qry_end has been replaced by qry_count");
+		Log.Warning("Parameter qry_end has been replaced by qry_count");
 
 		if (name != "cmdline") {
 			Log.Verbose("%s <%s : %s>%s", (exists) ? "Overriding" : "Adding", name.c_str(), value.c_str(), (arr_data.length() != 0) ? "[Array]" : "");
 		}
 		config_map->insert(std::pair<std::string, std::string>(name, value));
 		if (arr_data.length() != 0)
-			config_arrays->insert(std::pair<std::string, std::string>(name, arr_data));
+		config_arrays->insert(std::pair<std::string, std::string>(name, arr_data));
 	}
 }
 
@@ -165,11 +165,11 @@ int _Config::GetInt(char const * const name, int min, int max) const {
 	if ((i < min) || ((max >= min) && (i > max))) {
 		if (max >= min)
 			Log.Error("Value %s : %i out of range [%i, %i] - defaulting to %i", name, i, min, max, min);
-		else
+			else
 			Log.Error("Value %s : %i below minimum of %i - defaulting to %i", name, i, min, min);
 
-		i = min;
-	}
+			i = min;
+		}
 	return i;
 }
 float _Config::GetFloat(char const * const name, float min, float max) const {
@@ -311,7 +311,7 @@ void _Config::ParseFile(char const * const filename) {
 
 	while (*config_text != 0) {
 		if (*config_text == '#')
-			SkipLine(config_text, false);
+		SkipLine(config_text, false);
 
 		SkipWhitespace(config_text);
 
@@ -320,7 +320,7 @@ void _Config::ParseFile(char const * const filename) {
 			int n = 0;
 
 			while (*(config_text + n) != 0 && *(config_text + n) != ' ')
-				++n;
+			++n;
 
 			std::string name = std::string(config_text, n);
 			config_text += n;
@@ -350,10 +350,10 @@ void _Config::ParseFile(char const * const filename) {
 					start = config_text;
 
 					while (*config_text != '\0' && *config_text != '}')
-						++config_text;
+					++config_text;
 
 					if (*config_text != '}')
-						Log.Error("'}' expected.");
+					Log.Error("'}' expected.");
 					else {
 						++config_text;
 					}
@@ -403,10 +403,10 @@ _Config::_Config(int argc, char * argv[]) {
 
 	Default("max_equal", 1);
 	if (GetInt("bs_mapping") != 1) {
-		Default("score_match", 5);
-		Default("score_mismatch", -2);
-		Default("score_gap_read", -6);
-		Default("score_gap_ref", -6);
+		Default("score_match", 10);
+		Default("score_mismatch", -15);
+		Default("score_gap_read", -20);
+		Default("score_gap_ref", -20);
 	} else {
 		Log.Message("Using bs-mapping scoring scheme");
 		Default("score_match", 4);
