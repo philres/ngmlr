@@ -33,8 +33,8 @@ int kCount = 0;
 //Default values
 int x_SrchTableBitLen = 24;
 //Number of bases per batch
-//int const cBatchSize = 1800000;
-int const cBatchSize = 1000000;
+int const cBatchSize = 1800000;
+//int const cBatchSize =   10000;
 uint const cPrefixBaseSkip = 0;
 
 float const cOverflowThresh = 0.1f;
