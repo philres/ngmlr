@@ -461,7 +461,7 @@ int OclHost::getThreadPerMulti() {
 			return 1536;
 		}
 	} else {
-		return 256;
+		return 256 * 32;
 	}
 
 }
