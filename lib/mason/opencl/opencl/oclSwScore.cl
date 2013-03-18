@@ -135,17 +135,30 @@ __kernel void oclSW_Score(__global char const * scaff, __global char const * rea
 				//							pointer = CIGAR_STOP;
 				//						}
 
-				if (max_cell == up_cell && max_cell != (local_matrix_line[ref_index * threads_per_block] + mismatch)) {
-					//pointer = 2;
-					pointer = CIGAR_I;
-				} else if (max_cell == left_cell && max_cell != (local_matrix_line[ref_index * threads_per_block] + mismatch)) {
-					//pointer = 1;
-					pointer = CIGAR_D;
-				} else if (max_cell > 0 && (max_cell == diag_cell || max_cell == (local_matrix_line[ref_index * threads_per_block] + mismatch) || max_cell == (local_matrix_line[ref_index] + match))) {
-					//pointer = 4;
-				} else {
+//chr4:1,803,533-1,803,603
+
+				if(max_cell <= 0) {
 					pointer = CIGAR_STOP;
+				} else if(max_cell == diag_cell || 
+					 	   max_cell == (local_matrix_line[ref_index * threads_per_block] + mismatch)) {
+				} else if(max_cell == up_cell) {
+					pointer = CIGAR_I;
+				} else {
+					pointer = CIGAR_D;
 				}
+								
+
+				//if (max_cell == up_cell && max_cell != (local_matrix_line[ref_index * threads_per_block] + mismatch)) {
+				//	//pointer = 2;
+				//	pointer = CIGAR_I;
+				//} else if (max_cell == left_cell && max_cell != (local_matrix_line[ref_index * threads_per_block] + mismatch)) {
+				//	//pointer = 1;
+				//	pointer = CIGAR_D;
+				//} else if (max_cell > 0 && (max_cell == diag_cell || max_cell == (local_matrix_line[ref_index * threads_per_block] + mismatch) || max_cell == (local_matrix_line[ref_index] + match))) {
+				//	//pointer = 4;
+				//} else {
+				//	pointer = CIGAR_STOP;
+				//}
 
 				//}
 				//printf("\t%d", max_cell);
@@ -331,12 +344,12 @@ __kernel void oclSW_Score(__global char const * scaff, __global char const * rea
 #ifndef __BS__
 							float4 score = (float4)(scores[read_char_cache.s0][trans[scaff[ref_index]]], scores[read_char_cache.s1][trans[scaff[ref_index + 1 * ref_length]]], scores[read_char_cache.s2][trans[scaff[ref_index + 2 * ref_length]]], scores[read_char_cache.s3][trans[scaff[ref_index + 3 * ref_length]]]);
 							float4 diag_cell = local_matrix_line[ref_index] + score;
-							float4 pointer = select(CIGAR_X4, CIGAR_EQ4, (score == match));
+							float4 pointerX = select(CIGAR_X4, CIGAR_EQ4, (score == match));
 #else
 							float4 score = select((float4)(scoresAG[read_char_cache.s0][trans[scaff[ref_index]]], scoresAG[read_char_cache.s1][trans[scaff[ref_index + 1 * ref_length]]], scoresAG[read_char_cache.s2][trans[scaff[ref_index + 2 * ref_length]]], scoresAG[read_char_cache.s3][trans[scaff[ref_index + 3 * ref_length]]]), (float4)(scoresTC[read_char_cache.s0][trans[scaff[ref_index]]], scoresTC[read_char_cache.s1][trans[scaff[ref_index + 1 * ref_length]]], scoresTC[read_char_cache.s2][trans[scaff[ref_index + 2 * ref_length]]], scoresTC[read_char_cache.s3][trans[scaff[ref_index + 3 * ref_length]]]), direction4 == 0);							
 
 							float4 diag_cell = local_matrix_line[ref_index] + score;
-							float4 pointer = select(CIGAR_X4, CIGAR_EQ4, (read_char_cache == (int4)(trans[scaff[ref_index]], trans[scaff[ref_index + 1 * ref_length]], trans[scaff[ref_index + 2 * ref_length]], trans[scaff[ref_index + 3 * ref_length]])));						
+							float4 pointerX = select(CIGAR_X4, CIGAR_EQ4, (read_char_cache == (int4)(trans[scaff[ref_index]], trans[scaff[ref_index + 1 * ref_length]], trans[scaff[ref_index + 2 * ref_length]], trans[scaff[ref_index + 3 * ref_length]])));						
 #endif
 
 
@@ -352,11 +365,11 @@ __kernel void oclSW_Score(__global char const * scaff, __global char const * rea
 
 														
 							//pointer = select(pointer, CIGAR_STOP, (max_cell == 0));
-							
-							pointer = select(CIGAR_STOP, pointer, (max_cell > 0 && (max_cell == diag_cell || max_cell == (local_matrix_line[ref_index] + mismatch) || max_cell == (local_matrix_line[ref_index] + match))));
-							pointer = select(pointer, CIGAR_D, (max_cell == left_cell && max_cell != (local_matrix_line[ref_index] + mismatch)));
-							pointer = select(pointer, CIGAR_I, (max_cell == up_cell && max_cell != (local_matrix_line[ref_index] + mismatch)));
-							
+														
+							float4 pointer = select(pointerX, CIGAR_D, max_cell == left_cell);
+							pointer = select(pointer, CIGAR_I, max_cell == up_cell);							
+							pointer = select(pointer, pointerX, max_cell == diag_cell || max_cell == (local_matrix_line[ref_index * threads_per_block] + mismatch));
+							pointer = select(pointer, CIGAR_STOP, max_cell <= 0);
 							
 							
 							//max_cell > 0 && (max_cell == diag_cell || max_cell == (local_matrix_line[ref_index * threads_per_block] + mismatch) || max_cell == (local_matrix_line[ref_index] + match))
