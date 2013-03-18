@@ -26,6 +26,19 @@
 #undef module_name
 #define module_name "MAIN"
 
+// Get current date/time, format is YYYY-MM-DD.HH:mm:ss
+const std::string currentDateTime() {
+    time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[80];
+    tstruct = *localtime(&now);
+    // Visit http://www.cplusplus.com/reference/clibrary/ctime/strftime/
+    // for more information about date/time format
+    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+
+    return buf;
+}
+
 bool CheckOutput() {
 	if (Config.Exists("output")) {
 		if (!(Config.Exists("overwrite") && (Config.GetInt("overwrite") == 1))) {
@@ -69,6 +82,8 @@ int main(int argc, char * argv[]) {
 	char const * build = (cDebug) ? " (DEBUG)" : "";
 	Log.Message("NextGenMap %s", version.str().c_str());
 	Log.Message("Startup : %s%s (build %s %s)", arch[sizeof(void*) / 4 - 1], build, __DATE__, __TIME__);
+
+	Log.Message("Starting time: %s", currentDateTime().c_str());
 
 	//try {
 	Timer tmr;
