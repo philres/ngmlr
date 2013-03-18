@@ -83,7 +83,7 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const pRef
 	int readlen = read->length;
 
 	char * readname = read->name;
-	int readnamelen = read->nameLength;
+//	int readnamelen = read->nameLength;
 
 	char * qltystr = read->qlty;
 	int qltylen = readlen;
@@ -97,7 +97,8 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const pRef
 		al.SetIsReverseStrand(true);
 	}
 
-	al.Name = std::string(readname, readnamelen);
+	//al.Name = std::string(readname, readnamelen);
+	al.Name = std::string(readname);
 	al.Length = readlen;
 	al.MapQuality = read->mappingQlty;
 	al.Position = read->TLS()->Location.m_Location;
@@ -181,7 +182,7 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 	int readlen = read->length;
 
 	char * readname = read->name;
-	int readnamelen = read->nameLength;
+	//int readnamelen = read->nameLength;
 
 	char * qltystr = read->qlty;
 	int qltylen = readlen;
@@ -190,7 +191,8 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 	translate_flag(al, flags);
 	al.SetIsMapped(false);
 
-	al.Name = std::string(readname, readnamelen);
+	//al.Name = std::string(readname, readnamelen);
+	al.Name = std::string(readname);
 	al.Length = readlen;
 	al.MapQuality = 0;
 

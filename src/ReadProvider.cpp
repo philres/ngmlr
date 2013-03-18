@@ -330,9 +330,9 @@ MappedRead * ReadProvider::NextRead(int const id) {
 			//Name
 			static size_t const MAX_READNAME_LENGTH = 100;
 			read->name = new char[MAX_READNAME_LENGTH];
-			read->nameLength = std::min(MAX_READNAME_LENGTH - 1, seq->name.l);
-			memcpy(read->name, seq->name.s, read->nameLength);
-			read->name[read->nameLength] = '\0';
+			int nameLength = std::min(MAX_READNAME_LENGTH - 1, seq->name.l);
+			memcpy(read->name, seq->name.s, nameLength);
+			read->name[nameLength] = '\0';
 
 //			char const * debugRead = "FCC01PDACXX:4:1101:10342:37018#0/1";
 //			if(strcmp(read->name, debugRead) == 0) {

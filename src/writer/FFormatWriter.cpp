@@ -36,7 +36,7 @@ void FFormatWriter::DoWriteRead(MappedRead const * const read) {
 	static int const report_offset = 0;
 
 	char * readname = read->name;
-	uint readnamelen = read->nameLength;
+	//uint readnamelen = read->nameLength;
 
 	int refnamelen = 0;
 	char const * refname = SequenceProvider.GetRefName(read->TLS()->Location.m_RefId, refnamelen);
@@ -53,7 +53,7 @@ void FFormatWriter::DoWriteRead(MappedRead const * const read) {
 //int qltylen = read->length;
 //SequenceProvider.GetQualityString(qltystr, read->ReadId, qltylen);
 
-	Print("ID: %i.%i\tRead: %.*s\tDir: %c%c\tPos: %i\tChr: %.*s\tScore: %.1f\n", read->ReadId, read->EqualScoringID, readnamelen, readname,
+	Print("ID: %i.%i\tRead: %s\tDir: %c%c\tPos: %i\tChr: %.*s\tScore: %.1f\n", read->ReadId, read->EqualScoringID, readname,
 			read->Strand, read->Strand, read->TLS()->Location.m_Location + report_offset, refnamelenmod, refname, read->TLS()->Score.f);
 	Print("times: %i\tidentity: %f\tQ_start: %i\tQ_end: %i\n", read->EqualScoringCount, read->Identity, read->QStart, read->QEnd);
 

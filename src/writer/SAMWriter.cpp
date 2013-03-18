@@ -49,7 +49,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const * p
 	//int readlen = read->length;
 
 	char * readname = read->name;
-	int readnamelen = read->nameLength;
+//	int readnamelen = read->nameLength;
 
 	char * qltystr = read->qlty;
 
@@ -62,7 +62,8 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const * p
 	char const * refname = SequenceProvider.GetRefName(read->TLS()->Location.m_RefId, refnamelen);
 
 	//mandatory fields
-	Print("%.*s\t", readnamelen, readname);
+	//Print("%.*s\t", readnamelen, readname);
+	Print("%s\t", readname);
 	Print("%d\t", flags);
 	Print("%.*s\t", refnamelen, refname);
 	Print("%u\t", read->TLS()->Location.m_Location + report_offset);
@@ -195,13 +196,14 @@ void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 	int readlen = read->length;
 
 	char * readname = read->name;
-	int readnamelen = read->nameLength;
+//	int readnamelen = read->nameLength;
 
 	char * qltystr = read->qlty;
 	int qltylen = readlen;
 
 	//mandatory fields
-	Print("%.*s\t", readnamelen, readname);
+	Print("%s\t", readname);
+	//Print("%.*s\t", readnamelen, readname);
 	Print("%d\t", flags);
 	if (refId > -1) {
 		int refnamelen = 0;

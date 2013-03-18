@@ -60,7 +60,7 @@ public:
 				Log.Error("Writing");
 				Fatal();
 			}
-			fflush(m_Output);
+//			fflush(m_Output);
 //			NGM.ReleaseOutputLock();
 			bufferPosition = 0;
 

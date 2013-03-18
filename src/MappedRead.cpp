@@ -10,10 +10,10 @@ volatile int MappedRead::sInstanceCount = 0;
 volatile int LocationScore::sInstanceCount = 0;
 #endif
 
-volatile int MappedRead::maxSeqCount = 0;
+//volatile int MappedRead::maxSeqCount = 0;
 
 MappedRead::MappedRead(int const readid, int const qrymaxlen) :
-		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), TopScore(-1), Lock(0), EqualScoringID(0), EqualScoringCount(1), Scores(), nScores(0), iScores(0), Paired(
+		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), TopScore(-1), /*Lock(0),*/ EqualScoringID(0), EqualScoringCount(1), Scores(), nScores(0), iScores(0), Paired(
 				0), Status(0), Identity(0), NM(-1), Strand('?'), QStart(0), QEnd(0), mappingQlty(255), RevSeq(0), Seq(0), qlty(0), name(0), Buffer1(
 				0), Buffer2(0) {
 #ifdef INSTANCE_COUNTING

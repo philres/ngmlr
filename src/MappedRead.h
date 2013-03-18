@@ -28,7 +28,7 @@ public:
 	int const qryMaxLen;
 
 	int TopScore; // Position of TopScore
-	volatile int Lock; // sync for paired read selection
+	//volatile int Lock; // sync for paired read selection
 	int EqualScoringID; // Number of equal scoring result for this read
 	uint EqualScoringCount; // Total number of equal scoring results
 	//std::vector<LocationScore*> Scores;
@@ -52,13 +52,13 @@ public:
 
 	char * qlty;
 
-	uint nameLength;
+//	uint nameLength;
 	char * name;
 
 	char * Buffer1;
 	char * Buffer2;
 
-	static volatile int maxSeqCount;
+//	static volatile int maxSeqCount;
 
 #ifdef INSTANCE_COUNTING
 	static volatile int sInstanceCount;
