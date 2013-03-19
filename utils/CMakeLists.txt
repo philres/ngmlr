@@ -26,6 +26,5 @@ add_executable(ngm-utils main.cpp
 
 TARGET_LINK_LIBRARIES(ngm-utils zlibstatic)
 
-MESSAGE("${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.8/libStatGen-1.0.8/libStatGen.a")
 TARGET_LINK_LIBRARIES(ngm-utils ${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.8/libStatGen-1.0.8/libStatGen.a)
 #target_link_libraries(ngm-utils z)
