@@ -13,6 +13,9 @@
 
 #include "Timing.h"
 #include "OclHost.h"
+#include <pthread.h>
+
+pthread_mutex_t mutext_batch_align;
 
 using std::stringstream;
 
@@ -43,9 +46,7 @@ SWOclCigar::~SWOclCigar() {
 	clReleaseKernel(swAlignScoreKernelGlobal);
 }
 
-void SWOclCigar::runSwBatchKernel(cl_kernel swScoreAlign, const int batchSize, const char * const * const qrySeqList,
-		const char * const * const refSeqList, char * bsDirection, cl_mem & results_gpu, cl_mem & alignments, short * const result,
-		short * calignments, cl_mem & matrix_gpu, cl_mem & bsdirection_gpu) {
+void SWOclCigar::runSwBatchKernel(cl_kernel swScoreAlign, const int batchSize, const char * const * const qrySeqList, const char * const * const refSeqList, char * bsDirection, cl_mem & results_gpu, cl_mem & alignments, short * const result, short * calignments, cl_mem & matrix_gpu, cl_mem & bsdirection_gpu) {
 	const size_t cnDim = batch_size_align / alignments_per_thread;
 	const size_t cBlockSize = threads_per_block;
 	int runbatchSize = std::min(batch_size_align, batchSize);
@@ -82,8 +83,7 @@ void SWOclCigar::runSwBatchKernel(cl_kernel swScoreAlign, const int batchSize, c
 	host->waitForDevice();
 }
 
-int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * const * const refSeqList_,
-		char const * const * const qrySeqList_, Align * const results, void * extData) {
+int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * const * const refSeqList_, char const * const * const qrySeqList_, Align * const results, void * extData) {
 	if (batchSize_ <= 0) {
 		Log.Warning("Align for batchSize <= 0");
 		return 0;
@@ -162,24 +162,28 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 
 //	Log.Error("Batch align: %d %d", batchSize, Config.GetInt("qry_max_len"));
 
+	if (host->isGPU()) {
+		pthread_mutex_lock(&mutext_batch_align);
+	}
+
 	cl_kernel scoreKernel;
 	switch ((mode & 0xFF)) {
-	case 0: {
+		case 0: {
 
-		Log.Verbose("Alignment mode: local");
+			Log.Verbose("Alignment mode: local");
 
-		scoreKernel = swAlignScoreKernel;
-	}
+			scoreKernel = swAlignScoreKernel;
+		}
 		break;
-	case 1:
+		case 1:
 //#ifndef NDEBUG
-		Log.Verbose("Alignment mode: end-free");
+			Log.Verbose("Alignment mode: end-free");
 //#endif
-		scoreKernel = swAlignScoreKernelGlobal;
+			scoreKernel = swAlignScoreKernelGlobal;
 		break;
-	default:
-		Log.Error("Unsupported alignment mode %i", mode & 0xFF);
-		exit(-1);
+		default:
+			Log.Error("Unsupported alignment mode %i", mode & 0xFF);
+			exit(-1);
 	}
 
 	Timer timer;
@@ -191,8 +195,8 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 		c_scaff_gpu = host->allocate(CL_MEM_READ_WRITE, ref_data_size * sizeof(cl_char));
 //#pragma omp critical
 		{
-		ciErrNum |= clSetKernelArg(interleaveKernel, 0, sizeof(cl_mem), (void *) (&scaffold_gpu));
-		ciErrNum |= clSetKernelArg(interleaveKernel, 1, sizeof(cl_mem), &c_scaff_gpu);
+			ciErrNum |= clSetKernelArg(interleaveKernel, 0, sizeof(cl_mem), (void *) (&scaffold_gpu));
+			ciErrNum |= clSetKernelArg(interleaveKernel, 1, sizeof(cl_mem), &c_scaff_gpu);
 		}
 	} else {
 		c_scaff_gpu = scaffold_gpu;
@@ -205,13 +209,13 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 	cl_mem alignments_gpu = host->allocate(CL_MEM_READ_WRITE, batch_size_align * alignment_length * 2 * sizeof(cl_short));
 
 //#pragma omp critical
-		{
-	//Set parameter
-	ciErrNum |= clSetKernelArg(scoreKernel, 0, sizeof(cl_mem), (void *) (&c_scaff_gpu));
-	ciErrNum |= clSetKernelArg(scoreKernel, 1, sizeof(cl_mem), (void *) (&reads_gpu));
-	ciErrNum |= clSetKernelArg(scoreKernel, 2, sizeof(cl_mem), &results_gpu);
-	ciErrNum |= clSetKernelArg(scoreKernel, 3, sizeof(cl_mem), &matrix_gpu);
-		}
+	{
+		//Set parameter
+		ciErrNum |= clSetKernelArg(scoreKernel, 0, sizeof(cl_mem), (void *) (&c_scaff_gpu));
+		ciErrNum |= clSetKernelArg(scoreKernel, 1, sizeof(cl_mem), (void *) (&reads_gpu));
+		ciErrNum |= clSetKernelArg(scoreKernel, 2, sizeof(cl_mem), &results_gpu);
+		ciErrNum |= clSetKernelArg(scoreKernel, 3, sizeof(cl_mem), &matrix_gpu);
+	}
 	cl_mem bsdirection_gpu = 0;
 	static bool const bsMapping = Config.GetInt("bs_mapping") == 1;
 	if (bsMapping) {
@@ -222,18 +226,18 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 		}
 //#pragma omp critical
 		{
-		ciErrNum |= clSetKernelArg(scoreKernel, 4, sizeof(cl_mem), (void *) (&bsdirection_gpu));
+			ciErrNum |= clSetKernelArg(scoreKernel, 4, sizeof(cl_mem), (void *) (&bsdirection_gpu));
 		}
 	}
 
 //#pragma omp critical
-		{
-	ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 0, sizeof(cl_mem), (void *) (&c_scaff_gpu));
-	ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 1, sizeof(cl_mem), (void*) (&reads_gpu));
-	ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 2, sizeof(cl_mem), &results_gpu);
-	ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 3, sizeof(cl_mem), &matrix_gpu);
-	ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 4, sizeof(cl_mem), &alignments_gpu);
-		}
+	{
+		ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 0, sizeof(cl_mem), (void *) (&c_scaff_gpu));
+		ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 1, sizeof(cl_mem), (void*) (&reads_gpu));
+		ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 2, sizeof(cl_mem), &results_gpu);
+		ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 3, sizeof(cl_mem), &matrix_gpu);
+		ciErrNum |= clSetKernelArg(swAlignBacktrackingKernel, 4, sizeof(cl_mem), &alignments_gpu);
+	}
 
 	host->checkClError("Unable to set kernel parameters", ciErrNum);
 
@@ -297,6 +301,10 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 		}
 	}
 
+	if (host->isGPU()) {
+		pthread_mutex_unlock(&mutext_batch_align);
+	}
+
 //	//TODO: remove
 //	for (int i = 0; i < batchSize; ++i) {
 //		delete[] qrySeqList[i];
@@ -321,43 +329,42 @@ int printCigarElement(char const op, short const length, char * cigar) {
 
 bool debugCigar(int op, int length) {
 	switch (op) {
-	case CIGAR_M:
-		Log.Message("CIGAR: %d M", length);
+		case CIGAR_M:
+			Log.Message("CIGAR: %d M", length);
 		break;
-	case CIGAR_I:
-		Log.Message("CIGAR: %d I", length);
+		case CIGAR_I:
+			Log.Message("CIGAR: %d I", length);
 		break;
-	case CIGAR_D:
-		Log.Message("CIGAR: %d D", length);
+		case CIGAR_D:
+			Log.Message("CIGAR: %d D", length);
 		break;
-	case CIGAR_N:
-		Log.Message("CIGAR: %d N", length);
+		case CIGAR_N:
+			Log.Message("CIGAR: %d N", length);
 		break;
-	case CIGAR_S:
-		Log.Message("CIGAR: %d S", length);
+		case CIGAR_S:
+			Log.Message("CIGAR: %d S", length);
 		break;
-	case CIGAR_H:
-		Log.Message("CIGAR: %d H", length);
+		case CIGAR_H:
+			Log.Message("CIGAR: %d H", length);
 		break;
-	case CIGAR_P:
-		Log.Message("CIGAR: %d P", length);
+		case CIGAR_P:
+			Log.Message("CIGAR: %d P", length);
 		break;
-	case CIGAR_EQ:
-		Log.Message("CIGAR: %d EQ", length);
+		case CIGAR_EQ:
+			Log.Message("CIGAR: %d EQ", length);
 		break;
-	case CIGAR_X:
-		Log.Message("CIGAR: %d X", length);
+		case CIGAR_X:
+			Log.Message("CIGAR: %d X", length);
 		break;
-	default:
-		//Log.Error("Invalid cigar operator.");
-		//exit(1);
-		return false;
+		default:
+			//Log.Error("Invalid cigar operator.");
+			//exit(1);
+			return false;
 	}
 	return true;
 }
 
-bool SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short const * const gpuCigar, char const * const refSeq,
-		char const * const qrySeq, char const bsFrom, char const bsTo) {
+bool SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short const * const gpuCigar, char const * const refSeq, char const * const qrySeq, char const bsFrom, char const bsTo) {
 
 	static bool const bsMapping = Config.GetInt("bs_mapping") == 1;
 	int cigar_offset = 0;
@@ -396,64 +403,64 @@ bool SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short 
 		//debugCigar(op, length);
 		total += length;
 		switch (op) {
-		case CIGAR_X:
-			cigar_m_length += length;
-			if (!bsMapping)
-				mismatch += length;
+			case CIGAR_X:
+				cigar_m_length += length;
+				if (!bsMapping)
+					mismatch += length;
 
-			//Produces: 	[0-9]+(([A-Z]+|\^[A-Z]+)[0-9]+)*
-			//instead of: 	[0-9]+(([A-Z]|\^[A-Z]+)[0-9]+)*
-			md_offset += sprintf(result.pMD + md_offset, "%d", md_eq_length);
-			for (int k = 0; k < length; ++k) {
-				if (bsMapping) {
-					if (qrySeq[read_index] == bsFrom && refSeq[ref_index] == bsTo) {
-						match += 1;
-					} else {
-						mismatch += 1;
+				//Produces: 	[0-9]+(([A-Z]+|\^[A-Z]+)[0-9]+)*
+				//instead of: 	[0-9]+(([A-Z]|\^[A-Z]+)[0-9]+)*
+				md_offset += sprintf(result.pMD + md_offset, "%d", md_eq_length);
+				for (int k = 0; k < length; ++k) {
+					if (bsMapping) {
+						if (qrySeq[read_index] == bsFrom && refSeq[ref_index] == bsTo) {
+							match += 1;
+						} else {
+							mismatch += 1;
+						}
 					}
+					md_offset += sprintf(result.pMD + md_offset, "%c", refSeq[ref_index++]);
+					read_index += 1;
 				}
-				md_offset += sprintf(result.pMD + md_offset, "%c", refSeq[ref_index++]);
-				read_index += 1;
-			}
-			md_eq_length = 0;
+				md_eq_length = 0;
 
 			break;
-		case CIGAR_EQ:
-			match += length;
-			cigar_m_length += length;
-			md_eq_length += length;
-			ref_index += length;
-			read_index += length;
+			case CIGAR_EQ:
+				match += length;
+				cigar_m_length += length;
+				md_eq_length += length;
+				ref_index += length;
+				read_index += length;
 			break;
-		case CIGAR_D:
-			if (cigar_m_length > 0) {
-				cigar_offset += printCigarElement('M', cigar_m_length, result.pCigar + cigar_offset);
-				cigar_m_length = 0;
-			}
-			cigar_offset += printCigarElement('D', length, result.pCigar + cigar_offset);
+			case CIGAR_D:
+				if (cigar_m_length > 0) {
+					cigar_offset += printCigarElement('M', cigar_m_length, result.pCigar + cigar_offset);
+					cigar_m_length = 0;
+				}
+				cigar_offset += printCigarElement('D', length, result.pCigar + cigar_offset);
 
-			md_offset += sprintf(result.pMD + md_offset, "%d", md_eq_length);
-			md_eq_length = 0;
-			result.pMD[md_offset++] = '^';
-			for (int k = 0; k < length; ++k) {
-				result.pMD[md_offset++] = refSeq[ref_index++];
-			}
+				md_offset += sprintf(result.pMD + md_offset, "%d", md_eq_length);
+				md_eq_length = 0;
+				result.pMD[md_offset++] = '^';
+				for (int k = 0; k < length; ++k) {
+					result.pMD[md_offset++] = refSeq[ref_index++];
+				}
 
 			break;
-		case CIGAR_I:
-			if (cigar_m_length > 0) {
-				cigar_offset += printCigarElement('M', cigar_m_length, result.pCigar + cigar_offset);
-				cigar_m_length = 0;
-			}
-			cigar_offset += printCigarElement('I', length, result.pCigar + cigar_offset);
-			read_index += length;
+			case CIGAR_I:
+				if (cigar_m_length > 0) {
+					cigar_offset += printCigarElement('M', cigar_m_length, result.pCigar + cigar_offset);
+					cigar_m_length = 0;
+				}
+				cigar_offset += printCigarElement('I', length, result.pCigar + cigar_offset);
+				read_index += length;
 			break;
-		default:
-			Log.Warning("Unable to compute alignment for:");
-			Log.Warning("Ref: %s", refSeq);
-			Log.Warning("Qry: %s", qrySeq);
-			Log.Warning("This aligment will be discarded. No other alignments will be affected");
-			return false;
+			default:
+				Log.Warning("Unable to compute alignment for:");
+				Log.Warning("Ref: %s", refSeq);
+				Log.Warning("Qry: %s", qrySeq);
+				Log.Warning("This aligment will be discarded. No other alignments will be affected");
+				return false;
 		}
 	}
 	md_offset += sprintf(result.pMD + md_offset, "%d", md_eq_length);
