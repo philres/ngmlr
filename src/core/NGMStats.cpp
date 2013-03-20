@@ -15,13 +15,11 @@
 
 NGMStats * pStats = 0;
 
-NGMStats * NGMStats::InitStats(char const * const AppName)
-{
+NGMStats * NGMStats::InitStats(char const * const AppName) {
 #ifndef _WIN32
 	key_t key = ftok(AppName, 's');
 
-	if (key == (key_t)-1)
-	{
+	if (key == (key_t) -1) {
 		Log.Verbose("Unable to obtain stats smem key (error %i)", errno);
 	}
 	else
@@ -53,9 +51,11 @@ NGMStats * NGMStats::InitStats(char const * const AppName)
 	return pStats = new NGMStats();
 }
 
-NGMStats::NGMStats()
-{
+NGMStats::NGMStats() {
 	csTime = 0.0f;
+	scoreTime = 0.0f;
+	alignTime = 0.0f;
+	readsPerSecond = 0;
 	csLength = 0;
 	csOverflows = 0;
 
@@ -63,7 +63,6 @@ NGMStats::NGMStats()
 	insertSize = 0.0f;
 }
 
-NGMStats::~NGMStats()
-{
+NGMStats::~NGMStats() {
 
 }

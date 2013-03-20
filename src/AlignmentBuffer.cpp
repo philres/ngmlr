@@ -93,6 +93,8 @@ void AlignmentBuffer::DoRun() {
 	tmr.ST();
 
 	if (count > 0) {
+		Timer tmr;
+		tmr.ST();
 		alignmentCount += count;
 		for (int i = 0; i < count; ++i) {
 			MappedRead * cur_read = reads[i];
@@ -222,6 +224,7 @@ void AlignmentBuffer::DoRun() {
 			}
 		} // for
 		Log.Verbose("Output Thread %i finished batch in %.2fs", 0, tmr.ET());
+		alignTime = tmr.ET();
 	} // if count > 0
 	else {
 		Log.Message("Nothing to do...waiting");

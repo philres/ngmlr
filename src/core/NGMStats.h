@@ -45,6 +45,9 @@ struct NGMStats
 	int SWThreads;
 
 	float csTime;
+	float scoreTime;
+	float alignTime;
+	int readsPerSecond;
 	int csLength;
 	int csOverflows;
 	int avgnCRMS;

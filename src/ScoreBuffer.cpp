@@ -29,6 +29,10 @@ long brokenPairs = 0;
 void ScoreBuffer::DoRun() {
 
 	if (iScores != 0) {
+
+		Timer tmr;
+		tmr.ST();
+
 		for (int i = 0; i < iScores; ++i) {
 			MappedRead * cur_read = scores[i]->Read;
 
@@ -70,8 +74,8 @@ void ScoreBuffer::DoRun() {
 
 		}
 //				Log.Message("SW Thread %i launching batch (size=%i)", m_TID, count);
-		Timer tmr;
-		tmr.ST();
+//		Timer tmr;
+//		tmr.ST();
 		ScoreBuffer::scoreCount += iScores;
 		int res = 0;
 //		NGM.AquireOutputLock();
@@ -82,8 +86,8 @@ void ScoreBuffer::DoRun() {
 			Log.Error("SW Kernel couldnt calculate all scores (%i out of %i)", res, iScores);
 
 //				Log.Warning("SW Thread %i finished batch (Size = %i, Elapsed: %.2fs)", m_TID, count, tmr.ET());
-		Timer y;
-		y.ST();
+//		Timer y;
+//		y.ST();
 		brokenPairs = 0;
 		for (int i = 0; i < iScores; ++i) {
 
@@ -120,7 +124,7 @@ void ScoreBuffer::DoRun() {
 				SendToPostprocessing(scores[i]->Read);
 			}
 		}
-
+		scoreTime += tmr.ET();
 	}
 }
 

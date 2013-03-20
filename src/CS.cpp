@@ -613,7 +613,12 @@ void CS::DoRun() {
 		float elapsed = tmr.ET();
 		Log.Verbose("CS Thread %i finished batch (len %i) with %i overflows, length %d (elapsed: %.3fs)", m_TID, m_CurrentBatch.size(), m_Overflows, c_SrchTableBitLen, elapsed);
 
-		NGM.Stats->csTime = elapsed;
+		NGM.Stats->readsPerSecond = (NGM.Stats->csTime + 1.0f / (elapsed / m_CurrentBatch.size())) / 2.0f;
+
+		NGM.Stats->alignTime = std::max(0.0f, alignmentBuffer->getTime());
+		NGM.Stats->scoreTime = std::max(0.0f, scoreBuffer->getTime() - NGM.Stats->alignTime);
+		NGM.Stats->csTime = std::max(0.0f, elapsed - NGM.Stats->scoreTime - NGM.Stats->alignTime);
+
 		NGM.Stats->csLength = c_SrchTableBitLen;
 		NGM.Stats->csOverflows = m_Overflows;
 		NGM.Stats->avgnCRMS = nCRMsSum / m_CurrentBatch.size();

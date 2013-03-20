@@ -56,6 +56,8 @@ private:
 	AlignmentBuffer * out;
 	const int swBatchSize;
 
+	float scoreTime;
+
 	//std::list<MappedRead*> m_ReadBuffer;
 	//	bool CommitReads();
 public:
@@ -91,6 +93,7 @@ public:
 
 		scores = new LocationScore * [swBatchSize];
 		iScores = 0;
+		scoreTime = 0.0f;
 	}
 
 	~ScoreBuffer() {
@@ -118,6 +121,12 @@ public:
 	void DoRun();
 
 	void flush();
+
+	float getTime() {
+		float tmp = scoreTime;
+		scoreTime = 0.0f;
+		return tmp;
+	}
 
 	inline int GetStage() const {
 		return 2;

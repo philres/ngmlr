@@ -46,6 +46,8 @@ private:
 	long brokenPairs;
 	NGMMutex m_Mutex;
 
+	float alignTime;
+
 	const char* const m_Filename;
 	GenericReadWriter* m_Writer;
 	std::map<int, std::list<MappedRead*> > m_EqualScoringBuffer;
@@ -132,6 +134,8 @@ public:
 						memset(dummy, '\0', refMaxLen);
 						//dummy[Config.GetInt("qry_max_len") - 1] = '\0';
 
+						alignTime = 0.0f;
+
 					}
 
 					virtual ~AlignmentBuffer() {
@@ -170,6 +174,12 @@ public:
 
 					void addRead(MappedRead * read);
 					void flush();
+
+					float getTime() {
+						float tmp = alignTime;
+						alignTime = 0;
+						return tmp;
+					}
 
 					void SaveRead(MappedRead* read, bool mapped = true) {
 
