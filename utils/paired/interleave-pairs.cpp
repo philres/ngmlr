@@ -324,7 +324,8 @@ int interleave_pairs(int argc, char **argv) {
 				}
 			}
 		}
-		delete writer; writer = 0;
+		delete writer;
+		writer = 0;
 		int nUnmappedRead = 0;
 		if (unpairedArg.getValue() != "" && pairs.size() > 0) {
 			Log.Message("Writing unpaired reads to %s", unpairedArg.getValue().c_str());
@@ -335,14 +336,15 @@ int interleave_pairs(int argc, char **argv) {
 				nUnmappedRead += 1;
 			}
 			delete unmappedWriter; unmappedWriter = 0;
+		} else {
+			nUnmappedRead = pairs.size();
 		}
 
 		Log.Message("Reads found in files: %d", nReads);
 		Log.Message("Proper paires found: %d", nPairs);
 		Log.Message("Unpaired reads found: %d", nUnmappedRead);
 
-	} catch (TCLAP::ArgException &e) // catch any exceptions
-	{
+	} catch (TCLAP::ArgException &e) {
 		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
 	} catch (std::ios_base::failure &e) {
 		std::cerr << "Error: " << e.what() << std::endl;
