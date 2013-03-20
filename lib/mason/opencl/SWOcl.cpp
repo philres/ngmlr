@@ -630,7 +630,7 @@ unsigned int SWOcl::computeScoringBatchSize() {
 	//long max_alloc = host->getDeviceInfoLong(CL_DEVICE_MAX_MEM_ALLOC_SIZE);
 	int block_count = mpCount * block_multiplier
 			* (host->getThreadPerMulti() / threads_per_block);
-	block_count = (block_count / mpCount) * mpCount * 2;
+	block_count = (block_count / mpCount) * mpCount;
 
 	//block_count = 4;
 
