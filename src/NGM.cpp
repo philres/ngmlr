@@ -579,6 +579,7 @@ void _NGM::MainLoop() {
 #ifdef INSTANCE_COUNTING
 	int count = 0;
 #endif
+	int const threadcount = Config.GetInt("cpu_threads", 1, 0);
 	while (Running()) {
 		Sleep(50);
 		while (!Terminating && _kbhit()) {
@@ -594,10 +595,10 @@ void _NGM::MainLoop() {
 //		UpdateScheduler(loads[0], loads[1]);
 		int processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
 		if (!NGM.Paired()) {
-			Log.Progress("Mapped: %d, CRM/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
+			Log.Progress("Mapped: %d, CRM/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f",                   processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
 			//Log.Progress("%d/%d (%.2f%), Buffer: %.2f %.2f, CS: %d %d %.2f", processed, m_ReadCount, processed * 100.0f / m_ReadCount, loads[0], loads[1], NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->csTime);
 		} else {
-			Log.Progress("Mapped: %d, CRM/R: %d, CS: %d (%d), R/S: %.2f, Pairs: %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->csTime, NGM.Stats->validPairs, NGM.Stats->insertSize);
+			Log.Progress("Mapped: %d, CRM/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Pairs: %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->validPairs, NGM.Stats->insertSize);
 			//Log.Progress("%d/%d (%.2f%), Buffer: %.2f %.2f, CS: %d %d %.2f, Pairs: %.2f %.2f", processed, m_ReadCount, processed * 100.0f / m_ReadCount, loads[0], loads[1], NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->csTime, NGM.Stats->brokenPairs, NGM.Stats->insertSize);
 		}
 #ifdef INSTANCE_COUNTING
