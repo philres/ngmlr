@@ -30,7 +30,7 @@
 using NGMNames::ReadStatus;
 
 #undef module_name
-#define module_name "READPROV"
+#define module_name "INPUT"
 
 kseq_t *seq;
 
