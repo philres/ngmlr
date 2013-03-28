@@ -9,7 +9,7 @@
 #include <stdexcept>
 
 #undef module_name
-#define module_name "PFTABLE"
+#define module_name "PREPROCESS"
 
 #include <cmath>
 #include <algorithm>
