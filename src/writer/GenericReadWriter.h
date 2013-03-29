@@ -1,7 +1,6 @@
 #ifndef __GENERICREADWRITER_H__
 #define __GENERICREADWRITER_H__
 
-
 #include "ILog.h"
 #include "Config.h"
 #include "NGM.h"
@@ -14,13 +13,12 @@ class GenericReadWriter {
 public:
 
 	//GenericReadWriter(char const * const filename) {
-	GenericReadWriter(FileWriter * writer) {
+	GenericReadWriter() {
 //		if (!(m_Output = fopen(filename, "wb"))) {
 //			Log.Error("Unable to open output file %s", filename);
 //			Fatal();
 //		}
 //		m_Output = file;
-		m_Writer = writer;
 
 		writeBuffer = new char[BUFFER_SIZE];
 		bufferPosition = 0;
@@ -33,31 +31,24 @@ public:
 	}
 	virtual ~GenericReadWriter() {
 //		if (m_Output) {
-		m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer, true);
-			//fclose(m_Output);
+		//fclose(m_Output);
 //		}
 	}
 protected:
 
 	virtual void DoWriteProlog() = 0;
 	virtual void DoWriteRead(MappedRead const * const read) = 0;
-	virtual void DoWritePair(MappedRead const * const read1,
-			MappedRead const * const read2) = 0;
-	virtual void DoWriteUnmappedRead(MappedRead const * const read, int flags =
-			0x4) = 0;
+	virtual void DoWritePair(MappedRead const * const read1, MappedRead const * const read2) = 0;
+	virtual void DoWriteUnmappedRead(MappedRead const * const read, int flags = 0x4) = 0;
 	virtual void DoWriteEpilog() = 0;
-
-
-	static int const BUFFER_SIZE = 17000000;
-		static int const BUFFER_LIMIT = 16000000;
-
-		char * writeBuffer;
-		int bufferPosition;
-
 
 	float identity;
 
-	FileWriter * m_Writer;
+	static int const BUFFER_SIZE = 17000000;
+	static int const BUFFER_LIMIT = 16000000;
+
+	char * writeBuffer;
+	int bufferPosition;
 
 	int Print(const char *format, ...) {
 		int done;
@@ -75,86 +66,73 @@ protected:
 
 private:
 
-
 public:
 	void WriteProlog() {
 //		if (m_Output)
 		DoWriteProlog();
-		m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer, true);
 	}
 
 	void WriteRead(MappedRead const * const read, bool mapped = true) {
 //		if (m_Output) {
 
-			static float const minIdentity = Config.GetFloat("min_identity",
-					0.0f, 1.0f);
-			static float minResidues = Config.GetFloat("min_residues", 0, 1000);
+		static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
+		static float minResidues = Config.GetFloat("min_residues", 0, 1000);
 
-			if (minResidues < 1.0f) {
-				minResidues = read->length * minResidues;
-			}
+		if (minResidues < 1.0f) {
+			minResidues = read->length * minResidues;
+		}
 
-			mapped = mapped && (read->Identity >= minIdentity);
-			mapped = mapped
-			&& ((read->length - read->QStart - read->QEnd)
-					>= minResidues);
+		mapped = mapped && (read->Identity >= minIdentity);
+		mapped = mapped && ((read->length - read->QStart - read->QEnd) >= minResidues);
 
-			if (mapped) {
-				NGM.AddMappedRead(read->ReadId);
-				DoWriteRead(read);
-			} else {
-				DoWriteUnmappedRead(read);
-			}
-			NGM.AddWrittenRead(read->ReadId);
-			m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer);
+		if (mapped) {
+			NGM.AddMappedRead(read->ReadId);
+			DoWriteRead(read);
+		} else {
+			DoWriteUnmappedRead(read);
+		}
+		NGM.AddWrittenRead(read->ReadId);
 //		}
 	}
 
 	void WritePair(MappedRead * const read1, MappedRead * const read2) {
 //		if (m_Output) {
-			static float const minIdentity = Config.GetFloat("min_identity",
-					0.0f, 1.0f);
-			static float minResidues = Config.GetFloat("min_residues", 0, 1000);
+		static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
+		static float minResidues = Config.GetFloat("min_residues", 0, 1000);
 
-			if (minResidues < 1.0f) {
-				minResidues = std::min(read1->length, read2->length)
-				* minResidues;
-			}
+		if (minResidues < 1.0f) {
+			minResidues = std::min(read1->length, read2->length) * minResidues;
+		}
 
-			bool mapped1 = read1->hasCandidates()
-			&& (read1->Identity >= minIdentity)
-			&& ((read1->length - read1->QStart - read1->QEnd)
-					>= minResidues);
-			bool mapped2 = read2->hasCandidates()
-			&& (read2->Identity >= minIdentity)
-			&& ((read2->length - read2->QStart - read2->QEnd)
-					>= minResidues);
+		bool mapped1 = read1->hasCandidates() && (read1->Identity >= minIdentity)
+				&& ((read1->length - read1->QStart - read1->QEnd) >= minResidues);
+		bool mapped2 = read2->hasCandidates() && (read2->Identity >= minIdentity)
+				&& ((read2->length - read2->QStart - read2->QEnd) >= minResidues);
 
-			if (!mapped1) {
-				read1->clearScores(false);
-				//NGM.AddUnmappedRead(read1, MFAIL_IDENT);
-			} else {
-				NGM.AddMappedRead(read1->ReadId);
-			}
-			if (!mapped2) {
-				read2->clearScores(false);
-				//NGM.AddUnmappedRead(read2, MFAIL_IDENT);
-			} else {
-				NGM.AddMappedRead(read2->ReadId);
+		if (!mapped1) {
+			read1->clearScores(false);
+			//NGM.AddUnmappedRead(read1, MFAIL_IDENT);
+		} else {
+			NGM.AddMappedRead(read1->ReadId);
+		}
+		if (!mapped2) {
+			read2->clearScores(false);
+			//NGM.AddUnmappedRead(read2, MFAIL_IDENT);
+		} else {
+			NGM.AddMappedRead(read2->ReadId);
 
-			}
+		}
 
-			//Log.Verbose("Output paired 1: hC %d, R: %d %d, I: %f %f", read1->hasCandidates(), ((read1->length - read1->QStart - read1->QEnd)), minResidues, read1->Identity >= minIdentity, minIdentity);
-			//Log.Verbose("%d %d %d", read1->length, read1->QStart, read1->QEnd);
-			//Log.Verbose("Output paired 2: hC %d, R: %d %d, I: %f %f", read2->hasCandidates(), ((read2->length - read2->QStart - read2->QEnd)), minResidues, read2->Identity >= minIdentity, minIdentity);
-			//Log.Verbose("%d %d %d", read2->length, read2->QStart, read2->QEnd);
+		//Log.Verbose("Output paired 1: hC %d, R: %d %d, I: %f %f", read1->hasCandidates(), ((read1->length - read1->QStart - read1->QEnd)), minResidues, read1->Identity >= minIdentity, minIdentity);
+		//Log.Verbose("%d %d %d", read1->length, read1->QStart, read1->QEnd);
+		//Log.Verbose("Output paired 2: hC %d, R: %d %d, I: %f %f", read2->hasCandidates(), ((read2->length - read2->QStart - read2->QEnd)), minResidues, read2->Identity >= minIdentity, minIdentity);
+		//Log.Verbose("%d %d %d", read2->length, read2->QStart, read2->QEnd);
 
-			DoWritePair(read1, read2);
+		DoWritePair(read1, read2);
 
-			NGM.AddWrittenRead(read1->ReadId);
-			NGM.AddWrittenRead(read2->ReadId);
+		NGM.AddWrittenRead(read1->ReadId);
+		NGM.AddWrittenRead(read2->ReadId);
 
-			m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer);
 //		}
 	}
 
@@ -170,7 +148,5 @@ public:
 		DoWriteEpilog();
 	}
 };
-
-
 
 #endif

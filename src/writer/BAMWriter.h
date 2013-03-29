@@ -11,8 +11,11 @@ class BAMWriter: public GenericReadWriter {
 public:
 //	BAMWriter(char const * const filename) :
 //			GenericReadWriter(filename), file(filename) {
-	BAMWriter(FileWriter * file) :
-				GenericReadWriter(file), file(0) {
+	BAMWriter(char const * pFile) :
+				GenericReadWriter(), file(pFile) {
+		NGMInitMutex(&m_OutputMutex);
+		Log.Error("BAM output not supported at the moment!");
+		Fatal();
 	}
 
 protected:
@@ -32,6 +35,8 @@ protected:
 private:
 	char const * const file;
 	void translate_flag(BamTools::BamAlignment &al, int flags);
+
+	NGMMutex m_OutputMutex;
 
 };
 #endif

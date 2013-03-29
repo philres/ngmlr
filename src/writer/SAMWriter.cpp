@@ -34,10 +34,12 @@ void SAMWriter::DoWriteProlog() {
 	//TODO: add version
 	Print("@PG\tID:ngm\tVN:%s\tCL:\"%s\"\n", "0.0.1", Config.GetString("cmdline"));
 
+	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer, true);
 }
 
 void SAMWriter::DoWriteRead(MappedRead const * const read) {
 	DoWriteReadGeneric(read, "*", -1, 0, read->mappingQlty);
+	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer);
 }
 
 void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const * pRefName, int const pLoc, int const pDist,
@@ -181,7 +183,7 @@ void SAMWriter::DoWritePair(MappedRead const * const read1, MappedRead const * c
 			//DoWriteUnmappedRead(read1);
 		}
 	}
-
+	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer);
 }
 
 void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int const refId, char const pRefName, int const loc,
@@ -246,6 +248,7 @@ void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 
 void SAMWriter::DoWriteUnmappedRead(MappedRead const * const read, int flags) {
 	DoWriteUnmappedReadGeneric(read, -1, '*', -1, -1, 0, 0, flags | 0x04);
+	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer);
 }
 
 void SAMWriter::DoWriteEpilog() {

@@ -49,23 +49,23 @@ _NGM & _NGM::Instance() {
 }
 
 _NGM::_NGM() :
-		Stats(NGMStats::InitStats(AppName)), m_ActiveThreads(0), m_NextThread(
-				0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(
+		Stats(NGMStats::InitStats(AppName)), m_ActiveThreads(0), m_NextThread(0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(
 				Config.GetInt("paired") != 0),
 #ifdef _BAM
 				m_OutputFormat(Config.GetInt("format", 0, 2)),
 #else
 				m_OutputFormat(Config.GetInt("format", 0, 1)),
 #endif
-				m_CurStart(0), m_CurCount(
-						0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(
-						false), m_UnmappedReads(0), m_MappedReads(0), m_WrittenReads(
-						0), m_ReadReads(0), m_ReadProvider(0)/*, m_Cache(0),m_ReadBuffer(
+				m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(false), m_UnmappedReads(0), m_MappedReads(
+						0), m_WrittenReads(0), m_ReadReads(0), m_ReadProvider(0)/*, m_Cache(0),m_ReadBuffer(
  0)*/{
 
-
 	char const * const output_name = Config.GetString("output");
-	m_Output = new FileWriter(output_name);
+	if (m_OutputFormat != 2) {
+		m_Output = new FileWriter(output_name);
+	} else {
+		m_Output == 0;
+	}
 
 	Log.Message("NGM Core initialization");
 	NGMInitMutex(&m_Mutex);
@@ -83,7 +83,7 @@ _NGM::_NGM() :
 	if (m_Paired && !m_DualStrand)
 		Log.Error("Logical error: Paired read mode without dualstrand search.");
 
-}
+	}
 
 void _NGM::InitProviders() {
 	CS::Init();
@@ -104,7 +104,7 @@ _NGM::~_NGM() {
 	//if (m_ReadBuffer != 0)
 	//	delete m_ReadBuffer;
 
-	if(m_Output != 0)
+	if (m_Output != 0)
 		delete m_Output;
 
 	if (m_RefProvider != 0)
@@ -164,7 +164,6 @@ void _NGM::AddUnmappedRead(MappedRead const * const read, int reason) {
 
 FileWriter * _NGM::getWriter() {
 
-
 //	FILE * m_Output = 0;
 //	if (!(m_Output = fopen(Config.GetString("output"), "w"))) {
 //		Log.Error("Unable to open output file %s", filename);
@@ -188,12 +187,15 @@ FileWriter * _NGM::getWriter() {
 //					writer->WriteProlog();
 //				}
 //			}
-			return m_Output;
-		}
+	return m_Output;
+}
 
 void _NGM::ReleaseWriter() {
 //	fclose(m_Output);
-	delete m_Output; m_Output = 0;
+	if (m_Output != 0) {
+		delete m_Output;
+		m_Output = 0;
+	}
 //	delete writer;
 //	writer = 0;
 }
@@ -512,8 +514,7 @@ IAlignment * _NGM::CreateAlignment(int const mode) {
 
 	Log.Verbose("Mode: %d GPU: %d", mode, mode & 0xFF);
 
-	OclHost * host = new OclHost(dev_type, mode & 0xFF,
-			Config.GetInt("cpu_threads"));
+	OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
 
 	SWOcl * instance = 0;
 
@@ -522,23 +523,23 @@ IAlignment * _NGM::CreateAlignment(int const mode) {
 //#endif
 	int ReportType = (mode >> 8) & 0xFF;
 	switch (ReportType) {
-	case 0:
+		case 0:
 
-		Log.Verbose("Output: text");
+			Log.Verbose("Output: text");
 
 //		instance = new SWOclAlignment(host);
-		//			instance = new SWOclCigar(host);
-		break;
-		case 1:
+			//			instance = new SWOclCigar(host);
+			break;
+			case 1:
 
-		Log.Verbose("Output: cigar");
+			Log.Verbose("Output: cigar");
 
-		instance = new SWOclCigar(host);
-		break;
-		default:
-		Log.Error("Unsupported report type %i", mode);
-		break;
-	}
+			instance = new SWOclCigar(host);
+			break;
+			default:
+			Log.Error("Unsupported report type %i", mode);
+			break;
+		}
 	return instance;
 }
 
@@ -567,8 +568,6 @@ volatile bool Terminating = false;
 
 void _NGM::MainLoop() {
 
-
-
 	float loads[2] = { 0, 0 };
 	//_Log::FilterLevel(1);
 #ifdef _WIN32
@@ -595,7 +594,7 @@ void _NGM::MainLoop() {
 //		UpdateScheduler(loads[0], loads[1]);
 		int processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
 		if (!NGM.Paired()) {
-			Log.Progress("Mapped: %d, CRM/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f",                   processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
+			Log.Progress("Mapped: %d, CRM/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
 			//Log.Progress("%d/%d (%.2f%), Buffer: %.2f %.2f, CS: %d %d %.2f", processed, m_ReadCount, processed * 100.0f / m_ReadCount, loads[0], loads[1], NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->csTime);
 		} else {
 			Log.Progress("Mapped: %d, CRM/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Pairs: %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->validPairs, NGM.Stats->insertSize);

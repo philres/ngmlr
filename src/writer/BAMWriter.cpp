@@ -24,6 +24,7 @@ BamWriter writer;
 void BAMWriter::DoWriteProlog() {
 	//TODO: check correct format	;
 
+	NGMLock(&m_OutputMutex);
 	SamHeader header;
 	RefVector refs;
 
@@ -61,6 +62,7 @@ void BAMWriter::DoWriteProlog() {
 		Log.Error("Could not open output BAM file");
 		return;
 	}
+	NGMUnlock(&m_OutputMutex);
 }
 
 void BAMWriter::translate_flag(BamAlignment &al, int flags) {
@@ -75,6 +77,7 @@ void BAMWriter::translate_flag(BamAlignment &al, int flags) {
 void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const pRef, int const pLoc, int const pDist,
 		int const mappingQlty, int flags) {
 
+	NGMLock(&m_OutputMutex);
 	static bool const hardClip = Config.GetInt("hard_clip", 0, 1) == 1 || Config.GetInt("silent_clip", 0, 1) == 1;
 
 	BamAlignment al;
@@ -169,11 +172,13 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const pRef
 	al.AddTag("MD", "Z", std::string(read->Buffer2));
 
 	writer.SaveAlignment(al);
+	NGMUnlock(&m_OutputMutex);
 }
 
 void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int const refId, char const pRefName, int const loc,
 		int const pLoc, int const pDist, int const mappingQlty, int flags) {
 
+	NGMLock(&m_OutputMutex);
 	NGM.AddUnmappedRead(read, MFAIL_NOCAND);
 
 	BamAlignment al;
@@ -217,6 +222,7 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 //	al.AddTag("XI", "f", read->Identity);
 
 	writer.SaveAlignment(al);
+	NGMUnlock(&m_OutputMutex);
 }
 
 void BAMWriter::DoWriteRead(MappedRead const * const read) {

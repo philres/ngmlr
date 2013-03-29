@@ -99,7 +99,7 @@ public:
 								NGM.getWriter()) :
 						(outputformat == 1) ?
 						(GenericReadWriter*) new SAMWriter(NGM.getWriter()) :
-						(GenericReadWriter*) new BAMWriter(NGM.getWriter());
+						(GenericReadWriter*) new BAMWriter(filename);
 
 ///NGMLock(&m_Mutex);
 						if(first) {
