@@ -98,6 +98,8 @@ int main(int argc, char * argv[]) {
 	_log = &Log;
 	_Log::Init(); // Inits logging to file
 
+	Log.setColor(Config.Exists("color"));
+
 //	//Restart NGM and set proper environment variables
 //	if (Config.Exists("mason_path") && !Config.Exists("skip_env")) {
 //		char * newArgv[argc + 3];
@@ -237,6 +239,13 @@ Advanced settings:\n\
   --max-cmrs <int>              Reads that have more than <int> CMRs are ignored. (default: infinite)\n\
   -m/mode [0|1]                 Alignment mode: 0 = local, 1 = semi-global. (default: 0)\n\
   -C/--max-consec-indels <int>  Maximum number of consecutive indels allowed. (default: computed from input)\n\
+  --score-match <int>           Match Score (default: 10, bs-mapping: 4)\n\
+  --score-mismatch <int>        Mismatch Score (default: -15, bs-mapping: -2)\n\
+  --score-gap-read <int>        Gap score in read (default: -20, bs-mapping: -10)\n\
+  --score-gap-ref <int>         Gap score in reference (default: -20, bs-mapping: -10)\n\
+  --score-match-tt <int>        Only for bs-mapping (default: 4)\n\
+  --score-match-tc <int>        Only for bs-mapping (default: 4)\n\
+  --color                       Colored text output (default: off)\n\
 \n\
 \n";
 	printf(help_msg);
