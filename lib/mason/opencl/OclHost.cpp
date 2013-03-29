@@ -22,6 +22,7 @@ char clPlatformName[1024];
 cl_context OclHost::oclGpuContext = 0;
 int OclHost::contextUserCount = 0;
 cl_device_id * OclHost::devices = 0;
+cl_uint OclHost::ciDeviceCount = 0;
 
 enum PLATFORM {
 	NVIDIA = 0, AMD = 1
@@ -51,7 +52,7 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 #ifndef NDEBUG
 		Log.Message("Creating ocl context.");
 #endif
-		cl_uint ciDeviceCount = 0;
+//		cl_uint ciDeviceCount = 0;
 		cl_platform_id cpPlatform = NULL;
 
 		cpPlatform = getPlatform();
@@ -131,6 +132,9 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 	contextUserCount += 1;
 	//}
 
+	if (!isGPU()) {
+		gpu_id = gpu_id % ciDeviceCount;
+	}
 	oclDevice = devices[gpu_id];
 	//Create context
 	//oclGpuContext = clCreateContext(0, 1, &oclDevice, NULL, NULL, &ciErrNum);

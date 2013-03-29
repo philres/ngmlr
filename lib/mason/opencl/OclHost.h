@@ -59,6 +59,7 @@ class OclHost {
 		static int contextUserCount;
 		static cl_context oclGpuContext;
 		static cl_device_id * devices;
+		static cl_uint ciDeviceCount;
 
 		//cl_device_id * devices;
 //		cl_context oclGpuContext;
