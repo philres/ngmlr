@@ -14,10 +14,13 @@ public:
 	static _Log const & Instance();
 	static void Init();
 	static void FilterLevel(int const lvl);
+	static void setColor(bool const color);
 	static void Cleanup();
 
 	void _Message(int const lvl, char const * const title, char const * const msg, ...) const;
+
 private:
+
 	_Log();
 	~_Log();
 

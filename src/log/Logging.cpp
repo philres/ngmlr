@@ -34,6 +34,7 @@ void Init() {
 }
 
 int filterlvl = 0;
+bool color = false;
 bool init = false;
 char preBuffer[1024];
 bool preInit = true;
@@ -76,7 +77,7 @@ inline void rwl() {
 	rwd = 0;
 }
 
-void LogToConsole(int lvl, char const * const title, char const * const s, va_list args) {
+void LogToConsole(bool color, int lvl, char const * const title, char const * const s, va_list args) {
 	if (lvl < filterlvl)
 		return;
 
@@ -86,17 +87,19 @@ void LogToConsole(int lvl, char const * const title, char const * const s, va_li
 	rwl();
 
 	if (title != 0) {
-		if (lvl > 0)
+		if (lvl > 0 && color)
 			SetConsoleColor((ConsoleColor) (MessageTitle + (lvl * 2)));
 		printf("[%s] ", title);
 	}
 
-	SetConsoleColor((ConsoleColor) (Message + (lvl * 2)));
+	if (color)
+		SetConsoleColor((ConsoleColor) (Message + (lvl * 2)));
 	if (args != 0)
 		vprintf(s, args);
 	else
 		printf("%s", s);
-	ResetConsoleColor();
+	if (color)
+		ResetConsoleColor();
 	printf("\n");
 	if (progress) {
 		rwd = 1;
@@ -188,7 +191,7 @@ void _Log::_Message(int lvl, char const * const title, char const * const s, ...
 	}
 	NGMLock(&__Log::mutex);
 	va_start(args, s);
-	LogToConsole(lvl, title, s, args);
+	LogToConsole(color, lvl, title, s, args);
 	va_end(args);
 
 	/*// File Logging disabled (use "tee")
@@ -198,13 +201,13 @@ void _Log::_Message(int lvl, char const * const title, char const * const s, ...
 	 */
 	NGMUnlock(&__Log::mutex);
 
-        if(lvl == 1) {
-                warningCount += 1;
-                if(warningCount > 100) {
-                        printf("Max number of warnings reached!\nPlease report this issue on http://github.com/Cibiv/NextGenMap/issues!\n");
-                        Fatal();
-                }
-        }
+	if (lvl == 1) {
+		warningCount += 1;
+		if (warningCount > 100) {
+			printf("Max number of warnings reached!\nPlease report this issue on http://github.com/Cibiv/NextGenMap/issues!\n");
+			Fatal();
+		}
+	}
 
 }
 
@@ -213,8 +216,13 @@ void _Log::Cleanup() {
 }
 
 _Log::_Log() {
+
 }
 _Log::~_Log() {
+}
+
+void _Log::setColor(bool const pColor) {
+	__Log::color = pColor;
 }
 
 void _Log::FilterLevel(int const lvl) {

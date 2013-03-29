@@ -36,6 +36,7 @@ static const struct option long_options[] =
 		{ "pre-only", 					no_argument,       0, 0 },
 		{ "skip-env", 					no_argument,       0, 0 },
 		{ "bam",    					no_argument,       0, 'b' },
+		{ "color",    					no_argument,       0, 0 },
 		{ "max-equal", 					required_argument, 0, 0 },
 		{ "gpu-dll", 					required_argument, 0, 0 },
 		{ "cpu-dll", 					required_argument, 0, 0 },
@@ -49,7 +50,13 @@ static const struct option long_options[] =
 		{ "silent-clip",                no_argument      , 0, 0 },
 		{ "bs-cutoff",                  required_argument, 0, 0 },
 		{ "kmer-min",                   required_argument, 0, 0 },
-		{ "max-cmrs",                 required_argument, 0, 0 },
+		{ "score-match",				required_argument, 0, 0 },
+		{ "score-match-tt",				required_argument, 0, 0 },
+		{ "score-match-tc",				required_argument, 0, 0 },
+		{ "score-mismatch",				required_argument, 0, 0 },
+		{ "score-gap-read",				required_argument, 0, 0 },
+		{ "score-gap-ref",				required_argument, 0, 0 },
+		{ "max-cmrs",      		        required_argument, 0, 0 },
 	0 };
 
 #endif /* OPTIONS_H_ */
