@@ -336,9 +336,9 @@ int SWOclAlignment::computeAlignmentBatchSize() {
 		Log.Warning("Reducing batch size to %d", block_count * threads_per_block);
 		//#endif
 	}
-	if (!host->isGPU()) {
-		block_count *= 4;
-	}
+//	if (!host->isGPU()) {
+//		block_count *= 4;
+//	}
 #ifndef NDEBUG
 	Log.Message("Multi processor count: %d", mpCount);
 	Log.Message("Max. threads per multi processor: %d", host->getThreadPerMulti());
