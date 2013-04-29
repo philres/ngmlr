@@ -258,10 +258,13 @@ void CS::AddLocationFallback(SequenceLocation const & loc, double const freq) {
 
 #ifdef _DEBUGCS
 #include <stdio.h>
+#include <sstream>
 
 void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 	FILE* ofp;
-	ofp = fopen("kmers.txt", "w");
+	std::stringstream str;
+	str << "kmers-" << read->name << ".csv";
+	ofp = fopen(str.str().c_str(), "w");
 
 	int count = 0;
 	float max = 0.0f;
@@ -300,7 +303,7 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 #endif
 				}
 #ifdef _DEBUGCSKMERS
-				fprintf(ofp, "%d\t%u\t%u\t%i\t%f\n", 1, rTable[i].m_Location, m_Location, m_RefId, rTable[i].fScore);
+				fprintf(ofp, "%d\t%d\t%u\t%u\t%i\t%f\n", read->ReadId, 1, rTable[i].m_Location, m_Location, m_RefId, rTable[i].fScore);
 #endif
 				count += 1;
 			}
@@ -315,7 +318,7 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 #endif
 				}
 #ifdef _DEBUGCSKMERS
-				fprintf(ofp, "%d\t%u\t%u\t%i\t%f\n", -1, rTable[i].m_Location, m_Location, m_RefId, rTable[i].rScore);
+				fprintf(ofp, "%d\t%d\t%u\t%u\t%i\t%f\n", read->ReadId, -1, rTable[i].m_Location, m_Location, m_RefId, rTable[i].rScore);
 #endif
 				count += 1;
 			}

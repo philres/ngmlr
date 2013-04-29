@@ -320,7 +320,8 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 	NGMUnlock(&m_Mutex);
 
 #ifdef _DEBUGCS
-	if(m_CurStart > 10000) {
+	if(m_CurStart > 100000) {
+		Log.Warning("Debug CS mode: quitting after 100000 reads!");
 		list.clear();
 	}
 #endif
