@@ -392,7 +392,7 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("max_cmrs", INT_MAX);
 	Default("kmer_skip", 2);
 	Default("mode", 0);
-//	Default("topn", 1);
+	Default("topn", 10);
 	Default("paired", 0);
 	Default("bs_mapping", 0);
 
@@ -457,6 +457,8 @@ _Config::_Config(int argc, char * argv[]) {
 	}
 	if (Exists("bam")) {
 		Default("format", 2);
+		Log.Error("BAM output is currently broken, plaese use SAM and convert to BAM.");
+		Fatal();
 	} else {
 		Default("format", 1);
 	}

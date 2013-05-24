@@ -49,6 +49,7 @@ struct LocationScore {
 #endif
 	}
 
+
 //	LocationScore(uint const loc, bool const reverse, float const score, MappedRead * read) {
 //		Score.f = score;
 //		Location.m_Location = loc;

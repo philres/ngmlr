@@ -7,6 +7,7 @@
 
 #include "ScoreBuffer.h"
 
+#include <algorithm>
 #include <cmath>
 
 #include "NGMTask.h"
@@ -79,8 +80,7 @@ void ScoreBuffer::DoRun() {
 		ScoreBuffer::scoreCount += iScores;
 		int res = 0;
 //		NGM.AquireOutputLock();
-		res = aligner->BatchScore(m_AlignMode, iScores, m_RefBuffer,
-				m_QryBuffer, m_ScoreBuffer, (m_EnableBS) ? m_DirBuffer : 0);
+		res = aligner->BatchScore(m_AlignMode, iScores, m_RefBuffer, m_QryBuffer, m_ScoreBuffer, (m_EnableBS) ? m_DirBuffer : 0);
 //		NGM.ReleaseOutputLock();
 		if (res != iScores)
 			Log.Error("SW Kernel couldnt calculate all scores (%i out of %i)", res, iScores);
@@ -128,6 +128,10 @@ void ScoreBuffer::DoRun() {
 	}
 }
 
+bool sortLocationScore(LocationScore a, LocationScore b) {
+	return a.Score.f > b.Score.f;
+}
+
 void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 
 	// Program runs in Paired mode and current read got a pair
@@ -141,46 +145,99 @@ void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 //			getchar();
 //		}
 
-		float score_max = 0;
-		float score_smax = 0;
-		int score_max_loc = 0;
-		int score_max_count = 0;
+		static int const topn = Config.GetInt("topn");
 
-		// zähle anzahl topscores
-		for (int j = 0; j < read->numScores(); ++j) {
-			if (read->Scores[j].Score.f > score_smax) {
-				if (read->Scores[j].Score.f > score_max) {
-					score_smax = score_max;
-					score_max = read->Scores[j].Score.f;
-					score_max_loc = j;
-					score_max_count = 1;
+		if(topn == 1) {
+			float score_max = 0;
+			float score_smax = 0;
+			int score_max_loc = 0;
+			int score_max_count = 0;
+
+			// zähle anzahl topscores
+			for (int j = 0; j < read->numScores(); ++j) {
+				if (read->Scores[j].Score.f > score_smax) {
+					if (read->Scores[j].Score.f > score_max) {
+						score_smax = score_max;
+						score_max = read->Scores[j].Score.f;
+						score_max_loc = j;
+						score_max_count = 1;
+					} else if (read->Scores[j].Score.f == score_max) {
+						++score_max_count;
+						score_smax = score_max;
+					} else {
+						score_smax = read->Scores[j].Score.f;
+					}
 				} else if (read->Scores[j].Score.f == score_max) {
 					++score_max_count;
-					score_smax = score_max;
-				} else {
-					score_smax = read->Scores[j].Score.f;
 				}
-			} else if (read->Scores[j].Score.f == score_max) {
-				++score_max_count;
 			}
-		}
 
-		//static const int skip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
-		//float max = (read->length - CS::prefixBasecount + 1) / skip;
+			//static const int skip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
+			//float max = (read->length - CS::prefixBasecount + 1) / skip;
 
-		//float t = 100.0f * (read->s / max);
-		//float t = 100.0f * (score_max - score_smax) / score_max;
-		//int mq = ceil(log(t * 10.0f + 1) / log(11.0f) * 60.0f);
-		//int mq = ceil(100.0f * (read->s / max));
+			//float t = 100.0f * (read->s / max);
+			//float t = 100.0f * (score_max - score_smax) / score_max;
+			//int mq = ceil(log(t * 10.0f + 1) / log(11.0f) * 60.0f);
+			//int mq = ceil(100.0f * (read->s / max));
 
-		int mq = ceil(MAX_MQ * (score_max - score_smax) / score_max);
+			int mq = ceil(MAX_MQ * (score_max - score_smax) / score_max);
 //		Log.Message("%s: %f %f -> %d, (%d) => %d", read->name, score_max, score_smax, mq, read->mappingQlty, mq2);
-		//read->mappingQlty = std::min(mq, read->mappingQlty);
-		read->mappingQlty = mq;
-		read->EqualScoringCount = score_max_count;
-		read->TopScore = score_max_loc;
-	} else {
+			//read->mappingQlty = std::min(mq, read->mappingQlty);
+			read->mappingQlty = mq;
+			read->EqualScoringCount = score_max_count;
+			read->TopScore = score_max_loc;
+
+			SendSeToBuffer(read);
+		} else {
+			std::sort(read->Scores, read->Scores + read->numScores(), sortLocationScore);
+
+			//Log.Message("%s", read->name);
+			read->EqualScoringID = 0;
+			int esid = 1;
+			int n = std::min(read->numScores(), topn);
+			static bool const equalOnly = true;
+			for (int j = 1; j < n - 1 && (!equalOnly || read->Scores[0].Score.f == read->Scores[j].Score.f); ++j) {
+				//Log.Message("%f", read->Scores[j].Score.f);
+
+				MappedRead * ntopread = new MappedRead(read->ReadId, qryMaxLen);
+				ntopread->EqualScoringID = esid++;
+				ntopread->EqualScoringCount = n;
+				ntopread->Calculated = 1;
+				ntopread->TopScore = 0;
+
+				ntopread->Seq = new char[qryMaxLen];
+
+				//TODO: only copy pointer, faster
+				memcpy(ntopread->Seq, read->Seq, qryMaxLen);
+				if (read->RevSeq != 0) {
+					ntopread->RevSeq = new char[qryMaxLen];
+					memcpy(ntopread->RevSeq, read->RevSeq, qryMaxLen);
+				}
+				ntopread->qlty = 0;
+				if (read->qlty != 0) {
+					ntopread->qlty = new char[qryMaxLen];
+					memcpy(ntopread->qlty, read->qlty, qryMaxLen);
+				}
+
+				int nameLength = strlen(read->name);
+				ntopread->name = new char[nameLength + 1];
+				memcpy(ntopread->name, read->name, nameLength + 1);
+
+
+				ntopread->length = read->length;
+				//ntopread->AddScore(*read->Scores[j].Score.f,*read->Scores[j].Location.m_Location)
+				ntopread->AllocScores(read->Scores + j, 1);
+				read->Scores[0].Read = ntopread;
+				read->TopScore = 0;
+				SendSeToBuffer(ntopread);
+			}
+			read->TopScore = 0;
+			SendSeToBuffer(read);
+		}
+	}
+	else {
 		read->mappingQlty = 0;
+		SendSeToBuffer(read);
 	}
 
 //	if (NGM.Paired() && (!read->HasFlag(NGMNames::PairedFail))) {
@@ -204,15 +261,15 @@ void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 //			}
 //		}
 //	} else {
-	SendSeToBuffer(read);
-	//}
+
+//}
 }
 
 int scount = 0;
 
 void ScoreBuffer::addRead(LocationScore * newScores, int count) {
 
-	if(count == 0) {
+	if (count == 0) {
 		Log.Error("count == 0");
 		Fatal();
 	}

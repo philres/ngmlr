@@ -55,6 +55,10 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const * p
 
 	char * qltystr = read->qlty;
 
+	if(read->EqualScoringID != 0) {
+		flags |= 0x100;
+	}
+
 	if ((read->Strand == '-')) {
 		readseq = read->RevSeq;
 		flags |= 0x10;

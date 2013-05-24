@@ -41,12 +41,15 @@ static RefEntry * m_entry;
 static std::map<SequenceLocation, float> iTable; // fallback
 
 //uint const estimateSize = 10000;
-uint const estimateSize = 1000000;
+uint const estimateSize = 10000000;
 uint const estimateStepSize = 1000;
 uint const estimateThreshold = 1000;
 uint const maxReadLength = 1000;
 
 float * maxHitTable;
+#ifdef _DEBUGRP
+float * maxHitTableDebug;
+#endif
 int maxHitTableIndex;
 int m_CurrentReadLength;
 
@@ -73,6 +76,9 @@ int CollectResultsFallback() {
 	int max = ceil((seq->seq.l - CS::prefixBasecount + 1) / skip * 1.0);
 
 	if (max > 1.0f && maxCurrent <= max) {
+#ifdef _DEBUGRP
+		maxHitTableDebug[maxHitTableIndex] = maxCurrent;
+#endif
 		maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))); // * 0.85f + 0.05f;
 		//Log.Message("Result: %f, %f, %f, %f -> %f", maxCurrent, maxCurrent / seq->seq.l, max, max / seq->seq.l, maxHitTable[maxHitTableIndex-1]);
 	}
@@ -169,6 +175,9 @@ uint ReadProvider::init(char const * fileName) {
 		if (estimate) {
 			Log.Message("Estimating parameter from data");
 
+#ifdef _DEBUGRP
+			maxHitTableDebug = new float[estimateSize];
+#endif
 			maxHitTable = new float[estimateSize];
 			maxHitTableIndex = 0;
 
@@ -243,9 +252,19 @@ uint ReadProvider::init(char const * fileName) {
 
 		if (estimate && readCount >= estimateThreshold) {
 			float sum = 0.0f;
+#ifdef _DEBUGRP
+			FILE* ofp;
+			ofp = fopen((std::string(Config.GetString("output")) + std::string(".b")).c_str(), "w");
+#endif
 			for (int i = 0; i < maxHitTableIndex; ++i) {
 				sum += maxHitTable[i];
+#ifdef _DEBUGRP
+				fprintf(ofp, "%f\n", maxHitTableDebug[i]);
+#endif
 			}
+#ifdef _DEBUGRP
+			fclose(ofp);
+#endif
 
 			float m_CsSensitivity = 0.0f;
 			if (!m_EnableBS) {
@@ -288,6 +307,9 @@ uint ReadProvider::init(char const * fileName) {
 			//}
 			//((_Config*) _config)->Override("cs_tablen", bits);
 			delete[] maxHitTable;
+#ifdef _DEBUGRP
+			delete[] maxHitTableDebug;
+#endif
 		} else {
 			Log.Warning("Not enough reads to estimate parameter");
 		}
