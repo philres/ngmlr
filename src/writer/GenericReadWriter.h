@@ -86,12 +86,18 @@ public:
 		mapped = mapped && ((read->length - read->QStart - read->QEnd) >= minResidues);
 
 		if (mapped) {
-			NGM.AddMappedRead(read->ReadId);
+			if(read->EqualScoringID == 0) {
+				NGM.AddMappedRead(read->ReadId);
+			}
 			DoWriteRead(read);
+			NGM.AddWrittenRead(read->ReadId);
 		} else {
-			DoWriteUnmappedRead(read);
+			if(read->EqualScoringID == 0) {
+				DoWriteUnmappedRead(read);
+				NGM.AddWrittenRead(read->ReadId);
+			}
 		}
-		NGM.AddWrittenRead(read->ReadId);
+
 //		}
 	}
 

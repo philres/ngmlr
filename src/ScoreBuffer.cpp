@@ -196,14 +196,40 @@ void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 			int esid = 1;
 			int n = std::min(read->numScores(), topn);
 			static bool const equalOnly = true;
-			for (int j = 1; j < n - 1 && (!equalOnly || read->Scores[0].Score.f == read->Scores[j].Score.f); ++j) {
-				//Log.Message("%f", read->Scores[j].Score.f);
+			int j = 1;
+
+			if(equalOnly) {
+				int i = 1;
+				while(i < n && read->Scores[0].Score.f == read->Scores[i].Score.f) {
+					i += 1;
+				}
+				n = i;
+				read->EqualScoringCount = n;
+			} else {
+				read->EqualScoringCount = 1;
+			}
+			read->TopScore = 0;
+
+			int mq = MAX_MQ;
+			if(read->numScores() > 1) {
+				mq = ceil(MAX_MQ * (read->Scores[0].Score.f - read->Scores[1].Score.f) / read->Scores[0].Score.f);
+			}
+			read->mappingQlty = mq;
+
+
+			for (; j < n; ++j) {
+//				Log.Message("%f == %f", read->Scores[0].Score.f, read->Scores[j].Score.f);
+				if(read->Scores[0].Score.f != read->Scores[j].Score.f) {
+					Log.Error("not equal");
+					Fatal();
+				}
 
 				MappedRead * ntopread = new MappedRead(read->ReadId, qryMaxLen);
 				ntopread->EqualScoringID = esid++;
 				ntopread->EqualScoringCount = n;
 				ntopread->Calculated = 1;
 				ntopread->TopScore = 0;
+				ntopread->mappingQlty = mq;
 
 				ntopread->Seq = new char[qryMaxLen];
 
@@ -231,7 +257,6 @@ void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 				read->TopScore = 0;
 				SendSeToBuffer(ntopread);
 			}
-			read->TopScore = 0;
 			SendSeToBuffer(read);
 		}
 	}
