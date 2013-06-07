@@ -7,7 +7,6 @@
 #include <list>
 #include <algorithm>
 
-#include "FFormatWriter.h"
 #include "SAMWriter.h"
 #include "BAMWriter.h"
 
@@ -16,13 +15,16 @@
 
 typedef void (*pfDelete)(void*);
 
-char Strand(MappedRead * read);
-
 char const * const cFormatNames[3] = { "Plain Text", "SAM", "BAM" };
 
 class AlignmentBuffer {
 
 private:
+
+	struct Alignment {
+		MappedRead * read;
+		int scoreId;
+	};
 
 	char const * const output_name;
 	int const outputformat;
@@ -31,7 +33,8 @@ private:
 	int const batchSize;
 	int const corridor;
 	int const refMaxLen;
-	MappedRead ** reads;
+
+	Alignment * reads;
 	int nReads;
 	char const * * qryBuffer;
 	char const * * refBuffer;
@@ -55,14 +58,14 @@ private:
 
 	static bool first;
 
-	static bool EqualScoringSortPredicate(MappedRead * lhs, MappedRead * rhs) {
-		return (lhs->Strand == rhs->Strand) ? lhs->TLS()->Location.m_Location < rhs->TLS()->Location.m_Location : lhs->Strand < rhs->Strand;
-	}
-
-	static bool EqualScoringEquivalentPredicate(MappedRead * lhs, MappedRead * rhs) {
-		return (lhs->TLS()->Location.m_RefId == rhs->TLS()->Location.m_RefId)
-				&& (lhs->TLS()->Location.m_Location == rhs->TLS()->Location.m_Location);
-	}
+//	static bool EqualScoringSortPredicate(MappedRead * lhs, MappedRead * rhs) {
+//		return (lhs->Strand == rhs->Strand) ? lhs->TLS()->Location.m_Location < rhs->TLS()->Location.m_Location : lhs->Strand < rhs->Strand;
+//	}
+//
+//	static bool EqualScoringEquivalentPredicate(MappedRead * lhs, MappedRead * rhs) {
+//		return (lhs->TLS()->Location.m_RefId == rhs->TLS()->Location.m_RefId)
+//				&& (lhs->TLS()->Location.m_Location == rhs->TLS()->Location.m_Location);
+//	}
 
 public:
 
@@ -94,12 +97,7 @@ public:
 //
 
 						m_Writer =
-						(outputformat == 0) ?
-						(GenericReadWriter*) new FFormatWriter(
-								NGM.getWriter()) :
-						(outputformat == 1) ?
-						(GenericReadWriter*) new SAMWriter(NGM.getWriter()) :
-						(GenericReadWriter*) new BAMWriter(filename);
+						(outputformat <= 1) ? (GenericReadWriter*) new SAMWriter(NGM.getWriter()) : (GenericReadWriter*) new BAMWriter(filename);
 
 ///NGMLock(&m_Mutex);
 						if(first) {
@@ -115,7 +113,8 @@ public:
 
 						Log.Verbose("Alignment batchsize = %i", batchSize);
 
-						reads = new MappedRead*[batchSize];
+						//reads = new MappedRead*[batchSize];
+						reads = new Alignment[batchSize];
 
 						qryBuffer = new char const *[batchSize];
 						refBuffer = new char const *[batchSize];
@@ -172,7 +171,7 @@ public:
 						return "Output";
 					}
 
-					void addRead(MappedRead * read);
+					void addRead(MappedRead * read, int scoreID);
 					void flush();
 
 					float getTime() {
@@ -185,66 +184,64 @@ public:
 
 						if (mapped) {
 
-							static int refCount = SequenceProvider.GetRefCount();
-							if (RefStartPos == 0) {
-								RefStartPos = new int[refCount / ((NGM.DualStrand()) ? 2 : 1)];
-								int i = 0;
-								int j = 0;
-								while (i < refCount/* && loc.m_Location >= SequenceProvider.GetRefStart(i)*/) {
-									RefStartPos[j++] = SequenceProvider.GetRefStart(i);
-									i += (NGM.DualStrand()) ? 2 : 1;
+							for(int i = 0; i < read->EqualScoringCount; ++i) {
+								static int refCount = SequenceProvider.GetRefCount();
+								if (RefStartPos == 0) {
+									RefStartPos = new int[refCount / ((NGM.DualStrand()) ? 2 : 1)];
+									int i = 0;
+									int j = 0;
+									while (i < refCount/* && loc.m_Location >= SequenceProvider.GetRefStart(i)*/) {
+										RefStartPos[j++] = SequenceProvider.GetRefStart(i);
+										i += (NGM.DualStrand()) ? 2 : 1;
+									}
 								}
-							}
 
-							//Correct position
-							SequenceLocation loc = read->TLS()->Location;
-							int * upper = std::upper_bound(RefStartPos, RefStartPos + (refCount / ((NGM.DualStrand()) ? 2 : 1)), loc.m_Location);
-							std::ptrdiff_t refId = ((upper - 1) - RefStartPos) * ((NGM.DualStrand()) ? 2 : 1);
-							loc.m_Location -= *(upper - 1);
-							loc.m_RefId = refId;
-							read->TLS()->Location = loc;
+								//Correct position
+								SequenceLocation loc = read->Scores[i].Location;
+								int * upper = std::upper_bound(RefStartPos, RefStartPos + (refCount / ((NGM.DualStrand()) ? 2 : 1)), loc.m_Location);
+								std::ptrdiff_t refId = ((upper - 1) - RefStartPos) * ((NGM.DualStrand()) ? 2 : 1);
+								loc.m_Location -= *(upper - 1);
+								loc.m_RefId = refId;
+								read->Scores[i].Location = loc;
 
-							if (read->Strand == '-') {
-								if (read->qlty != 0)
-								std::reverse(read->qlty, read->qlty + strlen(read->qlty));
+								if (read->Strand(i) == '-') {
+									if (read->qlty != 0)
+									std::reverse(read->qlty, read->qlty + strlen(read->qlty));
+								}
 							}
 						}
 
-						//NGMLock(&m_Mutex);
-//		NGM.AquireOutputLock();
-//#pragma omp critical
-						//	{
 						if (NGM.Paired() && read->Paired != 0) {
-							if (read->Paired->HasFlag(NGMNames::DeletionPending)) {
-
-								if(read->hasCandidates() && read->Paired->hasCandidates()) {
-									LocationScore * ls1 = read->TLS();
-									LocationScore * ls2 = read->Paired->TLS();
-									int distance =
-									(ls2->Location.m_Location > ls1->Location.m_Location) ?
-									ls2->Location.m_Location - ls1->Location.m_Location + ls2->Read->length :
-									ls1->Location.m_Location - ls2->Location.m_Location + ls1->Read->length;
-
-									//int distance = abs(read->TLS()->Location.m_Location - read->Paired->TLS()->Location.m_Location);
-
-									tCount += 1;
-									if(ls1->Location.m_RefId != ls2->Location.m_RefId || distance < _NGM::sPairMinDistance || distance > _NGM::sPairMaxDistance || read->Strand == read->Paired->Strand) {
-										read->SetFlag(NGMNames::PairedFail);
-										read->Paired->SetFlag(NGMNames::PairedFail);
-										brokenPairs += 1;
-									} else {
-										//Log.Message("%d", distance);
-										tSum += distance;
-									}
-								}
-								m_Writer->WritePair(read, read->Paired);
-							}
+							//TODO: fix that. MULTI-MAP reads!
+							Log.Error("Paired end currently not supported!");
+							Fatal();
+//							if (read->Paired->HasFlag(NGMNames::DeletionPending)) {
+//
+//								if(read->hasCandidates() && read->Paired->hasCandidates()) {
+//									LocationScore * ls1 = read->TLS();
+//									LocationScore * ls2 = read->Paired->TLS();
+//									int distance =
+//									(ls2->Location.m_Location > ls1->Location.m_Location) ?
+//									ls2->Location.m_Location - ls1->Location.m_Location + ls2->Read->length :
+//									ls1->Location.m_Location - ls2->Location.m_Location + ls1->Read->length;
+//
+//									//int distance = abs(read->TLS()->Location.m_Location - read->Paired->TLS()->Location.m_Location);
+//
+//									tCount += 1;
+//									if(ls1->Location.m_RefId != ls2->Location.m_RefId || distance < _NGM::sPairMinDistance || distance > _NGM::sPairMaxDistance || read->Strand == read->Paired->Strand) {
+//										read->SetFlag(NGMNames::PairedFail);
+//										read->Paired->SetFlag(NGMNames::PairedFail);
+//										brokenPairs += 1;
+//									} else {
+//										//Log.Message("%d", distance);
+//										tSum += distance;
+//									}
+//								}
+//								m_Writer->WritePair(read, 0, read->Paired, 0);
+//							}
 						} else {
 							m_Writer->WriteRead(read, mapped);
 						}
-//		NGM.ReleaseOutputLock();
-						//NGMUnlock(&m_Mutex);
-						//}
 
 						if(tCount % 1000 == 0) {
 //			Log.Message("%d %d %d %f", tSum, tCount, brokenPairs, tSum * 1.0f / (tCount));

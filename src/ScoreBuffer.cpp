@@ -138,13 +138,6 @@ void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 	Log.Verbose("[SINGLE] SW::SendToPostprocessing: %i (%s)", read->ReadId, read->name);
 	if (read->hasCandidates()) {
 
-//		//TODO: remove
-//		char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
-//		if (strcmp(read->name, debugRead) == 0) {
-//			Log.Error("SendToPostprocessing");
-//			getchar();
-//		}
-
 		static int const topn = Config.GetInt("topn");
 
 		if(topn == 1) {
@@ -184,18 +177,23 @@ void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 //		Log.Message("%s: %f %f -> %d, (%d) => %d", read->name, score_max, score_smax, mq, read->mappingQlty, mq2);
 			//read->mappingQlty = std::min(mq, read->mappingQlty);
 			read->mappingQlty = mq;
-			read->EqualScoringCount = score_max_count;
-			read->TopScore = score_max_loc;
 
-			SendSeToBuffer(read);
+			//TODO: fix SAM tag X0
+			//read->EqualScoringCount = score_max_count;
+			read->EqualScoringCount = 1;
+
+			read->clearScores(score_max_loc);
+			read->Alignments = new Align[1];
+
+			SendSeToBuffer(read, 0);
 		} else {
 			std::sort(read->Scores, read->Scores + read->numScores(), sortLocationScore);
 
 			//Log.Message("%s", read->name);
-			read->EqualScoringID = 0;
-			int esid = 1;
+//			read->EqualScoringID = 0;
+			//int esid = 1;
 			int n = std::min(read->numScores(), topn);
-			static bool const equalOnly = true;
+			static bool const equalOnly = false;
 			int j = 1;
 
 			if(equalOnly) {
@@ -208,7 +206,6 @@ void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 			} else {
 				read->EqualScoringCount = 1;
 			}
-			read->TopScore = 0;
 
 			int mq = MAX_MQ;
 			if(read->numScores() > 1) {
@@ -216,53 +213,22 @@ void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 			}
 			read->mappingQlty = mq;
 
+			read->Alignments = new Align[n];
 
 			for (; j < n; ++j) {
 //				Log.Message("%f == %f", read->Scores[0].Score.f, read->Scores[j].Score.f);
-				if(read->Scores[0].Score.f != read->Scores[j].Score.f) {
+				if(equalOnly && read->Scores[0].Score.f != read->Scores[j].Score.f) {
 					Log.Error("not equal");
 					Fatal();
 				}
-
-				MappedRead * ntopread = new MappedRead(read->ReadId, qryMaxLen);
-				ntopread->EqualScoringID = esid++;
-				ntopread->EqualScoringCount = n;
-				ntopread->Calculated = 1;
-				ntopread->TopScore = 0;
-				ntopread->mappingQlty = mq;
-
-				ntopread->Seq = new char[qryMaxLen];
-
-				//TODO: only copy pointer, faster
-				memcpy(ntopread->Seq, read->Seq, qryMaxLen);
-				if (read->RevSeq != 0) {
-					ntopread->RevSeq = new char[qryMaxLen];
-					memcpy(ntopread->RevSeq, read->RevSeq, qryMaxLen);
-				}
-				ntopread->qlty = 0;
-				if (read->qlty != 0) {
-					ntopread->qlty = new char[qryMaxLen];
-					memcpy(ntopread->qlty, read->qlty, qryMaxLen);
-				}
-
-				int nameLength = strlen(read->name);
-				ntopread->name = new char[nameLength + 1];
-				memcpy(ntopread->name, read->name, nameLength + 1);
-
-
-				ntopread->length = read->length;
-				//ntopread->AddScore(*read->Scores[j].Score.f,*read->Scores[j].Location.m_Location)
-				ntopread->AllocScores(read->Scores + j, 1);
-				read->Scores[0].Read = ntopread;
-				read->TopScore = 0;
-				SendSeToBuffer(ntopread);
+				SendSeToBuffer(read, j);
 			}
-			SendSeToBuffer(read);
+			SendSeToBuffer(read, 0);
 		}
 	}
 	else {
 		read->mappingQlty = 0;
-		SendSeToBuffer(read);
+		SendSeToBuffer(read, -1);
 	}
 
 //	if (NGM.Paired() && (!read->HasFlag(NGMNames::PairedFail))) {
@@ -329,14 +295,14 @@ void ScoreBuffer::flush() {
 
 }
 
-void ScoreBuffer::SendSeToBuffer(MappedRead* read) {
+void ScoreBuffer::SendSeToBuffer(MappedRead* read, int const scoreID) {
 
 	if (!read->hasCandidates()) {
 		//NGM.AddUnmappedRead(read, MFAIL_NOCAND);
 		//NGM.SaveRead(read, false);
-		out->addRead(read);
+		out->addRead(read, -1);
 
-		Log.Verbose("Read %s (%i) not mapped (no candidates/scores)", read->name, read->ReadId);
+		Log.Message("Read %s (%i) not mapped (no candidates/scores)", read->name, read->ReadId);
 		NGM.GetReadProvider()->DisposeRead(read);
 		return;
 	}
@@ -352,7 +318,7 @@ void ScoreBuffer::SendSeToBuffer(MappedRead* read) {
 
 	//Log.Green("Single: %f", read->TLS()->Score.f);
 
-	out->addRead(read);
+	out->addRead(read, scoreID);
 	//TODO: AddRead to Output
 //	NGM.bSWO.Write(&read, 1);
 	//NGM.AddMappedRead(read->ReadId);
@@ -401,7 +367,7 @@ void ScoreBuffer::SendSeToBuffer(MappedRead* read) {
 //			}
 //		}
 //	}
-	read->clearScores();
+
 }
 
 //void SWwoBuffer::PairedReadSelection(MappedRead * read1, MappedRead * read2) {

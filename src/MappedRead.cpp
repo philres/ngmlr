@@ -13,8 +13,8 @@ volatile int LocationScore::sInstanceCount = 0;
 //volatile int MappedRead::maxSeqCount = 0;
 
 MappedRead::MappedRead(int const readid, int const qrymaxlen) :
-		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), TopScore(-1), /*Lock(0),*/ EqualScoringID(0), EqualScoringCount(1), Scores(), nScores(0), iScores(0), Paired(
-				0), Status(0), Identity(0), NM(-1), Strand('?'), QStart(0), QEnd(0), mappingQlty(255), RevSeq(0), Seq(0), qlty(0), name(0), Buffer1(
+		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), EqualScoringCount(1), Scores(0), Alignments(0), nScores(0), iScores(0), Paired(
+				0), Status(0), mappingQlty(255), RevSeq(0), Seq(0), qlty(0), name(0), Buffer1(
 				0), Buffer2(0) {
 #ifdef INSTANCE_COUNTING
 	AtomicInc(&sInstanceCount);
@@ -86,6 +86,10 @@ MappedRead::~MappedRead() {
 		iScores = 0;
 		nScores = 0;
 	}
+	if(Alignments != 0) {
+		delete[] Alignments;
+		Alignments = 0;
+	}
 	if (Buffer1 != 0)
 		delete[] Buffer1;
 	if (Buffer2 != 0)
@@ -137,19 +141,18 @@ LocationScore * MappedRead::AddScore(float const score, uint const loc, bool con
 	//return toInsert;
 }
 
-void MappedRead::clearScores(bool const keepTop) {
-	if (TopScore != -1 && Scores != 0) {
-		LocationScore tmp = *TLS();
-		delete[] Scores;
-		if (keepTop) {
+void MappedRead::clearScores(int const TopScore) {
+	if (Scores != 0) {
+		if (TopScore != -1) {
+			LocationScore tmp = Scores[TopScore];
+			delete[] Scores;
 			Scores = new LocationScore[1];
 			//Scores = (LocationScore *)realloc(Scores, 1 * sizeof(LocationScore));
 			Scores[0] = tmp;
-			TopScore = 0;
 			iScores = 1;
 			nScores = 1;
 		} else {
-			TopScore = -1;
+			delete[] Scores;
 			iScores = 0;
 			nScores = 0;
 			Scores = 0;
@@ -158,14 +161,13 @@ void MappedRead::clearScores(bool const keepTop) {
 
 }
 
-LocationScore * MappedRead::TLS() const {
-	if (TopScore == -1) {
-		Log.Error("Top score accessed without calculation (Read %i, ESID %i, ESC %i)", ReadId, EqualScoringID, EqualScoringCount);
-		throw "";
-		return 0;
-	}
-	return &Scores[TopScore];
-}
+//LocationScore * MappedRead::TLS() const {
+//	if (TopScore == -1) {
+//		Log.Error("Top score accessed without calculation (Read %i, ESC %i)", ReadId, EqualScoringCount);
+//		Fatal();
+//	}
+//	return &Scores[TopScore];
+//}
 
 int MappedRead::numScores() const {
 	return iScores;

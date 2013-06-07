@@ -31,7 +31,7 @@ private:
 
 public:
 	void SendToPostprocessing(MappedRead* read);
-	void SendSeToBuffer(MappedRead* read);
+	void SendSeToBuffer(MappedRead* read, int const scoreID);
 
 private:
 	static void PairedReadSelection(MappedRead* read1, MappedRead* read2);

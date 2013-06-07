@@ -11,64 +11,64 @@ bool AlignmentBuffer::first = true;
 
 //static inline void rev(char * s);
 
-void AlignmentBuffer::saveEqualScoring(int id) {
-	typedef std::list<MappedRead*> TReadList;
-	TReadList reads = m_EqualScoringBuffer[id];
-	//							if (Config.GetInt("bowtie_mode") == 0) {
-	reads.sort(EqualScoringSortPredicate);
-	//reads.unique(EqualScoringEquivalentPredicate);
-	int esc = reads.size();
-	TReadList::iterator itr = reads.begin();
-	TReadList::iterator citr = itr;
-	++itr;
-	while (itr != reads.end()) {
-		if (EqualScoringEquivalentPredicate(*citr, *itr)) {
-//									if (esc == 1) {
-//										(**itr).DeleteReadSeq();
-//									}
-			//delete *itr;
-			NGM.GetReadProvider()->DisposeRead(*itr);
-			*itr = 0;
-			--esc;
-		} else
-		citr = itr;
-		++itr;
-	}
-	int esid = 0;
-	for (TReadList::iterator itr = reads.begin(); itr != reads.end(); ++itr) {
-		if (*itr != 0) {
-			(**itr).EqualScoringID = esid++;
-			(**itr).EqualScoringCount = esc;
-			SaveRead(*itr);
-//									if (esid == cur_read->EqualScoringCount) {
-//										(**itr).DeleteReadSeq();
-//									}
-			NGM.GetReadProvider()->DisposeRead(*itr);
-			//delete *itr;
-
-			*itr = 0;
-		}
-	}
-	//std::for_each(reads.begin(), reads.end(), std::bind1st( std::mem_fun(&Output::SaveRead), this ) );
-	//							} else {
-	//								SaveRead(cur_read);
-	//								for (TReadList::iterator itr = reads.begin(); itr != reads.end(); ++itr) {
-	//									NGM.GetReadProvider()->DisposeRead(*itr);
-	//								}
-	//							}
-	reads.clear();
-	m_EqualScoringBuffer[id].clear();
-	std::map<int, std::list<MappedRead*> >::iterator it;
-	it = m_EqualScoringBuffer.find(id);
-	m_EqualScoringBuffer.erase(it);
-}
+//void AlignmentBuffer::saveEqualScoring(int id) {
+//	typedef std::list<MappedRead*> TReadList;
+//	TReadList reads = m_EqualScoringBuffer[id];
+//	//							if (Config.GetInt("bowtie_mode") == 0) {
+//	reads.sort(EqualScoringSortPredicate);
+//	//reads.unique(EqualScoringEquivalentPredicate);
+//	int esc = reads.size();
+//	TReadList::iterator itr = reads.begin();
+//	TReadList::iterator citr = itr;
+//	++itr;
+//	while (itr != reads.end()) {
+//		if (EqualScoringEquivalentPredicate(*citr, *itr)) {
+////									if (esc == 1) {
+////										(**itr).DeleteReadSeq();
+////									}
+//			//delete *itr;
+//			NGM.GetReadProvider()->DisposeRead(*itr);
+//			*itr = 0;
+//			--esc;
+//		} else
+//		citr = itr;
+//		++itr;
+//	}
+//	int esid = 0;
+//	for (TReadList::iterator itr = reads.begin(); itr != reads.end(); ++itr) {
+//		if (*itr != 0) {
+//			(**itr).EqualScoringID = esid++;
+//			(**itr).EqualScoringCount = esc;
+//			SaveRead(*itr);
+////									if (esid == cur_read->EqualScoringCount) {
+////										(**itr).DeleteReadSeq();
+////									}
+//			NGM.GetReadProvider()->DisposeRead(*itr);
+//			//delete *itr;
+//
+//			*itr = 0;
+//		}
+//	}
+//	//std::for_each(reads.begin(), reads.end(), std::bind1st( std::mem_fun(&Output::SaveRead), this ) );
+//	//							} else {
+//	//								SaveRead(cur_read);
+//	//								for (TReadList::iterator itr = reads.begin(); itr != reads.end(); ++itr) {
+//	//									NGM.GetReadProvider()->DisposeRead(*itr);
+//	//								}
+//	//							}
+//	reads.clear();
+//	m_EqualScoringBuffer[id].clear();
+//	std::map<int, std::list<MappedRead*> >::iterator it;
+//	it = m_EqualScoringBuffer.find(id);
+//	m_EqualScoringBuffer.erase(it);
+//}
 
 void AlignmentBuffer::flush() {
 	DoRun();
 	nReads = 0;
 }
 
-void AlignmentBuffer::addRead(MappedRead * read) {
+void AlignmentBuffer::addRead(MappedRead * read, int scoreID) {
 //	//TODO: remove
 //	char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
 //	if (strcmp(read->name, debugRead) == 0) {
@@ -78,7 +78,8 @@ void AlignmentBuffer::addRead(MappedRead * read) {
 	if (!read->hasCandidates()) {
 		SaveRead(read, false);
 	} else {
-		reads[nReads++] = read;
+		reads[nReads].scoreId = scoreID;
+		reads[nReads++].read = read;
 		if (nReads == batchSize) {
 			DoRun();
 			nReads = 0;
@@ -97,7 +98,8 @@ void AlignmentBuffer::DoRun() {
 		tmr.ST();
 		alignmentCount += count;
 		for (int i = 0; i < count; ++i) {
-			MappedRead * cur_read = reads[i];
+			MappedRead * cur_read = reads[i].read;
+			int scoreID = reads[i].scoreId;
 //			//TODO: remove
 //			char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
 //			if (strcmp(cur_read->name, debugRead) == 0) {
@@ -105,15 +107,15 @@ void AlignmentBuffer::DoRun() {
 //				getchar();
 //			}
 			if (cur_read->hasCandidates()) {
-				cur_read->Strand = Strand(cur_read);
+				char Strand = cur_read->Strand(scoreID);
 
 				// Bei Mapping am Minus-Strang, Position bez�glich +-Strang reporten
-				if (cur_read->Strand == '-') {
+				if (Strand == '-') {
 					qryBuffer[i] = cur_read->RevSeq;
 					//Log.Message("Rev Seq: %s", qryBuffer[i]);
 
 					// RefId auf +-Strang setzen
-					--cur_read->TLS()->Location.m_RefId;
+					--cur_read->Scores[scoreID].Location.m_RefId;
 					if (NGM.Paired()) {
 						m_DirBuffer[i] = !(cur_read->ReadId & 1);
 					} else {
@@ -129,8 +131,8 @@ void AlignmentBuffer::DoRun() {
 					}
 				}
 
-				SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), cur_read->TLS()->Location.m_RefId,
-						cur_read->TLS()->Location.m_Location - (corridor >> 1), refMaxLen);
+				SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), cur_read->Scores[scoreID].Location.m_RefId,
+						cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), refMaxLen);
 
 				cur_read->AllocBuffers();
 				alignBuffer[i].pBuffer1 = cur_read->Buffer1;
@@ -142,7 +144,7 @@ void AlignmentBuffer::DoRun() {
 				Fatal();
 				char * refDummy = const_cast<char *>(refBuffer[i]);
 				memset(refDummy, '\0', refMaxLen);
-				qryBuffer[i] = dummy;//SequenceProvider.GetQrySequence(cur_read->ReadId);
+				qryBuffer[i] = dummy; //SequenceProvider.GetQrySequence(cur_read->ReadId);
 
 				alignBuffer[i].pBuffer1 = dBuffer;
 				alignBuffer[i].pBuffer2 = dBuffer + dbLen / 2;
@@ -157,8 +159,8 @@ void AlignmentBuffer::DoRun() {
 		x.ST();
 		int aligned = 0;
 //		NGM.AquireOutputLock();
-				aligned = aligner->BatchAlign(alignmode | (std::max(outputformat, 1) << 8), count, refBuffer, qryBuffer, alignBuffer,
-						(m_EnableBS) ? m_DirBuffer : 0);
+		aligned = aligner->BatchAlign(alignmode | (std::max(outputformat, 1) << 8), count, refBuffer, qryBuffer, alignBuffer,
+				(m_EnableBS) ? m_DirBuffer : 0);
 //		NGM.ReleaseOutputLock();
 		//int aligned = count;
 
@@ -170,7 +172,8 @@ void AlignmentBuffer::DoRun() {
 		}
 
 		for (int i = 0; i < aligned; ++i) {
-			MappedRead * cur_read = reads[i];
+			MappedRead * cur_read = reads[i].read;
+			int scoreID = reads[i].scoreId;
 //
 //			//TODO: remove
 //			char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
@@ -183,38 +186,47 @@ void AlignmentBuffer::DoRun() {
 			int id = cur_read->ReadId;
 
 			if (cur_read->hasCandidates()) {
-				cur_read->TLS()->Location.m_Location +=
-						alignBuffer[i].PositionOffset - (corridor >> 1);
+				cur_read->Scores[scoreID].Location.m_Location += alignBuffer[i].PositionOffset - (corridor >> 1);
 				//cur_read->TLS()->Score.f = alignBuffer[i].Score; // TODO: Align liefert keine Scores
-				cur_read->Identity = alignBuffer[i].Identity;
-				cur_read->NM = alignBuffer[i].NM;
-				cur_read->QStart = alignBuffer[i].QStart;
-				cur_read->QEnd = alignBuffer[i].QEnd;
+				//cur_read->Identity = alignBuffer[i].Identity;
+				//cur_read->NM = alignBuffer[i].NM;
+				//cur_read->QStart = alignBuffer[i].QStart;
+				//cur_read->QEnd = alignBuffer[i].QEnd;
 
 //					Log.Message("%s: %d %d %f -> %s, %s", cur_read->name, cur_read->QStart, cur_read->QEnd, cur_read->Identity, cur_read->Buffer1, cur_read->Buffer2);
 
 #ifdef _DEBUGOUT
-					Log.Message("Read:   %s", cur_read->name);
-					Log.Message("Score: %f", cur_read->TLS()->Score.f);
-					Log.Message("Seq:    %s", cur_read->Seq);
-					Log.Message("CIGAR:  %s", cur_read->Buffer1);
-					Log.Message("MD:     %s", cur_read->Buffer2);
+				Log.Message("Read:   %s", cur_read->name);
+				Log.Message("Score: %f", cur_read->Scores[scoreID].Score.f);
+				Log.Message("Seq:    %s", cur_read->Seq);
+				Log.Message("CIGAR:  %s", cur_read->Buffer1);
+				Log.Message("MD:     %s", cur_read->Buffer2);
 #endif
 
-				//TODO: fix equal scoring
-				if (false && cur_read->EqualScoringCount > 1) {
-					Log.Error("Should not be here! Equal scoring not supported at the moment.");
-					//Reads maps to several locations with an equal score
-					m_EqualScoringBuffer[id].push_back(cur_read);
-					if (m_EqualScoringBuffer[id].size() == cur_read->EqualScoringCount) {
-						//Alignments for all equal scoring positions of this reads are computed
-						//Warning: TAKE CARE OF UNMAPPABLE READ (INVALID CIGAR STRING0
-						saveEqualScoring(id);
-					}
-				} else {
-					SaveRead(cur_read, alignBuffer[i].Score != -1.0f);
+				cur_read->Alignments[scoreID] = alignBuffer[i];
+
+				if(cur_read->EqualScoringCount > 1) {
+				Log.Message("%d == %d", cur_read->EqualScoringCount, scoreID);
+				}
+				if ((cur_read->EqualScoringCount - 1) == scoreID) {
+					SaveRead(cur_read);
 					NGM.GetReadProvider()->DisposeRead(cur_read);
 				}
+
+//				//TODO: fix equal scoring
+//				if (false && cur_read->EqualScoringCount > 1) {
+//					Log.Error("Should not be here! Equal scoring not supported at the moment.");
+//					//Reads maps to several locations with an equal score
+//					m_EqualScoringBuffer[id].push_back(cur_read);
+//					if (m_EqualScoringBuffer[id].size() == cur_read->EqualScoringCount) {
+//						//Alignments for all equal scoring positions of this reads are computed
+//						//Warning: TAKE CARE OF UNMAPPABLE READ (INVALID CIGAR STRING0
+//						saveEqualScoring(id);
+//					}
+//				} else {
+//					SaveRead(cur_read, alignBuffer[i].Score != -1.0f);
+//					NGM.GetReadProvider()->DisposeRead(cur_read);
+//				}
 			} else {
 				Log.Warning("Unmapped read detected during alignment computation!");
 				//throw "geh scheiszen";
@@ -265,7 +277,3 @@ void AlignmentBuffer::DoRun() {
 //		*s = cpl(*s);
 //}
 
-char Strand(MappedRead * read) {
-	static bool sDualStrand = NGM.DualStrand();
-	return (sDualStrand && (read->TLS()->Location.m_RefId & 1)) ? '-' : '+';
-}

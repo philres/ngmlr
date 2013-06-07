@@ -423,7 +423,9 @@ void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 	if (count == 0) {
 		read->Calculated = 0;
 		//SWwoBuffer::SendToPostprocessing(read);
-		out->addRead(read);
+		out->addRead(read, -1);
+		Log.Verbose("Read %s (%i) not mapped (no candidates/scores)", read->name, read->ReadId);
+		NGM.GetReadProvider()->DisposeRead(read);
 	} else {
 		//if (count < NGM.bCSSW.Capacity()) {
 		//NGM.bCSSW.WriteR(read->Scores, count);

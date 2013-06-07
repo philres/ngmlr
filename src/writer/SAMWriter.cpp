@@ -37,12 +37,12 @@ void SAMWriter::DoWriteProlog() {
 	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer, true);
 }
 
-void SAMWriter::DoWriteRead(MappedRead const * const read) {
-	DoWriteReadGeneric(read, "*", -1, 0, read->mappingQlty);
+void SAMWriter::DoWriteRead(MappedRead const * const read, int const scoreID) {
+	DoWriteReadGeneric(read, scoreID, "*", -1, 0, read->mappingQlty);
 	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer);
 }
 
-void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const * pRefName, int const pLoc, int const pDist,
+void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scoreID, char const * pRefName, int const pLoc, int const pDist,
 		int const mappingQlty, int flags) {
 
 	static bool const hardClip = Config.GetInt("hard_clip", 0, 1) == 1 || Config.GetInt("silent_clip", 0, 1) == 1;
@@ -55,24 +55,24 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const * p
 
 	char * qltystr = read->qlty;
 
-	if(read->EqualScoringID != 0) {
+	if(scoreID != 0) {
 		flags |= 0x100;
 	}
 
-	if ((read->Strand == '-')) {
+	if ((read->Strand(scoreID) == '-')) {
 		readseq = read->RevSeq;
 		flags |= 0x10;
 	}
 
 	int refnamelen = 0;
-	char const * refname = SequenceProvider.GetRefName(read->TLS()->Location.m_RefId, refnamelen);
+	char const * refname = SequenceProvider.GetRefName(read->Scores[scoreID].Location.m_RefId, refnamelen);
 
 	//mandatory fields
 	//Print("%.*s\t", readnamelen, readname);
 	Print("%s\t", readname);
 	Print("%d\t", flags);
 	Print("%.*s\t", refnamelen, refname);
-	Print("%u\t", read->TLS()->Location.m_Location + report_offset);
+	Print("%u\t", read->Scores[scoreID].Location.m_Location + report_offset);
 	Print("%d\t", mappingQlty);
 
 	Print("%s\t", read->Buffer1);
@@ -81,13 +81,13 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const * p
 	Print("%d\t", pDist); //observed Template LENgth
 
 	if (hardClip)
-		Print("%.*s\t", read->length - read->QStart - read->QEnd, readseq + read->QStart);
+		Print("%.*s\t", read->length - read->Alignments[scoreID].QStart - read->Alignments[scoreID].QEnd, readseq + read->Alignments[scoreID].QStart);
 	else
 		Print("%.*s\t", read->length, readseq);
 
 	if (qltystr != 0) {
 		if (hardClip)
-			Print("%.*s\t", read->length - read->QStart - read->QEnd, qltystr + read->QStart);
+			Print("%.*s\t", read->length - read->Alignments[scoreID].QStart - read->Alignments[scoreID].QEnd, qltystr + read->Alignments[scoreID].QStart);
 		else
 			Print("%.*s\t", read->length, qltystr);
 	} else {
@@ -95,18 +95,18 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const * p
 	}
 
 	//Optional fields
-	Print("AS:i:%d\t", (int) read->TLS()->Score.f);
-	Print("NM:i:%d\t", read->NM);
+	Print("AS:i:%d\t", (int) read->Scores[scoreID].Score.f);
+	Print("NM:i:%d\t", read->Alignments[scoreID].NM);
 
 	if (Config.GetInt("bs_mapping") == 1) {
 		if (!(read->ReadId & 1)) {
-			if (read->Strand == '-') {
+			if (read->Strand(scoreID) == '-') {
 				Print("ZS:Z:%s\t", "-+");
 			} else {
 				Print("ZS:Z:%s\t", "++");
 			}
 		} else {
-			if (read->Strand == '-') {
+			if (read->Strand(scoreID) == '-') {
 				Print("ZS:Z:%s\t", "+-");
 			} else {
 				Print("ZS:Z:%s\t", "--");
@@ -114,18 +114,18 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, char const * p
 		}
 	}
 
-	Print("XI:f:%f\t", read->Identity);
+	Print("XI:f:%f\t", read->Alignments[scoreID].Identity);
 	Print("X0:i:%d\t", read->EqualScoringCount);
 	Print("X1:i:%d\t", read->Calculated - read->EqualScoringCount);
 	Print("XE:i:%d\t", (int) read->s);
-	Print("XR:i:%d\t", read->length - read->QStart - read->QEnd);
+	Print("XR:i:%d\t", read->length - read->Alignments[scoreID].QStart - read->Alignments[scoreID].QEnd);
 	Print("MD:Z:%s", read->Buffer2);
 
 	Print("\n");
 
 }
 
-void SAMWriter::DoWritePair(MappedRead const * const read1, MappedRead const * const read2) {
+void SAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, MappedRead const * const read2, int const scoreId2) {
 	//Proper pair
 	int flags1 = 0x1;
 	int flags2 = 0x1;
@@ -144,42 +144,42 @@ void SAMWriter::DoWritePair(MappedRead const * const read1, MappedRead const * c
 		DoWriteUnmappedRead(read1, flags1 | 0x8);
 	} else if (!read1->hasCandidates()) {
 		//First mate unmapped
-		DoWriteReadGeneric(read2, "=", read2->TLS()->Location.m_Location, 0, read2->mappingQlty, flags2 | 0x8);
-		DoWriteUnmappedReadGeneric(read1, read2->TLS()->Location.m_RefId, '=', read2->TLS()->Location.m_Location,
-				read2->TLS()->Location.m_Location, 0, 0, flags1);
+		DoWriteReadGeneric(read2, scoreId2, "=", read2->Scores[scoreId2].Location.m_Location, 0, read2->mappingQlty, flags2 | 0x8);
+		DoWriteUnmappedReadGeneric(read1, read2->Scores[scoreId2].Location.m_RefId, '=', read2->Scores[scoreId2].Location.m_Location,
+				read2->Scores[scoreId2].Location.m_Location, 0, 0, flags1);
 	} else if (!read2->hasCandidates()) {
 		//Second mate unmapped
-		DoWriteUnmappedReadGeneric(read2, read1->TLS()->Location.m_RefId, '=', read1->TLS()->Location.m_Location,
-				read1->TLS()->Location.m_Location, 0, 0, flags2);
-		DoWriteReadGeneric(read1, "=", read1->TLS()->Location.m_Location, 0, read1->mappingQlty, flags1 | 0x8);
+		DoWriteUnmappedReadGeneric(read2, read1->Scores[scoreId1].Location.m_RefId, '=', read1->Scores[scoreId1].Location.m_Location,
+				read1->Scores[scoreId1].Location.m_Location, 0, 0, flags2);
+		DoWriteReadGeneric(read1, scoreId1, "=", read1->Scores[scoreId1].Location.m_Location, 0, read1->mappingQlty, flags1 | 0x8);
 	} else {
 		if (!read1->HasFlag(NGMNames::PairedFail)) {
 			//TODO: Check if correct!
 			int distance = 0;
 			flags1 |= 0x2;
 			flags2 |= 0x2;
-			if (read1->Strand == '+') {
-				distance = read2->TLS()->Location.m_Location + read2->length - read1->TLS()->Location.m_Location;
-				DoWriteReadGeneric(read2, "=", read1->TLS()->Location.m_Location, distance * -1, read2->mappingQlty, flags2);
-				DoWriteReadGeneric(read1, "=", read2->TLS()->Location.m_Location, distance, read1->mappingQlty, flags1 | 0x20);
-			} else if (read2->Strand == '+') {
-				distance = read1->TLS()->Location.m_Location + read1->length - read2->TLS()->Location.m_Location;
+			if (read1->Strand(scoreId1) == '+') {
+				distance = read2->Scores[scoreId2].Location.m_Location + read2->length - read1->Scores[scoreId1].Location.m_Location;
+				DoWriteReadGeneric(read2, scoreId2, "=", read1->Scores[scoreId1].Location.m_Location, distance * -1, read2->mappingQlty, flags2);
+				DoWriteReadGeneric(read1, scoreId1, "=", read2->Scores[scoreId2].Location.m_Location, distance, read1->mappingQlty, flags1 | 0x20);
+			} else if (read2->Strand(scoreId2) == '+') {
+				distance = read1->Scores[scoreId1].Location.m_Location + read1->length - read2->Scores[scoreId2].Location.m_Location;
 
-				DoWriteReadGeneric(read2, "=", read1->TLS()->Location.m_Location, distance, read2->mappingQlty, flags2 | 0x20);
-				DoWriteReadGeneric(read1, "=", read2->TLS()->Location.m_Location, distance * -1, read1->mappingQlty, flags1);
+				DoWriteReadGeneric(read2, scoreId2, "=", read1->Scores[scoreId1].Location.m_Location, distance, read2->mappingQlty, flags2 | 0x20);
+				DoWriteReadGeneric(read1, scoreId1, "=", read2->Scores[scoreId2].Location.m_Location, distance * -1, read1->mappingQlty, flags1);
 			}
 		} else {
 			int distance = 0;
-			if (read1->Strand == '-') {
+			if (read1->Strand(scoreId1) == '-') {
 				flags2 |= 0x20;
 			}
-			if (read2->Strand == '-') {
+			if (read2->Strand(scoreId2) == '-') {
 				flags1 |= 0x20;
 			}
-			DoWriteReadGeneric(read2, SequenceProvider.GetRefName(read1->TLS()->Location.m_RefId, distance),
-					read1->TLS()->Location.m_Location, 0, read2->mappingQlty, flags2);
-			DoWriteReadGeneric(read1, SequenceProvider.GetRefName(read2->TLS()->Location.m_RefId, distance),
-					read2->TLS()->Location.m_Location, 0, read1->mappingQlty, flags1);
+			DoWriteReadGeneric(read2, scoreId2, SequenceProvider.GetRefName(read1->Scores[scoreId1].Location.m_RefId, distance),
+					read1->Scores[scoreId1].Location.m_Location, 0, read2->mappingQlty, flags2);
+			DoWriteReadGeneric(read1, scoreId1, SequenceProvider.GetRefName(read2->Scores[scoreId2].Location.m_RefId, distance),
+					read2->Scores[scoreId2].Location.m_Location, 0, read1->mappingQlty, flags1);
 
 			//DoWriteRead(read2);
 			//DoWriteRead(read1);

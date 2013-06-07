@@ -19,8 +19,7 @@ add_executable(ngm-core
 					writer/BAMWriter.cpp																	
 					config/Config.cpp					
 					CS.cpp					
-					misc/Debug.cpp					
-					writer/FFormatWriter.cpp					
+					misc/Debug.cpp													
 					log/Logging.cpp
 					MappedRead.cpp
 					NGM_main.cpp

@@ -9,6 +9,7 @@
 #include "Types.h"
 #include "SequenceProvider.h"
 #include "ILog.h"
+#include "IAlignment.h"
 #include "ReadStatus.h"
 
 using NGMNames::ReadStatus;
@@ -27,24 +28,28 @@ public:
 
 	int const qryMaxLen;
 
-	int TopScore; // Position of TopScore
+	//int TopScore; // Position of TopScore
 	//volatile int Lock; // sync for paired read selection
-	int EqualScoringID; // Number of equal scoring result for this read
+	//int EqualScoringID; // Number of equal scoring result for this read
 	uint EqualScoringCount; // Total number of equal scoring results
 	//std::vector<LocationScore*> Scores;
 	LocationScore * Scores;
+	Align * Alignments;
+
 	int nScores;
 	int iScores;
 	MappedRead * Paired; // Read pair
 	uint Status;
-	float Identity;
-	int NM;
-	char Strand;
-	int QStart;
-	int QEnd;
+
+	//float Identity;
+	//int NM;
+//	char Strand;
+	//int QStart;
+	//int QEnd;
+
+
 	int mappingQlty;
 	float s;
-
 	int length;
 
 	char * RevSeq;
@@ -72,10 +77,10 @@ public:
 	LocationScore * AddScore(CSTableEntry const & score);
 	LocationScore * AddScore(float const score, uint const loc, bool const reverse);
 
-	void clearScores(bool const keepTop = true);
+	void clearScores(int const TopScore = -1);
 	int numScores() const;
 
-	LocationScore * TLS() const;
+	//LocationScore * TLS() const;
 	bool hasCandidates() const;
 //	void TopN(uint n);
 
@@ -88,6 +93,11 @@ public:
 
 	inline bool HasFlag(ReadStatus const flag) const {
 		return (Status & flag) != 0;
+	}
+
+	char Strand(int const scoreID) const {
+		//static bool sDualStrand = NGM.DualStrand();
+		return ((Scores[scoreID].Location.m_RefId & 1)) ? '-' : '+';
 	}
 
 	char const * computeReverseSeq();

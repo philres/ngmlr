@@ -20,10 +20,10 @@ public:
 
 protected:
 	virtual void DoWriteProlog();
-	virtual void DoWriteRead(MappedRead const * const read);
-	virtual void DoWritePair(MappedRead const * const read1,
-			MappedRead const * const read2);
-	virtual void DoWriteReadGeneric(MappedRead const * const read,
+	virtual void DoWriteRead(MappedRead const * const read, int const scoreId);
+	virtual void DoWritePair(MappedRead const * const read1, int const scoreId1,
+			MappedRead const * const read2, int const scoreId2);
+	virtual void DoWriteReadGeneric(MappedRead const * const read, int const scoreId,
 			int const pRef, int const pLoc, int const pDist,
 			int const mappingQlty, int flags = 0);
 	virtual void DoWriteUnmappedReadGeneric(MappedRead const * const read,
