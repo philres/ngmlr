@@ -92,12 +92,24 @@ public:
 						m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 
 						int const outputformat = NGM.GetOutputFormat();
-//			char const * const output_name = Config.GetString("output");
-//		Log.Message("Writing output to %s (Format: %s)", output_name, cFormatNames[outputformat]);
-//
 
-						m_Writer =
-						(outputformat <= 1) ? (GenericReadWriter*) new SAMWriter(NGM.getWriter()) : (GenericReadWriter*) new BAMWriter(filename);
+						switch (outputformat) {
+							case 0:
+							Log.Error("This output format is not supported any more.");
+							Fatal();
+							break;
+							case 1:
+							m_Writer = (GenericReadWriter*) new SAMWriter((FileWriter*)NGM.getWriter());
+							break;
+							case 2:
+							m_Writer = (GenericReadWriter*) new BAMWriter((FileWriterBam*)NGM.getWriter(), filename);
+							break;
+							default:
+							break;
+						}
+
+						//m_Writer =
+						//(outputformat <= 1) ? (GenericReadWriter*) new SAMWriter(NGM.getWriter()) : (GenericReadWriter*) new BAMWriter(filename);
 
 ///NGMLock(&m_Mutex);
 						if(first) {
@@ -182,9 +194,12 @@ public:
 
 					void SaveRead(MappedRead* read, bool mapped = true) {
 
-						if (mapped) {
+						static int const topn = Config.GetInt("topn");
 
-							for(int i = 0; i < read->EqualScoringCount; ++i) {
+						if (mapped) {
+							//Log.Message("%s: %d", read->name, read->Scores[0].Location.m_RefId);
+
+							for(int i = 0; i < read->Calculated; ++i) {
 								static int refCount = SequenceProvider.GetRefCount();
 								if (RefStartPos == 0) {
 									RefStartPos = new int[refCount / ((NGM.DualStrand()) ? 2 : 1)];
@@ -204,50 +219,53 @@ public:
 								loc.m_RefId = refId;
 								read->Scores[i].Location = loc;
 
-								if (read->Strand(i) == '-') {
+								if (loc.m_Reverse) {
 									if (read->qlty != 0)
 									std::reverse(read->qlty, read->qlty + strlen(read->qlty));
 								}
 							}
 						}
 
-						if (NGM.Paired() && read->Paired != 0) {
-							//TODO: fix that. MULTI-MAP reads!
-							Log.Error("Paired end currently not supported!");
-							Fatal();
-//							if (read->Paired->HasFlag(NGMNames::DeletionPending)) {
-//
-//								if(read->hasCandidates() && read->Paired->hasCandidates()) {
-//									LocationScore * ls1 = read->TLS();
-//									LocationScore * ls2 = read->Paired->TLS();
-//									int distance =
-//									(ls2->Location.m_Location > ls1->Location.m_Location) ?
-//									ls2->Location.m_Location - ls1->Location.m_Location + ls2->Read->length :
-//									ls1->Location.m_Location - ls2->Location.m_Location + ls1->Read->length;
-//
-//									//int distance = abs(read->TLS()->Location.m_Location - read->Paired->TLS()->Location.m_Location);
-//
-//									tCount += 1;
-//									if(ls1->Location.m_RefId != ls2->Location.m_RefId || distance < _NGM::sPairMinDistance || distance > _NGM::sPairMaxDistance || read->Strand == read->Paired->Strand) {
-//										read->SetFlag(NGMNames::PairedFail);
-//										read->Paired->SetFlag(NGMNames::PairedFail);
-//										brokenPairs += 1;
-//									} else {
-//										//Log.Message("%d", distance);
-//										tSum += distance;
-//									}
-//								}
-//								m_Writer->WritePair(read, 0, read->Paired, 0);
-//							}
+						if (read->Paired != 0) {
+							if(topn == 1) {
+								if (read->Paired->HasFlag(NGMNames::DeletionPending)) {
+									if(read->hasCandidates() && read->Paired->hasCandidates()) {
+										LocationScore * ls1 = &read->Scores[0];
+										LocationScore * ls2 = &read->Paired->Scores[0];
+										int distance =
+										(ls2->Location.m_Location > ls1->Location.m_Location) ?
+										ls2->Location.m_Location - ls1->Location.m_Location + read->length :
+										ls1->Location.m_Location - ls2->Location.m_Location + read->Paired->length;
+
+										//int distance = abs(read->TLS()->Location.m_Location - read->Paired->TLS()->Location.m_Location);
+
+										tCount += 1;
+										if(ls1->Location.m_RefId != ls2->Location.m_RefId ||
+												distance < _NGM::sPairMinDistance ||
+												distance > _NGM::sPairMaxDistance ||
+												ls1->Location.m_Reverse == ls2->Location.m_Reverse) {
+											read->SetFlag(NGMNames::PairedFail);
+											read->Paired->SetFlag(NGMNames::PairedFail);
+											brokenPairs += 1;
+										} else {
+											tSum += distance;
+										}
+									}
+									m_Writer->WritePair(read, 0, read->Paired, 0);
+								}
+							} else {
+								Log.Error("TopN > 1 is currently not supported for paired end reads.");
+								Fatal();
+							}
 						} else {
 							m_Writer->WriteRead(read, mapped);
 						}
 
 						if(tCount % 1000 == 0) {
-//			Log.Message("%d %d %d %f", tSum, tCount, brokenPairs, tSum * 1.0f / (tCount));
+							//Log.Message("%d %d %d %f", tSum, tCount, brokenPairs, tSum * 1.0f / (tCount));
 							NGM.Stats->validPairs = (tCount - brokenPairs) * 100.0f / tCount;
 							NGM.Stats->insertSize = tSum * 1.0f / (tCount - brokenPairs);
-//			Log.Message("%f %f", NGM.Stats->validPairs, NGM.Stats->insertSize);
+							//Log.Message("%f %f", NGM.Stats->validPairs, NGM.Stats->insertSize);
 						} else {
 							//tSum = 0;
 							//tCount = 1;

@@ -13,8 +13,8 @@
 #define module_name "CS"
 
 static const int cInvalidLocation = -99999999;
-static const SequenceLocation sInvalidLocation(cInvalidLocation, 0);
-static const LocationScore sInvalidLocationScore(sInvalidLocation, 0, 0); // { sInvalidLocation, {0} };
+static const SequenceLocation sInvalidLocation(cInvalidLocation, 0, false);
+//static const LocationScore sInvalidLocationScore(sInvalidLocation, 0, 0); // { sInvalidLocation, {0} };
 
 #ifdef _DEBUGCS
 FILE* ofp2;
@@ -378,7 +378,7 @@ int CS::CollectResultsStd(MappedRead * read) {
 			LocationScore * toInsert = &tmp[index++];
 			toInsert->Score.f = temp.fScore;
 			toInsert->Location.m_Location = ResolveBin(temp.m_Location);
-			toInsert->Location.m_RefId = false;
+			toInsert->Location.m_Reverse = false;
 			toInsert->Read = read;
 			//Log.Verbose("Adding Location <%i, %i> with Score %f", temp.Location.m_Location, temp.Location.m_RefId, temp.Score.f);
 		}
@@ -388,7 +388,7 @@ int CS::CollectResultsStd(MappedRead * read) {
 			//Log.Error("%f", temp.rScore);
 			toInsert->Score.f = temp.rScore;
 			toInsert->Location.m_Location = ResolveBin(temp.m_Location);
-			toInsert->Location.m_RefId = true;
+			toInsert->Location.m_Reverse = true;
 			toInsert->Read = read;
 		}
 	}
@@ -475,7 +475,8 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 
 		ulong mutateFrom;
 		ulong mutateTo;
-		if (NGM.Paired() && (m_CurrentBatch[i]->ReadId & 1)) {
+		static bool const isPaired = Config.GetInt("paired") > 0;
+		if (isPaired && (m_CurrentBatch[i]->ReadId & 1)) {
 			//Second mate
 			mutateFrom = 0x0;
 			mutateTo = 0x3;

@@ -8,6 +8,8 @@
 #include "ReadProvider.h"
 //#include "Output.h"
 #include "FileWriter.h"
+#include "SAMWriter.h"
+#include "BAMWriter.h"
 
 #include <limits.h>
 
@@ -50,21 +52,22 @@ _NGM & _NGM::Instance() {
 
 _NGM::_NGM() :
 		Stats(NGMStats::InitStats(AppName)), m_ActiveThreads(0), m_NextThread(0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(
-				Config.GetInt("paired") != 0),
+				Config.GetInt("paired") != 0 || (Config.Exists("qry1") && Config.Exists("qry2"))),
 #ifdef _BAM
 				m_OutputFormat(Config.GetInt("format", 0, 2)),
 #else
 				m_OutputFormat(Config.GetInt("format", 0, 1)),
 #endif
 				m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(false), m_UnmappedReads(0), m_MappedReads(
-						0), m_WrittenReads(0), m_ReadReads(0), m_ReadProvider(0)/*, m_Cache(0),m_ReadBuffer(
- 0)*/{
+						0), m_WrittenReads(0), m_ReadReads(0), m_ReadProvider(0) {
 
 	char const * const output_name = Config.GetString("output");
 	if (m_OutputFormat != 2) {
+		Log.Message("Opening for output (SAM): %s", output_name);
 		m_Output = new FileWriter(output_name);
 	} else {
-		m_Output == 0;
+		Log.Message("Opening for output (BAM): %s", output_name);
+		m_Output = new FileWriterBam(output_name);
 	}
 
 	Log.Message("NGM Core initialization");
@@ -92,9 +95,9 @@ void _NGM::InitProviders() {
 
 	m_RefProvider = new CompactPrefixTable();
 
-	if (Config.Exists("qry")) {
+	if (Config.Exists("qry") || (Config.Exists("qry1") && Config.Exists("qry2"))) {
 		m_ReadProvider = new ReadProvider();
-		uint readCount = m_ReadProvider->init(Config.GetString("qry"));
+		uint readCount = m_ReadProvider->init();
 //		Log.Message("Read count %d", readCount);
 //		NGM.UpdateReadCount(readCount);
 	}
@@ -103,9 +106,6 @@ void _NGM::InitProviders() {
 _NGM::~_NGM() {
 	//if (m_ReadBuffer != 0)
 	//	delete m_ReadBuffer;
-
-	if (m_Output != 0)
-		delete m_Output;
 
 	if (m_RefProvider != 0)
 		delete m_RefProvider;
@@ -158,46 +158,19 @@ void _NGM::AddUnmappedRead(MappedRead const * const read, int reason) {
 //	}
 }
 
-//void _NGM::SaveRead(MappedRead* read, bool mapped) {
-//	m_Output->SaveRead(read, mapped);
-//}
-
-FileWriter * _NGM::getWriter() {
-
-//	FILE * m_Output = 0;
-//	if (!(m_Output = fopen(Config.GetString("output"), "w"))) {
-//		Log.Error("Unable to open output file %s", filename);
-//		Fatal();
-//	}
-//			if(m_Output == 0) {
-//				m_Output = new FileWriter(filename);
-//			}
-
-//			GenericReadWriter * m_Writer = 0;
-//			if (m_Writer == 0) {
-//				m_Writer =
-//				(outputformat == 0) ?
-//				(GenericReadWriter*) new FFormatWriter(
-//						m_Output) :
-//				(outputformat == 1) ?
-//				(GenericReadWriter*) new SAMWriter(m_Output) :
-//				(GenericReadWriter*) new BAMWriter(m_Output);
-//				if(writer == 0) {
-//					writer = m_Writer;
-//					writer->WriteProlog();
-//				}
-//			}
+void * _NGM::getWriter() {
 	return m_Output;
 }
 
 void _NGM::ReleaseWriter() {
-//	fclose(m_Output);
 	if (m_Output != 0) {
-		delete m_Output;
+		if (m_OutputFormat != 2) {
+			delete (FileWriter*) m_Output;
+		} else {
+			delete (FileWriterBam*) m_Output;
+		}
 		m_Output = 0;
 	}
-//	delete writer;
-//	writer = 0;
 }
 
 int _NGM::GetUnmappedReadCount() const {
@@ -302,14 +275,18 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 	list.reserve(desBatchSize);
 	int count = 0;
 
-	for (int i = 0; i < desBatchSize && !eof; ++i) {
-//		MappedRead * read = NGM.GetReadProvider()->nextRead(m_CurStart + i);
-		MappedRead * read = NGM.GetReadProvider()->GenerateRead(m_CurStart + i);
-		if (read != 0) {
+	for (int i = 0; i < desBatchSize && !eof; i = i + 2) {
+		MappedRead * read1 = 0;
+		MappedRead * read2 = 0;
+		eof = !NGM.GetReadProvider()->GenerateRead(m_CurStart + i, read1, m_CurStart + i + 1, read2);
+
+		if (read1 != 0) {
 			count += 1;
-			list.push_back(read);
-		} else {
-			eof = true;
+			list.push_back(read1);
+			if (read2 != 0) {
+				count += 1;
+				list.push_back(read2);
+			}
 		}
 	}
 
@@ -569,6 +546,7 @@ volatile bool Terminating = false;
 
 void _NGM::MainLoop() {
 
+	bool const isPaired = Config.GetInt("paired") > 0;
 	float loads[2] = { 0, 0 };
 	//_Log::FilterLevel(1);
 #ifdef _WIN32
@@ -594,7 +572,7 @@ void _NGM::MainLoop() {
 
 //		UpdateScheduler(loads[0], loads[1]);
 		int processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
-		if (!NGM.Paired()) {
+		if (!isPaired) {
 			Log.Progress("Mapped: %d, CRM/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
 			//Log.Progress("%d/%d (%.2f%), Buffer: %.2f %.2f, CS: %d %d %.2f", processed, m_ReadCount, processed * 100.0f / m_ReadCount, loads[0], loads[1], NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->csTime);
 		} else {

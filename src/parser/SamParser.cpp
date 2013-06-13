@@ -9,7 +9,7 @@
 //#include "Config.h"
 #include "Log.h"
 
-kseq_t * SamParser::init_seq(char const * fileName) {
+void SamParser::init(char const * fileName) {
 	fp = gzopen(fileName, "r");
 	if (!fp) {
 		//File does not exist
@@ -23,8 +23,7 @@ kseq_t * SamParser::init_seq(char const * fileName) {
 	if (!parse_all) {
 		Log.Warning("Skipping all mapped reads in SAM file.");
 	}
-	kseq_t *seq = kseq_init(fp);
-	return seq;
+	read = kseq_init(fp);
 }
 
 static inline char * readField(char * lineBuffer, kstring_t & str) {
@@ -45,7 +44,7 @@ static inline char * readField(char * lineBuffer, kstring_t & str) {
  -1   end-of-file
  -2   truncated quality string
  */
-size_t SamParser::parseRead(kseq_t *& read) {
+size_t SamParser::parseRead() {
 	read->name.l = 0;
 	read->seq.l = 0;
 	read->qual.l = 0;

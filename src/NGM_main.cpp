@@ -28,15 +28,15 @@
 
 // Get current date/time, format is YYYY-MM-DD.HH:mm:ss
 const std::string currentDateTime() {
-    time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[80];
-    tstruct = *localtime(&now);
-    // Visit http://www.cplusplus.com/reference/clibrary/ctime/strftime/
-    // for more information about date/time format
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+	time_t now = time(0);
+	struct tm tstruct;
+	char buf[80];
+	tstruct = *localtime(&now);
+	// Visit http://www.cplusplus.com/reference/clibrary/ctime/strftime/
+	// for more information about date/time format
+	strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
 
-    return buf;
+	return buf;
 }
 
 bool CheckOutput() {
@@ -52,11 +52,24 @@ bool CheckOutput() {
 		Help();
 		return false;
 	}
-	if (Config.Exists("qry")) {
-		if (!FileExists(Config.GetString("qry"))) {
-			Log.Error("Query file (%s) does not exist.", Config.GetString("qry"));
+	if((Config.Exists("qry1") && Config.Exists("qry2"))) {
+		if (!FileExists(Config.GetString("qry1"))) {
+			Log.Error("Query file (%s) does not exist.", Config.GetString("qry1"));
 			Help();
 			return false;
+		}
+		if (!FileExists(Config.GetString("qry2"))) {
+			Log.Error("Query file (%s) does not exist.", Config.GetString("qry2"));
+			Help();
+			return false;
+		}
+	} else {
+		if (Config.Exists("qry")) {
+			if (!FileExists(Config.GetString("qry"))) {
+				Log.Error("Query file (%s) does not exist.", Config.GetString("qry"));
+				Help();
+				return false;
+			}
 		}
 	}
 	return true;
@@ -85,6 +98,8 @@ int main(int argc, char * argv[]) {
 
 	Log.Message("Starting time: %s", currentDateTime().c_str());
 
+
+	Log.Message("%d", sizeof(SequenceLocation));
 	//try {
 	Timer tmr;
 	tmr.ST();
@@ -150,29 +165,31 @@ int main(int argc, char * argv[]) {
 
 		NGM.InitProviders();
 
-		if (!Config.Exists("qry")) {
-			Log.Message("Finished building hash table. No qry file specified. Exiting.");
+		if (!Config.Exists("qry") && !(Config.Exists("qry1") && Config.Exists("qry2"))) {
+			Log.Message("Finished building hash table.");
+			Log.Message("No qry file specified. If you want to map single-end data use -q/--qry. If you want to map paired-end data, either use -q/--qry and -p or --qry1 and --qry2.");
 		} else {
-			Log.Message("Core initialization complete");
-			NGM.StartThreads();
+			try {
+				Log.Message("Core initialization complete");
+				NGM.StartThreads();
 
-			NGM.MainLoop();
-			//Log.Message("Scores computed: %ld", SW::scoreCount);
-			Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
+				NGM.MainLoop();
+				//Log.Message("Scores computed: %ld", SW::scoreCount);
+				Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
 #ifdef INSTANCE_COUNTING
-			Log.Green("Counts:");
-			Log.Message("MappedRead count = %i (max %i)", MappedRead::sInstanceCount, MappedRead::maxSeqCount);
-			Log.Message("LocationScore count = %i", LocationScore::sInstanceCount);
+				Log.Green("Counts:");
+				Log.Message("MappedRead count = %i (max %i)", MappedRead::sInstanceCount, MappedRead::maxSeqCount);
+				Log.Message("LocationScore count = %i", LocationScore::sInstanceCount);
 #endif
-			int discarded = NGM.GetReadReadCount() - NGM.GetWrittenReadCount();
-			if (discarded != 0) {
-				Log.Warning("Reads discarded: %d", discarded);
-			}
+				int discarded = NGM.GetReadReadCount() - (NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount());
+				if (discarded != 0) {
+					Log.Warning("Reads discarded: %d", discarded);
+				}
 
-			Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped, %i reads written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount())),NGM.GetUnmappedReadCount(), NGM.GetWrittenReadCount(), tmr.ET());
-			//} catch (...) {
-			//	Log.Error("Unhandled exception in control thread");
-			//}
+				Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped, %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount())),NGM.GetUnmappedReadCount(), NGM.GetWrittenReadCount(), tmr.ET());
+			} catch (...) {
+				Log.Error("Unhandled exception in control thread");
+			}
 		}
 	}
 	CS::Cleanup();
@@ -210,13 +227,17 @@ Output:\n\
   -b/--bam						Output BAM instead of SAM.\n\
   --hard-clip                   Use hard instead of soft clipping for SAM output\n\
   --silent-clip                 Hard clip reads but don't add clipping information to CIGAR string\n\
+  -n/--topn                     Prints the <n> best alignments sorted by alignment score (default: 1)\
+  --strata                      Only  output  the  highest  scoring  mappings  for any  given  read,  up  to\
+                                <n> mappings per read. NOTE: If a read has more than <n> mappings with the same\
+                                score, it is discarded and reported as unmapped.\
 \n\
 General:\n\n\
   -t/--threads <int>            Number of candidate search threads\n\
-  -s/--sensitivity <float>      A value between 0 and 1 that determines the number of possible mapping\n\
-                                locations that will be evaluated with an sequence alignment.\n\
-                                0 means that all possible mapping locations will be evaluated\n\
-                                1 means that only the best possible mapping location(s) will be evaluated\n\
+  -s/--sensitivity <float>      A value between 0 and 1 that determines the number of candidate mapping\n\
+                                regions that will be evaluated with an sequence alignment.\n\
+                                0 means that all CMR(s) will be evaluated\n\
+                                1 means that only the best CMR(s) will be evaluated\n\
                                 Higher values will reduce the runtime but also have a negative effect on mapping sensitivity.\n\
                                 (default: estimated from input data)\n\
   -i/--min-identity <0-1>       All reads mapped with an identity lower than this threshold will be reported as unmapped (default: 0.65)\n\

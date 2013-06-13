@@ -74,9 +74,10 @@ public:
 
 	void WriteRead(MappedRead const * const read, bool mapped = true) {
 
+		//NGM.AquireOutputLock();
 		if (mapped) {
 			bool mappedOnce = false;
-			for (int i = 0; i < read->EqualScoringCount; ++i) {
+			for (int i = 0; i < read->Calculated; ++i) {
 
 				static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
 				static float minResidues = Config.GetFloat("min_residues", 0, 1000);
@@ -104,6 +105,7 @@ public:
 			DoWriteUnmappedRead(read);
 			NGM.AddWrittenRead(read->ReadId);
 		}
+		//NGM.ReleaseOutputLock();
 	}
 
 	void WritePair(MappedRead * const read1, int const scoreId1, MappedRead * const read2, int const scoreId2) {
@@ -136,10 +138,10 @@ public:
 
 		}
 
-		//Log.Verbose("Output paired 1: hC %d, R: %d %d, I: %f %f", read1->hasCandidates(), ((read1->length - read1->QStart - read1->QEnd)), minResidues, read1->Identity >= minIdentity, minIdentity);
-		//Log.Verbose("%d %d %d", read1->length, read1->QStart, read1->QEnd);
-		//Log.Verbose("Output paired 2: hC %d, R: %d %d, I: %f %f", read2->hasCandidates(), ((read2->length - read2->QStart - read2->QEnd)), minResidues, read2->Identity >= minIdentity, minIdentity);
-		//Log.Verbose("%d %d %d", read2->length, read2->QStart, read2->QEnd);
+		//Log.Message("Output paired 1: hC %d, R: %d %d, I: %f %f", read1->hasCandidates(), ((read1->length - read1->Alignments[scoreId2].QStart - read1->Alignments[scoreId2].QEnd)), minResidues, read1->Alignments[scoreId2].Identity >= minIdentity, minIdentity);
+		//Log.Message("%d %d %d", read1->length, read1->Alignments[scoreId2].QStart, read1->Alignments[scoreId2].QEnd);
+		//Log.Message("Output paired 2: hC %d, R: %d %d, I: %f %f", read2->hasCandidates(), ((read2->length - read2->Alignments[scoreId2].QStart - read2->Alignments[scoreId2].QEnd)), minResidues, read2->Alignments[scoreId2].Identity >= minIdentity, minIdentity);
+		//Log.Message("%d %d %d", read2->length, read2->Alignments[scoreId2].QStart, read2->Alignments[scoreId2].QEnd);
 
 		DoWritePair(read1, scoreId1, read2, scoreId2);
 

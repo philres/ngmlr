@@ -138,7 +138,7 @@ SequenceLocation _SequenceProvider::convert(MappedRead * read, uint m_Location) 
 		j += (NGM.DualStrand()) ? 2 : 1;
 	}
 	if (j == 0) {
-		Log.Message("%s (%d) - %s: %s, %s", read->name, read->ReadId, read->Seq, read->Buffer1, read->Buffer2);
+		//Log.Message("%s (%d) - %s: %s, %s", read->name, read->ReadId, read->Seq, read->Buffer1, read->Buffer2);
 		Log.Error("Couldn't resolve mapping position: %u!", m_Location);
 		Fatal();
 	}

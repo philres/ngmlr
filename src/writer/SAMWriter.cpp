@@ -59,7 +59,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 		flags |= 0x100;
 	}
 
-	if ((read->Strand(scoreID) == '-')) {
+	if (read->Scores[scoreID].Location.m_Reverse) {
 		readseq = read->RevSeq;
 		flags |= 0x10;
 	}
@@ -75,7 +75,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	Print("%u\t", read->Scores[scoreID].Location.m_Location + report_offset);
 	Print("%d\t", mappingQlty);
 
-	Print("%s\t", read->Buffer1);
+	Print("%s\t", read->Alignments[scoreID].pBuffer1);
 	Print("%s\t", pRefName); //Ref. name of the mate/next fragment
 	Print("%u\t", pLoc + report_offset); //Position of the mate/next fragment
 	Print("%d\t", pDist); //observed Template LENgth
@@ -100,13 +100,13 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 
 	if (Config.GetInt("bs_mapping") == 1) {
 		if (!(read->ReadId & 1)) {
-			if (read->Strand(scoreID) == '-') {
+			if (read->Scores[scoreID].Location.m_Reverse) {
 				Print("ZS:Z:%s\t", "-+");
 			} else {
 				Print("ZS:Z:%s\t", "++");
 			}
 		} else {
-			if (read->Strand(scoreID) == '-') {
+			if (read->Scores[scoreID].Location.m_Reverse) {
 				Print("ZS:Z:%s\t", "+-");
 			} else {
 				Print("ZS:Z:%s\t", "--");
@@ -119,7 +119,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	Print("X1:i:%d\t", read->Calculated - read->EqualScoringCount);
 	Print("XE:i:%d\t", (int) read->s);
 	Print("XR:i:%d\t", read->length - read->Alignments[scoreID].QStart - read->Alignments[scoreID].QEnd);
-	Print("MD:Z:%s", read->Buffer2);
+	Print("MD:Z:%s", read->Alignments[scoreID].pBuffer2);
 
 	Print("\n");
 
@@ -158,11 +158,11 @@ void SAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 			int distance = 0;
 			flags1 |= 0x2;
 			flags2 |= 0x2;
-			if (read1->Strand(scoreId1) == '+') {
+			if (!read1->Scores[scoreId1].Location.m_Reverse) {
 				distance = read2->Scores[scoreId2].Location.m_Location + read2->length - read1->Scores[scoreId1].Location.m_Location;
 				DoWriteReadGeneric(read2, scoreId2, "=", read1->Scores[scoreId1].Location.m_Location, distance * -1, read2->mappingQlty, flags2);
 				DoWriteReadGeneric(read1, scoreId1, "=", read2->Scores[scoreId2].Location.m_Location, distance, read1->mappingQlty, flags1 | 0x20);
-			} else if (read2->Strand(scoreId2) == '+') {
+			} else if (!read2->Scores[scoreId2].Location.m_Reverse) {
 				distance = read1->Scores[scoreId1].Location.m_Location + read1->length - read2->Scores[scoreId2].Location.m_Location;
 
 				DoWriteReadGeneric(read2, scoreId2, "=", read1->Scores[scoreId1].Location.m_Location, distance, read2->mappingQlty, flags2 | 0x20);
@@ -170,10 +170,10 @@ void SAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 			}
 		} else {
 			int distance = 0;
-			if (read1->Strand(scoreId1) == '-') {
+			if (read1->Scores[scoreId1].Location.m_Reverse) {
 				flags2 |= 0x20;
 			}
-			if (read2->Strand(scoreId2) == '-') {
+			if (read2->Scores[scoreId2].Location.m_Reverse) {
 				flags1 |= 0x20;
 			}
 			DoWriteReadGeneric(read2, scoreId2, SequenceProvider.GetRefName(read1->Scores[scoreId1].Location.m_RefId, distance),

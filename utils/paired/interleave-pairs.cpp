@@ -105,22 +105,22 @@ string parsePairId(string id) {
 	return id.substr(0, id.rfind(seperator));
 }
 
-MappedRead * NextRead(IParser * parser, kseq_t *seq, int const id) {
+MappedRead * NextRead(IParser * parser, int const id) {
 
 	MappedRead * read = 0;
-	int l = parser->parseRead(seq);
+	int l = parser->parseRead();
 	//Log.Message("Name (%d): %s", seq->name.l, seq->name.s);
 	//Log.Message("Seq  (%d): %s", seq->seq.l, seq->seq.s);
 	//Log.Message("Qual (%d): %s", seq->qual.l, seq->qual.s);
 	if (l >= 0) {
-		if (seq->seq.l == seq->qual.l || seq->qual.l == 0) {
+		if (parser->read->seq.l == parser->read->qual.l || parser->read->qual.l == 0) {
 			read = new MappedRead(id, 10000);
 
 			//Name
 			static size_t const MAX_READNAME_LENGTH = 100;
 			read->name = new char[MAX_READNAME_LENGTH];
-			int nameLength = std::min(MAX_READNAME_LENGTH - 1, seq->name.l);
-			memcpy(read->name, seq->name.s, nameLength);
+			int nameLength = std::min(MAX_READNAME_LENGTH - 1, parser->read->name.l);
+			memcpy(read->name, parser->read->name.s, nameLength);
 			read->name[nameLength] = '\0';
 
 //			char const * debugRead = "FCC01PDACXX:4:1101:10342:37018#0/1";
@@ -129,12 +129,12 @@ MappedRead * NextRead(IParser * parser, kseq_t *seq, int const id) {
 //			}
 
 			//Sequence
-			read->length = seq->seq.l;
+			read->length = parser->read->seq.l;
 			read->Seq = new char[read->length + 1];
 			memset(read->Seq, '\0', read->length + 1);
 			int nCount = 0;
 			for (int i = 0; i < read->length; ++i) {
-				char c = toupper(seq->seq.s[i]);
+				char c = toupper(parser->read->seq.s[i]);
 				if (c == 'A' || c == 'T' || c == 'C' || c == 'G') {
 					read->Seq[i] = c;
 				} else {
@@ -156,9 +156,9 @@ MappedRead * NextRead(IParser * parser, kseq_t *seq, int const id) {
 
 			//Quality
 			read->qlty = 0;
-			if (seq->qual.l > 0) {
+			if (parser->read->qual.l > 0) {
 				read->qlty = new char[read->length + 1];
-				memcpy(read->qlty, seq->qual.s, read->length);
+				memcpy(read->qlty, parser->read->qual.s, read->length);
 				read->qlty[read->length] = '\0';
 			}
 
@@ -168,7 +168,7 @@ MappedRead * NextRead(IParser * parser, kseq_t *seq, int const id) {
 //				Log.Message("%s", read->qlty);
 
 		} else {
-			Log.Error("Discarding read %s. Length of read not equal length of quality values.", seq->name.s);
+			Log.Error("Discarding read %s. Length of read not equal length of quality values.", parser->read->name.s);
 			Fatal();
 		}
 	} else {
@@ -273,8 +273,6 @@ int interleave_pairs(int argc, char **argv) {
 
 		//Log.Message("Interleave %s and %s to %s (delimiter %c)", leftArg.getValue().c_str(), rightArg.getValue().c_str(), outArg.getValue().c_str(), delimiterArg.getValue());
 
-		kseq_t *seq1;
-		kseq_t *seq2;
 
 		_log = &Log;
 		_Log::Init(); // Inits logging to file
@@ -284,9 +282,9 @@ int interleave_pairs(int argc, char **argv) {
 		Writer * writer = new FastqWriter(outArg.getValue().c_str());
 
 		IParser * parser1 = DetermineParser(leftArg.getValue().c_str());
-		seq1 = parser1->init_seq(leftArg.getValue().c_str());
+		parser1->init(leftArg.getValue().c_str());
 		IParser * parser2 = DetermineParser(rightArg.getValue().c_str());
-		seq2 = parser2->init_seq(rightArg.getValue().c_str());
+		parser2->init(rightArg.getValue().c_str());
 
 		int l1 = 0;
 		int l2 = 0;
@@ -303,10 +301,10 @@ int interleave_pairs(int argc, char **argv) {
 		int nPairs = 0;
 		int nReads = 0;
 		while (!eof) {
-			read1 = NextRead(parser1, seq1, 0);
+			read1 = NextRead(parser1, 0);
 			if (read1 != 0)
 				nReads++;
-			read2 = NextRead(parser2, seq2, 1);
+			read2 = NextRead(parser2, 1);
 			if (read2 != 0)
 				nReads++;
 

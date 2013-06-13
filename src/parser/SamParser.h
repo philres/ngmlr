@@ -25,8 +25,8 @@ public:
 		gzclose(fp);
 	}
 
-	virtual kseq_t * init_seq(char const * fileName);
-	virtual size_t parseRead(kseq_t *& read);
+	virtual void init(char const * fileName);
+	virtual size_t parseRead();
 };
 
 #endif /* SAMPARSER_H_ */

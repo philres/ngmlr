@@ -1,6 +1,7 @@
 #include "MappedRead.h"
 #include "Log.h"
 //#include "Config.h"
+#include <stdlib.h>
 
 #undef module_name
 #define module_name "READ"
@@ -14,21 +15,20 @@ volatile int LocationScore::sInstanceCount = 0;
 
 MappedRead::MappedRead(int const readid, int const qrymaxlen) :
 		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), EqualScoringCount(1), Scores(0), Alignments(0), nScores(0), iScores(0), Paired(
-				0), Status(0), mappingQlty(255), RevSeq(0), Seq(0), qlty(0), name(0), Buffer1(
-				0), Buffer2(0) {
+				0), Status(0), mappingQlty(255), RevSeq(0), Seq(0), qlty(0), name(0) {
 #ifdef INSTANCE_COUNTING
 	AtomicInc(&sInstanceCount);
 	maxSeqCount = std::max(sInstanceCount, maxSeqCount);
 #endif
 }
 
-void MappedRead::AllocBuffers() {
-	//static int const qryMaxLen = Config.GetInt("qry_max_len");
-	Buffer1 = new char[std::max(1, qryMaxLen) * 4];
-	Buffer2 = new char[std::max(1, qryMaxLen) * 4];
-	*(int*) Buffer1 = 0x212121;
-	*(int*) Buffer2 = 0x212121;
-}
+//void MappedRead::AllocBuffers() {
+//	//static int const qryMaxLen = Config.GetInt("qry_max_len");
+//	Buffer1 = new char[std::max(1, qryMaxLen) * 4];
+//	Buffer2 = new char[std::max(1, qryMaxLen) * 4];
+//	*(int*) Buffer1 = 0x212121;
+//	*(int*) Buffer2 = 0x212121;
+//}
 
 static inline char cpl(char c) {
 	if (c == 'A')
@@ -86,14 +86,18 @@ MappedRead::~MappedRead() {
 		iScores = 0;
 		nScores = 0;
 	}
-	if(Alignments != 0) {
+	if (Alignments != 0) {
+		for (int i = 0; i < Calculated; ++i) {
+			if (Alignments[i].pBuffer1 != 0)
+				delete[] Alignments[i].pBuffer1;
+			Alignments[i].pBuffer1 = 0;
+			if (Alignments[i].pBuffer2 != 0)
+				delete[] Alignments[i].pBuffer2;
+			Alignments[i].pBuffer2 = 0;
+		}
 		delete[] Alignments;
 		Alignments = 0;
 	}
-	if (Buffer1 != 0)
-		delete[] Buffer1;
-	if (Buffer2 != 0)
-		delete[] Buffer2;
 	DeleteReadSeq();
 	if (qlty != 0) {
 		delete[] qlty;
@@ -139,6 +143,12 @@ LocationScore * MappedRead::AddScore(float const score, uint const loc, bool con
 	//toInsert->Read = this;
 	//Scores.push_back(toInsert);
 	//return toInsert;
+}
+
+void MappedRead::reallocScores(int const n) {
+	if (Scores != 0) {
+		Scores = (LocationScore *) realloc(Scores, n * sizeof(LocationScore));
+	}
 }
 
 void MappedRead::clearScores(int const TopScore) {

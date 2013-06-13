@@ -13,13 +13,11 @@
 #include <cmath>
 #include <limits.h>
 
-#include "kseq.h"
 #include "Config.h"
 #include "Log.h"
 #include "Timing.h"
 #include "CS.h"
 #include "MappedRead.h"
-#include "IParser.h"
 #include "FastxParser.h"
 #include "SamParser.h"
 
@@ -31,10 +29,6 @@ using NGMNames::ReadStatus;
 
 #undef module_name
 #define module_name "INPUT"
-
-kseq_t *seq;
-
-IParser * parser;
 
 static IRefProvider const * m_RefProvider;
 static RefEntry * m_entry;
@@ -53,7 +47,8 @@ float * maxHitTableDebug;
 int maxHitTableIndex;
 int m_CurrentReadLength;
 
-ReadProvider::ReadProvider() {
+ReadProvider::ReadProvider() :
+		parser1(0), parser2(0) {
 
 }
 
@@ -63,7 +58,7 @@ inline int GetBin(uint pos) {
 	//return pos;
 }
 
-int CollectResultsFallback() {
+int CollectResultsFallback(int const readLength) {
 	float maxCurrent = 0;
 
 	for (std::map<SequenceLocation, float>::iterator itr = iTable.begin(); itr != iTable.end(); itr++) {
@@ -73,7 +68,7 @@ int CollectResultsFallback() {
 	static const int skip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
 	//float max = (seq->seq.l - CS::prefixBasecount + 1) / skip;
 
-	int max = ceil((seq->seq.l - CS::prefixBasecount + 1) / skip * 1.0);
+	int max = ceil((readLength - CS::prefixBasecount + 1) / skip * 1.0);
 
 	if (max > 1.0f && maxCurrent <= max) {
 #ifdef _DEBUGRP
@@ -152,12 +147,16 @@ void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutate
 	}
 }
 
-uint ReadProvider::init(char const * fileName) {
+uint ReadProvider::init() {
 	typedef void (*PrefixIterationFn)(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
 	PrefixIterationFn fnc = &PrefixSearch;
 
+	bool const isPaired = Config.GetInt("paired") > 1;
+
+	char const * const fileName1 = Config.Exists("qry1") ? Config.GetString("qry1") : Config.GetString("qry");
+	char const * const fileName2 = Config.Exists("qry2") ? Config.GetString("qry2") : 0;
+
 	bool m_EnableBS = false;
-//	if (Config.Exists("bs_mapping"))
 	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 
 	if (m_EnableBS)
@@ -171,7 +170,7 @@ uint ReadProvider::init(char const * fileName) {
 	size_t maxLen = 0;
 	bool estimate = !(Config.Exists("skip_estimate") && Config.GetInt("skip_estimate"));
 	if (!Config.Exists("qry_max_len") || estimate) {
-		DetermineParser(fileName);
+		parser1 = DetermineParser(fileName1);
 		if (estimate) {
 			Log.Message("Estimating parameter from data");
 
@@ -192,11 +191,11 @@ uint ReadProvider::init(char const * fileName) {
 		size_t sumLen = 0;
 
 		bool finish = false;
-		while ((l = parser->parseRead(seq)) >= 0 && !finish) {
+		while ((l = parser1->parseRead()) >= 0 && !finish) {
 			if (l > 0) {
-				maxLen = std::max(maxLen, seq->seq.l);
-				minLen = std::min(minLen, seq->seq.l);
-				sumLen += seq->seq.l;
+				maxLen = std::max(maxLen, parser1->read->seq.l);
+				minLen = std::min(minLen, parser1->read->seq.l);
+				sumLen += parser1->read->seq.l;
 
 //				Log.Message("Name: %s", seq->name.s);
 //				Log.Message("Read: %s", seq->seq.s);
@@ -205,7 +204,7 @@ uint ReadProvider::init(char const * fileName) {
 				if (estimate && (readCount % estimateStepSize) == 0 && readCount < estimateSize) {
 					ulong mutateFrom;
 					ulong mutateTo;
-					if (NGM.Paired() && (readCount & 1)) {
+					if (isPaired && (readCount & 1)) {
 						//Second mate
 						mutateFrom = 0x0;
 						mutateTo = 0x3;
@@ -214,10 +213,10 @@ uint ReadProvider::init(char const * fileName) {
 						mutateFrom = 0x2;
 						mutateTo = 0x1;
 					}
-					m_CurrentReadLength = seq->seq.l;
-					CS::PrefixIteration((char const *) seq->seq.s, (uint) seq->seq.l, fnc, mutateFrom, mutateTo, (void *) this, (uint) 0,
-							(uint) 0);
-					CollectResultsFallback();
+					m_CurrentReadLength = parser1->read->seq.l;
+					CS::PrefixIteration((char const *) parser1->read->seq.s, (uint) parser1->read->seq.l, fnc, mutateFrom, mutateTo,
+							(void *) this, (uint) 0, (uint) 0);
+					CollectResultsFallback(m_CurrentReadLength);
 				} else if (readCount == (estimateSize + 1)) {
 					if ((maxLen - minLen) < 10) {
 						finish = true;
@@ -247,8 +246,7 @@ uint ReadProvider::init(char const * fileName) {
 		Log.Message("Average read length: %d (min: %d, max: %d)", avgLen, minLen, maxLen);
 		Log.Message("Corridor width: %d", Config.GetInt("corridor"));
 
-		kseq_destroy(seq);
-		delete parser;
+		delete parser1;
 
 		if (estimate && readCount >= estimateThreshold) {
 			float sum = 0.0f;
@@ -327,48 +325,53 @@ uint ReadProvider::init(char const * fileName) {
 		}
 	}
 	Log.Message("Initializing took %.3fs", tmr.ET());
-	DetermineParser(fileName);
+
+	parser1 = DetermineParser(fileName1);
+	if (fileName2 != 0) {
+		parser2 = DetermineParser(fileName2);
+	}
 
 	return 0;
 }
 
 ReadProvider::~ReadProvider() {
-	delete parser;
-	kseq_destroy(seq);
+	if (parser1 != 0) {
+		delete parser1;
+		parser1 = 0;
+	}
+	if (parser2 != 0) {
+		delete parser2;
+		parser2 = 0;
+	}
 }
 
-MappedRead * ReadProvider::NextRead(int const id) {
+MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 //	Log.Message("next REad");
 	static int const qryMaxLen = Config.GetInt("qry_max_len");
 	MappedRead * read = 0;
-	int l = parser->parseRead(seq);
+	int l = parser->parseRead();
 	//Log.Message("Name (%d): %s", seq->name.l, seq->name.s);
 	//Log.Message("Seq  (%d): %s", seq->seq.l, seq->seq.s);
 	//Log.Message("Qual (%d): %s", seq->qual.l, seq->qual.s);
 	if (l >= 0) {
-		if (seq->seq.l == seq->qual.l || seq->qual.l == 0) {
+		if (parser->read->seq.l == parser->read->qual.l || parser->read->qual.l == 0) {
 			read = new MappedRead(id, qryMaxLen);
 
 			//Name
 			static size_t const MAX_READNAME_LENGTH = 100;
 			read->name = new char[MAX_READNAME_LENGTH];
-			int nameLength = std::min(MAX_READNAME_LENGTH - 1, seq->name.l);
-			memcpy(read->name, seq->name.s, nameLength);
+			int nameLength = std::min(MAX_READNAME_LENGTH - 1, parser->read->name.l);
+			memcpy(read->name, parser->read->name.s, nameLength);
 			read->name[nameLength] = '\0';
-
-//			char const * debugRead = "FCC01PDACXX:4:1101:10342:37018#0/1";
-//			if(strcmp(read->name, debugRead) == 0) {
-//				Log.Error("Read %s found: assigning id %d", debugRead, read->ReadId);
-//			}
 
 			//Sequence
 			read->Seq = new char[qryMaxLen];
 			memset(read->Seq, '\0', qryMaxLen);
-			if (seq->seq.l != 0) {
-				read->length = std::min(seq->seq.l, (size_t) qryMaxLen - 1);
+			if (parser->read->seq.l != 0) {
+				read->length = std::min(parser->read->seq.l, (size_t) qryMaxLen - 1);
 				int nCount = 0;
 				for (int i = 0; i < read->length; ++i) {
-					char c = toupper(seq->seq.s[i]);
+					char c = toupper(parser->read->seq.s[i]);
 					if (c == 'A' || c == 'T' || c == 'C' || c == 'G') {
 						read->Seq[i] = c;
 					} else {
@@ -395,9 +398,9 @@ MappedRead * ReadProvider::NextRead(int const id) {
 
 			//Quality
 			read->qlty = 0;
-			if (seq->qual.l > 0) {
+			if (parser->read->qual.l > 0) {
 				read->qlty = new char[read->length + 1];
-				memcpy(read->qlty, seq->qual.s, read->length);
+				memcpy(read->qlty, parser->read->qual.s, read->length);
 				read->qlty[read->length] = '\0';
 			}
 
@@ -407,7 +410,7 @@ MappedRead * ReadProvider::NextRead(int const id) {
 //				Log.Message("Qlty: %s", read->qlty);
 			NGM.AddReadRead(read->ReadId);
 		} else {
-			Log.Error("Discarding read %s. Length of read not equal length of quality values.", seq->name.s);
+			Log.Error("Discarding read %s. Length of read not equal length of quality values.", parser->read->name.s);
 			Fatal();
 		}
 	} else {
@@ -436,13 +439,14 @@ MappedRead * ReadProvider::NextRead(int const id) {
 //
 //	return qryIdx[n].Flags & 0x1;
 //}
-void ReadProvider::DetermineParser(char const * fileName) {
+IParser * ReadProvider::DetermineParser(char const * fileName) {
 	gzFile fp = gzopen(fileName, "r");
 	if (!fp) {
 		//File does not exist
 		Log.Error("File %s does not exist!",fileName);
 		Fatal();
 	}
+	IParser * parser = 0;
 	char * buffer = new char[1000];
 	while (gzgets(fp, buffer, 1000) > 0 && buffer[0] == '@') {
 	}
@@ -475,58 +479,88 @@ void ReadProvider::DetermineParser(char const * fileName) {
 		}
 	}
 	delete[] buffer;
-	seq = parser->init_seq(fileName);
+	parser->init(fileName);
+	return parser;
 }
 
 MappedRead * ReadProvider::GenerateSingleRead(int const readid) {
 	MappedRead * read = 0;
 
 //	if (SequenceProvider.IsValid(readid))
-	read = NextRead(readid); //
+	read = NextRead(parser1, readid); //
 
 	return read;
 }
 
 // Sequential (important for pairs!) read generation
-MappedRead * ReadProvider::GenerateRead(int const readid) {
-	static MappedRead * nextRead = 0;
+bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1, int const readid2, MappedRead * & read2) {
 
-	if (NGM.Paired()) {
-		MappedRead * read = 0;
-		if (!(readid & 0x1)) // Requested first read of a pair (even-numbered read id)
-		{
-			// Generate whole pair
-			read = GenerateSingleRead(readid);
-			nextRead = GenerateSingleRead(readid + 1);
+	static bool const isPaired = Config.GetInt("paired") > 0;
 
-			if (read != 0) {
-				read->Paired = nextRead;
-				if (nextRead == 0)
-					read->SetFlag(NGMNames::NoSrcPair);
-			}
-			if (nextRead != 0) {
-				nextRead->Paired = read;
-				if (read == 0)
-					nextRead->SetFlag(NGMNames::NoSrcPair);
-			}
+	if (isPaired) {
+		static bool const isInterleaved = Config.Exists("qry");
+		if (isInterleaved) {
+			read1 = GenerateSingleRead(readid1);
+			read2 = GenerateSingleRead(readid2);
 		} else {
-			read = nextRead;
-			nextRead = 0;
-
-			if ((read != 0) && (read->ReadId != readid)) {
-				Log.Error("Non-sequential read generation (req %i, got %i)", readid, read->ReadId);
-				Fatal();
-			}
+			read1 = NextRead(parser1, readid1);
+			read2 = NextRead(parser2, readid1);
 		}
-		return read;
+
+		if (read1 != 0 && read2 != 0) {
+			read1->Paired = read2;
+			read2->Paired = read1;
+			return true;
+		} else if (read1 == 0 && read2 == 0) {
+			return false;
+		} else {
+			Log.Error("Error in input file. Number of reads in input not even. Please check the input or mapped in single-end mode.");
+			Fatal();
+		}
 	} else {
-		return GenerateSingleRead(readid);
+		read1 = GenerateSingleRead(readid1);
+		read2 = GenerateSingleRead(readid2);
+		return read1 != 0 && read2 != 0;
 	}
+//	static MappedRead * nextRead = 0;
+//
+//	if (NGM.Paired()) {
+//		MappedRead * read = 0;
+//		if (!(readid & 0x1)) // Requested first read of a pair (even-numbered read id)
+//		{
+//			// Generate whole pair
+//			read = GenerateSingleRead(readid);
+//			nextRead = GenerateSingleRead(readid + 1);
+//
+//			if (read != 0) {
+//				read->Paired = nextRead;
+//				if (nextRead == 0)
+//				read->SetFlag(NGMNames::NoSrcPair);
+//			}
+//			if (nextRead != 0) {
+//				nextRead->Paired = read;
+//				if (read == 0)
+//				nextRead->SetFlag(NGMNames::NoSrcPair);
+//			}
+//		} else {
+//			read = nextRead;
+//			nextRead = 0;
+//
+//			if ((read != 0) && (read->ReadId != readid)) {
+//				Log.Error("Non-sequential read generation (req %i, got %i)", readid, read->ReadId);
+//				Fatal();
+//			}
+//		}
+//		return read;
+//	} else {
+//		return GenerateSingleRead(readid);
+//	}
 }
 
 void ReadProvider::DisposeRead(MappedRead * read) {
-	if (NGM.Paired() && read->Paired != 0) // Program runs in paired mode and pair exists
-			{
+	static bool const isPaired = Config.GetInt("paired") > 0;
+	if (isPaired) // Program runs in paired mode and pair exists
+	{
 		if (read->Paired->HasFlag(NGMNames::DeletionPending)) // Paired read was marked for deletion
 				{
 			// delete paired and read

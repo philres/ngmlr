@@ -4,12 +4,13 @@
 
 #include <string.h>
 
-#include "api/BamWriter.h"
-#include "api/SamHeader.h"
+//#include "api/BamWriter.h"
+//#include "api/SamHeader.h"
 
 #include "Config.h"
 #include "SequenceProvider.h"
 #include "NGM.h"
+
 
 using namespace BamTools;
 
@@ -19,12 +20,10 @@ using namespace BamTools;
 
 //static inline void rev(char * s);
 
-BamWriter writer;
-
 void BAMWriter::DoWriteProlog() {
 	//TODO: check correct format	;
 
-	NGMLock(&m_OutputMutex);
+	//NGMLock(&m_OutputMutex);
 	SamHeader header;
 	RefVector refs;
 
@@ -44,43 +43,42 @@ void BAMWriter::DoWriteProlog() {
 	int ref = Config.GetInt("ref_mode");
 
 	if (ref == -1)
-	for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
-		refName = SequenceProvider.GetRefName(i, refNameLength);
-		//Print("@SQ\tSN:%.*s\tLN:%d\n", refNameLength, refName, SequenceProvider.GetRefLen(i));
-		RefData bamRef(std::string(refName, refNameLength), SequenceProvider.GetRefLen(i));
-		refs.push_back(bamRef);
-		if (NGM.DualStrand())
-		++i;
-	}
-	else {
-		refName = SequenceProvider.GetRefName(ref * ((NGM.DualStrand()) ? 2 : 1), refNameLength);
-		RefData bamRef(std::string(refName, refNameLength), SequenceProvider.GetRefLen(ref * ((NGM.DualStrand()) ? 2 : 1)));
-		refs.push_back(bamRef);
-	}
+		for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
+			refName = SequenceProvider.GetRefName(i, refNameLength);
+			//Print("@SQ\tSN:%.*s\tLN:%d\n", refNameLength, refName, SequenceProvider.GetRefLen(i));
+				RefData bamRef(std::string(refName, refNameLength), SequenceProvider.GetRefLen(i));
+				refs.push_back(bamRef);
+				if (NGM.DualStrand())
+				++i;
+			}
+			else {
+				refName = SequenceProvider.GetRefName(ref * ((NGM.DualStrand()) ? 2 : 1), refNameLength);
+				RefData bamRef(std::string(refName, refNameLength), SequenceProvider.GetRefLen(ref * ((NGM.DualStrand()) ? 2 : 1)));
+				refs.push_back(bamRef);
+			}
 
-	if (!writer.Open(file, header, refs)) {
+	if (!writer->Open(file, header, refs)) {
 		Log.Error("Could not open output BAM file");
 		return;
 	}
-	NGMUnlock(&m_OutputMutex);
+	//NGMUnlock(&m_OutputMutex);
 }
 
-void BAMWriter::translate_flag(BamAlignment &al, int flags) {
-	al.SetIsPaired(flags & 0x1);
-	al.SetIsProperPair(flags & 0x2);
-	al.SetIsMateMapped(!(flags & 0x8));
-	al.SetIsMateReverseStrand(flags & 0x20);
-	al.SetIsFirstMate(flags & 0x40);
-	al.SetIsSecondMate(flags & 0x80);
+void BAMWriter::translate_flag(BamAlignment * al, int flags) {
+	al->SetIsPaired(flags & 0x1);
+	al->SetIsProperPair(flags & 0x2);
+	al->SetIsMateMapped(!(flags & 0x8));
+	al->SetIsMateReverseStrand(flags & 0x20);
+	al->SetIsFirstMate(flags & 0x40);
+	al->SetIsSecondMate(flags & 0x80);
 }
 
-void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scoreId, int const pRef, int const pLoc, int const pDist,
-		int const mappingQlty, int flags) {
+void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scoreId, int const pRef, int const pLoc, int const pDist, int const mappingQlty, int flags) {
 
-	NGMLock(&m_OutputMutex);
+	//NGMLock(&m_OutputMutex);
 	static bool const hardClip = Config.GetInt("hard_clip", 0, 1) == 1 || Config.GetInt("silent_clip", 0, 1) == 1;
 
-	BamAlignment al;
+	BamAlignment * al = new BamAlignment();
 
 	char const * readseq = read->Seq;
 	int readlen = read->length;
@@ -91,97 +89,105 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	char * qltystr = read->qlty;
 	int qltylen = readlen;
 
-	al.AlignmentFlag = 0;
+	al->AlignmentFlag = 0;
 	translate_flag(al, flags);
-	al.SetIsMapped(true);
+	al->SetIsMapped(true);
 
-	if ((read->Strand(scoreId) == '-')) {
+	if (read->Scores[scoreId].Location.m_Reverse) {
 		readseq = read->RevSeq;
-		al.SetIsReverseStrand(true);
+		al->SetIsReverseStrand(true);
 	}
 
-	//al.Name = std::string(readname, readnamelen);
-	al.Name = std::string(readname);
-	al.Length = readlen;
-	al.MapQuality = read->mappingQlty;
-	al.Position = read->Scores[scoreId].Location.m_Location;
+	//al->Name = std::string(readname, readnamelen);
+	al->Name = std::string(readname);
+	al->Length = readlen;
+	al->MapQuality = read->mappingQlty;
+	al->Position = read->Scores[scoreId].Location.m_Location;
 
 	if (hardClip)
-	al.QueryBases = std::string(readseq + read->Alignments[scoreId].QStart, read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd);
+		al->QueryBases = std::string(readseq + read->Alignments[scoreId].QStart,
+				read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd);
 	else
-	al.QueryBases = std::string(readseq, readlen);
+		al->QueryBases = std::string(readseq, readlen);
 
-	al.RefID = read->Scores[scoreId].Location.m_RefId / 2;
+	al->RefID = read->Scores[scoreId].Location.m_RefId / 2;
 
 	//Paired
 	//if (pRefName == '=')
-	//al.MateRefID = read->TLS()->Location.m_RefId / 2;
-	if(pRef > -1)
-		al.MateRefID = pRef / 2;
-	al.MatePosition = pLoc;
-	al.InsertSize = pDist;
+	//al->MateRefID = read->TLS()->Location.m_RefId / 2;
+	if (pRef > -1)
+		al->MateRefID = pRef / 2;
+	al->MatePosition = pLoc;
+	al->InsertSize = pDist;
 
-	int length = atoi(read->Buffer1);
+	int length = atoi(read->Alignments[scoreId].pBuffer1);
 	int i = 0;
 	//Log.Message("%s: %s", read->name, read->Buffer1);
-	while (read->Buffer1[i] != '\0') {
-		if (read->Buffer1[i] < '0' || read->Buffer1[i] > '9') {
-			al.CigarData.push_back(CigarOp(read->Buffer1[i], length));
-			length = atoi(read->Buffer1 + i + 1);
+	while (read->Alignments[scoreId].pBuffer1[i] != '\0') {
+		if (read->Alignments[scoreId].pBuffer1[i] < '0' || read->Alignments[scoreId].pBuffer1[i] > '9') {
+			al->CigarData.push_back(CigarOp(read->Alignments[scoreId].pBuffer1[i], length));
+			length = atoi(read->Alignments[scoreId].pBuffer1 + i + 1);
 		}
 		i += 1;
 	}
 
 	if (qltystr != 0 && qltylen > 0 && qltylen == readlen) {
 		if (hardClip)
-		al.Qualities = std::string(qltystr + read->Alignments[scoreId].QStart, read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd);
+			al->Qualities = std::string(qltystr + read->Alignments[scoreId].QStart,
+					read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd);
 		else
-		al.Qualities = std::string(qltystr, qltylen);
+			al->Qualities = std::string(qltystr, qltylen);
 	} else {
 		if (hardClip)
-		al.Qualities = std::string(read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd, ':');
+			al->Qualities = std::string(read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd, ':');
 		else
-		al.Qualities = std::string(readlen, ':');
+			al->Qualities = std::string(readlen, ':');
 	}
 
 	//	//Optional fields
-	al.AddTag("AS", "i", (int) read->Scores[scoreId].Score.f);
-	al.AddTag("NM", "i", read->Alignments[scoreId].NM);
+	al->AddTag("AS", "i", (int) read->Scores[scoreId].Score.f);
+	al->AddTag("NM", "i", read->Alignments[scoreId].NM);
 
 	if (Config.GetInt("bs_mapping") == 1) {
 		if (!(read->ReadId & 1)) {
-			if (read->Strand(scoreId) == '-') {
-				al.AddTag("ZS", "Z", std::string("-+"));
+			if (read->Scores[scoreId].Location.m_Reverse) {
+				al->AddTag("ZS", "Z", std::string("-+"));
 			} else {
-				al.AddTag("ZS", "Z", std::string("++"));
+				al->AddTag("ZS", "Z", std::string("++"));
 			}
 		} else {
-			if (read->Strand(scoreId) == '-') {
-				al.AddTag("ZS", "Z", std::string("+-"));
+			if (read->Scores[scoreId].Location.m_Reverse) {
+				al->AddTag("ZS", "Z", std::string("+-"));
 			} else {
-				al.AddTag("ZS", "Z", std::string("--"));
+				al->AddTag("ZS", "Z", std::string("--"));
 			}
 		}
 	}
 
-	al.AddTag("XI", "f", read->Alignments[scoreId].Identity);
-	al.AddTag("X0", "i", (int) read->EqualScoringCount);
-	al.AddTag("X1", "i", (int) (read->Calculated - read->EqualScoringCount));
-	al.AddTag("XE", "i", (int) read->s);
-	al.AddTag("XR", "i", read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd);
-	al.AddTag("MD", "Z", std::string(read->Buffer2));
+	al->AddTag("XI", "f", read->Alignments[scoreId].Identity);
+	al->AddTag("X0", "i", (int) read->EqualScoringCount);
+	al->AddTag("X1", "i", (int) (read->Calculated - read->EqualScoringCount));
+	al->AddTag("XE", "i", (int) read->s);
+	al->AddTag("XR", "i", read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd);
+	al->AddTag("MD", "Z", std::string(read->Alignments[scoreId].pBuffer2));
 
-	writer.SaveAlignment(al);
-	NGMUnlock(&m_OutputMutex);
+	//writer->SaveAlignment(al);
+	if (bufferIndex < 10000) {
+		buffer[bufferIndex++] = al;
+	} else {
+		writer->SaveAlignment(buffer);
+		bufferIndex = 0;
+	}
+	//NGMUnlock(&m_OutputMutex);
 }
 
-void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int const refId, char const pRefName, int const loc,
-		int const pLoc, int const pDist, int const mappingQlty, int flags) {
+void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int const refId, char const pRefName, int const loc, int const pLoc, int const pDist, int const mappingQlty, int flags) {
 
-	NGMLock(&m_OutputMutex);
 	NGM.AddUnmappedRead(read, MFAIL_NOCAND);
 
-	BamAlignment al;
+	//NGMLock(&m_OutputMutex);
+
+	BamAlignment * al = new BamAlignment();
 
 	char const * readseq = read->Seq;
 	int readlen = read->length;
@@ -192,37 +198,43 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 	char * qltystr = read->qlty;
 	int qltylen = readlen;
 
-	al.AlignmentFlag = 0;
+	al->AlignmentFlag = 0;
 	translate_flag(al, flags);
-	al.SetIsMapped(false);
+	al->SetIsMapped(false);
 
-	//al.Name = std::string(readname, readnamelen);
-	al.Name = std::string(readname);
-	al.Length = readlen;
-	al.MapQuality = 0;
+	//al->Name = std::string(readname, readnamelen);
+	al->Name = std::string(readname);
+	al->Length = readlen;
+	al->MapQuality = 0;
 
 	std::string seq(readseq, readlen);
-	al.QueryBases = seq;
+	al->QueryBases = seq;
 
-	//al.Position = 0;
-	//al.RefID = 0;
+	//al->Position = 0;
+	//al->RefID = 0;
 
 	//Log.Message("%s: %s", read->name, read->Buffer1);
 
 	if (qltystr != 0 && qltylen > 0 && qltylen == readlen) {
-		al.Qualities = std::string(qltystr, qltylen);
+		al->Qualities = std::string(qltystr, qltylen);
 	} else {
-		al.Qualities = std::string(readlen, ':');
+		al->Qualities = std::string(readlen, ':');
 	}
 
 	//	//Optional fields
-//	al.AddTag("AS", "i", (int) read->TLS()->Score.f);
-//	al.AddTag("MD", "Z", std::string(read->Buffer2));
-//	al.AddTag("X0", "i", (int) read->EqualScoringCount);
-//	al.AddTag("XI", "f", read->Identity);
+//	al->AddTag("AS", "i", (int) read->TLS()->Score.f);
+//	al->AddTag("MD", "Z", std::string(read->Buffer2));
+//	al->AddTag("X0", "i", (int) read->EqualScoringCount);
+//	al->AddTag("XI", "f", read->Identity);
 
-	writer.SaveAlignment(al);
-	NGMUnlock(&m_OutputMutex);
+	//writer->SaveAlignment(al);
+	if (bufferIndex < 10000) {
+		buffer[bufferIndex++] = al;
+	} else {
+		writer->SaveAlignment(buffer);
+		bufferIndex = 0;
+	}
+	//NGMUnlock(&m_OutputMutex);
 }
 
 void BAMWriter::DoWriteRead(MappedRead const * const read, int const scoreId) {
@@ -254,42 +266,46 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 		//First mate unmapped
 		flags2 |= 0x8;
 
-		DoWriteReadGeneric(read2, -1, read2->Scores[scoreId2].Location.m_Location, 0, read2->mappingQlty, flags2);
-		DoWriteUnmappedReadGeneric(read1, read2->Scores[scoreId2].Location.m_RefId, read2->Scores[scoreId2].Location.m_RefId, read2->Scores[scoreId2].Location.m_Location,
-				read2->Scores[scoreId2].Location.m_Location, 0, 0, flags1);
+		DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.m_Location, 0, read2->mappingQlty, flags2);
+		DoWriteUnmappedReadGeneric(read1, read2->Scores[scoreId2].Location.m_RefId, read2->Scores[scoreId2].Location.m_RefId,
+				read2->Scores[scoreId2].Location.m_Location, read2->Scores[scoreId2].Location.m_Location, 0, 0, flags1);
 	} else if (!read2->hasCandidates()) {
 		flags1 |= 0x8;
 		//Second mate unmapped
-		DoWriteUnmappedReadGeneric(read2, read1->Scores[scoreId1].Location.m_RefId, read1->Scores[scoreId1].Location.m_RefId, read1->Scores[scoreId1].Location.m_Location,
-				read1->Scores[scoreId1].Location.m_Location, 0, 0, flags2);
-		DoWriteReadGeneric(read1, -1, read1->Scores[scoreId1].Location.m_Location, 0, read1->mappingQlty, flags1);
+		DoWriteUnmappedReadGeneric(read2, read1->Scores[scoreId1].Location.m_RefId, read1->Scores[scoreId1].Location.m_RefId,
+				read1->Scores[scoreId1].Location.m_Location, read1->Scores[scoreId1].Location.m_Location, 0, 0, flags2);
+		DoWriteReadGeneric(read1, scoreId1, read1->Scores[scoreId1].Location.m_Location, 0, read1->mappingQlty, flags1);
 	} else {
 		if (!read1->HasFlag(NGMNames::PairedFail)) {
 			//TODO: Check if correct!
 			int distance = 0;
 			flags1 |= 0x2;
 			flags2 |= 0x2;
-			if (read1->Strand(scoreId1) == '+') {
+			if (!read1->Scores[scoreId1].Location.m_Reverse) {
 				distance = read2->Scores[scoreId2].Location.m_Location + read2->length - read1->Scores[scoreId1].Location.m_Location;
-				DoWriteReadGeneric(read2, read2->Scores[scoreId2].Location.m_RefId, read1->Scores[scoreId1].Location.m_Location, distance * -1, read2->mappingQlty, flags2);
-				DoWriteReadGeneric(read1, read2->Scores[scoreId2].Location.m_RefId, read2->Scores[scoreId2].Location.m_Location, distance, read1->mappingQlty, flags1 | 0x20);
-			} else if (read2->Strand(scoreId2) == '+') {
+				DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.m_RefId, read1->Scores[scoreId1].Location.m_Location,
+						distance * -1, read2->mappingQlty, flags2);
+				DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.m_RefId, read2->Scores[scoreId2].Location.m_Location,
+						distance, read1->mappingQlty, flags1 | 0x20);
+			} else if (!read2->Scores[scoreId2].Location.m_Reverse) {
 				distance = read1->Scores[scoreId1].Location.m_Location + read1->length - read2->Scores[scoreId2].Location.m_Location;
 
-				DoWriteReadGeneric(read2, read2->Scores[scoreId2].Location.m_RefId, read1->Scores[scoreId1].Location.m_Location, distance, read2->mappingQlty, flags2 | 0x20);
-				DoWriteReadGeneric(read1, read2->Scores[scoreId2].Location.m_RefId, read2->Scores[scoreId2].Location.m_Location, distance * -1, read1->mappingQlty, flags1);
+				DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.m_RefId, read1->Scores[scoreId1].Location.m_Location,
+						distance, read2->mappingQlty, flags2 | 0x20);
+				DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.m_RefId, read2->Scores[scoreId2].Location.m_Location,
+						distance * -1, read1->mappingQlty, flags1);
 			}
 		} else {
-			if (read1->Strand(scoreId1) == '-') {
+			if (read1->Scores[scoreId1].Location.m_Reverse) {
 				flags2 |= 0x20;
 			}
-			if (read2->Strand(scoreId2) == '-') {
+			if (read2->Scores[scoreId2].Location.m_Reverse) {
 				flags1 |= 0x20;
 			}
-			DoWriteReadGeneric(read2, read1->Scores[scoreId1].Location.m_RefId,
-					read1->Scores[scoreId1].Location.m_Location, 0, read2->mappingQlty, flags2);
-			DoWriteReadGeneric(read1, read2->Scores[scoreId2].Location.m_RefId,
-					read2->Scores[scoreId2].Location.m_Location, 0, read1->mappingQlty, flags1);
+			DoWriteReadGeneric(read2, scoreId2, read1->Scores[scoreId1].Location.m_RefId, read1->Scores[scoreId1].Location.m_Location, 0,
+					read2->mappingQlty, flags2);
+			DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.m_RefId, read2->Scores[scoreId2].Location.m_Location, 0,
+					read1->mappingQlty, flags1);
 
 			//DoWriteRead(read2);
 			//DoWriteRead(read1);
@@ -299,7 +315,7 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 	}
 }
 void BAMWriter::DoWriteEpilog() {
-	writer.Close();
+//	writer->Close();
 }
 
 #endif

@@ -49,7 +49,7 @@ public:
 	std::vector<MappedRead*> GetNextReadBatch(int batchSize);
 	inline bool Running() const { return m_ActiveThreads > 0; }
 	inline bool DualStrand() const { return m_DualStrand; }
-	inline bool Paired() const { return m_Paired; }
+	//inline bool Paired() const { return m_Paired; }
 	inline int GetOutputFormat() const { return m_OutputFormat; }
 
 	//IAlignment * Aligner() const { return AlignmentDispatcher::Instance(); }
@@ -84,7 +84,7 @@ public:
 	void StartThreads();
 	void MainLoop();
 
-	FileWriter * getWriter();
+	void * getWriter();
 	void ReleaseWriter();
 
 	bool StageActive( int stage )
@@ -153,7 +153,8 @@ private:
 //	int m_ReadStart;
 //	int m_ReadCount;
 
-	FileWriter * m_Output;
+	//TODO: hack - fix this!!!
+	void * m_Output;
 
 	volatile int m_CurStart;
 	volatile int m_CurCount;

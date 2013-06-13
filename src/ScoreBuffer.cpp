@@ -29,6 +29,7 @@ long brokenPairs = 0;
 
 void ScoreBuffer::DoRun() {
 
+	static bool isPaired = Config.GetInt("paired") != 0;
 	if (iScores != 0) {
 
 		Timer tmr;
@@ -37,27 +38,20 @@ void ScoreBuffer::DoRun() {
 		for (int i = 0; i < iScores; ++i) {
 			MappedRead * cur_read = scores[i]->Read;
 
-//			//TODO: remove
-//			char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
-//			if (strcmp(cur_read->name, debugRead) == 0) {
-//				Log.Error("Queueing score computation.");
-//				getchar();
-//			}
-
 			SequenceLocation loc = scores[i]->Location;
-			if (NGM.DualStrand() && (loc.m_RefId & 1)) {
+			if (NGM.DualStrand() && (loc.m_Reverse)) {
 				// RefId auf +-Strang setzen
 				--loc.m_RefId;
 				cur_read->computeReverseSeq();
 				m_QryBuffer[i] = cur_read->RevSeq;
-				if (NGM.Paired()) {
+				if (isPaired) {
 					m_DirBuffer[i] = !(cur_read->ReadId & 1);
 				} else {
 					m_DirBuffer[i] = 1;
 				}
 			} else {
 				m_QryBuffer[i] = cur_read->Seq;
-				if (NGM.Paired()) {
+				if (isPaired) {
 					m_DirBuffer[i] = cur_read->ReadId & 1; //0 if first pair
 				} else {
 					m_DirBuffer[i] = 0;
@@ -74,30 +68,17 @@ void ScoreBuffer::DoRun() {
 			m_ScoreBuffer[i] = -1;
 
 		}
-//				Log.Message("SW Thread %i launching batch (size=%i)", m_TID, count);
-//		Timer tmr;
-//		tmr.ST();
+
 		ScoreBuffer::scoreCount += iScores;
 		int res = 0;
 //		NGM.AquireOutputLock();
 		res = aligner->BatchScore(m_AlignMode, iScores, m_RefBuffer, m_QryBuffer, m_ScoreBuffer, (m_EnableBS) ? m_DirBuffer : 0);
 //		NGM.ReleaseOutputLock();
 		if (res != iScores)
-			Log.Error("SW Kernel couldnt calculate all scores (%i out of %i)", res, iScores);
+			Log.Error("SW Kernel couldn't calculate all scores (%i out of %i)", res, iScores);
 
-//				Log.Warning("SW Thread %i finished batch (Size = %i, Elapsed: %.2fs)", m_TID, count, tmr.ET());
-//		Timer y;
-//		y.ST();
 		brokenPairs = 0;
 		for (int i = 0; i < iScores; ++i) {
-
-//			//TODO: remove
-//			char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
-//			if (strcmp(scores[i]->Read->name, debugRead) == 0) {
-//				Log.Error("Score: %f", m_ScoreBuffer[i]);
-//				getchar();
-//			}
-
 			scores[i]->Score.f = m_ScoreBuffer[i];
 
 #ifdef _DEBUGSW
@@ -113,14 +94,7 @@ void ScoreBuffer::DoRun() {
 			getchar();
 #endif
 
-			//TODO: remove
-//			if (strcmp(scores[i]->Read->name, debugRead) == 0) {
-//				Log.Error("%d %d %d", scores[i]->Read->Calculated, ++scores[i]->Read->Calculated, scores[i]->Read->numScores());
-//				scores[i]->Read->Calculated -= 1;
-//			}
-
 			if (++scores[i]->Read->Calculated == scores[i]->Read->numScores()) {
-//			if (AtomicInc(&(scores[i]->Read->Calculated)) == scores[i]->Read->numScores()) {
 				SendToPostprocessing(scores[i]->Read);
 			}
 		}
@@ -139,6 +113,7 @@ void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 	if (read->hasCandidates()) {
 
 		static int const topn = Config.GetInt("topn");
+		static bool const equalOnly = Config.GetInt("strata");
 
 		if(topn == 1) {
 			float score_max = 0;
@@ -175,55 +150,64 @@ void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 
 			int mq = ceil(MAX_MQ * (score_max - score_smax) / score_max);
 //		Log.Message("%s: %f %f -> %d, (%d) => %d", read->name, score_max, score_smax, mq, read->mappingQlty, mq2);
-			//read->mappingQlty = std::min(mq, read->mappingQlty);
+			//read->mappingQlty = std::min(mq, read->mappingQlty);z
 			read->mappingQlty = mq;
 
 			//TODO: fix SAM tag X0
-			//read->EqualScoringCount = score_max_count;
-			read->EqualScoringCount = 1;
+			read->EqualScoringCount = score_max_count;
+			read->Calculated = 1;
 
-			read->clearScores(score_max_loc);
-			read->Alignments = new Align[1];
-
-			SendSeToBuffer(read, 0);
+			if(read->EqualScoringCount == 1 || !equalOnly) {
+				read->clearScores(score_max_loc);
+				read->Alignments = new Align[1];
+				SendSeToBuffer(read, 0);
+			} else {
+				//To many equal scoring positions
+				read->mappingQlty = 0;
+				read->clearScores();
+				SendSeToBuffer(read, -1);
+			}
 		} else {
 			std::sort(read->Scores, read->Scores + read->numScores(), sortLocationScore);
 
-			//Log.Message("%s", read->name);
-//			read->EqualScoringID = 0;
-			//int esid = 1;
 			int n = std::min(read->numScores(), topn);
-			static bool const equalOnly = false;
 			int j = 1;
 
-			if(equalOnly) {
-				int i = 1;
-				while(i < n && read->Scores[0].Score.f == read->Scores[i].Score.f) {
-					i += 1;
+			int i = 1;
+			while(i < n && read->Scores[0].Score.f == read->Scores[i].Score.f) {
+				i += 1;
+			}
+			read->EqualScoringCount = i;
+
+			if(read->EqualScoringCount < topn - 1 || !equalOnly) {
+				if(equalOnly) {
+					n = i;
 				}
-				n = i;
-				read->EqualScoringCount = n;
-			} else {
-				read->EqualScoringCount = 1;
-			}
+				read->Calculated = n;
 
-			int mq = MAX_MQ;
-			if(read->numScores() > 1) {
-				mq = ceil(MAX_MQ * (read->Scores[0].Score.f - read->Scores[1].Score.f) / read->Scores[0].Score.f);
-			}
-			read->mappingQlty = mq;
+				int mq = MAX_MQ;
+				if(read->numScores() > 1) {
+					mq = ceil(MAX_MQ * (read->Scores[0].Score.f - read->Scores[1].Score.f) / read->Scores[0].Score.f);
+				}
+				read->mappingQlty = mq;
 
-			read->Alignments = new Align[n];
+				read->Alignments = new Align[n];
 
-			for (; j < n; ++j) {
+				SendSeToBuffer(read, 0);
+				for (; j < n; ++j) {
 //				Log.Message("%f == %f", read->Scores[0].Score.f, read->Scores[j].Score.f);
-				if(equalOnly && read->Scores[0].Score.f != read->Scores[j].Score.f) {
-					Log.Error("not equal");
-					Fatal();
+					if(equalOnly && read->Scores[0].Score.f != read->Scores[j].Score.f) {
+						Log.Error("not equal");
+						Fatal();
+					}
+					SendSeToBuffer(read, j);
 				}
-				SendSeToBuffer(read, j);
+			} else {
+				//To many equal scoring positions
+				read->mappingQlty = 0;
+				read->clearScores();
+				SendSeToBuffer(read, -1);
 			}
-			SendSeToBuffer(read, 0);
 		}
 	}
 	else {
@@ -261,21 +245,11 @@ int scount = 0;
 void ScoreBuffer::addRead(LocationScore * newScores, int count) {
 
 	if (count == 0) {
-		Log.Error("count == 0");
+		Log.Error("Internal error (count == 0). Please report this on https://github.com/Cibiv/NextGenMap/issues");
 		Fatal();
 	}
-//	//TODO: remove
-//	char const * debugRead = "adb-100bp-20mio-paired.000000558.2";
-//	if (strcmp(newScores[0].Read->name, debugRead) == 0) {
-//		Log.Error("Adding score computations for read %s: %d", newScores[0].Read->name, count);
-//		getchar();
-//	}
-
-//	if(count >= swBatchSize) {
-//		Log.Warning("Read found (%d)!!", ++scount);
-//	}
 	for (int i = 0; i < count; ++i) {
-		Log.Verbose("Adding score %d to buffer.", iScores);
+		Log.Verbose("Adding score %d (%d) to buffer.", iScores, newScores[i].Location.m_RefId);
 		scores[iScores++] = &newScores[i];
 		if(iScores == swBatchSize) {
 			DoRun();
@@ -289,85 +263,19 @@ AlignmentBuffer * out;
 void ScoreBuffer::flush() {
 	DoRun();
 	iScores = 0;
-//	NGM.bSWO.Release();
-//	NGM.FinishStage(2);
 	out->flush();
 
 }
 
 void ScoreBuffer::SendSeToBuffer(MappedRead* read, int const scoreID) {
-
 	if (!read->hasCandidates()) {
-		//NGM.AddUnmappedRead(read, MFAIL_NOCAND);
-		//NGM.SaveRead(read, false);
 		out->addRead(read, -1);
 
-		Log.Message("Read %s (%i) not mapped (no candidates/scores)", read->name, read->ReadId);
+		Log.Verbose("Read %s (%i) not mapped", read->name, read->ReadId);
 		NGM.GetReadProvider()->DisposeRead(read);
 		return;
 	}
-	//		static int const eslimit = Config.GetInt("max_equal");
-	//		if (eslimit > 0 && score_max_count > eslimit) {
-	//			Log.Verbose(
-	//					"Read %i rejected for hitting equal scoring limit (%i top scores of %i)",
-	//					read->ReadId, score_max_count, score_max);
-	//
-	//			score_max_count = 1;
-	//			read->EqualScoringCount = 1;
-	//		}
-
-	//Log.Green("Single: %f", read->TLS()->Score.f);
-
 	out->addRead(read, scoreID);
-	//TODO: AddRead to Output
-//	NGM.bSWO.Write(&read, 1);
-	//NGM.AddMappedRead(read->ReadId);
-
-//TODO: fix
-//	int score_max_loc = read->TopScore;
-//	float score_max = read->TLS()->Score.f;
-//	int score_max_count
-//	if (score_max_count > 1) {
-//		Log.Error("Printing equal scoring reads is not supported at the moment!");
-//		Fatal();
-//		read->EqualScoringCount = score_max_count;
-//
-//		int esid = 1;
-//		for (int j = score_max_loc + 1; j < read->nScores(); ++j) {
-//			if (read->Scores[j]->Score.f == score_max) {
-//
-//				MappedRead * ntopread = new MappedRead(read->ReadId);
-//				ntopread->EqualScoringID = esid++;
-//				ntopread->EqualScoringCount = score_max_count;
-//				ntopread->Calculated = 1;
-//				ntopread->TopScore = 0;
-//
-//				ntopread->Seq = new char[qryMaxLen];
-//
-//				//TODO: only copy pointer, faster
-//				memcpy(ntopread->Seq, read->Seq, qryMaxLen);
-//				if (read->RevSeq != 0) {
-//					ntopread->RevSeq = new char[qryMaxLen];
-//					memcpy(ntopread->RevSeq, read->RevSeq, qryMaxLen);
-//				}
-//				ntopread->qlty = 0;
-//				if (read->qlty != 0) {
-//					ntopread->qlty = new char[qryMaxLen];
-//					memcpy(ntopread->qlty, read->qlty, qryMaxLen);
-//				}
-//
-//				ntopread->name = new char[read->nameLength];
-//				memcpy(ntopread->name, read->name, read->nameLength);
-//				ntopread->nameLength = read->nameLength;
-//
-//				ntopread->length = read->length;
-//				ntopread->AddScore(*read->Scores[j])->Read = ntopread;
-//				NGM.bSWO.Write(&ntopread, 1);
-//
-//			}
-//		}
-//	}
-
 }
 
 //void SWwoBuffer::PairedReadSelection(MappedRead * read1, MappedRead * read2) {

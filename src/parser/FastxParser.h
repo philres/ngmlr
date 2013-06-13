@@ -23,13 +23,12 @@ public:
 		gzclose(fp);
 	}
 
-	virtual kseq_t * init_seq(char const * fileName){
+	virtual void init(char const * fileName){
 		fp = gzopen(fileName, "r");
-		kseq_t *seq = kseq_init(fp);
-		return seq;
+		read = kseq_init(fp);
 	}
 
-	virtual size_t parseRead(kseq_t *& read){
+	virtual size_t parseRead(){
 		return  kseq_read(read);
 	}
 

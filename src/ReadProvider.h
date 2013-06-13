@@ -10,6 +10,8 @@
 
 #include "IReadProvider.h"
 #include "IRefProvider.h"
+#include "IParser.h"
+#include "kseq.h"
 
 class ReadProvider: public IReadProvider {
 public:
@@ -17,16 +19,22 @@ public:
 	ReadProvider();
 	virtual ~ReadProvider();
 
-	virtual uint init(char const * fileName);
+	virtual uint init();
 
-	virtual MappedRead * GenerateRead(int const readid);
+	virtual bool GenerateRead(int const readid1, MappedRead * & read1, int const readid2, MappedRead * & read2);
 	virtual void DisposeRead(MappedRead * read);
 
 private:
 
-	virtual MappedRead * NextRead(int const id);
+	IParser * parser1;
+	IParser * parser2;
+
+//	kseq_t * seq1;
+//	kseq_t * seq2;
+
+	virtual MappedRead * NextRead(IParser * parser, int const id);
 	MappedRead * GenerateSingleRead(int const readid);
-	void DetermineParser(char const * fileName);
+	IParser * DetermineParser(char const * fileName);
 };
 
 #endif /* READPROVIDER_H_ */

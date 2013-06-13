@@ -24,15 +24,11 @@ public:
 	//Calculated is initialized with -1. This shows that the read has not passed the candidate search
 	//When the read is submitted to the score computation calculated is set to 0. Each time a score
 	//is computed for this read, Calculated is increased by one
-	volatile int Calculated; // Amount of Scores updated by SW
+	int Calculated; // Amount of Scores updated by SW
 
 	int const qryMaxLen;
 
-	//int TopScore; // Position of TopScore
-	//volatile int Lock; // sync for paired read selection
-	//int EqualScoringID; // Number of equal scoring result for this read
 	uint EqualScoringCount; // Total number of equal scoring results
-	//std::vector<LocationScore*> Scores;
 	LocationScore * Scores;
 	Align * Alignments;
 
@@ -40,13 +36,6 @@ public:
 	int iScores;
 	MappedRead * Paired; // Read pair
 	uint Status;
-
-	//float Identity;
-	//int NM;
-//	char Strand;
-	//int QStart;
-	//int QEnd;
-
 
 	int mappingQlty;
 	float s;
@@ -57,13 +46,7 @@ public:
 
 	char * qlty;
 
-//	uint nameLength;
 	char * name;
-
-	char * Buffer1;
-	char * Buffer2;
-
-//	static volatile int maxSeqCount;
 
 #ifdef INSTANCE_COUNTING
 	static volatile int sInstanceCount;
@@ -73,16 +56,14 @@ public:
 	~MappedRead();
 
 	// Saves score to this Read and returns a pointer to the saved object
-//	LocationScore * AddScore(LocationScore const & score);
 	LocationScore * AddScore(CSTableEntry const & score);
 	LocationScore * AddScore(float const score, uint const loc, bool const reverse);
 
+	void reallocScores(int const n);
 	void clearScores(int const TopScore = -1);
 	int numScores() const;
 
-	//LocationScore * TLS() const;
 	bool hasCandidates() const;
-//	void TopN(uint n);
 
 	void AllocBuffers();
 	void AllocScores(LocationScore * tmp, int const n);
@@ -95,18 +76,9 @@ public:
 		return (Status & flag) != 0;
 	}
 
-	char Strand(int const scoreID) const {
-		//static bool sDualStrand = NGM.DualStrand();
-		return ((Scores[scoreID].Location.m_RefId & 1)) ? '-' : '+';
-	}
-
 	char const * computeReverseSeq();
 
 private:
-
-	//void Unique();
-
-
 
 	void DeleteReadSeq();
 
@@ -116,8 +88,7 @@ private:
 	static bool UniquePred(LocationScore * lhs, LocationScore * rhs) {
 		if (lhs == 0 || rhs == 0)
 			return false;
-		return (lhs->Location.m_Location == rhs->Location.m_Location)
-				&& (lhs->Location.m_RefId == rhs->Location.m_RefId);
+		return (lhs->Location.m_Location == rhs->Location.m_Location) && (lhs->Location.m_RefId == rhs->Location.m_RefId);
 	}
 	static bool IsZero(LocationScore * arg) {
 		return (arg == 0);

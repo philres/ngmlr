@@ -10,7 +10,8 @@
 struct SequenceLocation
 {
 	uint m_Location;
-	int m_RefId;
+	short m_RefId;
+	bool m_Reverse;
 
 	bool used() {
 		return m_Location != 0;
@@ -27,12 +28,15 @@ struct SequenceLocation
 	}
 
 	SequenceLocation() {
-
+		m_Location = 0;
+		m_RefId = 0;
+		m_Reverse = false;
 	}
 
-	SequenceLocation(uint const loc, short const refid) {
+	SequenceLocation(uint const loc, short const refid, bool const reverse) {
 		m_Location = loc;
 		m_RefId = refid;
+		m_Reverse = reverse;
 	}
 
 	SequenceLocation(Location const & other) {

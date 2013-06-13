@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(NextGenMap)
 
+include_directories (${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.8/libStatGen-1.0.8/include)
 include_directories (../lib/bamtools/src/api)
 include_directories (../lib/mason/opencl)
 include_directories (../include)
@@ -62,6 +63,7 @@ ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/NGM_main.c
 #target_link_libraries(ngm-core dl)
 target_link_libraries(ngm-core pthread)
 target_link_libraries(ngm-core MASonOpenCl)
+TARGET_LINK_LIBRARIES(ngm-core ${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.8/libStatGen-1.0.8/libStatGen.a)
 #target_link_libraries(ngm-core /software/ngm/src/bamtools/lib/libbamtools.a)	
 
 #if( ${BAMTOOLS_FOUND} )		
