@@ -379,7 +379,7 @@ int CS::CollectResultsStd(MappedRead * read) {
 			toInsert->Score.f = temp.fScore;
 			toInsert->Location.m_Location = ResolveBin(temp.m_Location);
 			toInsert->Location.m_Reverse = false;
-			toInsert->Read = read;
+//			toInsert->Read = read;
 			//Log.Verbose("Adding Location <%i, %i> with Score %f", temp.Location.m_Location, temp.Location.m_RefId, temp.Score.f);
 		}
 		if (temp.rScore >= mi_Threshhold) {
@@ -389,7 +389,7 @@ int CS::CollectResultsStd(MappedRead * read) {
 			toInsert->Score.f = temp.rScore;
 			toInsert->Location.m_Location = ResolveBin(temp.m_Location);
 			toInsert->Location.m_Reverse = true;
-			toInsert->Read = read;
+//			toInsert->Read = read;
 		}
 	}
 	static int const maxScores = Config.GetInt("max_cmrs");
@@ -431,7 +431,7 @@ void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 		//NGM.bCSSW.WriteR(read->Scores, count);
 
 		read->Calculated = 0;
-		sw->addRead(read->Scores, count);
+		sw->addRead(read, count);
 
 		++m_WrittenReads;
 		//}	else {

@@ -21,7 +21,6 @@ union UScore {
 struct LocationScore {
 	UScore Score;
 	SequenceLocation Location;
-	MappedRead * Read;
 
 #ifdef INSTANCE_COUNTING
 	static volatile int sInstanceCount;
@@ -39,26 +38,15 @@ struct LocationScore {
 #endif
 	}
 
-	LocationScore(SequenceLocation location, int score, MappedRead * read) {
+	LocationScore(SequenceLocation location, int score) {
 		Score.i = score;
 		Location = location;
-		Read = read;
 
 #ifdef INSTANCE_COUNTING
 		AtomicInc(&sInstanceCount);
 #endif
 	}
 
-
-//	LocationScore(uint const loc, bool const reverse, float const score, MappedRead * read) {
-//		Score.f = score;
-//		Location.m_Location = loc;
-//		Location.m_RefId = reverse;
-//		Read = read;
-//#ifdef INSTANCE_COUNTING
-//		AtomicInc(&sInstanceCount);
-//#endif
-//	}
 };
 
 #endif

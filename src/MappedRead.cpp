@@ -137,7 +137,7 @@ LocationScore * MappedRead::AddScore(float const score, uint const loc, bool con
 	toInsert->Score.f = score;
 	toInsert->Location.m_Location = loc;
 	toInsert->Location.m_RefId = reverse;
-	toInsert->Read = this;
+//	toInsert->Read = this;
 	return toInsert;
 	//LocationScore * toInsert = new LocationScore(loc, reverse, score, this);
 	//toInsert->Read = this;

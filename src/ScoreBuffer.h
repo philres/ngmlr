@@ -20,6 +20,12 @@
 class ScoreBuffer {
 public:
 private:
+
+	struct Score {
+		MappedRead * read;
+		int scoreId;
+	};
+
 	const int m_AlignMode;
 //	int m_Ivk_mode;
 //	int m_Ivk_batchSize;
@@ -49,7 +55,8 @@ private:
 	char * m_DirBuffer;
 	bool m_EnableBS;
 
-	LocationScore * * scores;
+	//LocationScore * * scores;
+	Score * scores;
 	int iScores;
 
 	IAlignment * aligner;
@@ -91,7 +98,7 @@ public:
 			m_RefBuffer[i] = new char[refMaxLen];
 		}
 
-		scores = new LocationScore * [swBatchSize];
+		scores = new Score[swBatchSize];
 		iScores = 0;
 		scoreTime = 0.0f;
 	}
@@ -116,7 +123,7 @@ public:
 		m_QryBuffer = 0;
 	}
 
-	void addRead(LocationScore * scores, int count);
+	void addRead(MappedRead * read, int count);
 
 	void DoRun();
 

@@ -18,8 +18,6 @@
 
 ulong ScoreBuffer::scoreCount = 0;
 
-//static int refMaxLen = 0;
-//static int qryMaxLen = 0;
 
 float const MAX_MQ = 60.0f;
 
@@ -36,9 +34,10 @@ void ScoreBuffer::DoRun() {
 		tmr.ST();
 
 		for (int i = 0; i < iScores; ++i) {
-			MappedRead * cur_read = scores[i]->Read;
+			MappedRead * cur_read = scores[i].read;
+			int scoreId = scores[i].scoreId;
 
-			SequenceLocation loc = scores[i]->Location;
+			SequenceLocation loc = cur_read->Scores[scoreId].Location;
 			if (NGM.DualStrand() && (loc.m_Reverse)) {
 				// RefId auf +-Strang setzen
 				--loc.m_RefId;
@@ -71,15 +70,15 @@ void ScoreBuffer::DoRun() {
 
 		ScoreBuffer::scoreCount += iScores;
 		int res = 0;
-//		NGM.AquireOutputLock();
 		res = aligner->BatchScore(m_AlignMode, iScores, m_RefBuffer, m_QryBuffer, m_ScoreBuffer, (m_EnableBS) ? m_DirBuffer : 0);
-//		NGM.ReleaseOutputLock();
 		if (res != iScores)
 			Log.Error("SW Kernel couldn't calculate all scores (%i out of %i)", res, iScores);
 
 		brokenPairs = 0;
 		for (int i = 0; i < iScores; ++i) {
-			scores[i]->Score.f = m_ScoreBuffer[i];
+			MappedRead * cur_read = scores[i].read;
+			int scoreId = scores[i].scoreId;
+			cur_read->Scores[scoreId].Score.f = m_ScoreBuffer[i];
 
 #ifdef _DEBUGSW
 			MappedRead * cur_read = scores[i]->Read;
@@ -94,8 +93,8 @@ void ScoreBuffer::DoRun() {
 			getchar();
 #endif
 
-			if (++scores[i]->Read->Calculated == scores[i]->Read->numScores()) {
-				SendToPostprocessing(scores[i]->Read);
+			if (++cur_read->Calculated == cur_read->numScores()) {
+				SendToPostprocessing(cur_read);
 			}
 		}
 		scoreTime += tmr.ET();
@@ -195,7 +194,6 @@ void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 
 				SendSeToBuffer(read, 0);
 				for (; j < n; ++j) {
-//				Log.Message("%f == %f", read->Scores[0].Score.f, read->Scores[j].Score.f);
 					if(equalOnly && read->Scores[0].Score.f != read->Scores[j].Score.f) {
 						Log.Error("not equal");
 						Fatal();
@@ -242,15 +240,17 @@ void ScoreBuffer::SendToPostprocessing(MappedRead * read) {
 
 int scount = 0;
 
-void ScoreBuffer::addRead(LocationScore * newScores, int count) {
+void ScoreBuffer::addRead(MappedRead * read, int count) {
 
+	LocationScore * newScores = read->Scores;
 	if (count == 0) {
 		Log.Error("Internal error (count == 0). Please report this on https://github.com/Cibiv/NextGenMap/issues");
 		Fatal();
 	}
 	for (int i = 0; i < count; ++i) {
 		Log.Verbose("Adding score %d (%d) to buffer.", iScores, newScores[i].Location.m_RefId);
-		scores[iScores++] = &newScores[i];
+		scores[iScores].read = read;
+		scores[iScores++].scoreId = i;
 		if(iScores == swBatchSize) {
 			DoRun();
 			iScores = 0;
