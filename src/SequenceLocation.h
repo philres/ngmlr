@@ -41,6 +41,8 @@ struct SequenceLocation
 
 	SequenceLocation(Location const & other) {
 		m_Location = other.m_Location;
+		m_RefId = 0;
+		m_Reverse = false;
 	}
 };
 //#pragma pack(pop)

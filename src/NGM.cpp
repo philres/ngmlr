@@ -6,17 +6,14 @@
 #include "Debug.h"
 #include "PrefixTable.h"
 #include "ReadProvider.h"
-//#include "Output.h"
 #include "FileWriter.h"
 #include "SAMWriter.h"
 #include "BAMWriter.h"
 
 #include <limits.h>
 
-//#include "CS.h"
 #include "CS.h"
 
-//#include "SW.h"
 
 #undef module_name
 #define module_name "NGM"

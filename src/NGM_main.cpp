@@ -208,16 +208,21 @@ void Help() {
 			"\
 \
 Usage:\
-  ngm [-c <path>] -q <reads> -r <reference> -o <output> [parameter]\n\
+  ngm [-c <path>] {-q <reads> [-p] | -1 <mates 1> -2 <mates 2>} -r <reference> -o <output> [parameter]\n\
 \n\
 Input/Output:\n\
 \n\
   -c/--config <path>            Path to the config file. The config file contains all advanced options.\n\
                                 If this parameter is omitted, default values will be used.\n\
   -r/--reference <path>         Path to the reference genome (format: FASTA, can be gzipped).\n\
-  -q/--query <path>             Path to the read file. Valid input formats are: FASTA/Q (gzipped), SAM/BAM\n\
-                                If the query file is omitted, NGM will only pre-process the reference.\n\
-  -p/--paired                   Input data is paired end. (default: off)\n\
+  -q/--qry  <path>              Path to the read file. If the file contains interleaved mates use -p/--paired.\
+  -1/--qry1 <path>              Path to the read file containing mates 1.\
+  -2/--qry2 <path>              Path to the read file containing mates 2.\
+                                Valid input formats are: FASTA/Q (gzipped), SAM/BAM\n\
+                                If the query file(s) is/are omitted, NGM will only pre-process the reference.\n\
+  -p/--paired                   Input data is paired end. NOT required if -1 and -2 are used. (default: off)\n\
+  --fast-pairing                Mates are mapped individually. If the best alignments for the mates give a proper\n\
+                                pair they are marked as paired in the output. If not they are reported as broken pair.\
   -I/--min-insert-size          The minimum insert size for paired end alignments (default: 0)\n\
   -X/--max-insert-size          The maximum insert size for paired end alignments (default: 1000)\n\
 \n\

@@ -53,15 +53,12 @@ inline char encode(char c) {
 	return (c >> 1) & 3;
 }
 
-void CS::PrefixIteration(char const * sequence, uint length,
-		PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data,
-		uint prefixskip, uint offset, int prefixBaseCount) {
+void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uint offset, int prefixBaseCount) {
 	prefixBasecount = prefixBaseCount;
 	prefixBits = prefixBasecount * 2;
 	prefixMask = ((ulong) 1 << prefixBits) - 1;
 
-	CS::PrefixIteration(sequence, length, func, mutateFrom, mutateTo, data,
-			prefixskip, offset);
+	CS::PrefixIteration(sequence, length, func, mutateFrom, mutateTo, data, prefixskip, offset);
 
 	prefixBasecount = Config.GetInt("kmer", 4, 32);
 	prefixBits = prefixBasecount * 2;
@@ -69,9 +66,7 @@ void CS::PrefixIteration(char const * sequence, uint length,
 }
 
 // Iteriert ueber jeden Praefix in sequence und fuehrt fuer diesen die Funktion func aus
-void CS::PrefixIteration(char const * sequence, uint length,
-		PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data,
-		uint prefixskip, uint offset) {
+void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uint offset) {
 	if (length < prefixBasecount)
 		return;
 
@@ -92,8 +87,7 @@ void CS::PrefixIteration(char const * sequence, uint length,
 	for (uint i = 0; i < prefixBasecount - 1; ++i) {
 		char c = *(sequence + i);
 		if (c == 'N') {
-			PrefixIteration(sequence + i + 1, length - i - 1, func, mutateFrom,
-					mutateTo, data, prefixskip, offset + i + 1);
+			PrefixIteration(sequence + i + 1, length - i - 1, func, mutateFrom, mutateTo, data, prefixskip, offset + i + 1);
 			return;
 		}
 
@@ -106,8 +100,7 @@ void CS::PrefixIteration(char const * sequence, uint length,
 	for (uint i = prefixBasecount - 1; i < length; ++i) {
 		char c = *(sequence + i);
 		if (c == 'N') {
-			PrefixIteration(sequence + i + 1, length - i - 1, func, mutateFrom,
-					mutateTo, data, prefixskip, offset + i + 1);
+			PrefixIteration(sequence + i + 1, length - i - 1, func, mutateFrom, mutateTo, data, prefixskip, offset + i + 1);
 			return;
 		}
 
@@ -117,8 +110,7 @@ void CS::PrefixIteration(char const * sequence, uint length,
 		prefix &= prefixMask;
 
 		if (skipcount == prefixskip) {
-			func(prefix, offset + i + 1 - prefixBasecount, mutateFrom, mutateTo,
-					data);
+			func(prefix, offset + i + 1 - prefixBasecount, mutateFrom, mutateTo, data);
 			skipcount = 0;
 		} else {
 			++skipcount;
@@ -132,8 +124,7 @@ void CS::PrefixIteration(char const * sequence, uint length,
 //ulong mutateFrom = 0x2;
 //ulong mutateTo = 0x1;
 
-void CS::PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom,
-		ulong mutateTo, void* data) {
+void CS::PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	static int const cMutationLocLimit = Config.GetInt("bs_cutoff");
 	ulong const mask = 0x3;
 
@@ -148,8 +139,7 @@ void CS::PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom,
 		PrefixMutateSearchEx(prefix, pos, mutateFrom, mutateTo, data);
 }
 
-void CS::PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom,
-		ulong mutateTo, void* data, int mpos) {
+void CS::PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos) {
 	PrefixSearch(prefix, pos, mutateFrom, mutateTo, data);
 
 	ulong const mask = 0x3;
@@ -159,14 +149,12 @@ void CS::PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom,
 		if (cur == mutateFrom) {
 			ulong p1 = (prefix & ~(mask << (i * 2)));
 			ulong p2 = (mutateTo << (i * 2));
-			PrefixMutateSearchEx(p1 | p2, pos, mutateFrom, mutateTo, data,
-					i + 1);
+			PrefixMutateSearchEx(p1 | p2, pos, mutateFrom, mutateTo, data, i + 1);
 		}
 	}
 }
 
-void CS::PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo,
-		void* data) {
+void CS::PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	CS * cs = (CS*) data;
 
 	RefEntry const * cur = cs->m_RefProvider->GetRefEntry(prefix, cs->m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
@@ -183,9 +171,7 @@ void CS::PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo,
 		//cs->weightSum += cur->weight;
 		float weight = 1.0f;
 
-		uint correction =
-				(cur->reverse) ?
-						(readLength - (pos + CS::prefixBasecount)) : pos;
+		uint correction = (cur->reverse) ? (readLength - (pos + CS::prefixBasecount)) : pos;
 
 #ifdef _DEBUGCSVERBOSE
 		Log.Message("Qry Seq %i - Prefix 0x%x got %i locs (sum %i)", cs->m_CurrentSeq, prefix, cur->refTotal);
@@ -193,23 +179,20 @@ void CS::PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo,
 
 		int const n = cur->refCount;
 		for (int i = 0; i < n; ++i) {
-			cs->AddLocationStd(cs->GetBin(cur->ref[i].m_Location - correction),
-					cur->reverse, weight);
+			cs->AddLocationStd(cs->GetBin(cur->ref[i].m_Location - correction), cur->reverse, weight);
 		}
 
 		cur = cur->nextEntry;
 	}
 }
 
-void CS::AddLocationStd(uint const m_Location, bool const reverse,
-		double const freq) {
+void CS::AddLocationStd(uint const m_Location, bool const reverse, double const freq) {
 	uint hpoc = c_SrchTableLen;
 	uint l = (uint) c_SrchTableLen;
 	bool newEntry = false;
 
 	uint hpo = Hash(m_Location);
-	while ((newEntry = (rTable[hpo].state & 0x7FFFFFFF) == currentState)
-			&& !(rTable[hpo].m_Location == m_Location)) {
+	while ((newEntry = (rTable[hpo].state & 0x7FFFFFFF) == currentState) && !(rTable[hpo].m_Location == m_Location)) {
 		++hpo;
 		if (hpo >= l)
 			hpo = 0;
@@ -241,7 +224,8 @@ void CS::AddLocationStd(uint const m_Location, bool const reverse,
 	//Compute max k-mer weight for this read
 	if (score > maxHitNumber) {
 		maxHitNumber = score;
-		currentThresh = round(maxHitNumber * m_CsSensitivity);
+		//currentThresh = round(maxHitNumber * m_CsSensitivity);
+		currentThresh = maxHitNumber * m_CsSensitivity;
 	}
 
 	//If kmer-weight larger than threshold -> add to rList.
@@ -411,8 +395,7 @@ int CS::CollectResultsFallback(MappedRead * read) {
 	return 0;
 }
 
-void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
-		AlignmentBuffer * out) {
+void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw, AlignmentBuffer * out) {
 	if (read == 0)
 		return;
 
@@ -422,28 +405,11 @@ void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 
 	if (count == 0) {
 		read->Calculated = 0;
-		//SWwoBuffer::SendToPostprocessing(read);
 		out->addRead(read, -1);
-		Log.Verbose("Read %s (%i) not mapped (no candidates/scores)", read->name, read->ReadId);
-		NGM.GetReadProvider()->DisposeRead(read);
 	} else {
-		//if (count < NGM.bCSSW.Capacity()) {
-		//NGM.bCSSW.WriteR(read->Scores, count);
-
 		read->Calculated = 0;
 		sw->addRead(read, count);
-
 		++m_WrittenReads;
-		//}	else {
-//			Log.Error("Read %i discarded due to buffer overflow", read->ReadId);
-//			Log.Error("Read %i discarded due to buffer overflow", read->ReadId);
-//			Log.Error("Read %i discarded due to buffer overflow", read->ReadId);
-//			Log.Error("Read %i discarded due to buffer overflow", read->ReadId);
-//			Fatal();
-//			//throw 1;
-//				++m_DiscardedReads;
-//			}
-//		}
 	}
 }
 
@@ -499,8 +465,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 
 		if (!fallback) {
 			try {
-				PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo,
-						this, m_PrefixBaseSkip);
+				PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
 				nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
 			} catch (int overflow) {
 //				Log.Verbose("Interrupt on read %i: %i candidates in %i slots filled by %i prefixes containing %i locs",
@@ -533,8 +498,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 					maxHitNumber = 0.0f;
 					currentThresh = 0.0f;
 
-					PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo,
-							this, m_PrefixBaseSkip);
+					PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
 					nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
 
 				} catch (int overflow) {
@@ -658,30 +622,22 @@ void CS::Init() {
 
 	bool m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 	if (m_EnableBS) {
-		static int const cMutationLocLimit =
-				Config.Exists("bs_cutoff") ? Config.GetInt("bs_cutoff") : 6;
+		static int const cMutationLocLimit = Config.Exists("bs_cutoff") ? Config.GetInt("bs_cutoff") : 6;
 		Log.Message("BS mapping enabled. Max. number of A/T per k-mer set to %d", cMutationLocLimit);
 	}
 }
 
 CS::CS(bool useBuffer) :
-		m_CSThreadID((useBuffer) ? (AtomicInc(&s_ThreadCount) - 1) : -1), m_BatchSize(
-				cBatchSize / Config.GetInt("qry_avg_len")), m_ProcessedReads(0), m_WrittenReads(
-				0), m_DiscardedReads(0), m_EnableBS(false), m_Overflows(0), m_entry(
-				new RefEntry(0)), c_SrchTableBitLen(
-				Config.Exists("search_table_length") ?
-						Config.GetInt("search_table_length") : 16), c_BitShift(
-				32 - c_SrchTableBitLen), c_SrchTableLen(
-				(int) pow(2, c_SrchTableBitLen)), m_PrefixBaseSkip(0), m_Fallback(
-				(c_SrchTableLen <= 0)) // cTableLen <= 0 means always use fallback
+		m_CSThreadID((useBuffer) ? (AtomicInc(&s_ThreadCount) - 1) : -1), m_BatchSize(cBatchSize / Config.GetInt("qry_avg_len")), m_ProcessedReads(
+				0), m_WrittenReads(0), m_DiscardedReads(0), m_EnableBS(false), m_Overflows(0), m_entry(new RefEntry(0)), c_SrchTableBitLen(
+				Config.Exists("search_table_length") ? Config.GetInt("search_table_length") : 16), c_BitShift(32 - c_SrchTableBitLen), c_SrchTableLen(
+				(int) pow(2, c_SrchTableBitLen)), m_PrefixBaseSkip(0), m_Fallback((c_SrchTableLen <= 0)) // cTableLen <= 0 means always use fallback
 {
 
 	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 
 	if (m_EnableBS) {
-		m_PrefixBaseSkip =
-				(Config.Exists("kmer_skip")) ?
-						Config.GetInt("kmer_skip", 0, -1) : cPrefixBaseSkip;
+		m_PrefixBaseSkip = (Config.Exists("kmer_skip")) ? Config.GetInt("kmer_skip", 0, -1) : cPrefixBaseSkip;
 		Log.Verbose("BS mapping enabled. Applying kmer skip to reads");
 	}
 

@@ -34,11 +34,9 @@ public:
 
 private:
 
-	//static const size_t MAX_REF_NAME_LENGTH;
-
 	_SequenceProvider();
 	~_SequenceProvider();
-//	NGMMutex f_mutex;
+
 	bool CheckQryNr(int n) const;
 	bool CheckRefNr(int n) const;
 	static _SequenceProvider* pInstance;
@@ -55,10 +53,9 @@ private:
 	RefIdx * binRefIdx;
 	char* binRef;
 	int binRefIndex;
+
 	// Files
-
 	std::string refFileName;
-
 	std::string refBaseFileName;
 
 	long refFileLen;
@@ -68,11 +65,6 @@ private:
 
 	uint binRefSize;
 
-	//int refIdxMap;
-	//int refMap;
-	//int refcplMap;
-	//int refBaseMap;
-
 	int refCount;
 
 	bool m_EnableBS;
@@ -80,9 +72,6 @@ private:
 	void writeEncRefToFile(char const * fileName, uint const refCount, uint const encRefSize);
 	int readEncRefFromFile(char const * fileName);
 
-//	void PrepareInputFile(std::string);
-//	void readFromPosition(FILE* file, char* str, ulong offset,
-//			const int len) const;
 };
 
 #define SequenceProvider _SequenceProvider::Instance()

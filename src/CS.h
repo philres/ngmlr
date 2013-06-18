@@ -5,7 +5,6 @@
 
 #include "SequenceLocation.h"
 #include "MappedRead.h"
-#include "RefEntry.h"
 #include "ScoreBuffer.h"
 
 #include <map>
@@ -13,8 +12,6 @@
 #include <string>
 
 #include <cmath>
-
-//#include "CSCache.h"
 
 /*
  Candidate Search:

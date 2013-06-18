@@ -15,7 +15,7 @@
 #include <list>
 
 #undef module_name
-#define module_name "SWwoBuffer"
+#define module_name "FILTER"
 
 class ScoreBuffer {
 public:
@@ -27,21 +27,22 @@ private:
 	};
 
 	const int m_AlignMode;
-//	int m_Ivk_mode;
-//	int m_Ivk_batchSize;
-//	const char* const * m_Ivk_refSeqList;
-//	const char* const * m_Ivk_qrySeqList;
-//	Align* m_Ivk_results;
-//	int m_Ivk_return;
-	void LaunchInvoked();
 
-public:
-	void SendToPostprocessing(MappedRead* read);
-	void SendSeToBuffer(MappedRead* read, int const scoreID);
+	long pairDistCount;
+	long pairDistSum;
+	long brokenPairs;
 
 private:
-	static void PairedReadSelection(MappedRead* read1, MappedRead* read2);
-	static bool CheckPairs(LocationScore* ls1, LocationScore* ls2, float&, int&, bool& equlScore);
+
+	bool CheckPairs(LocationScore * ls1, int const readLength1, LocationScore * ls2, int const readLength2, float & topScore, int & dst, int & equalScore);
+
+	void top1SE(bool const equalOnly, MappedRead* read);
+	void topNSE(int const topn, bool const equalOnly, MappedRead* read);
+	void top1PE(bool const equalOnly, MappedRead* read);
+	void topNPE(int const topn, bool const equalOnly, MappedRead* read);
+
+	void DoRun();
+	void computeMQ(MappedRead* read);
 
 	const char** m_QryBuffer;
 	const char** m_RefBuffer;
@@ -51,35 +52,30 @@ private:
 	int refMaxLen;
 
 	int corridor;
-	//int batchSize;
 	char * m_DirBuffer;
 	bool m_EnableBS;
 
-	//LocationScore * * scores;
 	Score * scores;
 	int iScores;
 
 	IAlignment * aligner;
+
 	AlignmentBuffer * out;
 	const int swBatchSize;
 
 	float scoreTime;
 
-	//std::list<MappedRead*> m_ReadBuffer;
-	//	bool CommitReads();
 public:
 	static ulong scoreCount;
 
 	ScoreBuffer(IAlignment * mAligner, AlignmentBuffer * mOut) :
-			m_AlignMode(Config.GetInt("mode", 0, 1)), aligner(mAligner), out(mOut), swBatchSize(aligner->GetScoreBatchSize() / 2) {
+			m_AlignMode(Config.GetInt("mode", 0, 1)), pairDistCount(1), pairDistSum(0), brokenPairs(0), aligner(mAligner), out(mOut), swBatchSize(aligner->GetScoreBatchSize() / 2) {
 
 		m_QryBuffer = 0;
 		m_RefBuffer = 0;
 		m_ScoreBuffer = 0;
 
 		corridor = Config.GetInt("corridor");
-
-//		swBatchSize = 4096;
 
 		m_QryBuffer = new char const *[swBatchSize];
 		m_RefBuffer = new char const *[swBatchSize];
@@ -124,8 +120,6 @@ public:
 	}
 
 	void addRead(MappedRead * read, int count);
-
-	void DoRun();
 
 	void flush();
 

@@ -29,9 +29,6 @@ private:
 	IParser * parser1;
 	IParser * parser2;
 
-//	kseq_t * seq1;
-//	kseq_t * seq2;
-
 	virtual MappedRead * NextRead(IParser * parser, int const id);
 	MappedRead * GenerateSingleRead(int const readid);
 	IParser * DetermineParser(char const * fileName);

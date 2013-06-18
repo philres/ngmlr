@@ -3,19 +3,15 @@
 
 #include "GenericReadWriter.h"
 
-#include <map>
-#include <list>
-#include <algorithm>
+//#include <map>
+//#include <list>
+//#include <algorithm>
 
 #include "SAMWriter.h"
 #include "BAMWriter.h"
 
 #undef module_name
-#define module_name "OUT"
-
-typedef void (*pfDelete)(void*);
-
-char const * const cFormatNames[3] = { "Plain Text", "SAM", "BAM" };
+#define module_name "OUTPUT"
 
 class AlignmentBuffer {
 
@@ -26,7 +22,6 @@ private:
 		int scoreId;
 	};
 
-	char const * const output_name;
 	int const outputformat;
 	int const alignmode;
 	bool m_EnableBS;
@@ -44,46 +39,34 @@ private:
 	char * dBuffer;
 	char * dummy;
 
-	long tCount;
-	long tSum;
+	long pairInsertCount;
+	long pairInsertSum;
 	long brokenPairs;
-	NGMMutex m_Mutex;
 
 	float alignTime;
 
-	const char* const m_Filename;
 	GenericReadWriter* m_Writer;
-	std::map<int, std::list<MappedRead*> > m_EqualScoringBuffer;
-	void saveEqualScoring(int id);
 
 	static bool first;
 
-//	static bool EqualScoringSortPredicate(MappedRead * lhs, MappedRead * rhs) {
-//		return (lhs->Strand == rhs->Strand) ? lhs->TLS()->Location.m_Location < rhs->TLS()->Location.m_Location : lhs->Strand < rhs->Strand;
-//	}
-//
-//	static bool EqualScoringEquivalentPredicate(MappedRead * lhs, MappedRead * rhs) {
-//		return (lhs->TLS()->Location.m_RefId == rhs->TLS()->Location.m_RefId)
-//				&& (lhs->TLS()->Location.m_Location == rhs->TLS()->Location.m_Location);
-//	}
+	int * refStartPos;
+
+	IAlignment * aligner;
 
 public:
 
 	static ulong alignmentCount;
 
-	int * RefStartPos;
-
-	IAlignment * aligner;
 
 	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
-			m_Filename(filename), batchSize(mAligner->GetAlignBatchSize() / 2), output_name(Config.GetString("output")), outputformat(
+			batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(
 					NGM.GetOutputFormat()),
 					alignmode(Config.GetInt("mode", 0, 1)),
 					corridor(Config.GetInt("corridor")),
 					refMaxLen(((Config.GetInt("qry_max_len") + corridor) | 1) + 1), aligner(mAligner) {
-						RefStartPos = 0;
-						tSum = 0;
-						tCount = 0;
+						refStartPos = 0;
+						pairInsertSum = 0;
+						pairInsertCount = 0;
 						brokenPairs = 0;
 						m_Writer = 0;
 						nReads = 0;
@@ -108,24 +91,13 @@ public:
 							break;
 						}
 
-						//m_Writer =
-						//(outputformat <= 1) ? (GenericReadWriter*) new SAMWriter(NGM.getWriter()) : (GenericReadWriter*) new BAMWriter(filename);
-
-///NGMLock(&m_Mutex);
 						if(first) {
 							m_Writer->WriteProlog();
 							first = false;
 						}
-						///NGMUnlock(&m_Mutex);
-
-//		int const batchSize = NGM.Aligner()->GetAlignBatchSize();
-						//m_Writer = NGM.getWriter(output_name);
-
-//		NGMInitMutex(&m_Mutex);
 
 						Log.Verbose("Alignment batchsize = %i", batchSize);
 
-						//reads = new MappedRead*[batchSize];
 						reads = new Alignment[batchSize];
 
 						qryBuffer = new char const *[batchSize];
@@ -192,86 +164,7 @@ public:
 						return tmp;
 					}
 
-					void SaveRead(MappedRead* read, bool mapped = true) {
-
-						static int const topn = Config.GetInt("topn");
-
-						if (mapped) {
-							//Log.Message("%s: %d", read->name, read->Scores[0].Location.m_RefId);
-
-							for(int i = 0; i < read->Calculated; ++i) {
-								static int refCount = SequenceProvider.GetRefCount();
-								if (RefStartPos == 0) {
-									RefStartPos = new int[refCount / ((NGM.DualStrand()) ? 2 : 1)];
-									int i = 0;
-									int j = 0;
-									while (i < refCount/* && loc.m_Location >= SequenceProvider.GetRefStart(i)*/) {
-										RefStartPos[j++] = SequenceProvider.GetRefStart(i);
-										i += (NGM.DualStrand()) ? 2 : 1;
-									}
-								}
-
-								//Correct position
-								SequenceLocation loc = read->Scores[i].Location;
-								int * upper = std::upper_bound(RefStartPos, RefStartPos + (refCount / ((NGM.DualStrand()) ? 2 : 1)), loc.m_Location);
-								std::ptrdiff_t refId = ((upper - 1) - RefStartPos) * ((NGM.DualStrand()) ? 2 : 1);
-								loc.m_Location -= *(upper - 1);
-								loc.m_RefId = refId;
-								read->Scores[i].Location = loc;
-
-								if (loc.m_Reverse) {
-									if (read->qlty != 0)
-									std::reverse(read->qlty, read->qlty + strlen(read->qlty));
-								}
-							}
-						}
-
-						if (read->Paired != 0) {
-							if(topn == 1) {
-								if (read->Paired->HasFlag(NGMNames::DeletionPending)) {
-									if(read->hasCandidates() && read->Paired->hasCandidates()) {
-										LocationScore * ls1 = &read->Scores[0];
-										LocationScore * ls2 = &read->Paired->Scores[0];
-										int distance =
-										(ls2->Location.m_Location > ls1->Location.m_Location) ?
-										ls2->Location.m_Location - ls1->Location.m_Location + read->length :
-										ls1->Location.m_Location - ls2->Location.m_Location + read->Paired->length;
-
-										//int distance = abs(read->TLS()->Location.m_Location - read->Paired->TLS()->Location.m_Location);
-
-										tCount += 1;
-										if(ls1->Location.m_RefId != ls2->Location.m_RefId ||
-												distance < _NGM::sPairMinDistance ||
-												distance > _NGM::sPairMaxDistance ||
-												ls1->Location.m_Reverse == ls2->Location.m_Reverse) {
-											read->SetFlag(NGMNames::PairedFail);
-											read->Paired->SetFlag(NGMNames::PairedFail);
-											brokenPairs += 1;
-										} else {
-											tSum += distance;
-										}
-									}
-									m_Writer->WritePair(read, 0, read->Paired, 0);
-								}
-							} else {
-								Log.Error("TopN > 1 is currently not supported for paired end reads.");
-								Fatal();
-							}
-						} else {
-							m_Writer->WriteRead(read, mapped);
-						}
-
-						if(tCount % 1000 == 0) {
-							//Log.Message("%d %d %d %f", tSum, tCount, brokenPairs, tSum * 1.0f / (tCount));
-							NGM.Stats->validPairs = (tCount - brokenPairs) * 100.0f / tCount;
-							NGM.Stats->insertSize = tSum * 1.0f / (tCount - brokenPairs);
-							//Log.Message("%f %f", NGM.Stats->validPairs, NGM.Stats->insertSize);
-						} else {
-							//tSum = 0;
-							//tCount = 1;
-							//brokenPairs = 0;
-						}
-					}
+					void SaveRead(MappedRead* read, bool mapped = true);
 				};
 
 #endif

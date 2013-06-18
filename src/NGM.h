@@ -49,10 +49,8 @@ public:
 	std::vector<MappedRead*> GetNextReadBatch(int batchSize);
 	inline bool Running() const { return m_ActiveThreads > 0; }
 	inline bool DualStrand() const { return m_DualStrand; }
-	//inline bool Paired() const { return m_Paired; }
 	inline int GetOutputFormat() const { return m_OutputFormat; }
 
-	//IAlignment * Aligner() const { return AlignmentDispatcher::Instance(); }
 
 	void GeneratePartitions();
 
@@ -100,23 +98,12 @@ public:
 	bool ThreadActive( int tid, int stage );
 
 	IRefProvider const * GetRefProvider(int const tid);
-//	void ReleaseRefProvider(int const tid);
 
 	IReadProvider * GetReadProvider();
-//	void ReleaseReadProvider();
-
-	//void SaveRead(MappedRead* read, bool mapped = true);
 
 	void FinishStage( int tid );
 
-	//bool LastPartition();
-	//void BufferRead(MappedRead * read);
-
 	NGMStats * Stats;
-
-	// Switch to a list accessed by Stage?
-	//Buffer<LocationScore*> bCSSW;	// Buffer CS -> SW
-	//Buffer<MappedRead*> bSWO;	// Buffer SW -> Output
 
 	static char const * AppName;
 	static int sPairMinDistance;
@@ -133,10 +120,6 @@ private:
 	int GetCount();
 
 	void StartCS(int threads);
-//	void StartSW(int threads);
-
-//	void UpdateScheduler(float, float);
-//	bool CanSwitch();
 
 	friend int main(int argc, char* argv[]);
 	static _NGM * pInstance;
@@ -150,18 +133,12 @@ private:
 	bool const m_Paired;
 	int const m_OutputFormat;
 
-//	int m_ReadStart;
-//	int m_ReadCount;
-
 	//TODO: hack - fix this!!!
 	void * m_Output;
 
 	volatile int m_CurStart;
 	volatile int m_CurCount;
-//	volatile int m_CurrentPartition;
-//	volatile int m_ReadsBuffered;
 
-//	volatile bool m_RefGenPending;
 	GenericReadWriter * writer;
 
 	NGMMutex m_Mutex;
@@ -176,24 +153,15 @@ private:
 	NGMMutex m_UMRMutex;
 	NGMThreadWait m_CSWait;
 	bool m_TrackUnmappedReads;
-//	std::vector<int> m_UnmappedReadList;
+
 	volatile int m_UnmappedReads;
 	volatile int m_MappedReads;
 	volatile int m_WrittenReads;
 	volatile int m_ReadReads;
 
-	//PartitionList m_Partitions;
-	//IRefProvider * m_CurrentRef;
+
 	IRefProvider * m_RefProvider;
 	IReadProvider * m_ReadProvider;
-	//CSCache * m_Cache;
-
-	//ReadBuffer * m_ReadBuffer;
-
-//	PartitionList GeneratePartitions(std::list<int> SeqIds, long PartitionThreshhold, long Overlap);
-//	std::list<int> GetRefConfig();
-
-//	void UpdateReadCount(int n);
 
 	friend class _SequenceProvider;
 };

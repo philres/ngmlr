@@ -9,10 +9,7 @@
 #define COMPACTPREFIXTABLE_H_
 
 #include "IRefProvider.h"
-#include "RefEntry.h"
-//#include "Partition.h"
 #include "Types.h"
-//#include "CSCache.h"
 
 #pragma pack(push)
 #pragma pack(1)

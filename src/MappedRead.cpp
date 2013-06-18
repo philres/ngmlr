@@ -78,6 +78,8 @@ void MappedRead::DeleteReadSeq() {
 }
 
 MappedRead::~MappedRead() {
+
+	Log.Verbose("Deleting read %s, scoreNum: %d, calculated: %d", name, numScores(), Calculated);
 	//for (size_t i = 0; i < Scores.size(); ++i)
 	//	delete Scores[i];
 	if (Scores != 0) {

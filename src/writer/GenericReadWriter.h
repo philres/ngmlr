@@ -12,14 +12,7 @@ class GenericReadWriter {
 
 public:
 
-	//GenericReadWriter(char const * const filename) {
 	GenericReadWriter() {
-//		if (!(m_Output = fopen(filename, "wb"))) {
-//			Log.Error("Unable to open output file %s", filename);
-//			Fatal();
-//		}
-//		m_Output = file;
-
 		writeBuffer = new char[BUFFER_SIZE];
 		bufferPosition = 0;
 
@@ -30,9 +23,7 @@ public:
 		}
 	}
 	virtual ~GenericReadWriter() {
-//		if (m_Output) {
-		//fclose(m_Output);
-//		}
+
 	}
 protected:
 
@@ -68,13 +59,11 @@ private:
 
 public:
 	void WriteProlog() {
-//		if (m_Output)
 		DoWriteProlog();
 	}
 
 	void WriteRead(MappedRead const * const read, bool mapped = true) {
 
-		//NGM.AquireOutputLock();
 		if (mapped) {
 			bool mappedOnce = false;
 			for (int i = 0; i < read->Calculated; ++i) {
@@ -105,7 +94,6 @@ public:
 			DoWriteUnmappedRead(read);
 			NGM.AddWrittenRead(read->ReadId);
 		}
-		//NGM.ReleaseOutputLock();
 	}
 
 	void WritePair(MappedRead * const read1, int const scoreId1, MappedRead * const read2, int const scoreId2) {
@@ -125,13 +113,13 @@ public:
 		&& ((read2->length - read2->Alignments[scoreId2].QStart - read2->Alignments[scoreId2].QEnd) >= minResidues);
 
 		if (!mapped1) {
-			read1->clearScores(false);
+			read1->clearScores();
 			//NGM.AddUnmappedRead(read1, MFAIL_IDENT);
 		} else {
 			NGM.AddMappedRead(read1->ReadId);
 		}
 		if (!mapped2) {
-			read2->clearScores(false);
+			read2->clearScores();
 			//NGM.AddUnmappedRead(read2, MFAIL_IDENT);
 		} else {
 			NGM.AddMappedRead(read2->ReadId);
@@ -150,15 +138,7 @@ public:
 
 	}
 
-//	void WriteRead(std::list<MappedRead const * const> reads) {
-//		if (m_Output) {
-//			for(int i = 0; i < reads.size(); ++i) {
-//				WriteRead(reads[i]);
-//			}
-//		}
-//	}
 	void WriteEpilog() {
-//		if (m_Output)
 		DoWriteEpilog();
 	}
 };

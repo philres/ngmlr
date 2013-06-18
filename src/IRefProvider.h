@@ -35,10 +35,8 @@ struct RefEntry {
 	int refTotal;
 	RefEntry* nextEntry;
 private:
-	//---section Flattening
 	RefEntry(void const * pEntries, int count);
 	friend class PrefixTable;
-	//---section Flattening
 
 };
 

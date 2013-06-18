@@ -399,6 +399,7 @@ _Config::_Config(int argc, char * argv[]) {
 	} else {
 		Default("paired", 0);
 	}
+	Default("fast_pairing", 0);
 
 	Default("bs_mapping", 0);
 
