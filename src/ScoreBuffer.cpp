@@ -224,6 +224,13 @@ void ScoreBuffer::topNSE(MappedRead* read) {
 	}
 }
 
+struct PairScore {
+	float score;
+	int insertSize;
+	int iRead;
+	int iMate;
+};
+
 void ScoreBuffer::top1PE(MappedRead* read) {
 
 	MappedRead * mate = read->Paired;
@@ -236,13 +243,13 @@ void ScoreBuffer::top1PE(MappedRead* read) {
 	computeMQ(mate);
 
 	//Use only scores that are > topScore * cutoff
-	float const minScoreRead = read->Scores[0].Score.f * cutoff;
+	float const minScoreRead = read->Scores[0].Score.f * pairScoreCutoff;
 	int nScoreRead = 1;
 	while (nScoreRead < read->numScores() && minScoreRead <= read->Scores[nScoreRead].Score.f) {
 		nScoreRead += 1;
 	}
 
-	float const minScoreMate = mate->Scores[0].Score.f * cutoff;
+	float const minScoreMate = mate->Scores[0].Score.f * pairScoreCutoff;
 	int nScoreMate = 1;
 	while (nScoreMate < mate->numScores() && minScoreMate <= mate->Scores[nScoreMate].Score.f) {
 		nScoreMate += 1;
@@ -330,7 +337,7 @@ bool ScoreBuffer::CheckPairs(LocationScore * ls1, int const readLength1, Locatio
 			pairTopScore = pairScore;
 			insertSize = currentInsertsize;
 			return true;
-		} else if (pairScore == pairTopScore * 1.00f) {
+		} else if (pairScore == pairTopScore /** pairScoreCutoff*/) {
 			//pair with equal score found
 			Log.Verbose("Found a pair (%d, %d) with same score (%f). Choosing pair according to insert size.", ls1->Read->ReadId, ls2->Read->ReadId, pairScore);
 			int avg = pairDistSum / pairDistCount;
