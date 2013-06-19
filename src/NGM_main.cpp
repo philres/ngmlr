@@ -99,7 +99,6 @@ int main(int argc, char * argv[]) {
 	Log.Message("Starting time: %s", currentDateTime().c_str());
 
 
-	Log.Message("%d", sizeof(SequenceLocation));
 	//try {
 	Timer tmr;
 	tmr.ST();
@@ -215,27 +214,25 @@ Input/Output:\n\
   -c/--config <path>            Path to the config file. The config file contains all advanced options.\n\
                                 If this parameter is omitted, default values will be used.\n\
   -r/--reference <path>         Path to the reference genome (format: FASTA, can be gzipped).\n\
-  -q/--qry  <path>              Path to the read file. If the file contains interleaved mates use -p/--paired.\
-  -1/--qry1 <path>              Path to the read file containing mates 1.\
-  -2/--qry2 <path>              Path to the read file containing mates 2.\
+  -q/--qry  <path>              Path to the read file. If the file contains interleaved mates use -p/--paired.\n\
+  -1/--qry1 <path>              Path to the read file containing mates 1.\n\
+  -2/--qry2 <path>              Path to the read file containing mates 2.\n\
                                 Valid input formats are: FASTA/Q (gzipped), SAM/BAM\n\
                                 If the query file(s) is/are omitted, NGM will only pre-process the reference.\n\
   -p/--paired                   Input data is paired end. NOT required if -1 and -2 are used. (default: off)\n\
-  --fast-pairing                Mates are mapped individually. If the best alignments for the mates give a proper\n\
-                                pair they are marked as paired in the output. If not they are reported as broken pair.\
   -I/--min-insert-size          The minimum insert size for paired end alignments (default: 0)\n\
   -X/--max-insert-size          The maximum insert size for paired end alignments (default: 1000)\n\
 \n\
 Output:\n\
 \n\
   -o/--output <path>            Path to output file.\n\
-  -b/--bam						Output BAM instead of SAM.\n\
+  -b/--bam                      Output BAM instead of SAM.\n\
   --hard-clip                   Use hard instead of soft clipping for SAM output\n\
   --silent-clip                 Hard clip reads but don't add clipping information to CIGAR string\n\
-  -n/--topn                     Prints the <n> best alignments sorted by alignment score (default: 1)\
-  --strata                      Only  output  the  highest  scoring  mappings  for any  given  read,  up  to\
-                                <n> mappings per read. NOTE: If a read has more than <n> mappings with the same\
-                                score, it is discarded and reported as unmapped.\
+  -n/--topn                     Prints the <n> best alignments sorted by alignment score (default: 1)\n\
+  --strata                      Only  output  the  highest  scoring  mappings  for any  given  read,  up  to\n\
+                                <n> mappings per read. NOTE: If a read has more than <n> mappings with the same\n\
+                                score, it is discarded and reported as unmapped.\n\
 \n\
 General:\n\n\
   -t/--threads <int>            Number of candidate search threads\n\
@@ -265,6 +262,11 @@ Advanced settings:\n\
   --max-cmrs <int>              Reads that have more than <int> CMRs are ignored. (default: infinite)\n\
   -m/mode [0|1]                 Alignment mode: 0 = local, 1 = semi-global. (default: 0)\n\
   -C/--max-consec-indels <int>  Maximum number of consecutive indels allowed. (default: computed from input)\n\
+  --fast-pairing                Mates are mapped individually. If the best alignments for the mates give a proper\n\
+                                pair they are marked as paired in the output. If not they are reported as broken pair.\n\
+  --pair-score-cutoff <0-1>     All pairs with a score in the range [top score; top score * pair-score-cutoff]\n\
+                                are considered equal scoring pairs. For equal scoring pairs insert-size is used\n\
+                                to break the ties (default: 0.9).\n\
   --score-match <int>           Match Score (default: 10, bs-mapping: 4)\n\
   --score-mismatch <int>        Mismatch Score (default: -15, bs-mapping: -2)\n\
   --score-gap-read <int>        Gap score in read (default: -20, bs-mapping: -10)\n\

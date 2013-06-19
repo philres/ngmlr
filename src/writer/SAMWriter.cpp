@@ -116,7 +116,9 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 
 	Print("XI:f:%f\t", read->Alignments[scoreID].Identity);
 	Print("X0:i:%d\t", read->EqualScoringCount);
-	Print("X1:i:%d\t", read->Calculated - read->EqualScoringCount);
+	//TODO: fix. Calculated used to be the number of score computed. Now it is the number of computed alignments.
+	//Thus it can't be used for X1 anymore.
+	//Print("X1:i:%d\t", read->Calculated - read->EqualScoringCount);
 	Print("XE:i:%d\t", (int) read->s);
 	Print("XR:i:%d\t", read->length - read->Alignments[scoreID].QStart - read->Alignments[scoreID].QEnd);
 	Print("MD:Z:%s", read->Alignments[scoreID].pBuffer2);

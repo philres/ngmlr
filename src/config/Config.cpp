@@ -18,14 +18,6 @@
 #include <stdio.h>     /* for printf */
 #include <stdlib.h>    /* for exit */
 
-//static const struct option long_options[] = {
-//		{ "config", required_argument, 0, 'c' },
-//		{ "output", no_argument, 0, '0' },
-//		{ "CCC", required_argument, 0, 'c' },
-//		{ "DDD", no_argument, 0, 'd' },
-//		{ "EEE", required_argument, 0, 0 },
-//		{ "FFF", required_argument, 0, 0 }, 0 };
-
 extern char *optarg;
 extern int optind, opterr, optopt;
 
@@ -400,6 +392,7 @@ _Config::_Config(int argc, char * argv[]) {
 		Default("paired", 0);
 	}
 	Default("fast_pairing", 0);
+	Default("pair_score_cutoff", 0.9f);
 
 	Default("bs_mapping", 0);
 

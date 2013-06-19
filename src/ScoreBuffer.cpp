@@ -22,12 +22,6 @@ float const MAX_MQ = 60.0f;
 
 void ScoreBuffer::DoRun() {
 
-	//TODO: convert to class members
-	static int const topn = Config.GetInt("topn");
-	static bool const equalOnly = Config.GetInt("strata");
-	static bool const isPaired = Config.GetInt("paired") != 0;
-	static bool const fastPairing = Config.GetInt("fast_pairing") == 1;
-
 	if (iScores != 0) {
 
 		Timer tmr;
@@ -102,9 +96,9 @@ void ScoreBuffer::DoRun() {
 					//all scores computed for single end read
 					assert(!cur_read->hasCandidates());
 					if (topn == 1) {
-						top1SE(equalOnly, cur_read);
+						top1SE(cur_read);
 					} else {
-						topNSE(topn, equalOnly, cur_read);
+						topNSE(cur_read);
 					}
 				}
 			} else {
@@ -113,16 +107,16 @@ void ScoreBuffer::DoRun() {
 					if (topn == 1) {
 						if (!fastPairing) {
 							if (cur_read->Paired->hasCandidates())
-								top1PE(equalOnly, cur_read);
+								top1PE(cur_read);
 							else
-								top1SE(equalOnly, cur_read);
+								top1SE(cur_read);
 						} else {
-							top1SE(equalOnly, cur_read);
+							top1SE(cur_read);
 							if (cur_read->Paired->hasCandidates())
-								top1SE(equalOnly, cur_read->Paired);
+								top1SE(cur_read->Paired);
 						}
 					} else {
-						topNPE(topn, equalOnly, cur_read);
+						topNPE(cur_read);
 					}
 				}
 			}
@@ -135,7 +129,7 @@ bool sortLocationScore(LocationScore a, LocationScore b) {
 	return a.Score.f > b.Score.f;
 }
 
-void ScoreBuffer::top1SE(bool const equalOnly, MappedRead* read) {
+void ScoreBuffer::top1SE(MappedRead* read) {
 	float score_max = 0;
 	float score_smax = 0;
 	int score_max_loc = 0;
@@ -191,7 +185,7 @@ void ScoreBuffer::computeMQ(MappedRead* read) {
 	read->mappingQlty = mq;
 }
 
-void ScoreBuffer::topNSE(int const topn, bool const equalOnly, MappedRead* read) {
+void ScoreBuffer::topNSE(MappedRead* read) {
 	//Sort scores
 	std::sort(read->Scores, read->Scores + read->numScores(), sortLocationScore);
 	int n = std::min(read->numScores(), topn);
@@ -230,7 +224,7 @@ void ScoreBuffer::topNSE(int const topn, bool const equalOnly, MappedRead* read)
 	}
 }
 
-void ScoreBuffer::top1PE(bool const equalOnly, MappedRead* read) {
+void ScoreBuffer::top1PE(MappedRead* read) {
 
 	MappedRead * mate = read->Paired;
 
@@ -240,8 +234,6 @@ void ScoreBuffer::top1PE(bool const equalOnly, MappedRead* read) {
 
 	computeMQ(read);
 	computeMQ(mate);
-
-	float const cutoff = 0.9f;
 
 	//Use only scores that are > topScore * cutoff
 	float const minScoreRead = read->Scores[0].Score.f * cutoff;
@@ -312,12 +304,12 @@ void ScoreBuffer::top1PE(bool const equalOnly, MappedRead* read) {
 		read->SetFlag(NGMNames::PairedFail);
 		mate->SetFlag(NGMNames::PairedFail);
 
-		top1SE(equalOnly, read);
-		top1SE(equalOnly, mate);
+		top1SE(read);
+		top1SE(mate);
 	}
 }
 
-void ScoreBuffer::topNPE(int const topn, bool const equalOnly, MappedRead* read) {
+void ScoreBuffer::topNPE(MappedRead* read) {
 	Log.Error("Paired end mode with topn > 1 not yet supported.");
 	Fatal();
 }
