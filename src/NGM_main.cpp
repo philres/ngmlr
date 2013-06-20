@@ -264,9 +264,8 @@ Advanced settings:\n\
   -C/--max-consec-indels <int>  Maximum number of consecutive indels allowed. (default: computed from input)\n\
   --fast-pairing                Mates are mapped individually. If the best alignments for the mates give a proper\n\
                                 pair they are marked as paired in the output. If not they are reported as broken pair.\n\
-  --pair-score-cutoff <0-1>     All pairs with a score in the range [top score; top score * pair-score-cutoff]\n\
-                                are considered equal scoring pairs. For equal scoring pairs insert-size is used\n\
-                                to break the ties (default: 0.9).\n\
+  --pair-score-cutoff <0-1>     To find the best pairing all alignments of a read that have a score in the range of: \n\
+                                [top score; top score * pair-score-cutoff] are taken into account.\n\
   --score-match <int>           Match Score (default: 10, bs-mapping: 4)\n\
   --score-mismatch <int>        Mismatch Score (default: -15, bs-mapping: -2)\n\
   --score-gap-read <int>        Gap score in read (default: -20, bs-mapping: -10)\n\

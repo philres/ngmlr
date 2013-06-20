@@ -280,7 +280,7 @@ void ScoreBuffer::top1PE(MappedRead* read) {
 		if (equalScoreFound <= 0 || !equalOnly) {
 			pairDistSum += distance;
 			pairDistCount += 1;
-			NGM.Stats->insertSize = distance * 1.0f / (pairDistCount);
+			NGM.Stats->insertSize = pairDistSum * 1.0f / (pairDistCount);
 
 			//submit reads to alignment computation
 			read->EqualScoringCount = equalScoreFound;
