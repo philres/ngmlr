@@ -25,6 +25,7 @@ _SequenceProvider & _SequenceProvider::Instance() {
 	return *pInstance;
 }
 
+static int const maxRefCount = 32768;
 static uint const refEncCookie = 0x74656;
 
 //const size_t _SequenceProvider::MAX_REF_NAME_LENGTH = 150;
@@ -93,30 +94,30 @@ KSEQ_INIT(gzFile, gzread)
 static inline char enc4(char c) {
 	c = toupper(c);
 	switch (c) {
-	case 'A':
-		return 0;
-	case 'T':
-		return 1;
-	case 'G':
-		return 2;
-	case 'C':
-		return 3;
+		case 'A':
+			return 0;
+		case 'T':
+			return 1;
+		case 'G':
+			return 2;
+		case 'C':
+			return 3;
 	}
 	return 4;
 }
 
 static inline char dec4(char c) {
 	switch (c) {
-	case 0:
-		return 'A';
-	case 1:
-		return 'T';
-	case 2:
-		return 'G';
-	case 3:
-		return 'C';
-	case 4:
-		return 'N';
+		case 0:
+			return 'A';
+		case 1:
+			return 'T';
+		case 2:
+			return 'G';
+		case 3:
+			return 'C';
+		case 4:
+			return 'N';
 	}
 	throw "Error in ref encoding!";
 }
@@ -172,7 +173,10 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName) {
 		Log.Error("Please delete it and run NGM again.");
 		Fatal();
 	}
-
+	if(refCount > maxRefCount) {
+		Log.Error("Currently NextGenMap can't handle more than %d reference sequences.", maxRefCount);
+		Fatal();
+	}
 	binRefIdx = new RefIdx[refCount];
 	fread(binRefIdx, sizeof(RefIdx), refCount, fp);
 
@@ -272,7 +276,10 @@ void _SequenceProvider::Init() {
 			binRef[binRefIndex++] = c;
 		}
 		while ((l = kseq_read(seq)) >= 0) {
-
+			if(j >= maxRefCount) {
+				Log.Error("Currently NextGenMap can't handle more than %d reference sequences.", maxRefCount);
+				Fatal();
+			}
 			binRefMap[j].SeqStart = binRefIndex * 2;
 			binRefMap[j].SeqLen = seq->seq.l;
 			binRefMap[j].SeqId = j;
@@ -326,7 +333,7 @@ void _SequenceProvider::Init() {
 	}
 
 	if (NGM.DualStrand())
-		refCount *= 2;
+	refCount *= 2;
 
 #ifdef VERBOSE
 	for (int i = 0; i < refCount; ++i) {
@@ -392,8 +399,7 @@ bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offse
 		Fatal();
 	}
 
-
-	for(uint i = codedIndex; i < bufferLength; ++i) {
+	for (uint i = codedIndex; i < bufferLength; ++i) {
 		buffer[i] = '\0';
 	}
 	return true;
@@ -402,7 +408,7 @@ bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offse
 char const * _SequenceProvider::GetRefName(int n, int & len) const {
 	if (CheckRefNr(n)) {
 		if (NGM.DualStrand())
-			n >>= 1;
+		n >>= 1;
 		len = binRefIdx[n].NameLen;
 
 		return binRefIdx[n].name;
@@ -417,7 +423,7 @@ uint _SequenceProvider::GetConcatRefLen() const {
 uint _SequenceProvider::GetRefLen(int n) const {
 	if (CheckRefNr(n)) {
 		if (NGM.DualStrand())
-			n >>= 1;
+		n >>= 1;
 		return (int) binRefIdx[n].SeqLen;
 	} else {
 		return 0;
@@ -427,7 +433,7 @@ uint _SequenceProvider::GetRefLen(int n) const {
 uint _SequenceProvider::GetRefStart(int n) const {
 	if (CheckRefNr(n)) {
 		if (NGM.DualStrand())
-			n >>= 1;
+		n >>= 1;
 		return (int) binRefIdx[n].SeqStart;
 	} else {
 		return 0;
