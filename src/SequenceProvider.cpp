@@ -441,7 +441,8 @@ int _SequenceProvider::GetRefCount() const {
 bool _SequenceProvider::CheckRefNr(int n) const {
 	if (n >= refCount || n < 0) {
 		Log.Error("Tried to access invalid reference sequence (%i %x).", n, n);
-		Fatal();
+		throw "Problem";
+		//Fatal();
 		return false;
 	}
 	return true;

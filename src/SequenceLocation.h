@@ -10,7 +10,7 @@
 struct SequenceLocation
 {
 	uint m_Location;
-	short m_RefId;
+	unsigned short m_RefId;
 	bool m_Reverse;
 
 	bool used() {

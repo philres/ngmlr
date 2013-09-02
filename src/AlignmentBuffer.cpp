@@ -134,16 +134,20 @@ void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 				int j = 0;
 				while (i < refCount/* && loc.m_Location >= SequenceProvider.GetRefStart(i)*/) {
 					refStartPos[j++] = SequenceProvider.GetRefStart(i);
+					//Log.Message("refstar %d: %d", j-1, SequenceProvider.GetRefStart(i));
 					i += (NGM.DualStrand()) ? 2 : 1;
 				}
 			}
 
 			//Convert position back to Chromosome+Position
 					SequenceLocation loc = read->Scores[i].Location;
+					//Log.Message("Loc: %u", loc.m_Location);
 					int * upper = std::upper_bound(refStartPos, refStartPos + (refCount / ((NGM.DualStrand()) ? 2 : 1)), loc.m_Location);
+					//Log.Message("upper %d %d", *upper, *(upper-1));
 					std::ptrdiff_t refId = ((upper - 1) - refStartPos) * ((NGM.DualStrand()) ? 2 : 1);
 					loc.m_Location -= *(upper - 1);
 					loc.m_RefId = refId;
+					//Log.Message("Converted score %d: %hd %d %u", i, loc.m_RefId, refId, loc.m_Location);
 					read->Scores[i].Location = loc;
 
 					if (loc.m_Reverse) {
