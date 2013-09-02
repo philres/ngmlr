@@ -63,7 +63,7 @@ include_directories("${PROJECT_SOURCE_DIR}/lib/zlib-1.2.7")
 add_subdirectory(lib/zlib-1.2.7)
 add_subdirectory(lib/bamtools-2.2.3)
 
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/opencl-sdk/AMD-APP-SDK-v2.8-RC-lnx64/include")
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/opencl-sdk/AMD-APP-SDK-v2.8.1.0-RC-lnx64/include")
 #LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/bin/amd-app-sdk")
 #include_directories(${OPENCL_INCLUDE_DIRS})
 
