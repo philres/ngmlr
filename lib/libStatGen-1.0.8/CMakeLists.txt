@@ -7,7 +7,7 @@ if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/libStatGen-1.0.8/libStatGen.a")
 	MESSAGE(STATUS "libStatGen-1.0.8 found.")
 else()
 	MESSAGE(STATUS "Downloading libStatGen-1.0.8.")
-	set(url  "https://github.com/statgen/libStatGen/archive/v1.0.8.tar.gz")
+	set(url  "http://github.com/statgen/libStatGen/archive/v1.0.8.tar.gz")
 	file(DOWNLOAD ${url} "${CMAKE_CURRENT_BINARY_DIR}/v1.0.8.tar.gz" 
 	    STATUS status  
 	    EXPECTED_MD5 4499f46291ff5cc25ace20e8c2fb741c)
