@@ -435,6 +435,7 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("parse_all", 1);
 	Default("hard_clip", 0);
 	Default("silent_clip", 0);
+	Default("no_unal", 0);
 
 	//BS-mapping
 	Default("bs_cutoff", 8);

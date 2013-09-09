@@ -11,7 +11,6 @@
 #include "SequenceProvider.h"
 #include "NGM.h"
 
-
 using namespace BamTools;
 
 //using BamTools::BamWriter;
@@ -188,55 +187,56 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 	NGM.AddUnmappedRead(read, MFAIL_NOCAND);
 
 	//NGMLock(&m_OutputMutex);
+	if(writeUnmapped) {
+		BamAlignment * al = new BamAlignment();
 
-	BamAlignment * al = new BamAlignment();
+		char const * readseq = read->Seq;
+		int readlen = read->length;
 
-	char const * readseq = read->Seq;
-	int readlen = read->length;
+		char * readname = read->name;
+		//int readnamelen = read->nameLength;
 
-	char * readname = read->name;
-	//int readnamelen = read->nameLength;
+		char * qltystr = read->qlty;
+		int qltylen = readlen;
 
-	char * qltystr = read->qlty;
-	int qltylen = readlen;
+		al->AlignmentFlag = 0;
+		translate_flag(al, flags);
+		al->SetIsMapped(false);
 
-	al->AlignmentFlag = 0;
-	translate_flag(al, flags);
-	al->SetIsMapped(false);
+		//al->Name = std::string(readname, readnamelen);
+		al->Name = std::string(readname);
+		al->Length = readlen;
+		al->MapQuality = 0;
 
-	//al->Name = std::string(readname, readnamelen);
-	al->Name = std::string(readname);
-	al->Length = readlen;
-	al->MapQuality = 0;
+		std::string seq(readseq, readlen);
+		al->QueryBases = seq;
 
-	std::string seq(readseq, readlen);
-	al->QueryBases = seq;
+		//al->Position = 0;
+		//al->RefID = 0;
 
-	//al->Position = 0;
-	//al->RefID = 0;
+		//Log.Message("%s: %s", read->name, read->Buffer1);
 
-	//Log.Message("%s: %s", read->name, read->Buffer1);
+		if (qltystr != 0 && qltylen > 0 && qltylen == readlen) {
+			al->Qualities = std::string(qltystr, qltylen);
+		} else {
+			al->Qualities = std::string(readlen, ':');
+		}
 
-	if (qltystr != 0 && qltylen > 0 && qltylen == readlen) {
-		al->Qualities = std::string(qltystr, qltylen);
-	} else {
-		al->Qualities = std::string(readlen, ':');
-	}
-
-	//	//Optional fields
+		//	//Optional fields
 //	al->AddTag("AS", "i", (int) read->TLS()->Score.f);
 //	al->AddTag("MD", "Z", std::string(read->Buffer2));
 //	al->AddTag("X0", "i", (int) read->EqualScoringCount);
 //	al->AddTag("XI", "f", read->Identity);
 
-	//writer->SaveAlignment(al);
-	if (bufferIndex < 10000) {
-		buffer[bufferIndex++] = al;
-	} else {
-		writer->SaveAlignment(buffer);
-		bufferIndex = 0;
+		//writer->SaveAlignment(al);
+		if (bufferIndex < 10000) {
+			buffer[bufferIndex++] = al;
+		} else {
+			writer->SaveAlignment(buffer);
+			bufferIndex = 0;
+		}
+		//NGMUnlock(&m_OutputMutex);
 	}
-	//NGMUnlock(&m_OutputMutex);
 }
 
 void BAMWriter::DoWriteRead(MappedRead const * const read, int const scoreId) {

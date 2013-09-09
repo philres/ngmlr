@@ -19,7 +19,7 @@ static const struct option long_options[] =
 		{ "config", 					required_argument, 0, 'c' },
 		{ "output", 					required_argument, 0, 'o' },
 		{ "qry",    					required_argument, 0, 'q' },
-		{ "qry1",	    					required_argument, 0, '1' },
+		{ "qry1",	    				required_argument, 0, '1' },
 		{ "qry2", 	   					required_argument, 0, '2' },
 		{ "ref", 						required_argument, 0, 'r' },
 		{ "cpu-threads", 				required_argument, 0, 't' },
@@ -55,6 +55,7 @@ static const struct option long_options[] =
 		{ "score-gap-ref",				required_argument, 0, 0 },
 		{ "max-cmrs",      		        required_argument, 0, 0 },
 		{ "fast-pairing",  		        no_argument,       0, 0 },
+		{ "no-unal",	  		        no_argument,       0, 0 },
 		{ "pair-score-cutoff",	        required_argument, 0, 0 },
 		{ "strata",      		        no_argument,       0, 0 },
 	0 };

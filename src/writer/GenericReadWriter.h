@@ -21,6 +21,7 @@ public:
 			identity = Config.GetFloat("identity_tresh", 0, 100);
 			identity = identity / 100.0f;
 		}
+		writeUnmapped = !Config.GetInt("no_unal");
 	}
 	virtual ~GenericReadWriter() {
 
@@ -35,8 +36,12 @@ protected:
 
 	float identity;
 
+	bool writeUnmapped;
+
 	static int const BUFFER_SIZE = 17000000;
 	static int const BUFFER_LIMIT = 16000000;
+
+
 
 	char * writeBuffer;
 	int bufferPosition;
