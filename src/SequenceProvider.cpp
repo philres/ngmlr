@@ -189,21 +189,23 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName) {
 }
 
 void _SequenceProvider::writeEncRefToFile(char const * fileName, uint const refCount, uint const encRefSize) {
-	Timer wtmr;
-	wtmr.ST();
-	Log.Message("Writing encoded reference to %s", fileName);
-	FILE *fp;
-	fp = fopen(fileName, "wb");
-	fwrite(&refEncCookie, sizeof(uint), 1, fp);
-	fwrite(&refCount, sizeof(uint), 1, fp);
-	fwrite(&binRefIndex, sizeof(uint), 1, fp);
-	fwrite(&encRefSize, sizeof(uint), 1, fp);
+	if (!Config.GetInt("skip_save")) {
+		Timer wtmr;
+		wtmr.ST();
+		Log.Message("Writing encoded reference to %s", fileName);
+		FILE *fp;
+		fp = fopen(fileName, "wb");
+		fwrite(&refEncCookie, sizeof(uint), 1, fp);
+		fwrite(&refCount, sizeof(uint), 1, fp);
+		fwrite(&binRefIndex, sizeof(uint), 1, fp);
+		fwrite(&encRefSize, sizeof(uint), 1, fp);
 
-	fwrite(binRefIdx, sizeof(RefIdx), refCount, fp);
-	fwrite(binRef, sizeof(char), encRefSize, fp);
+		fwrite(binRefIdx, sizeof(RefIdx), refCount, fp);
+		fwrite(binRef, sizeof(char), encRefSize, fp);
 
-	fclose(fp);
-	Log.Message("Writing to disk took %.2fs", wtmr.ET());
+		fclose(fp);
+		Log.Message("Writing to disk took %.2fs", wtmr.ET());
+	}
 }
 
 long getSize(char const * const file) {

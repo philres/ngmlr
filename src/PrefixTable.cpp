@@ -316,7 +316,7 @@ void CompactPrefixTable::BuildPrefixTable(ulong prefix, uint pos, ulong mutateFr
 		int currentBin = GetBin(pos);
 		if (currentBin != lastBin || lastBin == -1) {
 			if (_this->RefTableIndex[prefix].used()) {
-				Location tmp = { pos };
+				Location tmp = {pos};
 				_this->SaveToRefTable(prefix, tmp);
 			}
 		} else {
@@ -329,7 +329,7 @@ void CompactPrefixTable::BuildPrefixTable(ulong prefix, uint pos, ulong mutateFr
 		lastBin = -1;
 		lastPos = -1;
 		if (_this->RefTableIndex[prefix].used()) {
-			Location tmp = { pos };
+			Location tmp = {pos};
 			_this->SaveToRefTable(prefix, tmp);
 		}
 	}
@@ -418,26 +418,29 @@ RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * entry)
 }
 
 void CompactPrefixTable::saveToFile(char const * fileName, uint const refIndexSize, uint const refTableSize) {
-
-	Timer wtmr;
-	wtmr.ST();
-	Log.Message("Writing RefTable to %s", fileName);
-	FILE *fp;
-	fp = fopen(fileName, "wb");
-	if (fp != 0) {
-		fwrite(&refTabCookie, sizeof(uint), 1, fp);
-		fwrite(&m_PrefixLength, sizeof(uint), 1, fp);
-		fwrite(&m_RefSkip, sizeof(uint), 1, fp);
-		fwrite(&refIndexSize, sizeof(uint), 1, fp);
-		fwrite(&refTableSize, sizeof(uint), 1, fp);
-		fwrite(RefTableIndex, sizeof(Index), refIndexSize, fp);
-		fwrite(RefTable, sizeof(Location), refTableSize, fp);
-		fclose(fp);
+	if (!Config.GetInt("skip_save")) {
+		Timer wtmr;
+		wtmr.ST();
+		Log.Message("Writing RefTable to %s", fileName);
+		FILE *fp;
+		fp = fopen(fileName, "wb");
+		if (fp != 0) {
+			fwrite(&refTabCookie, sizeof(uint), 1, fp);
+			fwrite(&m_PrefixLength, sizeof(uint), 1, fp);
+			fwrite(&m_RefSkip, sizeof(uint), 1, fp);
+			fwrite(&refIndexSize, sizeof(uint), 1, fp);
+			fwrite(&refTableSize, sizeof(uint), 1, fp);
+			fwrite(RefTableIndex, sizeof(Index), refIndexSize, fp);
+			fwrite(RefTable, sizeof(Location), refTableSize, fp);
+			fclose(fp);
+		} else {
+			Log.Error("Error while opening file %s for writing.", fileName);
+			Fatal();
+		}
+		Log.Message("Writing to disk took %.2fs", wtmr.ET());
 	} else {
-		Log.Error("Error while opening file %s for writing.", fileName);
-		Fatal();
+		Log.Warning("RefTable is not saved to disk! (--skip-save)");
 	}
-	Log.Message("Writing to disk took %.2fs", wtmr.ET());
 }
 
 uint CompactPrefixTable::readFromFile(char const * fileName) {

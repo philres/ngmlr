@@ -383,6 +383,7 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("kmer_min", 0);
 	Default("max_cmrs", INT_MAX);
 	Default("kmer_skip", 2);
+	Default("skip_save", 0);
 	Default("mode", 0);
 	Default("topn", 1);
 	Default("strata", 0);
