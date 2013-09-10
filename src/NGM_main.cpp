@@ -227,6 +227,7 @@ Output:\n\
 \n\
   -o/--output <path>            Path to output file.\n\
   -b/--bam                      Output BAM instead of SAM.\n\
+  --no-unal                     Don't print unaligned reads to output file.\n\
   --hard-clip                   Use hard instead of soft clipping for SAM output\n\
   --silent-clip                 Hard clip reads but don't add clipping information to CIGAR string\n\
   -n/--topn                     Prints the <n> best alignments sorted by alignment score (default: 1)\n\
@@ -260,6 +261,7 @@ Advanced settings:\n\
                                 the reference(default: 2)\n\
   --kmer-min <int>              Minimal number of k-mer hits required to consider a region a CMR. (default: 0)\n\
   --max-cmrs <int>              Reads that have more than <int> CMRs are ignored. (default: infinite)\n\
+  --skip-save                   Don't save index to disk. Saves disk space but increases runtime for larger genomes.\n\
   -m/mode [0|1]                 Alignment mode: 0 = local, 1 = semi-global. (default: 0)\n\
   -C/--max-consec-indels <int>  Maximum number of consecutive indels allowed. (default: computed from input)\n\
   --fast-pairing                Mates are mapped individually. If the best alignments for the mates give a proper\n\
