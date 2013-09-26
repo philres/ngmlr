@@ -104,8 +104,8 @@ __kernel void oclSW_ScoreGlobal(__global char const * scaff, __global char const
 
 			vstore4(CIGAR_M, corridor_lengt4, matrix);
 			scaff += 1;
-			//Find actual read length. Only increase when not \0
-			read_index = select(read_index + 1, read_index, read_char_cache == (int4) 5);
+			//Find actual read length. Only increase when not \0 == 6 (see oclDefines.cl)
+			read_index = select(read_index + 1, read_index, read_char_cache == (int4) 6);
 		}
 
 		float4 curr_max = -1;

@@ -456,9 +456,9 @@ bool SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short 
 				read_index += length;
 			break;
 			default:
-				Log.Warning("Unable to compute alignment for:");
-				Log.Warning("Ref: %s", refSeq);
-				Log.Warning("Qry: %s", qrySeq);
+				Log.Message("Unable to compute alignment for:");
+				Log.Message("Ref: %s", refSeq);
+				Log.Message("Qry: %s", qrySeq);
 				Log.Warning("This aligment will be discarded. No other alignments will be affected");
 				return false;
 		}
@@ -490,6 +490,9 @@ bool SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short 
 
 	result.Identity = match * 1.0f / total;
 	result.NM = mismatch;
+
+	//Hack. Use read_index to check whether the alignment is correct. If read_index >= read length: not a valid cigar/md string
+	result.Score = (float) read_index;
 	return true;
 }
 
