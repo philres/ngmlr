@@ -3,7 +3,7 @@ project(NextGenMap)
 
 set( NGM_VERSION_MAJOR 0 )
 set( NGM_VERSION_MINOR 4 )
-set( NGM_VERSION_BUILD 7 )
+set( NGM_VERSION_BUILD 8 )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
