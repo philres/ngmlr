@@ -25,7 +25,8 @@ _SequenceProvider & _SequenceProvider::Instance() {
 	return *pInstance;
 }
 
-static int const maxRefCount = 32768;
+//static int const maxRefCount = 32768;
+static int const maxRefCount = 32768000;
 static uint const refEncCookie = 0x74656;
 
 //const size_t _SequenceProvider::MAX_REF_NAME_LENGTH = 150;
@@ -146,7 +147,7 @@ SequenceLocation _SequenceProvider::convert(MappedRead * read, uint m_Location) 
 	j -= (NGM.DualStrand()) ? 2 : 1;
 
 	loc.m_Location = m_Location - SequenceProvider.GetRefStart(j);
-	loc.m_RefId = j;
+	loc.setRefId(j);
 
 	return loc;
 }

@@ -35,12 +35,12 @@ public:
 		//i = 0;
 	}
 
-	void SaveAlignment(BamTools::BamAlignment * buffer[]) {
+	void SaveAlignment(BamTools::BamAlignment * buffer[], int const n) {
 		NGMLock(&m_OutputMutex);
 //		if (i < 10000) {
 //			buffer[i++] = al;
 //		} else {
-			for (int j = 0; j < 10000; ++j) {
+			for (int j = 0; j < n; ++j) {
 				if (!writer->SaveAlignment(*buffer[j])) {
 					Log.Error("Couldn't write BAM record!");
 					Fatal();

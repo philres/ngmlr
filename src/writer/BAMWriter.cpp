@@ -74,6 +74,7 @@ void BAMWriter::translate_flag(BamAlignment * al, int flags) {
 
 void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scoreId, int const pRef, int const pLoc, int const pDist, int const mappingQlty, int flags) {
 
+//	Log.Message("Wrinting %s", read->name);
 	//NGMLock(&m_OutputMutex);
 	static bool const hardClip = Config.GetInt("hard_clip", 0, 1) == 1 || Config.GetInt("silent_clip", 0, 1) == 1;
 
@@ -92,7 +93,7 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	translate_flag(al, flags);
 	al->SetIsMapped(true);
 
-	if (read->Scores[scoreId].Location.m_Reverse) {
+	if (read->Scores[scoreId].Location.isReverse()) {
 		readseq = read->RevSeq;
 		al->SetIsReverseStrand(true);
 	}
@@ -109,7 +110,7 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	else
 		al->QueryBases = std::string(readseq, readlen);
 
-	al->RefID = read->Scores[scoreId].Location.m_RefId / 2;
+	al->RefID = read->Scores[scoreId].Location.getrefId() / 2;
 
 	//Paired
 	//if (pRefName == '=')
@@ -149,13 +150,13 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 
 	if (Config.GetInt("bs_mapping") == 1) {
 		if (!(read->ReadId & 1)) {
-			if (read->Scores[scoreId].Location.m_Reverse) {
+			if (read->Scores[scoreId].Location.isReverse()) {
 				al->AddTag("ZS", "Z", std::string("-+"));
 			} else {
 				al->AddTag("ZS", "Z", std::string("++"));
 			}
 		} else {
-			if (read->Scores[scoreId].Location.m_Reverse) {
+			if (read->Scores[scoreId].Location.isReverse()) {
 				al->AddTag("ZS", "Z", std::string("+-"));
 			} else {
 				al->AddTag("ZS", "Z", std::string("--"));
@@ -176,7 +177,7 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	if (bufferIndex < 10000) {
 		buffer[bufferIndex++] = al;
 	} else {
-		writer->SaveAlignment(buffer);
+		writer->SaveAlignment(buffer, bufferIndex);
 		bufferIndex = 0;
 	}
 	//NGMUnlock(&m_OutputMutex);
@@ -232,7 +233,7 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 		if (bufferIndex < 10000) {
 			buffer[bufferIndex++] = al;
 		} else {
-			writer->SaveAlignment(buffer);
+			writer->SaveAlignment(buffer, bufferIndex);
 			bufferIndex = 0;
 		}
 		//NGMUnlock(&m_OutputMutex);
@@ -269,12 +270,12 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 		flags2 |= 0x8;
 
 		DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.m_Location, 0, read2->mappingQlty, flags2);
-		DoWriteUnmappedReadGeneric(read1, read2->Scores[scoreId2].Location.m_RefId, read2->Scores[scoreId2].Location.m_RefId,
+		DoWriteUnmappedReadGeneric(read1, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.getrefId(),
 				read2->Scores[scoreId2].Location.m_Location, read2->Scores[scoreId2].Location.m_Location, 0, 0, flags1);
 	} else if (!read2->hasCandidates()) {
 		flags1 |= 0x8;
 		//Second mate unmapped
-		DoWriteUnmappedReadGeneric(read2, read1->Scores[scoreId1].Location.m_RefId, read1->Scores[scoreId1].Location.m_RefId,
+		DoWriteUnmappedReadGeneric(read2, read1->Scores[scoreId1].Location.getrefId(), read1->Scores[scoreId1].Location.getrefId(),
 				read1->Scores[scoreId1].Location.m_Location, read1->Scores[scoreId1].Location.m_Location, 0, 0, flags2);
 		DoWriteReadGeneric(read1, scoreId1, read1->Scores[scoreId1].Location.m_Location, 0, read1->mappingQlty, flags1);
 	} else {
@@ -283,30 +284,30 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 			int distance = 0;
 			flags1 |= 0x2;
 			flags2 |= 0x2;
-			if (!read1->Scores[scoreId1].Location.m_Reverse) {
+			if (!read1->Scores[scoreId1].Location.isReverse()) {
 				distance = read2->Scores[scoreId2].Location.m_Location + read2->length - read1->Scores[scoreId1].Location.m_Location;
-				DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.m_RefId, read1->Scores[scoreId1].Location.m_Location,
+				DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.getrefId(), read1->Scores[scoreId1].Location.m_Location,
 						distance * -1, read2->mappingQlty, flags2);
-				DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.m_RefId, read2->Scores[scoreId2].Location.m_Location,
+				DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.m_Location,
 						distance, read1->mappingQlty, flags1 | 0x20);
-			} else if (!read2->Scores[scoreId2].Location.m_Reverse) {
+			} else if (!read2->Scores[scoreId2].Location.isReverse()) {
 				distance = read1->Scores[scoreId1].Location.m_Location + read1->length - read2->Scores[scoreId2].Location.m_Location;
 
-				DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.m_RefId, read1->Scores[scoreId1].Location.m_Location,
+				DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.getrefId(), read1->Scores[scoreId1].Location.m_Location,
 						distance, read2->mappingQlty, flags2 | 0x20);
-				DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.m_RefId, read2->Scores[scoreId2].Location.m_Location,
+				DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.m_Location,
 						distance * -1, read1->mappingQlty, flags1);
 			}
 		} else {
-			if (read1->Scores[scoreId1].Location.m_Reverse) {
+			if (read1->Scores[scoreId1].Location.isReverse()) {
 				flags2 |= 0x20;
 			}
-			if (read2->Scores[scoreId2].Location.m_Reverse) {
+			if (read2->Scores[scoreId2].Location.isReverse()) {
 				flags1 |= 0x20;
 			}
-			DoWriteReadGeneric(read2, scoreId2, read1->Scores[scoreId1].Location.m_RefId, read1->Scores[scoreId1].Location.m_Location, 0,
+			DoWriteReadGeneric(read2, scoreId2, read1->Scores[scoreId1].Location.getrefId(), read1->Scores[scoreId1].Location.m_Location, 0,
 					read2->mappingQlty, flags2);
-			DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.m_RefId, read2->Scores[scoreId2].Location.m_Location, 0,
+			DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.m_Location, 0,
 					read1->mappingQlty, flags1);
 
 			//DoWriteRead(read2);

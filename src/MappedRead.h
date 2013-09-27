@@ -85,11 +85,11 @@ private:
 	static bool SortPred(LocationScore * lhs, LocationScore * rhs) {
 		return lhs->Score.f > rhs->Score.f;
 	}
-	static bool UniquePred(LocationScore * lhs, LocationScore * rhs) {
-		if (lhs == 0 || rhs == 0)
-			return false;
-		return (lhs->Location.m_Location == rhs->Location.m_Location) && (lhs->Location.m_RefId == rhs->Location.m_RefId);
-	}
+//	static bool UniquePred(LocationScore * lhs, LocationScore * rhs) {
+//		if (lhs == 0 || rhs == 0)
+//			return false;
+//		return (lhs->Location.m_Location == rhs->Location.m_Location) && (lhs->Location.m_RefId == rhs->Location.m_RefId);
+//	}
 	static bool IsZero(LocationScore * arg) {
 		return (arg == 0);
 	}

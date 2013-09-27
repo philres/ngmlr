@@ -19,6 +19,13 @@ public:
 		//Fatal();
 	}
 
+	~BAMWriter() {
+		if (bufferIndex > 0) {
+			writer->SaveAlignment(buffer, bufferIndex);
+			bufferIndex = 0;
+		}
+	}
+
 protected:
 	virtual void DoWriteProlog();
 	virtual void DoWriteRead(MappedRead const * const read, int const scoreId);

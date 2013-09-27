@@ -33,9 +33,9 @@ void ScoreBuffer::DoRun() {
 
 			//Initialize buffers for score computation
 			SequenceLocation loc = cur_read->Scores[scoreId].Location;
-			if (NGM.DualStrand() && (loc.m_Reverse)) {
+			if (NGM.DualStrand() && (loc.isReverse())) {
 				// RefId auf +-Strang setzen
-				--loc.m_RefId;
+				//--loc.m_RefId;
 				cur_read->computeReverseSeq();
 				m_QryBuffer[i] = cur_read->RevSeq;
 				if (isPaired) {
@@ -53,7 +53,7 @@ void ScoreBuffer::DoRun() {
 			}
 
 			//decode reference sequence
-			if (!SequenceProvider.DecodeRefSequence(const_cast<char *>(m_RefBuffer[i]), loc.m_RefId,
+			if (!SequenceProvider.DecodeRefSequence(const_cast<char *>(m_RefBuffer[i]), 0,
 					loc.m_Location - (corridor >> 1), refMaxLen)) {
 				Log.Warning("Could not decode reference for alignment (read: %s)", cur_read->name);
 				Log.Warning("Read sequence: %s", cur_read->Seq);

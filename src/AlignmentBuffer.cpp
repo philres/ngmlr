@@ -45,7 +45,7 @@ void AlignmentBuffer::DoRun() {
 			assert(cur_read->hasCandidates());
 
 			//Initialize
-			if (cur_read->Scores[scoreID].Location.m_Reverse) {
+			if (cur_read->Scores[scoreID].Location.isReverse()) {
 				qryBuffer[i] = cur_read->RevSeq;
 
 				if (cur_read->Paired != 0) {
@@ -64,8 +64,12 @@ void AlignmentBuffer::DoRun() {
 			}
 
 			//decode reference sequence
-			SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), cur_read->Scores[scoreID].Location.m_RefId,
+			SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), 0,
 					cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), refMaxLen);
+
+			//Log.Message("1: %s", refBuffer[i]);
+			//memset(const_cast<char *>(refBuffer[i] + corridor + cur_read->length), '\0', refMaxLen - (corridor + cur_read->length));
+			//Log.Message("2: %s", refBuffer[i]);
 
 			//initialize arrays for CIGAR and MD string
 			static int const qryMaxLen = Config.GetInt("qry_max_len");
@@ -101,13 +105,19 @@ void AlignmentBuffer::DoRun() {
 
 #ifdef _DEBUGOUT
 			Log.Message("Read:   %s", cur_read->name);
-			Log.Message("Score: %f", cur_read->Scores[scoreID].Score.f);
+			Log.Message("Score:  %f", cur_read->Scores[scoreID].Score.f);
 			Log.Message("Seq:    %s", cur_read->Seq);
-			Log.Message("CIGAR:  %s", cur_read->Buffer1);
-			Log.Message("MD:     %s", cur_read->Buffer2);
+			Log.Message("Length: %d", cur_read->length);
+			Log.Message("CIGAR:  %s", alignBuffer[i].pBuffer1);
+			Log.Message("MD:     %s", alignBuffer[i].pBuffer2);
 #endif
 
+
 			cur_read->Alignments[scoreID] = alignBuffer[i];
+
+			//Log.Message("%d %f", cur_read->length, cur_read->Alignments[scoreID].Score);
+
+
 
 			if ((cur_read->Calculated - 1) == scoreID) {
 				Log.Verbose("Process aligned read. Equal: %i, ReadId: %i, numScore: %d, calculated: %d, (%s)",cur_read->EqualScoringCount, cur_read->ReadId, cur_read->numScores(), cur_read->Calculated, cur_read->name);
@@ -146,11 +156,11 @@ void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 					//Log.Message("upper %d %d", *upper, *(upper-1));
 					std::ptrdiff_t refId = ((upper - 1) - refStartPos) * ((NGM.DualStrand()) ? 2 : 1);
 					loc.m_Location -= *(upper - 1);
-					loc.m_RefId = refId;
+					loc.setRefId(refId);
 					//Log.Message("Converted score %d: %hd %d %u", i, loc.m_RefId, refId, loc.m_Location);
 					read->Scores[i].Location = loc;
 
-					if (loc.m_Reverse) {
+					if (loc.isReverse()) {
 						if (read->qlty != 0)
 						std::reverse(read->qlty, read->qlty + strlen(read->qlty));
 					}
@@ -170,8 +180,8 @@ void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 					//int distance = abs(read->TLS()->Location.m_Location - read->Paired->TLS()->Location.m_Location);
 
 					pairInsertCount += 1;
-					if (ls1->Location.m_RefId != ls2->Location.m_RefId || distance < _NGM::sPairMinDistance
-							|| distance > _NGM::sPairMaxDistance || ls1->Location.m_Reverse == ls2->Location.m_Reverse) {
+					if (ls1->Location.getrefId() != ls2->Location.getrefId() || distance < _NGM::sPairMinDistance
+							|| distance > _NGM::sPairMaxDistance || ls1->Location.isReverse() == ls2->Location.isReverse()) {
 						read->SetFlag(NGMNames::PairedFail);
 						read->Paired->SetFlag(NGMNames::PairedFail);
 						brokenPairs += 1;

@@ -362,7 +362,7 @@ int CS::CollectResultsStd(MappedRead * read) {
 			LocationScore * toInsert = &tmp[index++];
 			toInsert->Score.f = temp.fScore;
 			toInsert->Location.m_Location = ResolveBin(temp.m_Location);
-			toInsert->Location.m_Reverse = false;
+			toInsert->Location.setReverse(false);
 //			toInsert->Read = read;
 			//Log.Verbose("Adding Location <%i, %i> with Score %f", temp.Location.m_Location, temp.Location.m_RefId, temp.Score.f);
 		}
@@ -372,7 +372,7 @@ int CS::CollectResultsStd(MappedRead * read) {
 			//Log.Error("%f", temp.rScore);
 			toInsert->Score.f = temp.rScore;
 			toInsert->Location.m_Location = ResolveBin(temp.m_Location);
-			toInsert->Location.m_Reverse = true;
+			toInsert->Location.setReverse(true);
 //			toInsert->Read = read;
 		}
 	}
