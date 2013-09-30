@@ -34,7 +34,7 @@ public:
 		writer = new BamTools::BamWriter();
 		//i = 0;
 	}
-
+#include <string.h>
 	void SaveAlignment(BamTools::BamAlignment * buffer[], int const n) {
 		NGMLock(&m_OutputMutex);
 //		if (i < 10000) {
