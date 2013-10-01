@@ -59,8 +59,6 @@ __kernel void oclSW_Backtracking(__global char const * scaff, __global char cons
 #ifdef __CPU__
 __kernel void oclSW_Backtracking(__global char const * scaff, __global char const * read, __global short * result, __global char * _matrix, __global short * alignments) {
 
-	//	matrix = matrix + ((global_index / threads_per_block) * threads_per_block * ((corridor_length + 1) * (read_length + 1))) + global_index % threads_per_block;
-
 	read = read + (global_index * read_length * 4);
 	scaff = scaff + (global_index * ref_length * 4);
 	result = result + result_number * global_index * 4;
@@ -79,7 +77,6 @@ __kernel void oclSW_Backtracking(__global char const * scaff, __global char cons
 
 		if (best_read_index > 0) {
 
-//				alignments = alignments + (global_index * alignment_length * 2);
 				matrix += step_size * (best_read_index + 1);
 
 				short abs_ref_index = best_ref_index + best_read_index;
@@ -122,35 +119,8 @@ __kernel void oclSW_Backtracking(__global char const * scaff, __global char cons
 
 		read = read + read_length;
 		scaff = scaff + ref_length;
-		//		result = result + result_number;
 		alignments = alignments + alignment_length * 2;
-		//		_matrix = _matrix + ((corridor_length + 1) * (read_length + 1));
 	}
-
-//	short tmp = result[1];
-//	result[1] = result[4];
-//	result[4] = tmp;
-//
-//	tmp = result[2];
-//	result[2] = result[8];
-//	result[8] = tmp;
-//
-//	tmp = result[3];
-//	result[3] = result[12];
-//	result[12] = tmp;
-//
-//	tmp = result[6];
-//	result[9] = result[4];
-//	result[9] = tmp;
-//
-//	tmp = result[7];
-//	result[7] = result[13];
-//	result[13] = tmp;
-//
-//	tmp = result[11];
-//	result[11] = result[14];
-//	result[14] = tmp;
-
 }
 #endif
 
