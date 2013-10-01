@@ -73,7 +73,7 @@ void BAMWriter::translate_flag(BamAlignment * al, int flags) {
 }
 
 void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scoreId, int const pRef, int const pLoc, int const pDist, int const mappingQlty, int flags) {
-
+	NGM.AddWrittenRead(read->ReadId);
 //	Log.Message("Wrinting %s", read->name);
 	//NGMLock(&m_OutputMutex);
 	static bool const hardClip = Config.GetInt("hard_clip", 0, 1) == 1 || Config.GetInt("silent_clip", 0, 1) == 1;
@@ -187,6 +187,7 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 
 	//NGMLock(&m_OutputMutex);
 	if(writeUnmapped) {
+		NGM.AddWrittenRead(read->ReadId);
 		BamAlignment * al = new BamAlignment();
 
 		char const * readseq = read->Seq;

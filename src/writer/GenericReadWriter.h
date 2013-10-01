@@ -86,18 +86,18 @@ public:
 				if (mapped) {
 					mappedOnce = true;
 					DoWriteRead(read, i);
-					NGM.AddWrittenRead(read->ReadId);
+					//NGM.AddWrittenRead(read->ReadId);
 				}
 			}
 			if (mappedOnce) {
 				NGM.AddMappedRead(read->ReadId);
 			} else {
 				DoWriteUnmappedRead(read);
-				NGM.AddWrittenRead(read->ReadId);
+				//NGM.AddWrittenRead(read->ReadId);
 			}
 		} else {
 			DoWriteUnmappedRead(read);
-			NGM.AddWrittenRead(read->ReadId);
+			//NGM.AddWrittenRead(read->ReadId);
 		}
 	}
 
@@ -138,8 +138,8 @@ public:
 
 		DoWritePair(read1, scoreId1, read2, scoreId2);
 
-		NGM.AddWrittenRead(read1->ReadId);
-		NGM.AddWrittenRead(read2->ReadId);
+		//NGM.AddWrittenRead(read1->ReadId);
+		//NGM.AddWrittenRead(read2->ReadId);
 
 	}
 

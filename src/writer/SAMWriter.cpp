@@ -44,6 +44,8 @@ void SAMWriter::DoWriteRead(MappedRead const * const read, int const scoreID) {
 
 void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scoreID, char const * pRefName, int const pLoc, int const pDist, int const mappingQlty, int flags) {
 
+	NGM.AddWrittenRead(read->ReadId);
+
 	static bool const hardClip = Config.GetInt("hard_clip", 0, 1) == 1 || Config.GetInt("silent_clip", 0, 1) == 1;
 
 	char const * readseq = read->Seq;
@@ -204,6 +206,7 @@ void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 	NGM.AddUnmappedRead(read, MFAIL_NOCAND);
 
 	if(writeUnmapped) {
+		NGM.AddWrittenRead(read->ReadId);
 		flags |= 0x4;
 
 		char const * readseq = read->Seq;
