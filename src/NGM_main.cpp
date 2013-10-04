@@ -275,6 +275,7 @@ Advanced settings:\n\
   --score-match-tt <int>        Only for bs-mapping (default: 4)\n\
   --score-match-tc <int>        Only for bs-mapping (default: 4)\n\
   --color                       Colored text output (default: off)\n\
+  --no-progress                 Don't print progress info while mapping (default: off)\n\
 \n\
 \n";
 	printf(help_msg);

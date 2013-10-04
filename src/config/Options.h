@@ -57,7 +57,7 @@ static const struct option long_options[] =
 		{ "fast-pairing",  		        no_argument,       0, 0 },
 		{ "no-unal",	  		        no_argument,       0, 0 },
 		{ "skip-save",  		        no_argument,       0, 0 },
-		//{ "rebuild",	  		        no_argument,       0, 0 },
+		{ "no-progress",  		        no_argument,       0, 0 },
 		{ "pair-score-cutoff",	        required_argument, 0, 0 },
 		{ "strata",      		        no_argument,       0, 0 },
 	0 };

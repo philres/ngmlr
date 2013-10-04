@@ -441,6 +441,9 @@ _Config::_Config(int argc, char * argv[]) {
 	//BS-mapping
 	Default("bs_cutoff", 8);
 
+	//Others
+	Default("no_progress", 0);
+
 	initialized = true;
 
 	if (Exists("max_consecutive_indels")) {
