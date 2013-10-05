@@ -26,7 +26,7 @@ _SequenceProvider & _SequenceProvider::Instance() {
 }
 
 //static int const maxRefCount = 32768;
-static int const maxRefCount = 32768000;
+static int const maxRefCount = 2147483647;
 static uint const refEncCookie = 0x74656;
 
 //const size_t _SequenceProvider::MAX_REF_NAME_LENGTH = 150;

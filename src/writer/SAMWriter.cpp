@@ -1,10 +1,12 @@
 #include "SAMWriter.h"
 
 #include <string.h>
+#include <sstream>
 
 #include "Config.h"
 #include "SequenceProvider.h"
 #include "NGM.h"
+#include "Version.h"
 
 //Format: http://samtools.sourceforge.net/SAM1.pdf
 static int const report_offset = 1;
@@ -20,11 +22,11 @@ void SAMWriter::DoWriteProlog() {
 
 	if (ref == -1)
 		for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
-
 			refName = SequenceProvider.GetRefName(i, refNameLength);
 			Print("@SQ\tSN:%.*s\tLN:%d\n", refNameLength, refName, SequenceProvider.GetRefLen(i));
 			if (NGM.DualStrand())
 			++i;
+			m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer, false);
 		}
 		else {
 			refName = SequenceProvider.GetRefName(ref * ((NGM.DualStrand()) ? 2 : 1), refNameLength);
@@ -32,7 +34,9 @@ void SAMWriter::DoWriteProlog() {
 		}
 
 		//TODO: add version
-	Print("@PG\tID:ngm\tVN:%s\tCL:\"%s\"\n", "0.0.1", Config.GetString("cmdline"));
+	std::stringstream version;
+	version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
+	Print("@PG\tID:ngm\tVN:%s\tCL:\"%s\"\n", version.str().c_str(), Config.GetString("cmdline"));
 
 	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer, true);
 }

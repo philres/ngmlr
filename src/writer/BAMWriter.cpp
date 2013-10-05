@@ -3,6 +3,7 @@
 #ifdef _BAM
 
 #include <string.h>
+#include <sstream>
 
 //#include "api/BamWriter.h"
 //#include "api/SamHeader.h"
@@ -10,6 +11,8 @@
 #include "Config.h"
 #include "SequenceProvider.h"
 #include "NGM.h"
+
+#include "Version.h"
 
 using namespace BamTools;
 
@@ -32,7 +35,9 @@ void BAMWriter::DoWriteProlog() {
 	header.SortOrder = "unsorted";
 
 	program.Name = "ngm";
-	program.Version = "0.0.1";
+	std::stringstream version;
+	version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
+	program.Version = version.str();
 	program.CommandLine = std::string(Config.GetString("cmdline"));
 
 	header.Programs.Add(program);
