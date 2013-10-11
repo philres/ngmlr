@@ -211,71 +211,106 @@ Usage:\
 \n\
 Input/Output:\n\
 \n\
-  -c/--config <path>            Path to the config file. The config file contains all advanced options.\n\
-                                If this parameter is omitted, default values will be used.\n\
-  -r/--reference <path>         Path to the reference genome (format: FASTA, can be gzipped).\n\
-  -q/--qry  <path>              Path to the read file. If the file contains interleaved mates use -p/--paired.\n\
-  -1/--qry1 <path>              Path to the read file containing mates 1.\n\
-  -2/--qry2 <path>              Path to the read file containing mates 2.\n\
-                                Valid input formats are: FASTA/Q (gzipped), SAM/BAM\n\
-                                If the query file(s) is/are omitted, NGM will only pre-process the reference.\n\
-  -p/--paired                   Input data is paired end. NOT required if -1 and -2 are used. (default: off)\n\
-  -I/--min-insert-size          The minimum insert size for paired end alignments (default: 0)\n\
-  -X/--max-insert-size          The maximum insert size for paired end alignments (default: 1000)\n\
+ -c/--config <path>            Path to the config file. The config file contains\n\
+                               all advanced options. If this parameter is\n\
+                               omitted, default values will be used.\n\
+ -r/--reference <path>         Path to the reference genome\n\
+                               (format: FASTA, can be gzipped).\n\
+ -q/--qry  <path>              Path to the read file. If the file contains\n\
+                               interleaved mates use -p/--paired.\n\
+ -1/--qry1 <path>              Path to the read file containing mates 1.\n\
+ -2/--qry2 <path>              Path to the read file containing mates 2.\n\
+                               Valid input formats are: FASTA/Q (gzipped),\n\
+                               SAM/BAM. If the query file(s) is/are omitted,\n\
+                               NGM will only pre-process the reference.\n\
+ -p/--paired                   Input data is paired end.\n\
+                               NOT required if -1/-2 are used. (default: off)\n\
+ -I/--min-insert-size          The min insert size for paired end alignments\n\
+                               (default: 0)\n\
+ -X/--max-insert-size          The max insert size for paired end alignments\n\
+                               (default: 1000)\n\
 \n\
 Output:\n\
 \n\
-  -o/--output <path>            Path to output file.\n\
-  -b/--bam                      Output BAM instead of SAM.\n\
-  --no-unal                     Don't print unaligned reads to output file.\n\
-  --hard-clip                   Use hard instead of soft clipping for SAM output\n\
-  --silent-clip                 Hard clip reads but don't add clipping information to CIGAR string\n\
-  -n/--topn                     Prints the <n> best alignments sorted by alignment score (default: 1)\n\
-  --strata                      Only  output  the  highest  scoring  mappings  for any  given  read,  up  to\n\
-                                <n> mappings per read. NOTE: If a read has more than <n> mappings with the same\n\
-                                score, it is discarded and reported as unmapped.\n\
+ -o/--output <path>            Path to output file.\n\
+ -b/--bam                      Output BAM instead of SAM.\n\
+ --no-unal                     Don't print unaligned reads to output file.\n\
+ --hard-clip                   Hard instead of soft clipping in SAM output\n\
+ --silent-clip                 Hard clip reads but don't add clipping\n\
+                               information to CIGAR string\n\
+ -n/--topn                     Prints the <n> best alignments sorted by\n\
+                               alignment score (default: 1)\n\
+ --strata                      Only  output  the  highest  scoring  mappings\n\
+                               for any  given  read,  up  to <n> mappings per\n\
+                               read. If a read has more than <n> mappings with\n\
+                               the same score, it is discarded and reported\n\
+                               as unmapped.\n\
 \n\
 General:\n\n\
-  -t/--threads <int>            Number of candidate search threads\n\
-  -s/--sensitivity <float>      A value between 0 and 1 that determines the number of candidate mapping\n\
-                                regions that will be evaluated with an sequence alignment.\n\
-                                0 means that all CMR(s) will be evaluated\n\
-                                1 means that only the best CMR(s) will be evaluated\n\
-                                Higher values will reduce the runtime but also have a negative effect on mapping sensitivity.\n\
-                                (default: estimated from input data)\n\
-  -i/--min-identity <0-1>       All reads mapped with an identity lower than this threshold will be reported as unmapped (default: 0.65)\n\
-  -R/--min-residues <int>       All reads mapped with lower than <int> residues will be reported as unmapped (default: 0.0)\n\
-  -g/--gpu [int,...]            Use GPU(s) for alignment computation (GPU Ids are zero-based!).\n\
-                                   With -g or --gpu GPU 0 will be used.\n\
-                                   With -g 1 or --gpu 1 GPU 1 will be used.\n\
-                                   With -g 0,1 or --gpu 0,1 GPU 0 and 1 will be used.\n\
-                                If -g/--gpu is omitted, alignments will be computed on the CPU\n\
-  --bs-mapping                  Enables bisulfite mapping (For bs-mapping kmer-skip will be applied to\n\
-                                the reads instead of the reference sequence).\n\
-  --bs-cutoff <int>             Max. number of Ts in a k-mer. All k-mers were the number of Ts is higher than <int> are ignored (default: 8)\n\
-  -h/--help                     Prints help and aborts program\n\n\
+ -t/--threads <int>            Number of candidate search threads\n\
+ -s/--sensitivity <float>      A value between 0 and 1 that determines the\n\
+                               number of candidate mapping regions that will\n\
+                               be evaluated with an sequence alignment.\n\
+                                 0: all CMR(s) will be evaluated\n\
+                                 1: only the best CMR(s) will be evaluated\n\
+                               Higher values will reduce the runtime but also\n\
+                               have a negative effect on mapping sensitivity.\n\
+                               (default: estimated from input data)\n\
+ -i/--min-identity <0-1>       All reads mapped with an identity lower than\n\
+                               this threshold will be reported as unmapped\n\
+                               (default: 0.65)\n\
+ -R/--min-residues <int>       All reads mapped with lower than <int> residues\n\
+                               will be reported as unmapped (default: 0.0)\n\
+ -g/--gpu [int,...]            Use GPU(s) for alignment computation\n\
+                               NOTE: GPU Ids are zero-based!\n\
+                                  -g or --gpu to use GPU\n\
+                                  -g 1 or --gpu 1 to use GPU 1\n\
+                                  -g 0,1 or --gpu 0,1 to use GPU 0 and 1\n\
+                               If -g/--gpu is omitted, alignments will be\n\
+                               computed on the CPU (default)\n\
+ --bs-mapping                  Enables bisulfite mapping.\n\
+                               For bs-mapping, kmer-skip will be applied to\n\
+                               the reads instead of the reference sequence.\n\
+ --bs-cutoff <int>             Max. number of Ts in a k-mer. All k-mers were\n\
+                               the number of Ts is higher than <int> are\n\
+                               ignored (default: 8)\n\
+ -h/--help                     Prints help and aborts program\n\n\
+\n\
 Advanced settings:\n\
 \n\
-  -k/--kmer [10-14]             Kmer length in bases. (default: 13)\n\
-  --kmer-skip <int>             Number of k-mers to skip when building the lookup table from\n\
-                                the reference(default: 2)\n\
-  --kmer-min <int>              Minimal number of k-mer hits required to consider a region a CMR. (default: 0)\n\
-  --max-cmrs <int>              Reads that have more than <int> CMRs are ignored. (default: infinite)\n\
-  --skip-save                   Don't save index to disk. Saves disk space but increases runtime for larger genomes.\n\
-  -m/mode [0|1]                 Alignment mode: 0 = local, 1 = semi-global. (default: 0)\n\
-  -C/--max-consec-indels <int>  Maximum number of consecutive indels allowed. (default: computed from input)\n\
-  --fast-pairing                Mates are mapped individually. If the best alignments for the mates give a proper\n\
-                                pair they are marked as paired in the output. If not they are reported as broken pair.\n\
-  --pair-score-cutoff <0-1>     To find the best pairing all alignments of a read that have a score in the range of: \n\
-                                [top score; top score * pair-score-cutoff] are taken into account.\n\
-  --score-match <int>           Match Score (default: 10, bs-mapping: 4)\n\
-  --score-mismatch <int>        Mismatch Score (default: -15, bs-mapping: -2)\n\
-  --score-gap-read <int>        Gap score in read (default: -20, bs-mapping: -10)\n\
-  --score-gap-ref <int>         Gap score in reference (default: -20, bs-mapping: -10)\n\
-  --score-match-tt <int>        Only for bs-mapping (default: 4)\n\
-  --score-match-tc <int>        Only for bs-mapping (default: 4)\n\
-  --color                       Colored text output (default: off)\n\
-  --no-progress                 Don't print progress info while mapping (default: off)\n\
+ -k/--kmer [10-14]             Kmer length in bases. (default: 13)\n\
+ --kmer-skip <int>             Number of k-mers to skip when building the\n\
+                               lookup table from the reference(default: 2)\n\
+ --kmer-min <int>              Minimal number of k-mer hits required to\n\
+                               consider a region a CMR. (default: 0)\n\
+ --max-cmrs <int>              Reads that have more than <int> CMRs are\n\
+                               ignored. (default: infinite)\n\
+ --skip-save                   Don't save index to disk. Saves disk space but\n\
+                               increases runtime for larger genomes.\n\
+ -m/mode [0|1]                 Alignment mode: 0 = local, 1 = semi-global.\n\
+                               (default: 0)\n\
+ -C/--max-consec-indels <int>  Maximum number of consecutive indels allowed.\n\
+                               (default: computed based on avg. read length)\n\
+ --fast-pairing                Mates are mapped individually. If the best\n\
+                               alignments for the mates give a proper pair\n\
+                               they are marked as paired in the output.\n\
+                               If not they are reported as broken pair.\n\
+ --pair-score-cutoff <0-1>     To find the best pairing all alignments of a\n\
+                               read that have a score in the range of: \n\
+                                 [top score * pair-score-cutoff; top score]\n\
+                               are taken into account.\n\
+ --score-match <int>           Match score (default: 10, bs-mapping: 4)\n\
+ --score-mismatch <int>        Mismatch penalty\n\
+                               (default: -15, bs-mapping: -2)\n\
+ --score-gap-read <int>        Penalty for a gap in the read\n\
+                               (default: -20, bs-mapping: -10)\n\
+ --score-gap-ref <int>         Penalty for a gap in the reference\n\
+                               (default: -20, bs-mapping: -10)\n\
+ --score-match-tt <int>        Only for bs-mapping (default: 4)\n\
+ --score-match-tc <int>        Only for bs-mapping (default: 4)\n\
+ --color                       Colored text output (default: off)\n\
+ --no-progress                 Don't print progress info while mapping\n\
+                               (default: off)\n\
 \n\
 \n";
 	printf(help_msg);
