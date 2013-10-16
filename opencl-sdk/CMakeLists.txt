@@ -21,7 +21,7 @@ else()
     list(GET status 1 status_string) 
     
     if(NOT status_code EQUAL 0)
-        message( FATAL_ERROR "Failed to download libStatGen. Please check whether ${url} is available. If not, please try again later. Error: ${error_message}" ) 
+        message( FATAL_ERROR "Failed to download AMD-APP-SDK 2.8.1. Please check whether ${url} is available. If not, please try again later. Error: ${error_message}" ) 
         #message(FATAL_ERROR "error: downloading 'http://zlib.net/zlib-1.2.7.tar.gz' failed status_code: ${status_code}  status_string: ${status_string}") 
     endif() 
 
