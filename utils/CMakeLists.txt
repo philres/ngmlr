@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
+include_directories (${CMAKE_BINARY_DIR}/lib/libStatGen_1.0.9/include)
 include_directories (../include)
 include_directories (../src)
 include_directories (../src/parser)
@@ -26,5 +27,5 @@ add_executable(ngm-utils main.cpp
 
 TARGET_LINK_LIBRARIES(ngm-utils zlibstatic)
 
-TARGET_LINK_LIBRARIES(ngm-utils ${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.8/libStatGen-1.0.8/libStatGen.a)
+TARGET_LINK_LIBRARIES(ngm-utils ${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.9/libStatGen_1.0.9/libStatGen.a)
 #target_link_libraries(ngm-utils z)
