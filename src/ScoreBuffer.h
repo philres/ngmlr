@@ -78,7 +78,7 @@ public:
 	ScoreBuffer(IAlignment * mAligner, AlignmentBuffer * mOut) :
 			m_AlignMode(Config.GetInt("mode", 0, 1)), pairDistCount(1), pairDistSum(0), brokenPairs(0), pairScoreCutoff(Config.GetFloat("pair_score_cutoff")), topn(Config.GetInt("topn")), equalOnly(
 					Config.GetInt("strata")), isPaired(Config.GetInt("paired") != 0), fastPairing(Config.GetInt("fast_pairing") == 1), aligner(
-					mAligner), out(mOut), swBatchSize(aligner->GetScoreBatchSize() / 2) {
+					mAligner), out(mOut), swBatchSize(aligner->GetScoreBatchSize()) {
 
 		m_QryBuffer = 0;
 		m_RefBuffer = 0;
