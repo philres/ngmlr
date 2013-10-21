@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-
 struct SequenceLocation {
 	uint m_Location;
 
@@ -19,7 +18,7 @@ struct SequenceLocation {
 	}
 
 	void setRefId(int const id) {
-		assert(id > 0);
+		assert(id >= 0);
 		m_RefId = id | (m_RefId & 0x80000000);
 	}
 
@@ -40,7 +39,9 @@ struct SequenceLocation {
 		if (m_Location < rhs.m_Location)
 			return true;
 		else if (m_Location == rhs.m_Location)
-			return (getrefId() < rhs.getrefId());
+			//m_RefId instead of getRefId. Strand is important. Equal positions on the same reference but not on the same strand are not equal.
+			//To objects are deemed equal if !(a < b) && !(b < a): important for map in ReadProvider
+			return (m_RefId < rhs.m_RefId);
 
 		return false;
 	}
