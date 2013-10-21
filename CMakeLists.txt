@@ -3,7 +3,13 @@ project(NextGenMap)
 
 set( NGM_VERSION_MAJOR 0 )
 set( NGM_VERSION_MINOR 4 )
-set( NGM_VERSION_BUILD 8 )
+IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "Building in debug mode!")
+    set( NGM_VERSION_BUILD 9-debug )
+else()
+	set( NGM_VERSION_BUILD 9 )
+ENDIF()
+
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
@@ -23,7 +29,13 @@ file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 #add_definitions(-D _DEBUGCSKMERS)
 #add_definitions(-D _DEBUGRP)
 
-SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -g -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'\$ORIGIN/amd-app-sdk/'")
+# Set a default build type for single-configuration
+# CMake generators if no build type is set.
+IF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+	message(STATUS "No build type specified. Using 'release'")
+	SET(CMAKE_BUILD_TYPE Release)
+ENDIF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+
 SET (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'\$ORIGIN/amd-app-sdk/'")
 SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -Wall -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'\$ORIGIN/amd-app-sdk/'")
 
