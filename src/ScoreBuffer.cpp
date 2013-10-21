@@ -94,7 +94,7 @@ void ScoreBuffer::DoRun() {
 			if (!isPaired) {
 				if (++cur_read->Calculated == cur_read->numScores()) {
 					//all scores computed for single end read
-					assert(!cur_read->hasCandidates());
+					assert(cur_read->hasCandidates());
 					if (topn == 1) {
 						top1SE(cur_read);
 					} else {
@@ -103,6 +103,11 @@ void ScoreBuffer::DoRun() {
 				}
 			} else {
 				if (++cur_read->Calculated == cur_read->numScores() && cur_read->Paired->Calculated == cur_read->Paired->numScores()) {
+					if(strcmp(cur_read->name, "HWUSI-EAS475:1:12:17529:18194#0/1") == 0) {
+						//if(strcmp(cur_read->name, "HWUSI-EAS475:1:12:17529:18194#0/1") == 0) {
+						Log.Message("FOUND: %s", cur_read->name);
+						//Fatal();
+					}
 					//all scores computed for both mates
 					if (topn == 1) {
 						if (!fastPairing) {
@@ -366,10 +371,17 @@ void ScoreBuffer::addRead(MappedRead * read, int count) {
 	}
 	//Adding scores to buffer. If buffer full, submit to CPU/GPU for score computation
 	for (int i = 0; i < count; ++i) {
-		Log.Verbose("Adding score %d (%d) to buffer.", iScores, newScores[i].Location.m_RefId);
+		//if(strcmp("HWUSI-EAS475:1:12:17529:18194#0/1", read->name) == 0) {
+		//	Log.Error("Read %s: scorebuffer begin %d/%d", read->name, iScores, swBatchSize);
+			//getchar();
+		//}
+		//if(strcmp(read->name, "adb-100bp-20mio-paired.000000071.1") == 0) {
+			Log.Verbose("%s\t%u\t%f\tEND", read->name, newScores[i].Location.m_Location, newScores[i].Score.f);
+		//}
 		scores[iScores].read = read;
 		scores[iScores++].scoreId = i;
 		if(iScores == swBatchSize) {
+			//Log.Error("Read %s: scorebuffer begin %d/%d", read->name, iScores, swBatchSize);
 			DoRun();
 			iScores = 0;
 		}
