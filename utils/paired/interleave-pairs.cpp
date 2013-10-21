@@ -263,6 +263,8 @@ int interleave_pairs(int argc, char **argv) {
 
 		TCLAP::SwitchArg noprogressArg("", "noprogress", "Suppress progress output.", cmd, false);
 
+		TCLAP::SwitchArg forceArg("f", "force", "Force finishing even if no pairs are found.", cmd, false);
+
 		cmd.add(delimiterArg);
 		cmd.add(unpairedArg);
 		cmd.add(outArg);
@@ -290,6 +292,7 @@ int interleave_pairs(int argc, char **argv) {
 		int l2 = 0;
 
 		bool progess = !noprogressArg.getValue();
+		bool force = forceArg.getValue();
 
 		map<string, MappedRead *> pairs;
 
@@ -316,7 +319,7 @@ int interleave_pairs(int argc, char **argv) {
 
 			if (count % 10000 == 0 && progess) {
 				Log.Progress("Processed: %d", count);
-				if(nPairs == 0) {
+				if(nPairs == 0 && !force) {
 					Log.Error("0 proper pairs were found in the last 20000 reads. Please check if the seperator is set correctly or if you are using the correct files.");
 					Fatal();
 				}
