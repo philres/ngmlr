@@ -312,7 +312,7 @@ cl_mem OclHost::allocate(cl_mem_flags flags, size_t size, void * ptr) {
 	cl_mem mem = 0;
 	if (checkGlobalMemory(size)) {
 #ifndef NDEBUG
-		Log.Message("Allocationg %d bytes on opencl device.", size);
+		Log.Verbose("Allocationg %d bytes on opencl device.", size);
 #endif
 		//std::cout << "TEST: " << size << std::endl;
 		mem = clCreateBuffer(oclGpuContext, flags, size, ptr, &errCode);

@@ -35,6 +35,7 @@ SWOclCigar::SWOclCigar(OclHost * host) :
 				" -D result_number=4 -D CIGAR_M=0 -D CIGAR_I=1 -D CIGAR_D=2 -D CIGAR_N=3 -D CIGAR_S=4 -D CIGAR_H=5 -D CIGAR_P=6 -D CIGAR_EQ=7 -D CIGAR_X=8 ",
 				host) {
 	batch_size_align = computeAlignmentBatchSize();
+	Log.Verbose("Batchsize (alignment): %d", batch_size_align);
 	swAlignScoreKernel = host->setupKernel(clProgram, "oclSW_Score");
 	swAlignScoreKernelGlobal = host->setupKernel(clProgram, "oclSW_ScoreGlobal");
 	swAlignBacktrackingKernel = host->setupKernel(clProgram, "oclSW_Backtracking");
@@ -49,6 +50,7 @@ SWOclCigar::~SWOclCigar() {
 void SWOclCigar::runSwBatchKernel(cl_kernel swScoreAlign, const int batchSize, const char * const * const qrySeqList, const char * const * const refSeqList, char * bsDirection, cl_mem & results_gpu, cl_mem & alignments, short * const result, short * calignments, cl_mem & matrix_gpu, cl_mem & bsdirection_gpu) {
 	const size_t cnDim = batch_size_align / alignments_per_thread;
 	const size_t cBlockSize = threads_per_block;
+
 	int runbatchSize = std::min(batch_size_align, batchSize);
 	copySeqDataToDevice(cpu_read_data, cpu_ref_data, qrySeqList, refSeqList, runbatchSize, batch_size_align);
 	for (int i = 0; i < batchSize; i += batch_size_align) {
@@ -280,20 +282,20 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 	gpu_return_values = 0;
 
 #ifndef NDEBUG
-	Log.Warning("Releasing results.");
+	Log.Verbose("Releasing results.");
 #endif
 	clReleaseMemObject(results_gpu);
 #ifndef NDEBUG
-	Log.Warning("Releasing alignments.");
+	Log.Verbose("Releasing alignments.");
 #endif
 	clReleaseMemObject(alignments_gpu);
 #ifndef NDEBUG
-	Log.Warning("Releasing matrix.");
+	Log.Verbose("Releasing matrix.");
 #endif
 	clReleaseMemObject(matrix_gpu);
 	if (host->isGPU()) {
 #ifndef NDEBUG
-		Log.Warning("Releasing scaff.");
+		Log.Verbose("Releasing scaff.");
 #endif
 		clReleaseMemObject(c_scaff_gpu);
 		if (bsMapping) {
@@ -311,7 +313,7 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 //	}
 //	delete[] qrySeqList;
 #ifndef NDEBUG
-	Log.Message("SW finished computing alignments for %d sequences (elapsed: %.3fs)", batchSize_, timer.ET());
+	Log.Verbose("SW finished computing alignments for %d sequences (elapsed: %.3fs)", batchSize_, timer.ET());
 #endif
 
 	delete[] tmpRefSeqList;
@@ -496,6 +498,9 @@ bool SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short 
 	return true;
 }
 
+#include <iostream>
+//TODO: remove
+
 long SWOclCigar::getMaxAllocSize(int const batch_size) {
 	//	Log.Message("Batch size:\t %d", batch_size);
 	//	Log.Message("Results:\t %d", result_number * batch_size * sizeof(cl_short));
@@ -519,9 +524,9 @@ long SWOclCigar::getMaxAllocSize(int const batch_size) {
 	//	std::cout << "Matrix: " << matrix << std::endl;
 
 	//std::cout << batch_size * (Config.GetInt("corridor") + 2) * (Config.GetInt("qry_max_len") + 1) * sizeof(cl_char) << std::endl;
-
+//	batch_size_align * (Config.GetInt("corridor") + 2) * (Config.GetInt("qry_max_len") + 1) * sizeof(cl_char)
 	long alignments = (long) batch_size * (long) alignment_length * (long) 2 * (long) sizeof(cl_char);
-	//	std::cout << "alignments: " << alignments << std::endl;
+	//std::cout << "alignments: " << alignments << std::endl;
 	return std::max(matrix, alignments);
 }
 
@@ -529,35 +534,45 @@ int SWOclCigar::GetAlignBatchSize() const {
 	return batch_size_align * step_count;
 }
 
+using std::cout;
+
 int SWOclCigar::computeAlignmentBatchSize() {
-
 	cl_uint mpCount = host->getDeviceInfoInt(CL_DEVICE_MAX_COMPUTE_UNITS);
-	//TODO: Fix
-	//	unsigned long max_alloc = host->getDeviceInfoLong(CL_DEVICE_MAX_MEM_ALLOC_SIZE) * 2.0;
-	int block_count = mpCount * block_multiplier * (host->getThreadPerMulti() / threads_per_block);
-	block_count = (block_count / mpCount) * mpCount;
 
-	unsigned long largest_alloc = getMaxAllocSize(block_count * threads_per_block);
+	if (host->isGPU()) {
 
-	while (!host->testAllocate(largest_alloc)) {
-		block_count -= mpCount;
-		largest_alloc = getMaxAllocSize(block_count * threads_per_block);
+//		cout << "MPCount: " << mpCount << " block_multiplier: " << block_multiplier << " Thread per Multi: " << host->getThreadPerMulti()
+//				<< " thread_per_block: " << threads_per_block << std::endl;
+		int block_count = mpCount * block_multiplier * (host->getThreadPerMulti() / threads_per_block);
+		block_count = (block_count / mpCount) * mpCount;
+
+		unsigned long largest_alloc = getMaxAllocSize(block_count * threads_per_block);
+
+//		Log.Message("Largest alloc: %u %u", largest_alloc, mpCount);
+		while (!host->testAllocate(largest_alloc)) {
+			block_count -= mpCount;
+			largest_alloc = getMaxAllocSize(block_count * threads_per_block);
 #ifndef NDEBUG
-		Log.Warning("Reducing batch size to %d", block_count * threads_per_block);
+			Log.Warning("Reducing batch size to %d", block_count * threads_per_block);
 #endif
-	}
-	if (!host->isGPU()) {
-		block_count *= 4;
-	}
+		}
+
 #ifndef NDEBUG
-	Log.Message("Multi processor count: %d", mpCount);
-	Log.Message("Max. threads per multi processor: %d", host->getThreadPerMulti());
-	Log.Message("Threads per block used: %d", threads_per_block);
-	Log.Message("Block number: %d", block_count);
-	Log.Message("Batch size: %d", (block_count * threads_per_block));
-	//TODO: Print debug info
+		Log.Message("Multi processor count: %d", mpCount);
+		Log.Message("Max. threads per multi processor: %d", host->getThreadPerMulti());
+		Log.Message("Threads per block used: %d", threads_per_block);
+		Log.Message("Block number: %d", block_count);
+		Log.Message("Batch size: %d", (block_count * threads_per_block));
+		//TODO: Print debug info
 #endif
 
-	return block_count * threads_per_block;
-
+		return block_count * threads_per_block;
+	} else {
+		//cout << "mp " << mpCount << std::endl;
+		//if (!host->isGPU()) {
+		//	block_count *= 4;
+		//}
+		return 2048;
+	}
 }
+
