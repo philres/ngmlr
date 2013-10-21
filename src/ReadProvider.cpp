@@ -61,8 +61,13 @@ inline int GetBin(uint pos) {
 int CollectResultsFallback(int const readLength) {
 	float maxCurrent = 0;
 
+	Log.Verbose("-maxHitTableIndex: %d", maxHitTableIndex);
 	for (std::map<SequenceLocation, float>::iterator itr = iTable.begin(); itr != iTable.end(); itr++) {
 		maxCurrent = std::max(maxCurrent, itr->second);
+
+		//if(maxHitTableIndex == 8) {
+			Log.Verbose("---Key: %d %u %d, maxCurrent: %f, itr->second: %f", itr->first.getrefId(), itr->first.m_Location, (int)itr->first.isReverse(), maxCurrent, itr->second);
+		//}
 	}
 
 	static const int skip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
@@ -94,10 +99,13 @@ static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateT
 
 		int const n = cur->refCount;
 
+		Log.Verbose("------Prefix: %u, RefCount: %d", prefix, n);
+
 		if (cur->reverse) {
 			for (int i = 0; i < n; ++i) {
 				SequenceLocation curLoc = cur->ref[i];
-				//curLoc.m_RefId = 1;
+				curLoc.setRefId(1);
+				curLoc.setReverse(true);
 				curLoc.m_Location = GetBin(curLoc.m_Location - (m_CurrentReadLength - (pos + CS::prefixBasecount))); // position offset
 				iTable[curLoc] += weight;
 			}
@@ -105,7 +113,8 @@ static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateT
 		} else {
 			for (int i = 0; i < n; ++i) {
 				SequenceLocation curLoc = cur->ref[i];
-				//curLoc.m_RefId = 0;
+				curLoc.setRefId(0);
+				curLoc.setReverse(false);
 				curLoc.m_Location = GetBin(curLoc.m_Location - pos); // position offset
 				iTable[curLoc] += weight;
 			}
@@ -214,8 +223,10 @@ uint ReadProvider::init() {
 						mutateTo = 0x1;
 					}
 					m_CurrentReadLength = parser1->read->seq.l;
+					Log.Verbose("-Iteration");
 					CS::PrefixIteration((char const *) parser1->read->seq.s, (uint) parser1->read->seq.l, fnc, mutateFrom, mutateTo,
 							(void *) this, (uint) 0, (uint) 0);
+					Log.Verbose("-Collect: %s", parser1->read->name.s);
 					CollectResultsFallback(m_CurrentReadLength);
 				} else if (readCount == (estimateSize + 1)) {
 					if ((maxLen - minLen) < 10) {
@@ -255,6 +266,7 @@ uint ReadProvider::init() {
 			ofp = fopen((std::string(Config.GetString("output")) + std::string(".b")).c_str(), "w");
 #endif
 			for (int i = 0; i < maxHitTableIndex; ++i) {
+				Log.Verbose("%f += %f", sum, maxHitTable[i]);
 				sum += maxHitTable[i];
 #ifdef _DEBUGRP
 				fprintf(ofp, "%f\n", maxHitTableDebug[i]);
@@ -272,6 +284,7 @@ uint ReadProvider::init() {
 				float avg = sum / maxHitTableIndex * 1.0f;
 
 				float avgHit = max * avg;
+				Log.Verbose("max: %d, sum: %f, maxHitTableIndex: %d, avg: %f, avgHit: %f", max, sum, maxHitTableIndex, avg, avgHit);
 
 				Log.Message("Average kmer hits pro read: %f", avgHit);
 				Log.Message("Max possible kmer hit: %d", max);
