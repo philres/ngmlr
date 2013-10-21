@@ -226,6 +226,7 @@ void CS::AddLocationStd(uint const m_Location, bool const reverse, double const 
 		maxHitNumber = score;
 		//currentThresh = round(maxHitNumber * m_CsSensitivity);
 		currentThresh = maxHitNumber * m_CsSensitivity;
+		Log.Verbose("%f = %f * %f", currentThresh, maxHitNumber, m_CsSensitivity);
 	}
 
 	//If kmer-weight larger than threshold -> add to rList.
@@ -337,6 +338,8 @@ int CS::CollectResultsStd(MappedRead * read) {
 	//float mi_Threshhold = currentThresh;
 	int n = rListLength;
 
+	Log.Verbose("Read: %s, Threshold: %f", read->name, mi_Threshhold);
+
 #ifdef _DEBUGCS
 #ifdef _DEBUGCSVERBOSE
 	Log.Message("Qry #%i got %i results", m_CurrentSeq, n);
@@ -428,7 +431,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 
 		m_CurrentSeq = m_CurrentBatch[i]->ReadId;
 //		//TODO: remove
-//		if(strcmp("adb-100bp-20mio-paired.000000558.2", m_CurrentBatch[i]->name) == 0) {
+//		if(strcmp("HWUSI-EAS475:1:12:17529:18194#0/1", m_CurrentBatch[i]->name) == 0) {
 //			Log.Error("Read %s: candidate search %d", m_CurrentBatch[i]->name, m_TID);
 //			getchar();
 //		}
