@@ -66,7 +66,7 @@ int CollectResultsFallback(int const readLength) {
 		maxCurrent = std::max(maxCurrent, itr->second);
 
 		//if(maxHitTableIndex == 8) {
-			Log.Verbose("---Key: %d %u %d, maxCurrent: %f, itr->second: %f", itr->first.getrefId(), itr->first.m_Location, (int)itr->first.isReverse(), maxCurrent, itr->second);
+		Log.Verbose("---Key: %d %u %d, maxCurrent: %f, itr->second: %f", itr->first.getrefId(), itr->first.m_Location, (int)itr->first.isReverse(), maxCurrent, itr->second);
 		//}
 	}
 
@@ -253,8 +253,14 @@ uint ReadProvider::init() {
 		}
 		((_Config*) _config)->Override("qry_max_len", (int) maxLen);
 		((_Config*) _config)->Override("qry_avg_len", (int) avgLen);
-		((_Config*) _config)->Default("corridor", (int) (5 + avgLen * 0.15));
+
 		Log.Message("Average read length: %d (min: %d, max: %d)", avgLen, minLen, maxLen);
+
+		if (Config.Exists("corridor")) {
+			Log.Warning("Corridor witdh overwritten!");
+		} else {
+			((_Config*) _config)->Default("corridor", (int) (5 + avgLen * 0.15));
+		}
 		Log.Message("Corridor width: %d", Config.GetInt("corridor"));
 
 		delete parser1;

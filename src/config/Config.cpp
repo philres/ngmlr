@@ -450,11 +450,11 @@ _Config::_Config(int argc, char * argv[]) {
 		if (Exists("corridor")) {
 			Log.Warning("The parameter 'corridor' is deprecated. Please remove the 'corridor' entry from the config file and use 'max-consecutive-indels'.");
 		} else {
-			if (GetInt("max_consecutive_indels") > 40 || GetInt("max_consecutive_indels") < 5) {
+			if (Exists("gpu") && (GetInt("max-max_consecutive_indels-indels") > 40 || GetInt("max_consecutive_indels") < 5)) {
 				Log.Error("[CONFIG] Value max_consecutive_indels : %d out of range [5, 40] - using default value", GetInt("max_consecutive_indels"));
 			} else {
 				std::stringstream ss;
-				ss << GetInt("max_consecutive_indels", 5, 40) * 2;
+				ss << GetInt("max_consecutive_indels") * 2;
 				InternalAdd("corridor", ss.str(), "", true);
 			}
 		}
