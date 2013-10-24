@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(NextGenMap)
 
 include_directories (${CMAKE_BINARY_DIR}/lib/libStatGen_1.0.9/include)
+include_directories (../lib/seqan-library-1.4.1/include)
 include_directories (../lib/bamtools/src/api)
 include_directories (../lib/mason/opencl)
 include_directories (../include)
