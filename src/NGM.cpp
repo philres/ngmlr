@@ -477,6 +477,7 @@ void _NGM::StartCS(int cs_threadcount) {
 
 #include "OclHost.h"
 #include "SWOclCigar.h"
+#include "seqan/EndToEndAffine.h"
 
 IAlignment * _NGM::CreateAlignment(int const mode) {
 	//int dev_type = Config.GetInt("ocl_device");
@@ -490,7 +491,7 @@ IAlignment * _NGM::CreateAlignment(int const mode) {
 
 	OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
 
-	SWOcl * instance = 0;
+	IAlignment * instance = 0;
 
 //#ifndef NDEBUG
 	//Log.Error("Alignment mode: %d", mode);
@@ -514,6 +515,7 @@ IAlignment * _NGM::CreateAlignment(int const mode) {
 			Log.Error("Unsupported report type %i", mode);
 			break;
 		}
+	instance = new EndToEndAffine();
 	return instance;
 }
 
@@ -529,7 +531,7 @@ void _NGM::DeleteAlignment(IAlignment* instance) {
 	}
 
 	if (host != 0) {
-		delete host;
+		//delete host;
 		host = 0;
 	}
 }
