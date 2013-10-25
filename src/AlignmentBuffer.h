@@ -59,7 +59,7 @@ public:
 
 
 	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
-			batchSize(mAligner->GetAlignBatchSize()), outputformat(
+			batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(
 					NGM.GetOutputFormat()),
 					alignmode(Config.GetInt("mode", 0, 1)),
 					corridor(Config.GetInt("corridor")),
