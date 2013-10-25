@@ -112,12 +112,9 @@ void AlignmentBuffer::DoRun() {
 			Log.Message("MD:     %s", alignBuffer[i].pBuffer2);
 #endif
 
-
 			cur_read->Alignments[scoreID] = alignBuffer[i];
 
 			//Log.Message("%d %f", cur_read->length, cur_read->Alignments[scoreID].Score);
-
-
 
 			if ((cur_read->Calculated - 1) == scoreID) {
 				Log.Verbose("Process aligned read. Equal: %i, ReadId: %i, numScore: %d, calculated: %d, (%s)",cur_read->EqualScoringCount, cur_read->ReadId, cur_read->numScores(), cur_read->Calculated, cur_read->name);
@@ -128,7 +125,7 @@ void AlignmentBuffer::DoRun() {
 		Log.Verbose("Output Thread %i finished batch in %.2fs", 0, tmr.ET());
 		alignTime = tmr.ET();
 	} else {
-		Log.Message("Nothing to do...waiting");
+		Log.Verbose("Nothing to do...waiting");
 	}
 }
 
@@ -150,22 +147,22 @@ void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 			}
 
 			//Convert position back to Chromosome+Position
-					SequenceLocation loc = read->Scores[i].Location;
-					//Log.Message("Loc: %u", loc.m_Location);
-					int * upper = std::upper_bound(refStartPos, refStartPos + (refCount / ((NGM.DualStrand()) ? 2 : 1)), loc.m_Location);
-					//Log.Message("upper %d %d", *upper, *(upper-1));
-					std::ptrdiff_t refId = ((upper - 1) - refStartPos) * ((NGM.DualStrand()) ? 2 : 1);
-					loc.m_Location -= *(upper - 1);
-					loc.setRefId(refId);
-					//Log.Message("Converted score %d: %hd %d %u", i, loc.m_RefId, refId, loc.m_Location);
-					read->Scores[i].Location = loc;
+			SequenceLocation loc = read->Scores[i].Location;
+			//Log.Message("Loc: %u", loc.m_Location);
+			int * upper = std::upper_bound(refStartPos, refStartPos + (refCount / ((NGM.DualStrand()) ? 2 : 1)), loc.m_Location);
+			//Log.Message("upper %d %d", *upper, *(upper-1));
+			std::ptrdiff_t refId = ((upper - 1) - refStartPos) * ((NGM.DualStrand()) ? 2 : 1);
+			loc.m_Location -= *(upper - 1);
+			loc.setRefId(refId);
+			//Log.Message("Converted score %d: %hd %d %u", i, loc.m_RefId, refId, loc.m_Location);
+			read->Scores[i].Location = loc;
 
-					if (loc.isReverse()) {
-						if (read->qlty != 0)
-						std::reverse(read->qlty, read->qlty + strlen(read->qlty));
-					}
-				}
+			if (loc.isReverse()) {
+				if (read->qlty != 0)
+				std::reverse(read->qlty, read->qlty + strlen(read->qlty));
 			}
+		}
+	}
 	if (read->Paired != 0) {
 		if (topn == 1) {
 			if (read->Paired->HasFlag(NGMNames::DeletionPending)) {
