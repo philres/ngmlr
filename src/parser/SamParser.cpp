@@ -52,6 +52,7 @@ size_t SamParser::parseRead() {
 	while (gzgets(fp, buffer, buffer_size) != NULL) {
 		char * lineBuffer = buffer;
 
+		//Log.Message("%s", lineBuffer);
 		if (*lineBuffer != '@' && *lineBuffer != '\n') {
 
 			//Name
@@ -82,7 +83,12 @@ size_t SamParser::parseRead() {
 			if (read->qual.l == read->seq.l) {
 				return read->seq.l;
 			} else {
-				return -2;
+				if (read->qual.l == 1 && read->qual.s[0] == '*') {
+					read->qual.l = 0;
+					return 0;
+				} else {
+					return -2;
+				}
 			}
 		}
 	}
