@@ -408,13 +408,16 @@ _Config::_Config(int argc, char * argv[]) {
 		Default("score_mismatch", -15);
 		Default("score_gap_read", -20);
 		Default("score_gap_ref", -20);
+		Default("score_gap_extend", -5);
 	} else {
 		Log.Message("Using bs-mapping scoring scheme");
 		Default("score_match", 4);
 		Default("score_mismatch", -2);
 		Default("score_gap_read", -10);
 		Default("score_gap_ref", -10);
+		Default("score_gap_extend", -2);
 	}
+	Default("affine", 0);
 	Default("score_match_tt", 4);
 	Default("score_mismatch_tc", 4);
 
