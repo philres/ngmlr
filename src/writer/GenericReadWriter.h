@@ -1,6 +1,8 @@
 #ifndef __GENERICREADWRITER_H__
 #define __GENERICREADWRITER_H__
 
+#include <map>
+
 #include "ILog.h"
 #include "Config.h"
 #include "NGM.h"
@@ -70,6 +72,7 @@ public:
 	void WriteRead(MappedRead const * const read, bool mapped = true) {
 
 		if (mapped) {
+			std::map<SequenceLocation, bool> iTable;
 			bool mappedOnce = false;
 			for (int i = 0; i < read->Calculated; ++i) {
 
@@ -85,19 +88,21 @@ public:
 
 				if (mapped) {
 					mappedOnce = true;
-					DoWriteRead(read, i);
-					//NGM.AddWrittenRead(read->ReadId);
+					if(iTable.find(read->Scores[i].Location) == iTable.end()) {
+						iTable[read->Scores[i].Location] = true;
+						DoWriteRead(read, i);
+					} else {
+						Log.Message("Ignoring duplicated alignment %d for read %s.", i, read->name);
+					}
 				}
 			}
 			if (mappedOnce) {
 				NGM.AddMappedRead(read->ReadId);
 			} else {
 				DoWriteUnmappedRead(read);
-				//NGM.AddWrittenRead(read->ReadId);
 			}
 		} else {
 			DoWriteUnmappedRead(read);
-			//NGM.AddWrittenRead(read->ReadId);
 		}
 	}
 
