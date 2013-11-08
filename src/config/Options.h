@@ -10,7 +10,7 @@
 
 #include <getopt.h>
 
-char const * getopt_short = "c:o:q:r:t:gs:m:f:k:pI:X:i:n:R:C:b1:2:";
+static char const * getopt_short = "c:o:q:r:t:gs:m:f:k:pleI:X:i:n:R:C:b1:2:";
 
 //Here '-' has to be used and not '_'. When querying the Config the '-' has to be replaced by '_'.
 //When passing parameters trough the config file '-' and '_' can both be used.
@@ -25,7 +25,7 @@ static const struct option long_options[] =
 		{ "cpu-threads", 				required_argument, 0, 't' },
 		{ "gpu", 						no_argument      , 0, 'g' },
 		{ "sensitivity", 				required_argument, 0, 's' },
-		{ "mode", 						required_argument, 0, 'm' },
+		{ MODE, 						required_argument, 0, 'm' },
 		{ "kmer", 						required_argument, 0, 'k' },
 		{ "min-insert-size",			required_argument, 0, 'I' },
 		{ "max-insert-size",			required_argument, 0, 'X' },
@@ -40,21 +40,24 @@ static const struct option long_options[] =
 		{ "color",    					no_argument,       0, 0 },
 		{ "max-equal", 					required_argument, 0, 0 },
 		{ "search-table-length", 		required_argument, 0, 0 },
+		{ "local",				 		no_argument, 0, 'l' },
+		{ "end-to-end",			 		no_argument, 0, 'e' },
 		{ "bs-mapping", 				no_argument		 , 0, 0 },
 		{ "min-identity",               required_argument, 0, 'i'},
 		{ "min-residues",               required_argument, 0, 'R'},
+		{ "min-score",					required_argument, 0, 'S'},
 		{ "parse-all",                  no_argument      , 0, 0 },
 		{ "hard-clip",                  no_argument      , 0, 0 },
 		{ "silent-clip",                no_argument      , 0, 0 },
 		{ "bs-cutoff",                  required_argument, 0, 0 },
 		{ "kmer-min",                   required_argument, 0, 0 },
-		{ "score-match",				required_argument, 0, 0 },
-		{ "score-match-tt",				required_argument, 0, 0 },
-		{ "score-match-tc",				required_argument, 0, 0 },
-		{ "score-mismatch",				required_argument, 0, 0 },
-		{ "score-gap-read",				required_argument, 0, 0 },
-		{ "score-gap-ref",				required_argument, 0, 0 },
-		{ "score-gap-extend",			required_argument, 0, 0 },
+		{ "match-bonus",				required_argument, 0, 0 },
+		{ "match-bonus-tt",				required_argument, 0, 0 },
+		{ "match-bonus-tc",				required_argument, 0, 0 },
+		{ "mismatch-penalty",			required_argument, 0, 0 },
+		{ "gap-read-penalty",			required_argument, 0, 0 },
+		{ "gap-ref-penalty",			required_argument, 0, 0 },
+		{ "gap-extend-penalty",			required_argument, 0, 0 },
 		{ "max-cmrs",      		        required_argument, 0, 0 },
 		{ "fast-pairing",  		        no_argument,       0, 0 },
 		{ "no-unal",	  		        no_argument,       0, 0 },

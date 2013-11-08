@@ -259,8 +259,9 @@ General:\n\n\
  -i/--min-identity <0-1>       All reads mapped with an identity lower than\n\
                                this threshold will be reported as unmapped\n\
                                (default: 0.65)\n\
- -R/--min-residues <int>       All reads mapped with lower than <int> residues\n\
-                               will be reported as unmapped (default: 0.0)\n\
+ -R/--min-residues <int/float> All reads mapped with lower than\n\
+                               <int> or <float> * read length residues\n\
+                               will be reported as unmapped. (default: 0.5)\n\
  -g/--gpu [int,...]            Use GPU(s) for alignment computation\n\
                                NOTE: GPU Ids are zero-based!\n\
                                   -g or --gpu to use GPU\n\
@@ -287,8 +288,14 @@ Advanced settings:\n\
                                ignored. (default: infinite)\n\
  --skip-save                   Don't save index to disk. Saves disk space but\n\
                                increases runtime for larger genomes.\n\
- -m/mode [0|1]                 Alignment mode: 0 = local, 1 = semi-global.\n\
-                               (default: 0)\n\
+ -l/--local                    Perform local alignment. Ends might get clipped.\n\
+                               (default: on)\n\
+ -e/--end-to-end               Perform local alignment. Ends might get clipped.\n\
+			                   (default: off)\n\
+ --affine                      Use alignment algorithms that support affine gap\n\
+                               costs. This will give you better alignments for\n\
+                               longer indels but will also increase the runtime.\n\
+                               (default: off)\n\
  -C/--max-consec-indels <int>  Maximum number of consecutive indels allowed.\n\
                                (default: computed based on avg. read length)\n\
  --fast-pairing                Mates are mapped individually. If the best\n\
@@ -299,15 +306,18 @@ Advanced settings:\n\
                                read that have a score in the range of: \n\
                                  [top score * pair-score-cutoff; top score]\n\
                                are taken into account.\n\
- --score-match <int>           Match score (default: 10, bs-mapping: 4)\n\
- --score-mismatch <int>        Mismatch penalty\n\
-                               (default: -15, bs-mapping: -2)\n\
- --score-gap-read <int>        Penalty for a gap in the read\n\
-                               (default: -20, bs-mapping: -10)\n\
- --score-gap-ref <int>         Penalty for a gap in the reference\n\
-                               (default: -20, bs-mapping: -10)\n\
- --score-match-tt <int>        Only for bs-mapping (default: 4)\n\
- --score-match-tc <int>        Only for bs-mapping (default: 4)\n\
+ --match-bonus <int>           Match score\n\
+                               (default: 10, affine: 10, bs-mapping: 4)\n\
+ --mismatch penalty <int>      Mismatch penalty\n\
+                               (default: 15, affine: 15, bs-mapping: 2)\n\
+ --gap-read-penalty <int>      Penalty for a gap in the read\n\
+                               (default: 20, affine: 33, bs-mapping: 10)\n\
+ --gap-ref-penalty <int>       Penalty for a gap in the reference\n\
+                               (default: 20, affine: 33, bs-mapping: 10)\n\
+ --gap-extend-penalty <int>    Penalty for extending a gap\n\
+			                   (default: 20, affine: 3, bs-mapping: 10)\n\
+ --match-bonus-tt <int>        Only for bs-mapping (default: 4)\n\
+ --match-bonus-tc <int>        Only for bs-mapping (default: 4)\n\
  --color                       Colored text output (default: off)\n\
  --no-progress                 Don't print progress info while mapping\n\
                                (default: off)\n\

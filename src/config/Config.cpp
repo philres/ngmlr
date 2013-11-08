@@ -384,7 +384,7 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("max_cmrs", INT_MAX);
 	Default("kmer_skip", 2);
 	Default("skip_save", 0);
-	Default("mode", 0);
+
 	Default("topn", 1);
 	Default("strata", 0);
 	if(Exists("qry1") && Exists("qry2")) {
@@ -404,22 +404,34 @@ _Config::_Config(int argc, char * argv[]) {
 
 	Default("max_equal", 1);
 	if (GetInt("bs_mapping") != 1) {
-		Default("score_match", 10);
-		Default("score_mismatch", -15);
-		Default("score_gap_read", -20);
-		Default("score_gap_ref", -20);
-		Default("score_gap_extend", -5);
+		if(GetInt("affine")) {
+			Default(MATCH_BONUS, 10);
+			Default(MISMATCH_PENALTY, 15);
+			Default(GAP_READ_PENALTY, 33);
+			Default(GAP_REF_PENALTY, 33);
+			Default(GAP_EXTEND_PENALTY, 3);
+		} else {
+			Default(MATCH_BONUS, 10);
+			Default(MISMATCH_PENALTY, 15);
+			Default(GAP_READ_PENALTY, 20);
+			Default(GAP_REF_PENALTY, 20);
+			Default(GAP_EXTEND_PENALTY, 5);
+		}
 	} else {
 		Log.Message("Using bs-mapping scoring scheme");
-		Default("score_match", 4);
-		Default("score_mismatch", -2);
-		Default("score_gap_read", -10);
-		Default("score_gap_ref", -10);
-		Default("score_gap_extend", -2);
+		if(GetInt("affine")) {
+			Log.Error("'--bs-mapping' and '--affine' can't be used at the same time!");
+			Fatal();
+		}
+		Default(MATCH_BONUS, 4);
+		Default(MISMATCH_PENALTY, 2);
+		Default(GAP_READ_PENALTY, 10);
+		Default(GAP_REF_PENALTY, 10);
+		Default(GAP_EXTEND_PENALTY, 2);
 	}
 	Default("affine", 0);
-	Default("score_match_tt", 4);
-	Default("score_mismatch_tc", 4);
+	Default(MATCH_BONUS_TT, 4);
+	Default(MATCH_BONUS_TC, 4);
 
 	//Silent
 	Default("dualstrand", 1);
@@ -434,6 +446,7 @@ _Config::_Config(int argc, char * argv[]) {
 	//Filter
 	Default("min_identity", 0.65f);
 	Default("min_residues", 0.5f);
+	Default("min_score", 0.0f);
 
 	//Output Input options
 	Default("parse_all", 1);
@@ -462,6 +475,26 @@ _Config::_Config(int argc, char * argv[]) {
 			}
 		}
 	}
+
+	if (Exists(MODE)) {
+		Log.Warning("The parameter '--mode/-m' is deprecated and will be removed in the future. Please use '--local/-l' or '--end-to-end/-e' instead.");
+		if(Exists(LOCAL) || Exists(ENDTOEND)) {
+			Log.Error("'--mode/-m', '--local/-l' and '--end-to-end/-e' can't be used at the same time!");
+			Fatal();
+		}
+	} else {
+		if(!Exists(LOCAL) &&  !Exists(ENDTOEND)) {
+			Default(MODE, 0);
+		} else if(Exists(LOCAL)) {
+			Default(MODE, 0);
+		} else if(Exists(ENDTOEND)) {
+			Default(MODE, 1);
+		} else {
+			Log.Error("'--local/-l' and '--end-to-end/-e' can't be used at the same time!");
+			Fatal();
+		}
+	}
+
 	if (Exists("bam")) {
 		Default("format", 2);
 		//Log.Error("BAM output is currently broken, plaese use SAM and convert to BAM.");
