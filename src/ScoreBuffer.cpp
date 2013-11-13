@@ -138,8 +138,8 @@ bool sortLocationScore(LocationScore a, LocationScore b) {
 
 void ScoreBuffer::top1SE(MappedRead* read) {
 	static const float minF = -1000000;
-	float score_max = minF;
-	float score_smax = minF;
+	float score_max = 0.0f;
+	float score_smax = 0.0f;
 	int score_max_loc = 0;
 	int score_max_count = 0;
 	//count number of top-scoring regions
