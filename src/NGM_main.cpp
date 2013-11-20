@@ -174,6 +174,11 @@ int main(int argc, char * argv[]) {
 
 				NGM.MainLoop();
 				//Log.Message("Scores computed: %ld", SW::scoreCount);
+				bool const isPaired = Config.GetInt("paired") > 0;
+				if (isPaired) {
+					Log.Message("Valid pairs found: %.2f%%", NGM.Stats->validPairs);
+					Log.Message("Estimated insert size: %d bp", (int)NGM.Stats->insertSize);
+				}
 				Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
 #ifdef INSTANCE_COUNTING
 				Log.Green("Counts:");
