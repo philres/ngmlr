@@ -39,6 +39,40 @@ static inline char * readField(char * lineBuffer, kstring_t & str) {
 	return lineBuffer;
 }
 
+static inline char cpl(char c) {
+	if (c == 'A')
+		return 'T';
+	else if (c == 'T')
+		return 'A';
+	else if (c == 'C')
+		return 'G';
+	else if (c == 'G')
+		return 'C';
+	else
+		return c;
+}
+
+//// swaps two bases and complements them
+//static inline void rc(char & c1, char & c2)
+//{
+//	char x = c1;
+//	c1 = cpl(c2);
+//	c2 = cpl(x);
+//}
+
+char * computeReverseSeq(char * Seq, int qryMaxLen) {
+	char * RevSeq = new char[qryMaxLen + 1];
+	memset(RevSeq, 0, qryMaxLen + 1);
+
+	char * fwd = Seq;
+	char * rev = RevSeq + qryMaxLen - 1;
+
+	for (int i = 0; i < qryMaxLen; ++i) {
+		*rev-- = cpl(*fwd++);
+	}
+	return RevSeq;
+}
+
 /* Return value:
  >=0  length of the sequence (normal)
  -1   end-of-file
@@ -60,7 +94,22 @@ size_t SamParser::parseRead() {
 			if (*lineBuffer == '\0')
 				return 0;
 
-			int skip = 9;
+			//Skip one \t
+			lineBuffer += 1;
+
+			kstring_t flags;
+			flags.l = 0;
+			flags.m = 0;
+			flags.s = 0;
+			lineBuffer = readField(lineBuffer, flags);
+			if (*lineBuffer == '\0')
+				return 0;
+
+			bool reverse = atoi(flags.s) & 0x10;
+			delete flags.s;
+			flags.s = 0;
+
+			int skip = 8;
 			while (skip > 0 && *lineBuffer != '\0') {
 				if (*lineBuffer++ == '\t')
 					skip -= 1;
@@ -70,6 +119,13 @@ size_t SamParser::parseRead() {
 
 			//Sequence
 			lineBuffer = readField(lineBuffer, read->seq);
+			if(reverse) {
+				char * tmp = read->seq.s;
+				read->seq.s = computeReverseSeq(read->seq.s, read->seq.l);
+//				Log.Message("Seq:    %s", tmp);
+//				Log.Message("RevSeq: %s", read->seq.s);
+				delete tmp; tmp = 0;
+			}
 
 			if (*lineBuffer == '\0')
 				return 0;
