@@ -60,17 +60,19 @@ static inline char cpl(char c) {
 //	c2 = cpl(x);
 //}
 
-char * computeReverseSeq(char * Seq, int qryMaxLen) {
+void computeReverseSeq(char * Seq, int qryMaxLen) {
 	char * RevSeq = new char[qryMaxLen + 1];
 	memset(RevSeq, 0, qryMaxLen + 1);
+	memcpy(RevSeq, Seq, qryMaxLen);
 
-	char * fwd = Seq;
-	char * rev = RevSeq + qryMaxLen - 1;
+	char * fwd = RevSeq;
+	char * rev = Seq + qryMaxLen - 1;
 
 	for (int i = 0; i < qryMaxLen; ++i) {
 		*rev-- = cpl(*fwd++);
 	}
-	return RevSeq;
+	//if()
+	delete RevSeq; RevSeq = 0;
 }
 
 /* Return value:
@@ -97,18 +99,10 @@ size_t SamParser::parseRead() {
 			//Skip one \t
 			lineBuffer += 1;
 
-			kstring_t flags;
-			flags.l = 0;
-			flags.m = 0;
-			flags.s = 0;
-			lineBuffer = readField(lineBuffer, flags);
-			if (*lineBuffer == '\0')
-				return 0;
+			//Flags
+			bool reverse = atoi(lineBuffer) & 0x10;
 
-			bool reverse = atoi(flags.s) & 0x10;
-			delete flags.s;
-			flags.s = 0;
-
+			//Log.Message("%d %d", atoi(lineBuffer), reverse);
 			int skip = 8;
 			while (skip > 0 && *lineBuffer != '\0') {
 				if (*lineBuffer++ == '\t')
@@ -120,11 +114,12 @@ size_t SamParser::parseRead() {
 			//Sequence
 			lineBuffer = readField(lineBuffer, read->seq);
 			if(reverse) {
-				char * tmp = read->seq.s;
-				read->seq.s = computeReverseSeq(read->seq.s, read->seq.l);
-//				Log.Message("Seq:    %s", tmp);
-//				Log.Message("RevSeq: %s", read->seq.s);
-				delete tmp; tmp = 0;
+				//char * tmp = read->seq.s;
+				//Log.Message("Seq:    %s", read->seq.s);
+				computeReverseSeq(read->seq.s, read->seq.l);
+				//Log.Message("RevSeq: %s", read->seq.s);
+
+				//delete tmp; tmp = 0;
 			}
 
 			if (*lineBuffer == '\0')
