@@ -209,7 +209,7 @@ void Help() {
 Usage:\
   ngm [-c <path>] {-q <reads> [-p] | -1 <mates 1> -2 <mates 2>} -r <reference> -o <output> [parameter]\n\
 \n\
-Input/Output:\n\
+Input:\n\
 \n\
  -c/--config <path>            Path to the config file. The config file contains\n\
                                all advanced options. If this parameter is\n\
