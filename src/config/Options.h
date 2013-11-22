@@ -10,7 +10,7 @@
 
 #include <getopt.h>
 
-char const * getopt_short = "c:o:q:r:t:gs:m:f:k:pI:X:i:n:R:C:b1:2:";
+char const * getopt_short = "c:o:q:r:d:t:gs:m:f:k:pI:X:i:n:R:C:b1:2:";
 
 //Here '-' has to be used and not '_'. When querying the Config the '-' has to be replaced by '_'.
 //When passing parameters trough the config file '-' and '_' can both be used.
@@ -60,6 +60,7 @@ static const struct option long_options[] =
 		{ "no-progress",  		        no_argument,       0, 0 },
 		{ "pair-score-cutoff",	        required_argument, 0, 0 },
 		{ "strata",      		        no_argument,       0, 0 },
+		{ "pe-delimiter",  		        required_argument, 0, 'd' },
 	0 };
 
 #endif /* OPTIONS_H_ */

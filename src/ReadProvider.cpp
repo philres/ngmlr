@@ -48,7 +48,7 @@ int maxHitTableIndex;
 int m_CurrentReadLength;
 
 ReadProvider::ReadProvider() :
-		parser1(0), parser2(0) {
+		parser1(0), parser2(0), peDelimiter(Config.GetString("pe_delimiter")[0]) {
 
 }
 
@@ -380,6 +380,11 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 			static size_t const MAX_READNAME_LENGTH = 100;
 			read->name = new char[MAX_READNAME_LENGTH];
 			int nameLength = std::min(MAX_READNAME_LENGTH - 1, parser->read->name.l);
+
+			if(parser->read->name.s[nameLength - 2] == peDelimiter) {
+				nameLength -= 2;
+			}
+
 			memcpy(read->name, parser->read->name.s, nameLength);
 			read->name[nameLength] = '\0';
 

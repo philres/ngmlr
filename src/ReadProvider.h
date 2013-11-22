@@ -29,6 +29,8 @@ private:
 	IParser * parser1;
 	IParser * parser2;
 
+	char const peDelimiter;
+
 	virtual MappedRead * NextRead(IParser * parser, int const id);
 	MappedRead * GenerateSingleRead(int const readid);
 	IParser * DetermineParser(char const * fileName);

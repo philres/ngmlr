@@ -245,6 +245,10 @@ Output:\n\
                                read. If a read has more than <n> mappings with\n\
                                the same score, it is discarded and reported\n\
                                as unmapped.\n\
+ -d/--pe-delimiter <char>      Character used in suffix that identifies mate 1\n\
+                               and 2. E.g. /1 and /2. This suffixes will be\n\
+                               removed to ensure proper SAM output\n\
+                               (default: /)\n\
 \n\
 General:\n\n\
  -t/--threads <int>            Number of candidate search threads\n\
