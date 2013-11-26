@@ -76,7 +76,7 @@ public:
 				static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
 				static float minResidues = Config.GetFloat("min_residues", 0, 1000);
 
-				if (minResidues < 1.0f) {
+				if (minResidues <= 1.0f) {
 					minResidues = read->length * minResidues;
 				}
 
