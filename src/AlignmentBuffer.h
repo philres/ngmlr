@@ -61,7 +61,7 @@ public:
 	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
 			batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(
 					NGM.GetOutputFormat()),
-					alignmode(Config.GetInt("mode", 0, 1)),
+					alignmode(Config.GetInt(MODE, 0, 1)),
 					corridor(Config.GetInt("corridor")),
 					refMaxLen(((Config.GetInt("qry_max_len") + corridor) | 1) + 1), aligner(mAligner) {
 						refStartPos = 0;

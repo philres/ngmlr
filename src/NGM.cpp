@@ -477,33 +477,29 @@ void _NGM::StartCS(int cs_threadcount) {
 
 #include "OclHost.h"
 #include "SWOclCigar.h"
+#include "seqan/EndToEndAffine.h"
 
 IAlignment * _NGM::CreateAlignment(int const mode) {
-	//int dev_type = Config.GetInt("ocl_device");
-	int dev_type = CL_DEVICE_TYPE_CPU;
+	IAlignment * instance = 0;
 
-	if (Config.Exists("gpu")) {
-		dev_type = CL_DEVICE_TYPE_GPU;
-	}
+	if(Config.GetInt("affine")) {
+		if (Config.Exists("gpu")) {
+			Log.Error("GPU doesn't support affine gap penalties. Please remove --affine or -g/--gpu.");
+			Fatal();
+		}
+		instance = new EndToEndAffine();
+	} else {
+		int dev_type = CL_DEVICE_TYPE_CPU;
 
-	Log.Verbose("Mode: %d GPU: %d", mode, mode & 0xFF);
+		if (Config.Exists("gpu")) {
+			dev_type = CL_DEVICE_TYPE_GPU;
+		}
 
-	OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
+		Log.Verbose("Mode: %d GPU: %d", mode, mode & 0xFF);
+		OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
 
-	SWOcl * instance = 0;
-
-//#ifndef NDEBUG
-	//Log.Error("Alignment mode: %d", mode);
-//#endif
-	int ReportType = (mode >> 8) & 0xFF;
-	switch (ReportType) {
-		case 0:
-
-			Log.Verbose("Output: text");
-
-//		instance = new SWOclAlignment(host);
-			//			instance = new SWOclCigar(host);
-			break;
+		int ReportType = (mode >> 8) & 0xFF;
+		switch (ReportType) {
 			case 1:
 
 			Log.Verbose("Output: cigar");
@@ -514,12 +510,16 @@ IAlignment * _NGM::CreateAlignment(int const mode) {
 			Log.Error("Unsupported report type %i", mode);
 			break;
 		}
+	}
+
 	return instance;
 }
 
 void _NGM::DeleteAlignment(IAlignment* instance) {
-	SWOcl * test = (SWOcl *) instance;
-	OclHost * host = test->getHost();
+	OclHost * host = 0;
+	if(!Config.GetInt("affine")) {
+		host = ((SWOcl *) instance)->getHost();
+	}
 #ifndef NDEBUG
 	Log.Message("Delete alignment called");
 #endif

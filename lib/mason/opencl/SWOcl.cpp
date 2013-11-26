@@ -201,9 +201,9 @@ SWOcl::SWOcl(char const * const oclSwScoreSourceCode, char const * const additio
 	stringstream buildCmd;
 	static bool const bsMapping = Config.GetInt("bs_mapping") == 1;
 	buildCmd << "-D MATRIX_LENGTH=" << (matrix_length * threads_per_block) << " -D interleave_number=" << "256" << " -D threads_per_block="
-			<< threads_per_block << " -D match=" << Config.GetFloat("score_match") << " -D mismatch=" << Config.GetFloat("score_mismatch")
-			<< " -D gap_read=" << Config.GetFloat("score_gap_read") << " -D gap_ref=" << Config.GetFloat("score_gap_ref") << " -D matchBS="
-			<< Config.GetFloat("score_match_tt") << " -D mismatchBS=" << Config.GetFloat("score_mismatch_tc") << " -D read_length="
+			<< threads_per_block << " -D match=" << Config.GetFloat(MATCH_BONUS) << " -D mismatch=" << Config.GetFloat(MISMATCH_PENALTY) * -1.0f
+			<< " -D gap_read=" << Config.GetFloat(GAP_READ_PENALTY) * -1.0f << " -D gap_ref=" << Config.GetFloat(GAP_REF_PENALTY) * -1.0f << " -D matchBS="
+			<< Config.GetFloat(MATCH_BONUS_TT) << " -D mismatchBS=" << Config.GetFloat(MATCH_BONUS_TC) << " -D read_length="
 			<< Config.GetInt("qry_max_len") << " -D ref_length=" << config_ref_size << " -D corridor_length="
 			<< (Config.GetInt("corridor") + 1) << " -D alignment_length=" << alignment_length << " " << additional_defines;
 	if (host->isGPU()) {
