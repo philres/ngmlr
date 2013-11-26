@@ -5,9 +5,9 @@ set( NGM_VERSION_MAJOR 0 )
 set( NGM_VERSION_MINOR 4 )
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Building in debug mode!")
-    set( NGM_VERSION_BUILD 10-debug )
+    set( NGM_VERSION_BUILD 10-pre-debug )
 else()
-	set( NGM_VERSION_BUILD 10 )
+	set( NGM_VERSION_BUILD 10-pre )
 ENDIF()
 
 
@@ -28,6 +28,9 @@ file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 #add_definitions(-D _DEBUGOUT)
 #add_definitions(-D _DEBUGCSKMERS)
 #add_definitions(-D _DEBUGRP)
+
+#Print bed file with all CMRs
+#add_definitions(-D _DEBUGCMRS)
 
 # Set a default build type for single-configuration
 # CMake generators if no build type is set.
