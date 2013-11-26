@@ -41,6 +41,10 @@ private:
 
 private:
 
+#ifdef _DEBUGCMRS
+	FILE * cmrBed;
+#endif
+
 	bool CheckPairs(LocationScore * ls1, int const readLength1, LocationScore * ls2, int const readLength2, float & topScore, int & dst, int & equalScore);
 
 	void top1SE(MappedRead* read);
@@ -106,9 +110,20 @@ public:
 		scores = new Score[swBatchSize];
 		iScores = 0;
 		scoreTime = 0.0f;
+
+#ifdef _DEBUGCMRS
+		if(Config.GetInt("threads") > 1) {
+			Log.Error("Can't run _DEBUGCMRs with more than 1 thread.");
+			Fatal();
+		}
+		cmrBed = fopen("cmrs.bed", "w");
+#endif
 	}
 
 	~ScoreBuffer() {
+#ifdef _DEBUGCMRS
+		fclose(cmrBed);
+#endif
 		Log.Verbose("SW dtor");
 		delete[] m_DirBuffer;
 		m_DirBuffer = 0;

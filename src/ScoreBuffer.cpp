@@ -78,6 +78,13 @@ void ScoreBuffer::DoRun() {
 
 			cur_read->Scores[scoreId].Score.f = m_ScoreBuffer[i];
 
+#ifdef _DEBUGCMRS
+			SequenceLocation rloc = SequenceProvider.convert(cur_read, cur_read->Scores[scoreId].Location.m_Location);
+			int refNameLength = 0;
+			//Log.Message("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", cur_read->name, loc.m_Location, rloc.m_Location, SequenceProvider.GetRefName(rloc.m_RefId, refNameLength), m_ScoreBuffer[i]);
+			fprintf(cmrBed, "%s\t%d\t%d\t%s_%d\t%f\t%c\n", SequenceProvider.GetRefName(rloc.getrefId(), refNameLength), rloc.m_Location - (corridor >> 1), rloc.m_Location - (corridor >> 1) + refMaxLen,  cur_read->name, scoreId, cur_read->Scores[scoreId].Score.f, (rloc.isReverse()) ? '-' : '+');
+#endif
+
 #ifdef _DEBUGSW
 			MappedRead * cur_read = scores[i]->Read;
 			SequenceLocation loc = scores[i]->Location;

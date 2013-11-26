@@ -251,6 +251,11 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 	str << "kmers-" << read->name << ".csv";
 	ofp = fopen(str.str().c_str(), "w");
 
+	FILE* ofpBed;
+	std::stringstream strBed;
+	strBed << "cmrs-" << read->name << ".bed";
+	ofpBed = fopen(strBed.str().c_str(), "w");
+
 	int count = 0;
 	float max = 0.0f;
 	for (int i = 0; i < c_SrchTableLen; ++i) {
@@ -281,6 +286,7 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 				if(rTable[i].fScore >= mi_Threshhold) {
 #ifdef _DEBUGCSVERBOSE
 					Log.Green("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].fScore);
+					fprintf(ofpBed, "%s\t%d\t%d\t%s\t%f\t+\n", SequenceProvider.GetRefName(m_RefId, refNameLength), m_Location, m_Location + 12, read->name, rTable[i].fScore);
 #endif
 				} else {
 #ifdef _DEBUGCSVERBOSE
@@ -295,7 +301,8 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 			if (rTable[i].rScore > 0.0f) {
 				if(rTable[i].rScore >= mi_Threshhold) {
 #ifdef _DEBUGCSVERBOSE
-					Log.Green("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].fScore);
+					Log.Green("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].rScore);
+					fprintf(ofpBed, "%s\t%d\t%d\t%s\t%f\t-\n", SequenceProvider.GetRefName(m_RefId, refNameLength), m_Location, m_Location + 12, read->name, rTable[i].rScore);
 #endif
 				} else {
 #ifdef _DEBUGCSVERBOSE
@@ -310,6 +317,7 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 		}
 	}
 	fclose(ofp);
+	fclose(ofpBed);
 #ifdef _DEBUGCSVERBOSE
 	Log.Green("Read %s: %d CMRs, %d before filtering, theta: %f, max: %f", read->name, count, n, mi_Threshhold, max);
 #endif
