@@ -86,7 +86,8 @@ public:
 				}
 
 				mapped = mapped && (read->Alignments[i].Identity >= minIdentity);
-				mapped = mapped && ((read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd) >= minResidues);
+				mapped = mapped && ((float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd) >= minResidues);
+				//Log.Message("R: %f >= %f", (read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd), minResidues);
 
 				if (mapped) {
 					mappedOnce = true;
@@ -126,24 +127,28 @@ public:
 			static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
 			static float minResidues = Config.GetFloat("min_residues", 0, 1000);
 
-			if (minResidues < 1.0f) {
-				minResidues = std::min(read1->length, read2->length) * minResidues;
+			float minResidues1 = 0.0f;
+			float minResidues2 = 0.0f;
+
+			if (minResidues <= 1.0f) {
+				minResidues1 = read1->length * minResidues;
+				minResidues2 = read2->length * minResidues;
+			} else {
+				minResidues1 = minResidues2 = minResidues;
 			}
 
 			bool mapped1 = read1->hasCandidates() && (read1->Alignments[scoreId1].Identity >= minIdentity)
-			&& ((read1->length - read1->Alignments[scoreId1].QStart - read1->Alignments[scoreId1].QEnd) >= minResidues);
+			&& ((float)(read1->length - read1->Alignments[scoreId1].QStart - read1->Alignments[scoreId1].QEnd) >= minResidues1);
 			bool mapped2 = read2->hasCandidates() && (read2->Alignments[scoreId2].Identity >= minIdentity)
-			&& ((read2->length - read2->Alignments[scoreId2].QStart - read2->Alignments[scoreId2].QEnd) >= minResidues);
+			&& ((float)(read2->length - read2->Alignments[scoreId2].QStart - read2->Alignments[scoreId2].QEnd) >= minResidues2);
 
 			if (!mapped1) {
 				read1->clearScores();
-				//NGM.AddUnmappedRead(read1, MFAIL_IDENT);
 			} else {
 				NGM.AddMappedRead(read1->ReadId);
 			}
 			if (!mapped2) {
 				read2->clearScores();
-				//NGM.AddUnmappedRead(read2, MFAIL_IDENT);
 			} else {
 				NGM.AddMappedRead(read2->ReadId);
 
@@ -155,10 +160,6 @@ public:
 			//Log.Message("%d %d %d", read2->length, read2->Alignments[scoreId2].QStart, read2->Alignments[scoreId2].QEnd);
 
 			DoWritePair(read1, scoreId1, read2, scoreId2);
-
-			//NGM.AddWrittenRead(read1->ReadId);
-			//NGM.AddWrittenRead(read2->ReadId);
-
 		}
 	}
 
