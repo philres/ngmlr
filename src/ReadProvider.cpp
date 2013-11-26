@@ -405,9 +405,10 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 
 				}
 			} else {
-				Log.Verbose("Empty read found (%s). Filling with Ns.", seq->name.s);
+				Log.Verbose("Empty read found (%s). Filling with Ns.", read->name);
 				read->length = qryMaxLen - 2;
 				memset(read->Seq, 'N', read->length);
+				read->SetFlag(NGMNames::Empty);
 			}
 //			if (nCount > qryMaxLen * 0.5f) {
 //				Log.Warning("Discarding read %s (too many Ns)", read->name);

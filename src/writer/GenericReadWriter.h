@@ -10,6 +10,10 @@
 #include "MappedRead.h"
 #include "FileWriter.h"
 
+#undef module_name
+#define module_name "OUTPUT"
+
+
 class GenericReadWriter {
 
 public:
@@ -42,8 +46,6 @@ protected:
 
 	static int const BUFFER_SIZE = 17000000;
 	static int const BUFFER_LIMIT = 16000000;
-
-
 
 	char * writeBuffer;
 	int bufferPosition;
@@ -88,7 +90,7 @@ public:
 
 				if (mapped) {
 					mappedOnce = true;
-					if(iTable.find(read->Scores[i].Location) == iTable.end()) {
+					if (iTable.find(read->Scores[i].Location) == iTable.end()) {
 						iTable[read->Scores[i].Location] = true;
 						DoWriteRead(read, i);
 					} else {
@@ -99,53 +101,65 @@ public:
 			if (mappedOnce) {
 				NGM.AddMappedRead(read->ReadId);
 			} else {
-				DoWriteUnmappedRead(read);
+				if(read->HasFlag(NGMNames::Empty)) {
+					Log.Message("Empty read found: %s. Read will be discarded and not written to output.", read->name);
+				} else {
+					DoWriteUnmappedRead(read);
+				}
 			}
 		} else {
-			DoWriteUnmappedRead(read);
+			if(read->HasFlag(NGMNames::Empty)) {
+				Log.Message("Empty read found: %s. Read will be discarded and not written to output.", read->name);
+			} else {
+				DoWriteUnmappedRead(read);
+			}
 		}
 	}
 
 	void WritePair(MappedRead * const read1, int const scoreId1, MappedRead * const read2, int const scoreId2) {
-
-		//TODO: fix paired end!!! MULTI MAP!
-
-		static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
-		static float minResidues = Config.GetFloat("min_residues", 0, 1000);
-
-		if (minResidues < 1.0f) {
-			minResidues = std::min(read1->length, read2->length) * minResidues;
-		}
-
-		bool mapped1 = read1->hasCandidates() && (read1->Alignments[scoreId1].Identity >= minIdentity)
-		&& ((read1->length - read1->Alignments[scoreId1].QStart - read1->Alignments[scoreId1].QEnd) >= minResidues);
-		bool mapped2 = read2->hasCandidates() && (read2->Alignments[scoreId2].Identity >= minIdentity)
-		&& ((read2->length - read2->Alignments[scoreId2].QStart - read2->Alignments[scoreId2].QEnd) >= minResidues);
-
-		if (!mapped1) {
-			read1->clearScores();
-			//NGM.AddUnmappedRead(read1, MFAIL_IDENT);
+		if(read1->HasFlag(NGMNames::Empty) || read2->HasFlag(NGMNames::Empty)) {
+			Log.Message("Empty read found in pair: %s/%s. Both reads will be discarded and not written to output.", read1->name, read2->name);
 		} else {
-			NGM.AddMappedRead(read1->ReadId);
-		}
-		if (!mapped2) {
-			read2->clearScores();
-			//NGM.AddUnmappedRead(read2, MFAIL_IDENT);
-		} else {
-			NGM.AddMappedRead(read2->ReadId);
+
+			//TODO: fix paired end!!! MULTI MAP!
+
+			static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
+			static float minResidues = Config.GetFloat("min_residues", 0, 1000);
+
+			if (minResidues < 1.0f) {
+				minResidues = std::min(read1->length, read2->length) * minResidues;
+			}
+
+			bool mapped1 = read1->hasCandidates() && (read1->Alignments[scoreId1].Identity >= minIdentity)
+			&& ((read1->length - read1->Alignments[scoreId1].QStart - read1->Alignments[scoreId1].QEnd) >= minResidues);
+			bool mapped2 = read2->hasCandidates() && (read2->Alignments[scoreId2].Identity >= minIdentity)
+			&& ((read2->length - read2->Alignments[scoreId2].QStart - read2->Alignments[scoreId2].QEnd) >= minResidues);
+
+			if (!mapped1) {
+				read1->clearScores();
+				//NGM.AddUnmappedRead(read1, MFAIL_IDENT);
+			} else {
+				NGM.AddMappedRead(read1->ReadId);
+			}
+			if (!mapped2) {
+				read2->clearScores();
+				//NGM.AddUnmappedRead(read2, MFAIL_IDENT);
+			} else {
+				NGM.AddMappedRead(read2->ReadId);
+
+			}
+
+			//Log.Message("Output paired 1: hC %d, R: %d %d, I: %f %f", read1->hasCandidates(), ((read1->length - read1->Alignments[scoreId2].QStart - read1->Alignments[scoreId2].QEnd)), minResidues, read1->Alignments[scoreId2].Identity >= minIdentity, minIdentity);
+			//Log.Message("%d %d %d", read1->length, read1->Alignments[scoreId2].QStart, read1->Alignments[scoreId2].QEnd);
+			//Log.Message("Output paired 2: hC %d, R: %d %d, I: %f %f", read2->hasCandidates(), ((read2->length - read2->Alignments[scoreId2].QStart - read2->Alignments[scoreId2].QEnd)), minResidues, read2->Alignments[scoreId2].Identity >= minIdentity, minIdentity);
+			//Log.Message("%d %d %d", read2->length, read2->Alignments[scoreId2].QStart, read2->Alignments[scoreId2].QEnd);
+
+			DoWritePair(read1, scoreId1, read2, scoreId2);
+
+			//NGM.AddWrittenRead(read1->ReadId);
+			//NGM.AddWrittenRead(read2->ReadId);
 
 		}
-
-		//Log.Message("Output paired 1: hC %d, R: %d %d, I: %f %f", read1->hasCandidates(), ((read1->length - read1->Alignments[scoreId2].QStart - read1->Alignments[scoreId2].QEnd)), minResidues, read1->Alignments[scoreId2].Identity >= minIdentity, minIdentity);
-		//Log.Message("%d %d %d", read1->length, read1->Alignments[scoreId2].QStart, read1->Alignments[scoreId2].QEnd);
-		//Log.Message("Output paired 2: hC %d, R: %d %d, I: %f %f", read2->hasCandidates(), ((read2->length - read2->Alignments[scoreId2].QStart - read2->Alignments[scoreId2].QEnd)), minResidues, read2->Alignments[scoreId2].Identity >= minIdentity, minIdentity);
-		//Log.Message("%d %d %d", read2->length, read2->Alignments[scoreId2].QStart, read2->Alignments[scoreId2].QEnd);
-
-		DoWritePair(read1, scoreId1, read2, scoreId2);
-
-		//NGM.AddWrittenRead(read1->ReadId);
-		//NGM.AddWrittenRead(read2->ReadId);
-
 	}
 
 	void WriteEpilog() {

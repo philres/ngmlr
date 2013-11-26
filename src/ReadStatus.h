@@ -9,7 +9,7 @@ namespace NGMNames
 
 		NoSrcPair		= 0x010,		
 		PairedFail		= 0x020,	
-
+		Empty			= 0x040,
 		DeletionPending	= 0x100
 	};
 }
