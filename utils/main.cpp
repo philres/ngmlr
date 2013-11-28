@@ -11,7 +11,6 @@
 
 #include "Log.h"
 #include "paired/interleave-pairs.h"
-#include "filter/filter.h"
 
 using std::string;
 using TCLAP::ValuesConstraint;
@@ -78,7 +77,7 @@ int main(int argc, char **argv) {
 		} else if (nolabel.getValue() == allowed[1]) {
 			char const * name = "ngm-utils filter";
 			argv[1] = const_cast<char *>(name);
-			filter(argc - 1, argv + 1);
+			//filter(argc - 1, argv + 1);
 		} else {
 			throw TCLAP::ArgException("Invalid value found", "program");
 		}
