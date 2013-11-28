@@ -402,6 +402,7 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("qry_start", 0);
 	Default("qry_count", -1);
 
+	Default("affine", 0);
 	Default("max_equal", 1);
 	if (GetInt("bs_mapping") != 1) {
 		if(GetInt("affine")) {
@@ -429,7 +430,6 @@ _Config::_Config(int argc, char * argv[]) {
 		Default(GAP_REF_PENALTY, 10);
 		Default(GAP_EXTEND_PENALTY, 2);
 	}
-	Default("affine", 0);
 	Default(MATCH_BONUS_TT, 4);
 	Default(MATCH_BONUS_TC, 4);
 
