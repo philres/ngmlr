@@ -6,7 +6,11 @@
  */
 
 #include "SamParser.h"
-//#include "Config.h"
+
+#include <algorithm>
+
+#include <string.h>
+
 #include "Log.h"
 
 void SamParser::init(char const * fileName) {
@@ -72,7 +76,8 @@ void computeReverseSeq(char * Seq, int qryMaxLen) {
 		*rev-- = cpl(*fwd++);
 	}
 	//if()
-	delete RevSeq; RevSeq = 0;
+	delete RevSeq;
+	RevSeq = 0;
 }
 
 /* Return value:
@@ -113,7 +118,7 @@ size_t SamParser::parseRead() {
 
 			//Sequence
 			lineBuffer = readField(lineBuffer, read->seq);
-			if(reverse) {
+			if (reverse) {
 				//char * tmp = read->seq.s;
 				//Log.Message("Seq:    %s", read->seq.s);
 				computeReverseSeq(read->seq.s, read->seq.l);
@@ -130,6 +135,9 @@ size_t SamParser::parseRead() {
 
 			//Quality
 			lineBuffer = readField(lineBuffer, read->qual);
+			if (reverse) {
+				std::reverse(read->qual.s, &read->qual.s[strlen(read->qual.s)]);
+			}
 
 			if (read->qual.l == read->seq.l) {
 				return read->seq.l;

@@ -79,17 +79,13 @@ void BAMWriter::translate_flag(BamAlignment * al, int flags) {
 
 void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scoreId, int const pRef, int const pLoc, int const pDist, int const mappingQlty, int flags) {
 	NGM.AddWrittenRead(read->ReadId);
-//	Log.Message("Wrinting %s", read->name);
-	//NGMLock(&m_OutputMutex);
 	static bool const hardClip = Config.GetInt("hard_clip", 0, 1) == 1 || Config.GetInt("silent_clip", 0, 1) == 1;
 
 	BamAlignment * al = new BamAlignment();
 
 	char const * readseq = read->Seq;
 	int readlen = read->length;
-
 	char * readname = read->name;
-//	int readnamelen = read->nameLength;
 
 	char * qltystr = read->qlty;
 	int qltylen = readlen;
@@ -100,6 +96,7 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 
 	if (read->Scores[scoreId].Location.isReverse()) {
 		readseq = read->RevSeq;
+		std::reverse(qltystr, &qltystr[read->length]);
 		al->SetIsReverseStrand(true);
 	}
 

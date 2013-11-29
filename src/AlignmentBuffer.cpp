@@ -156,11 +156,6 @@ void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 			loc.setRefId(refId);
 			//Log.Message("Converted score %d: %hd %d %u", i, loc.m_RefId, refId, loc.m_Location);
 			read->Scores[i].Location = loc;
-
-			if (loc.isReverse()) {
-				if (read->qlty != 0)
-				std::reverse(read->qlty, read->qlty + strlen(read->qlty));
-			}
 		}
 	}
 	if (read->Paired != 0) {
@@ -179,6 +174,7 @@ void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 					pairInsertCount += 1;
 					if (ls1->Location.getrefId() != ls2->Location.getrefId() || distance < _NGM::sPairMinDistance
 							|| distance > _NGM::sPairMaxDistance || ls1->Location.isReverse() == ls2->Location.isReverse()) {
+//						Log.Message("%d != %d || %d < _%d || %d > %d || %d == %d", ls1->Location.getrefId() , ls2->Location.getrefId(), distance, _NGM::sPairMinDistance, distance, _NGM::sPairMaxDistance, ls1->Location.isReverse(), ls2->Location.isReverse());
 						read->SetFlag(NGMNames::PairedFail);
 						read->Paired->SetFlag(NGMNames::PairedFail);
 						brokenPairs += 1;

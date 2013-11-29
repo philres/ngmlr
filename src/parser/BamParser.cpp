@@ -26,6 +26,27 @@ void BamParser::init(char const * fileName) {
 	read = kseq_init(fp);
 }
 
+static inline char cpl(char c) {
+	if (c == 'A')
+		return 'T';
+	else if (c == 'T')
+		return 'A';
+	else if (c == 'C')
+		return 'G';
+	else if (c == 'G')
+		return 'C';
+	else
+		return c;
+}
+
+//// swaps two bases and complements them
+//static inline void rc(char & c1, char & c2)
+//{
+//	char x = c1;
+//	c1 = cpl(c2);
+//	c2 = cpl(x);
+//}
+
 /* Return value:
  >=0  length of the sequence (normal)
  -1   end-of-file
@@ -60,12 +81,27 @@ size_t BamParser::parseRead() {
 			}
 			//copy the sequence
 			read->seq.l = al->QueryBases.size();
-			memcpy(read->seq.s, al->QueryBases.c_str(), read->seq.l * sizeof(char));
+			if(al->IsReverseStrand()) {
+				char const * fwd = al->QueryBases.c_str();
+				char * rev = read->seq.s + read->seq.l - 1;
+
+				for (int i = 0; i < read->seq.l; ++i) {
+					*rev-- = cpl(*fwd++);
+				}
+			} else {
+				memcpy(read->seq.s, al->QueryBases.c_str(), read->seq.l * sizeof(char));
+			}
 
 			if (!al->Qualities.empty()) {
 				//copy the qualities
 				read->qual.l = al->Qualities.size();
-				memcpy(read->qual.s, al->Qualities.c_str(), read->qual.l * sizeof(char));
+				if(al->IsReverseStrand()) {
+					for(int i = 0; i < read->qual.l; ++i) {
+						read->qual.s[i] = al->Qualities.c_str()[read->qual.l - 1 - i];
+					}
+				} else {
+					memcpy(read->qual.s, al->Qualities.c_str(), read->qual.l * sizeof(char));
+				}
 			}
 
 			if (read->seq.l != read->qual.l) {

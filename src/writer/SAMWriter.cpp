@@ -2,6 +2,8 @@
 
 #include <string.h>
 #include <sstream>
+#include <algorithm>
+#include <string.h>
 
 #include "Config.h"
 #include "SequenceProvider.h"
@@ -53,11 +55,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	static bool const hardClip = Config.GetInt("hard_clip", 0, 1) == 1 || Config.GetInt("silent_clip", 0, 1) == 1;
 
 	char const * readseq = read->Seq;
-	//int readlen = read->length;
-
 	char * readname = read->name;
-//	int readnamelen = read->nameLength;
-
 	char * qltystr = read->qlty;
 
 	if (scoreID != 0) {
@@ -66,6 +64,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 
 	if (read->Scores[scoreID].Location.isReverse()) {
 		readseq = read->RevSeq;
+		std::reverse(qltystr, &qltystr[read->length]);
 		flags |= 0x10;
 	}
 
@@ -73,7 +72,6 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	char const * refname = SequenceProvider.GetRefName(read->Scores[scoreID].Location.getrefId(), refnamelen);
 
 	//mandatory fields
-	//Print("%.*s\t", readnamelen, readname);
 	Print("%s\t", readname);
 	Print("%d\t", flags);
 	Print("%.*s\t", refnamelen, refname);
