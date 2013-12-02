@@ -96,7 +96,9 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 
 	if (read->Scores[scoreId].Location.isReverse()) {
 		readseq = read->RevSeq;
-		std::reverse(qltystr, &qltystr[read->length]);
+		if (qltystr != 0) {
+			std::reverse(qltystr, &qltystr[read->length]);
+		}
 		al->SetIsReverseStrand(true);
 	}
 
@@ -106,11 +108,13 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	al->MapQuality = read->mappingQlty;
 	al->Position = read->Scores[scoreId].Location.m_Location;
 
-	if (hardClip)
+	if (hardClip) {
 		al->QueryBases = std::string(readseq + read->Alignments[scoreId].QStart,
 				read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd);
-	else
+	}
+	else {
 		al->QueryBases = std::string(readseq, readlen);
+	}
 
 	al->RefID = read->Scores[scoreId].Location.getrefId() / 2;
 
@@ -118,7 +122,7 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	//if (pRefName == '=')
 	//al->MateRefID = read->TLS()->Location.m_RefId / 2;
 	if (pRef > -1)
-		al->MateRefID = pRef / 2;
+	al->MateRefID = pRef / 2;
 	al->MatePosition = pLoc;
 	al->InsertSize = pDist;
 
@@ -135,15 +139,15 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 
 	if (qltystr != 0 && qltylen > 0 && qltylen == readlen) {
 		if (hardClip)
-			al->Qualities = std::string(qltystr + read->Alignments[scoreId].QStart,
-					read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd);
+		al->Qualities = std::string(qltystr + read->Alignments[scoreId].QStart,
+				read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd);
 		else
-			al->Qualities = std::string(qltystr, qltylen);
+		al->Qualities = std::string(qltystr, qltylen);
 	} else {
 		if (hardClip)
-			al->Qualities = std::string(read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd, ':');
+		al->Qualities = std::string(read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd, ':');
 		else
-			al->Qualities = std::string(readlen, ':');
+		al->Qualities = std::string(readlen, ':');
 	}
 
 	//	//Optional fields
@@ -266,18 +270,18 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 		DoWriteUnmappedRead(read2, flags2);
 		DoWriteUnmappedRead(read1, flags1);
 	} else if (!read1->hasCandidates()) {
-			//First mate unmapped
-			flags2 |= 0x8;
+		//First mate unmapped
+		flags2 |= 0x8;
 
-			DoWriteReadGeneric(read2, scoreId2, -1, read2->Scores[scoreId2].Location.m_Location, 0, read2->mappingQlty, flags2);
-			DoWriteUnmappedReadGeneric(read1, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.getrefId(),
-					read2->Scores[scoreId2].Location.m_Location, read2->Scores[scoreId2].Location.m_Location, 0, 0, flags1);
+		DoWriteReadGeneric(read2, scoreId2, -1, read2->Scores[scoreId2].Location.m_Location, 0, read2->mappingQlty, flags2);
+		DoWriteUnmappedReadGeneric(read1, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.getrefId(),
+				read2->Scores[scoreId2].Location.m_Location, read2->Scores[scoreId2].Location.m_Location, 0, 0, flags1);
 	} else if (!read2->hasCandidates()) {
-			flags1 |= 0x8;
-			//Second mate unmapped
-			DoWriteUnmappedReadGeneric(read2, read1->Scores[scoreId1].Location.getrefId(), read1->Scores[scoreId1].Location.getrefId(),
-					read1->Scores[scoreId1].Location.m_Location, read1->Scores[scoreId1].Location.m_Location, 0, 0, flags2);
-			DoWriteReadGeneric(read1, scoreId1, -1, read1->Scores[scoreId1].Location.m_Location, 0, read1->mappingQlty, flags1);
+		flags1 |= 0x8;
+		//Second mate unmapped
+		DoWriteUnmappedReadGeneric(read2, read1->Scores[scoreId1].Location.getrefId(), read1->Scores[scoreId1].Location.getrefId(),
+				read1->Scores[scoreId1].Location.m_Location, read1->Scores[scoreId1].Location.m_Location, 0, 0, flags2);
+		DoWriteReadGeneric(read1, scoreId1, -1, read1->Scores[scoreId1].Location.m_Location, 0, read1->mappingQlty, flags1);
 	} else {
 		if (!read1->HasFlag(NGMNames::PairedFail)) {
 			//TODO: Check if correct!

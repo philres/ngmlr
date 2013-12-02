@@ -112,11 +112,11 @@ void ScoreBuffer::DoRun() {
 				}
 			} else {
 				if (++cur_read->Calculated == cur_read->numScores() && cur_read->Paired->Calculated == cur_read->Paired->numScores()) {
-					if(strcmp(cur_read->name, "HWUSI-EAS475:1:12:17529:18194#0/1") == 0) {
+					//if(strcmp(cur_read->name, "HWUSI-EAS475:1:12:17529:18194#0/1") == 0) {
 						//if(strcmp(cur_read->name, "HWUSI-EAS475:1:12:17529:18194#0/1") == 0) {
-						Log.Message("FOUND: %s", cur_read->name);
+						//Log.Message("FOUND: %s", cur_read->name);
 						//Fatal();
-					}
+					//}
 					//all scores computed for both mates
 					if (topn == 1) {
 						if (!fastPairing) {

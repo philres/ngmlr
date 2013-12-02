@@ -64,7 +64,9 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 
 	if (read->Scores[scoreID].Location.isReverse()) {
 		readseq = read->RevSeq;
-		std::reverse(qltystr, &qltystr[read->length]);
+		if (qltystr != 0) {
+			std::reverse(qltystr, &qltystr[read->length]);
+		}
 		flags |= 0x10;
 	}
 
