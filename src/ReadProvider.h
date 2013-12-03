@@ -31,6 +31,8 @@ private:
 
 	char const peDelimiter;
 
+	bool const isPaired;
+
 	virtual MappedRead * NextRead(IParser * parser, int const id);
 	MappedRead * GenerateSingleRead(int const readid);
 	IParser * DetermineParser(char const * fileName);

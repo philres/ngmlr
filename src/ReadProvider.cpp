@@ -48,7 +48,7 @@ int maxHitTableIndex;
 int m_CurrentReadLength;
 
 ReadProvider::ReadProvider() :
-		parser1(0), parser2(0), peDelimiter(Config.GetString("pe_delimiter")[0]) {
+		parser1(0), parser2(0), peDelimiter(Config.GetString("pe_delimiter")[0]), isPaired(Config.GetInt("paired") > 0) {
 
 }
 
@@ -381,7 +381,7 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 			read->name = new char[MAX_READNAME_LENGTH];
 			int nameLength = std::min(MAX_READNAME_LENGTH - 1, parser->read->name.l);
 
-			if(parser->read->name.s[nameLength - 2] == peDelimiter) {
+			if(isPaired && parser->read->name.s[nameLength - 2] == peDelimiter) {
 				nameLength -= 2;
 			}
 
@@ -519,8 +519,6 @@ MappedRead * ReadProvider::GenerateSingleRead(int const readid) {
 
 // Sequential (important for pairs!) read generation
 bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1, int const readid2, MappedRead * & read2) {
-
-	static bool const isPaired = Config.GetInt("paired") > 0;
 
 	if (isPaired) {
 		static bool const isInterleaved = Config.Exists("qry");
