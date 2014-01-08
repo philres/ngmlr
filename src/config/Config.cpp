@@ -465,7 +465,7 @@ _Config::_Config(int argc, char * argv[]) {
 
 	if (Exists("max_consecutive_indels")) {
 		if (Exists("corridor")) {
-			Log.Warning("The parameter 'corridor' is deprecated. Please remove the 'corridor' entry from the config file and use 'max-consecutive-indels'.");
+			Log.Warning("The parameter 'corridor' is depreciated. Please remove the 'corridor' entry from the config file and use 'max-consecutive-indels'.");
 		} else {
 			if (Exists("gpu") && (GetInt("max-max_consecutive_indels-indels") > 40 || GetInt("max_consecutive_indels") < 5)) {
 				Log.Error("[CONFIG] Value max_consecutive_indels : %d out of range [5, 40] - using default value", GetInt("max_consecutive_indels"));
@@ -478,7 +478,7 @@ _Config::_Config(int argc, char * argv[]) {
 	}
 
 	if (Exists(MODE)) {
-		Log.Warning("The parameter '--mode/-m' is deprecated and will be removed in the future. Please use '--local/-l' or '--end-to-end/-e' instead.");
+		Log.Warning("The parameter '--mode/-m' is depreciated and will be removed in the future. Please use '--local/-l' or '--end-to-end/-e' instead.");
 		if(Exists(LOCAL) || Exists(ENDTOEND)) {
 			Log.Error("'--mode/-m', '--local/-l' and '--end-to-end/-e' can't be used at the same time!");
 			Fatal();
