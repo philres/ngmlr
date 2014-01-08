@@ -459,7 +459,7 @@ _Config::_Config(int argc, char * argv[]) {
 
 	//Others
 	Default("no_progress", 0);
-	Default("pe_delimiter", '/');
+	Default("pe_delimiter", "/");
 
 	initialized = true;
 
