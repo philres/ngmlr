@@ -11,6 +11,8 @@ static char const * const GAP_EXTEND_PENALTY = 	"gap_extend_penalty";
 
 static char const * const MODE =			 	"mode";
 
+static char const * const MIN_MQ =			 	"min_mq";
+
 static char const * const LOCAL =			 	"local";
 static char const * const ENDTOEND =		 	"end_to_end";
 

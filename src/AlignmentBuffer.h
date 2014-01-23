@@ -3,10 +3,6 @@
 
 #include "GenericReadWriter.h"
 
-//#include <map>
-//#include <list>
-//#include <algorithm>
-
 #include "SAMWriter.h"
 #include "BAMWriter.h"
 
@@ -28,6 +24,7 @@ private:
 	int const batchSize;
 	int const corridor;
 	int const refMaxLen;
+	int const min_mq;
 
 	Alignment * reads;
 	int nReads;
@@ -63,7 +60,7 @@ public:
 					NGM.GetOutputFormat()),
 					alignmode(Config.GetInt(MODE, 0, 1)),
 					corridor(Config.GetInt("corridor")),
-					refMaxLen(((Config.GetInt("qry_max_len") + corridor) | 1) + 1), aligner(mAligner) {
+					refMaxLen(((Config.GetInt("qry_max_len") + corridor) | 1) + 1), min_mq(Config.GetInt(MIN_MQ)), aligner(mAligner) {
 						refStartPos = 0;
 						pairInsertSum = 0;
 						pairInsertCount = 0;

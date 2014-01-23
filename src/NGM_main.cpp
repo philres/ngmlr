@@ -14,9 +14,7 @@
 
 #include "NGM.h"
 
-//#include "SW.h"
 #include "CS.h"
-//#include "Output.h"
 #include "Version.h"
 
 #include "Timing.h"
@@ -84,8 +82,6 @@ bool cDebug = true;
 ILog const * _log = 0;
 IConfig * _config = 0;
 
-//char const * const version = "0.4.4";
-
 int main(int argc, char * argv[]) {
 
 	std::stringstream version;
@@ -114,48 +110,6 @@ int main(int argc, char * argv[]) {
 
 	Log.setColor(Config.Exists("color"));
 
-//	//Restart NGM and set proper environment variables
-//	if (Config.Exists("mason_path") && !Config.Exists("skip_env")) {
-//		char * newArgv[argc + 3];
-//		for (int i = 0; i < argc; ++i) {
-//			newArgv[i] = argv[i];
-//		}
-//		newArgv[argc] = "--skip-env";
-//		newArgv[argc + 1] = "1";
-//		newArgv[argc + 2] = (char *) 0;
-//
-//		int const length = 3;
-//		char * envParms[length] = { NULL, NULL };
-//
-//		envParms[0] = new char[10000];
-//		envParms[1] = new char[10000];
-//		int index = 0;
-//
-//		index += sprintf(envParms[0], "LD_LIBRARY_PATH=");
-//		if (Config.Exists("mason_path")) {
-//			index += sprintf(envParms[0] + index, "%s", Config.GetString("mason_path"));
-//		}
-//		if (Config.Exists("lib_path")) {
-//			index += sprintf(envParms[0] + index, ":%s", Config.GetString("lib_path"));
-//		}
-//		if (Config.Exists("vendor_path")) {
-//			sprintf(envParms[1], "OPENCL_VENDOR_PATH=%s", Config.GetString("vendor_path"));
-//			envParms[2] = NULL;
-//		} else {
-//			envParms[1] = NULL;
-//		}
-//
-////			for (int i = 0; i < length; ++i) {
-////				Log.Message("ENV: %s", envParms[i]);
-////			}
-//		//BrInitError error;
-//		//br_init(&error);
-//		//Log.Message("Restarting with environment variables (%s).", br_find_exe(argv[0]));
-//		Log.Message("Restarting with environment variables (%s).", argv[0]);
-//		int ret = execve(newArgv[0], newArgv, envParms);
-//		Log.Error("Couldn't restart NGM. Make sure that all environment variables are set correctly (%d).", ret);
-//	}
-
 	if (Config.Exists("master_cpu"))
 		NGMSetThreadAffinity(0, Config.GetInt("master_cpu"));
 
@@ -173,7 +127,7 @@ int main(int argc, char * argv[]) {
 				NGM.StartThreads();
 
 				NGM.MainLoop();
-				//Log.Message("Scores computed: %ld", SW::scoreCount);
+
 				bool const isPaired = Config.GetInt("paired") > 0;
 				if (isPaired) {
 					Log.Message("Valid pairs found: %.2f%%", NGM.Stats->validPairs);
@@ -271,6 +225,9 @@ General:\n\n\
  -R/--min-residues <int/float> All reads mapped with lower than\n\
                                <int> or <float> * read length residues\n\
                                will be reported as unmapped. (default: 0.5)\n\
+ -Q/--min-mq <int>             All reads mapped with lower than <int>\n\
+                               mapping quality will be reported as unmapped.\n\
+                               (default: 0)\n\
  -g/--gpu [int,...]            Use GPU(s) for alignment computation\n\
                                NOTE: GPU Ids are zero-based!\n\
                                   -g or --gpu to use GPU\n\
