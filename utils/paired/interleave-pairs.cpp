@@ -305,9 +305,9 @@ int interleave_pairs(int argc, char **argv) {
 		Writer * writer = new FastqWriter(outArg.getValue().c_str());
 
 		IParser * parser1 = DetermineParser(leftArg.getValue().c_str());
-		parser1->init(leftArg.getValue().c_str());
+		parser1->init(leftArg.getValue().c_str(), false);
 		IParser * parser2 = DetermineParser(rightArg.getValue().c_str());
-		parser2->init(rightArg.getValue().c_str());
+		parser2->init(rightArg.getValue().c_str(), false);
 
 		int l1 = 0;
 		int l2 = 0;

@@ -25,13 +25,29 @@ private:
 	bool parse_all;
 	BamAlignment* al;
 	kseq_t * tmp;
+
+	bool parseAdditionalInfo;
+
+	char additionalInfo[100000];
+
 public:
+
+//	BamParser(bool const keepTags) :
+//			parseAdditionalInfo(keepTags) {
+//
+//	}
+
 	virtual ~BamParser() {
+		if (tmp != 0) {
+			kseq_destroy(tmp);
+			tmp = 0;
+		}
 		reader.Close();
+		gzclose(fp);
 		delete al;
 	}
 
-	virtual void init(char const * fileName);
+	virtual void init(char const * fileName, bool const keepTags);
 	virtual size_t doParseRead(MappedRead * read);
 
 };

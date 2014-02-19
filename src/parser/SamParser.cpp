@@ -13,8 +13,7 @@
 
 #include "Log.h"
 
-
-void SamParser::init(char const * fileName) {
+void SamParser::init(char const * fileName, bool const keepTags) {
 	fp = gzopen(fileName, "r");
 	if (!fp) {
 		//File does not exist
@@ -29,6 +28,7 @@ void SamParser::init(char const * fileName) {
 		Log.Warning("Skipping all mapped reads in SAM file.");
 	}
 	tmp = kseq_init(fp);
+	parseAdditionalInfo = keepTags;
 }
 
 static inline char * readField(char * lineBuffer, kstring_t & str) {
@@ -133,16 +133,20 @@ size_t SamParser::doParseRead(MappedRead * read) {
 				std::reverse(tmp->qual.s, &tmp->qual.s[strlen(tmp->qual.s)]);
 			}
 
-			if (tmp->qual.l == tmp->seq.l || (tmp->qual.l == 1 && tmp->qual.s[0] == '*')) {
-				int addInfoLen = strlen(lineBuffer) - 1;
-				if(addInfoLen > 2) {
-					if(read->AdditionalInfo == 0) {
-						read->AdditionalInfo = new char[addInfoLen + 1];
-						//Log.Message("Additional Info: %s", lineBuffer);
-						memcpy(read->AdditionalInfo, lineBuffer, addInfoLen);
-						read->AdditionalInfo[addInfoLen] = '\0';
+			if (tmp->qual.l == tmp->seq.l
+					|| (tmp->qual.l == 1 && tmp->qual.s[0] == '*')) {
+
+				if (parseAdditionalInfo) {
+					int addInfoLen = strlen(lineBuffer) - 1;
+					if (addInfoLen > 2) {
+						if (read->AdditionalInfo == 0) {
+							read->AdditionalInfo = new char[addInfoLen + 1];
+							memcpy(read->AdditionalInfo, lineBuffer,
+									addInfoLen);
+							read->AdditionalInfo[addInfoLen] = '\0';
+						}
 					}
-			}
+				}
 				copyToRead(read, tmp);
 				return tmp->seq.l;
 			} else {
@@ -150,8 +154,8 @@ size_t SamParser::doParseRead(MappedRead * read) {
 				//	tmp->qual.l = 0;
 				//	return 0;
 				//} else {
-					copyToRead(read, tmp);
-					return -2;
+				copyToRead(read, tmp);
+				return -2;
 				//}
 			}
 		}

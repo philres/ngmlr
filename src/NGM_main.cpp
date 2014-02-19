@@ -199,6 +199,8 @@ Output:\n\
                                information to CIGAR string\n\
  -n/--topn                     Prints the <n> best alignments sorted by\n\
                                alignment score (default: 1)\n\
+ --keep-tags                   Copy BAM/SAM tags present in input file to\n\
+                               output file (default: off)\n\
  --strata                      Only  output  the  highest  scoring  mappings\n\
                                for any  given  read,  up  to <n> mappings per\n\
                                read. If a read has more than <n> mappings with\n\

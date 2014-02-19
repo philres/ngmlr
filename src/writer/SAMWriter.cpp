@@ -101,6 +101,10 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 		Print("*\t");
 	}
 
+	if(read->AdditionalInfo != 0) {
+		Print("%s\t", read->AdditionalInfo);
+	}
+
 	//Optional fields
 	Print("AS:i:%d\t", (int) read->Scores[scoreID].Score.f);
 	Print("NM:i:%d\t", read->Alignments[scoreID].NM);
@@ -129,10 +133,6 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	Print("XE:i:%d\t", (int) read->s);
 	Print("XR:i:%d\t", read->length - read->Alignments[scoreID].QStart - read->Alignments[scoreID].QEnd);
 	Print("MD:Z:%s", read->Alignments[scoreID].pBuffer2);
-
-	if(read->AdditionalInfo != 0) {
-		Print("%s", read->AdditionalInfo);
-	}
 
 	Print("\n");
 

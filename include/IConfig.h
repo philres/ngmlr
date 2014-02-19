@@ -16,6 +16,8 @@ static char const * const MIN_MQ =			 	"min_mq";
 static char const * const LOCAL =			 	"local";
 static char const * const ENDTOEND =		 	"end_to_end";
 
+static char const * const KEEPTAGS =		 	"keep_tags";
+
 class IConfig
 {
 public:

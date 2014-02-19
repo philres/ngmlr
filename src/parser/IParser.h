@@ -11,30 +11,23 @@
 #include "MappedRead.h"
 
 #include <zlib.h>
-//#include <stdio.h>
 #include "kseq.h"
-//
+
 KSEQ_INIT(gzFile, gzread)
 
 class IParser {
-//protected:
-//	gzFile fp;
+
 public:
 
 	static size_t const MAX_READNAME_LENGTH = 100;
 
 	int qryMaxLen;
 
-//	MappedRead * read;
-
 	virtual ~IParser() {
-//		if (read != 0) {
-//			kseq_destroy(read);
-//			read = 0;
-//		}
+
 	}
 
-	virtual void init(char const * fileName) = 0;
+	virtual void init(char const * fileName, bool const keepTags) = 0;
 	size_t parseRead(MappedRead * pRead) {
 		assert(pRead != 0);
 		return doParseRead(pRead);

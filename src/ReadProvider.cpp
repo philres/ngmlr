@@ -538,7 +538,7 @@ IParser * ReadProvider::DetermineParser(char const * fileName) {
 	}
 	gzclose(fp);
 	delete[] buffer;
-	parser->init(fileName);
+	parser->init(fileName, Config.GetInt(KEEPTAGS) == 1);
 	return parser;
 }
 

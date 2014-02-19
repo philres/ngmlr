@@ -67,6 +67,7 @@ static const struct option long_options[] =
 		{ "pair-score-cutoff",	        required_argument, 0, 0 },
 		{ "strata",      		        no_argument,       0, 0 },
 		{ "pe-delimiter",  		        required_argument, 0, 'd' },
+		{ "keep-tags",      		        no_argument,       0, 0 },
 	0 };
 
 #endif /* OPTIONS_H_ */

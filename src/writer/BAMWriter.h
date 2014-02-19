@@ -38,6 +38,7 @@ protected:
 private:
 	char const * const file;
 	void translate_flag(BamTools::BamAlignment * al, int flags);
+	void addAdditionalInfo(const MappedRead* const read, BamTools::BamAlignment* al);
 
 	NGMMutex m_OutputMutex;
 

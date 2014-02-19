@@ -25,14 +25,26 @@ private:
 
 	kseq_t * tmp;
 
+	bool parseAdditionalInfo;
+
 public:
+
+//	SamParser(bool const keepTags) :
+//			parseAdditionalInfo(keepTags) {
+//
+//	}
+
 	virtual ~SamParser() {
+		if (tmp != 0) {
+			kseq_destroy(tmp);
+			tmp = 0;
+		}
 		delete[] buffer;
 		buffer = 0;
 		gzclose(fp);
 	}
 
-	virtual void init(char const * fileName);
+	virtual void init(char const * fileName, bool const keepTags);
 	virtual size_t doParseRead(MappedRead * read);
 };
 
