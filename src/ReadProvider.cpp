@@ -409,14 +409,14 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 			read->name[nameLength] = '\0';
 		}
 
-		Log.Message("Name: %s", read->name);
-		Log.Message("Read: %s", read->Seq);
-		Log.Message("Qlty: %s", read->qlty);
-		if(read->AdditionalInfo != 0) {
-			Log.Message("Ainf: %s", read->AdditionalInfo);
-		} else {
-			Log.Message("No additional info.");
-		}
+//		Log.Message("Name: %s", read->name);
+//		Log.Message("Read: %s", read->Seq);
+//		Log.Message("Qlty: %s", read->qlty);
+//		if(read->AdditionalInfo != 0) {
+//			Log.Message("Ainf: %s", read->AdditionalInfo);
+//		} else {
+//			Log.Message("No additional info.");
+//		}
 
 		NGM.AddReadRead(read->ReadId);
 	} else {
@@ -536,6 +536,7 @@ IParser * ReadProvider::DetermineParser(char const * fileName) {
 			parser = new FastXParser();
 		}
 	}
+	gzclose(fp);
 	delete[] buffer;
 	parser->init(fileName);
 	return parser;
