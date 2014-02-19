@@ -11,11 +11,12 @@
 #include "IParser.h"
 #include <zlib.h>
 
-
-class FastXParser:public IParser{
+class FastXParser: public IParser {
 
 private:
 	gzFile fp;
+
+	kseq_t * tmp;
 
 public:
 
@@ -23,16 +24,17 @@ public:
 		gzclose(fp);
 	}
 
-	virtual void init(char const * fileName){
+	virtual void init(char const * fileName) {
 		fp = gzopen(fileName, "r");
-		read = kseq_init(fp);
+		tmp = kseq_init(fp);
 	}
 
-	virtual size_t parseRead(){
-		return  kseq_read(read);
+	virtual size_t doParseRead(MappedRead * read) {
+		int l = kseq_read(tmp);
+		copyToRead(read, tmp);
+		return l;
 	}
 
 };
-
 
 #endif /* FASTXPARSER_H_ */

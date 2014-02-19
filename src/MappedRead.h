@@ -1,16 +1,17 @@
 #ifndef __MAPPEDREAD_H__
 #define __MAPPEDREAD_H__
 
-#include "LocationScore.h"
-
 #include <memory.h>
 #include <vector>
 #include <algorithm>
+
 #include "Types.h"
-#include "SequenceProvider.h"
-#include "ILog.h"
 #include "IAlignment.h"
 #include "ReadStatus.h"
+#include "LocationScore.h"
+
+//#include "ILog.h"
+//#include "SequenceProvider.h"
 
 using NGMNames::ReadStatus;
 // A read with a list of scores fitting the initial predicate
@@ -48,6 +49,8 @@ public:
 
 	char * name;
 
+	char * AdditionalInfo;
+
 #ifdef INSTANCE_COUNTING
 	static volatile int sInstanceCount;
 #endif
@@ -57,7 +60,8 @@ public:
 
 	// Saves score to this Read and returns a pointer to the saved object
 	LocationScore * AddScore(CSTableEntry const & score);
-	LocationScore * AddScore(float const score, uint const loc, bool const reverse);
+	LocationScore * AddScore(float const score, uint const loc,
+			bool const reverse);
 
 	void reallocScores(int const n);
 	void clearScores(int const TopScore = -1);

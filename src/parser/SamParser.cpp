@@ -13,6 +13,7 @@
 
 #include "Log.h"
 
+
 void SamParser::init(char const * fileName) {
 	fp = gzopen(fileName, "r");
 	if (!fp) {
@@ -27,7 +28,7 @@ void SamParser::init(char const * fileName) {
 	if (!parse_all) {
 		Log.Warning("Skipping all mapped reads in SAM file.");
 	}
-	read = kseq_init(fp);
+	tmp = kseq_init(fp);
 }
 
 static inline char * readField(char * lineBuffer, kstring_t & str) {
@@ -85,19 +86,18 @@ void computeReverseSeq(char * Seq, int qryMaxLen) {
  -1   end-of-file
  -2   truncated quality string
  */
-size_t SamParser::parseRead() {
-	read->name.l = 0;
-	read->seq.l = 0;
-	read->qual.l = 0;
+size_t SamParser::doParseRead(MappedRead * read) {
+	tmp->name.l = 0;
+	tmp->seq.l = 0;
+	tmp->qual.l = 0;
 
 	while (gzgets(fp, buffer, buffer_size) != NULL) {
 		char * lineBuffer = buffer;
 
-		//Log.Message("%s", lineBuffer);
 		if (*lineBuffer != '@' && *lineBuffer != '\n') {
 
 			//Name
-			lineBuffer = readField(lineBuffer, read->name);
+			lineBuffer = readField(lineBuffer, tmp->name);
 			if (*lineBuffer == '\0')
 				return 0;
 
@@ -107,7 +107,6 @@ size_t SamParser::parseRead() {
 			//Flags
 			bool reverse = atoi(lineBuffer) & 0x10;
 
-			//Log.Message("%d %d", atoi(lineBuffer), reverse);
 			int skip = 8;
 			while (skip > 0 && *lineBuffer != '\0') {
 				if (*lineBuffer++ == '\t')
@@ -117,14 +116,9 @@ size_t SamParser::parseRead() {
 				return 0;
 
 			//Sequence
-			lineBuffer = readField(lineBuffer, read->seq);
+			lineBuffer = readField(lineBuffer, tmp->seq);
 			if (reverse) {
-				//char * tmp = read->seq.s;
-				//Log.Message("Seq:    %s", read->seq.s);
-				computeReverseSeq(read->seq.s, read->seq.l);
-				//Log.Message("RevSeq: %s", read->seq.s);
-
-				//delete tmp; tmp = 0;
+				computeReverseSeq(tmp->seq.s, tmp->seq.l);
 			}
 
 			if (*lineBuffer == '\0')
@@ -134,20 +128,31 @@ size_t SamParser::parseRead() {
 			lineBuffer += 1;
 
 			//Quality
-			lineBuffer = readField(lineBuffer, read->qual);
+			lineBuffer = readField(lineBuffer, tmp->qual);
 			if (reverse) {
-				std::reverse(read->qual.s, &read->qual.s[strlen(read->qual.s)]);
+				std::reverse(tmp->qual.s, &tmp->qual.s[strlen(tmp->qual.s)]);
 			}
 
-			if (read->qual.l == read->seq.l) {
-				return read->seq.l;
+			if (tmp->qual.l == tmp->seq.l || (tmp->qual.l == 1 && tmp->qual.s[0] == '*')) {
+				int addInfoLen = strlen(lineBuffer) - 1;
+				if(addInfoLen > 2) {
+					if(read->AdditionalInfo == 0) {
+						read->AdditionalInfo = new char[addInfoLen + 1];
+						//Log.Message("Additional Info: %s", lineBuffer);
+						memcpy(read->AdditionalInfo, lineBuffer, addInfoLen);
+						read->AdditionalInfo[addInfoLen] = '\0';
+					}
+			}
+				copyToRead(read, tmp);
+				return tmp->seq.l;
 			} else {
-				if (read->qual.l == 1 && read->qual.s[0] == '*') {
-					read->qual.l = 0;
-					return 0;
-				} else {
+				//if (tmp->qual.l == 1 && tmp->qual.s[0] == '*') {
+				//	tmp->qual.l = 0;
+				//	return 0;
+				//} else {
+					copyToRead(read, tmp);
 					return -2;
-				}
+				//}
 			}
 		}
 	}

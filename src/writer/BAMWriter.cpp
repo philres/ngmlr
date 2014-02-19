@@ -96,7 +96,7 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 
 	if (read->Scores[scoreId].Location.isReverse()) {
 		readseq = read->RevSeq;
-		if (qltystr != 0) {
+		if (qltystr != 0 && qltystr[0] != '*') {
 			std::reverse(qltystr, &qltystr[read->length]);
 		}
 		al->SetIsReverseStrand(true);

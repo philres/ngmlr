@@ -10,14 +10,21 @@
 
 #include "IParser.h"
 
+#include <zlib.h>
+#include <stdio.h>
+#include "kseq.h"
+
 int const buffer_size = 10000;
 
 class SamParser: public IParser {
 
 private:
-//	gzFile fp;
+	gzFile fp;
 	bool parse_all;
 	char *buffer;
+
+	kseq_t * tmp;
+
 public:
 	virtual ~SamParser() {
 		delete[] buffer;
@@ -26,7 +33,7 @@ public:
 	}
 
 	virtual void init(char const * fileName);
-	virtual size_t parseRead();
+	virtual size_t doParseRead(MappedRead * read);
 };
 
 #endif /* SAMPARSER_H_ */

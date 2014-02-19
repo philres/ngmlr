@@ -8,6 +8,8 @@
 #ifndef NGMWRITER_H_
 #define NGMWRITER_H_
 
+#include <stdio.h>
+
 #include "MappedRead.h"
 
 

@@ -64,7 +64,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 
 	if (read->Scores[scoreID].Location.isReverse()) {
 		readseq = read->RevSeq;
-		if (qltystr != 0) {
+		if (qltystr != 0 && qltystr[0] != '*') {
 			std::reverse(qltystr, &qltystr[read->length]);
 		}
 		flags |= 0x10;
@@ -129,6 +129,10 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	Print("XE:i:%d\t", (int) read->s);
 	Print("XR:i:%d\t", read->length - read->Alignments[scoreID].QStart - read->Alignments[scoreID].QEnd);
 	Print("MD:Z:%s", read->Alignments[scoreID].pBuffer2);
+
+	if(read->AdditionalInfo != 0) {
+		Print("%s", read->AdditionalInfo);
+	}
 
 	Print("\n");
 
@@ -217,14 +221,12 @@ void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 		int readlen = read->length;
 
 		char * readname = read->name;
-//	int readnamelen = read->nameLength;
 
 		char * qltystr = read->qlty;
 		int qltylen = readlen;
 
 		//mandatory fields
 		Print("%s\t", readname);
-		//Print("%.*s\t", readnamelen, readname);
 		Print("%d\t", flags);
 		if (refId > -1) {
 			int refnamelen = 0;
@@ -233,20 +235,12 @@ void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 		} else {
 			Print("*\t");
 		}
-		//if(loc > 0) {
 		Print("%d\t", loc + report_offset);
-		//} else {
-		//	Print("0\t");
-		//}
 
 		Print("0\t");
 		Print("*\t");
 		Print("%c\t", pRefName);//Ref. name of the mate/next fragment
-		//if(loc > 0) {
 		Print("%d\t", pLoc + report_offset);//Position of the mate/next fragment
-		//} else {
-		//	Print("0\t");
-		//}
 		Print("%d\t", pDist);//observed Template LENgth
 		Print("%s\t", readseq);
 		if (qltystr != 0) {
@@ -255,12 +249,10 @@ void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 			Print("*");
 		}
 
-		//Optional fields
-		//Print("AS:i:0");
-		//Print("\tMD:Z:");
-		//Print("\tX0:i:0");
-		//Print("\tXI:f:0.0");
-		//Print("\tXX:i:%d", read->Calculated);
+		if(read->AdditionalInfo != 0) {
+			Print("%s", read->AdditionalInfo);
+		}
+
 
 		Print("\n");
 	}

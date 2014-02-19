@@ -1,6 +1,5 @@
 #include "MappedRead.h"
-#include "Log.h"
-//#include "Config.h"
+
 #include <stdlib.h>
 
 #undef module_name
@@ -14,12 +13,21 @@ volatile int LocationScore::sInstanceCount = 0;
 //volatile int MappedRead::maxSeqCount = 0;
 
 MappedRead::MappedRead(int const readid, int const qrymaxlen) :
-		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), EqualScoringCount(1), Scores(0), Alignments(0), nScores(0), iScores(0), Paired(
-				0), Status(0), mappingQlty(255), RevSeq(0), Seq(0), qlty(0), name(0) {
+		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), EqualScoringCount(
+				1), Scores(0), Alignments(0), nScores(0), iScores(0), Paired(0), Status(
+				0), mappingQlty(255), RevSeq(0), Seq(0), qlty(0), name(0), AdditionalInfo(0) {
 #ifdef INSTANCE_COUNTING
 	AtomicInc(&sInstanceCount);
 	maxSeqCount = std::max(sInstanceCount, maxSeqCount);
 #endif
+	//Name
+	static size_t const MAX_READNAME_LENGTH = 100;
+	name = new char[MAX_READNAME_LENGTH];
+
+	Seq = new char[qryMaxLen];
+	memset(Seq, '\0', qryMaxLen);
+
+	qlty = new char[qryMaxLen];
 }
 
 //void MappedRead::AllocBuffers() {
@@ -79,7 +87,7 @@ void MappedRead::DeleteReadSeq() {
 
 MappedRead::~MappedRead() {
 
-	Log.Verbose("Deleting read %s, scoreNum: %d, calculated: %d", name, numScores(), Calculated);
+//	Log.Verbose("Deleting read %s, scoreNum: %d, calculated: %d", name, numScores(), Calculated);
 	//for (size_t i = 0; i < Scores.size(); ++i)
 	//	delete Scores[i];
 	if (Scores != 0) {
@@ -87,6 +95,9 @@ MappedRead::~MappedRead() {
 		Scores = 0;
 		iScores = 0;
 		nScores = 0;
+	}
+	if(AdditionalInfo != 0) {
+		delete[] AdditionalInfo; AdditionalInfo = 0;
 	}
 	if (Alignments != 0) {
 		for (int i = 0; i < Calculated; ++i) {
@@ -131,8 +142,9 @@ void MappedRead::AllocScores(LocationScore * tmp, int const n) {
 //	return toInsert;
 //}
 
-LocationScore * MappedRead::AddScore(float const score, uint const loc, bool const reverse) {
-	Log.Error("AddScore");
+LocationScore * MappedRead::AddScore(float const score, uint const loc,
+		bool const reverse) {
+//	Log.Error("AddScore");
 	throw "";
 	iScores += 1;
 	LocationScore * toInsert = &Scores[iScores - 1];

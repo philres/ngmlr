@@ -21,9 +21,10 @@ void BamParser::init(char const * fileName) {
 		Log.Error("File does not exist ",fileName);
 	}
 	al = new BamAlignment();
-	parse_all = bool(Config.Exists("parse_all") && Config.GetInt("parse_all") == 1);
+	parse_all = bool(
+			Config.Exists("parse_all") && Config.GetInt("parse_all") == 1);
 
-	read = kseq_init(fp);
+	tmp = kseq_init(fp);
 }
 
 static inline char cpl(char c) {
@@ -52,62 +53,74 @@ static inline char cpl(char c) {
  -1   end-of-file
  -2   truncated quality string
  */
-size_t BamParser::parseRead() {
+size_t BamParser::doParseRead(MappedRead * read) {
 
 	while (reader.GetNextAlignmentCore(al[0])) {
 		if (!al->IsMapped() || parse_all) {
 			al->BuildCharData();
-			if (al->Name.size() > read->name.l) { //parse the name
-				read->name.m = al->Name.size();
-				kroundup32(read->name.m);
+			if (al->Name.size() > tmp->name.l) { //parse the name
+				tmp->name.m = al->Name.size();
+				kroundup32(tmp->name.m);
 				// round to the next k^2
-				read->name.s = (char*) realloc(read->name.s, read->name.m);
+				tmp->name.s = (char*) realloc(tmp->name.s, tmp->name.m);
 			}
 			//copy the name
-			read->name.l = al->Name.size();
-			memcpy(read->name.s, al->Name.c_str(), read->name.l * sizeof(char));
-			if (al->QueryBases.size() > read->seq.m) { //adjust the sequence size
+			tmp->name.l = al->Name.size();
+			memcpy(tmp->name.s, al->Name.c_str(), tmp->name.l * sizeof(char));
+			if (al->QueryBases.size() > tmp->seq.m) { //adjust the sequence size
 				//m is size of read
-				read->seq.m = al->QueryBases.size();
-				kroundup32(read->seq.m);
+				tmp->seq.m = al->QueryBases.size();
+				kroundup32(tmp->seq.m);
 				// round to the next k^2
-				read->seq.s = (char*) realloc(read->seq.s, read->seq.m);
+				tmp->seq.s = (char*) realloc(tmp->seq.s, tmp->seq.m);
 
 				if (!al->Qualities.empty()) {
-					read->qual.m = al->Qualities.size();
-					kroundup32(read->qual.m);
-					read->qual.s = (char*) realloc(read->qual.s, read->qual.m);
+					tmp->qual.m = al->Qualities.size();
+					kroundup32(tmp->qual.m);
+					tmp->qual.s = (char*) realloc(tmp->qual.s, tmp->qual.m);
 				}
 			}
 			//copy the sequence
-			read->seq.l = al->QueryBases.size();
-			if(al->IsReverseStrand()) {
+			tmp->seq.l = al->QueryBases.size();
+			if (al->IsReverseStrand()) {
 				char const * fwd = al->QueryBases.c_str();
-				char * rev = read->seq.s + read->seq.l - 1;
+				char * rev = tmp->seq.s + tmp->seq.l - 1;
 
-				for (int i = 0; i < read->seq.l; ++i) {
+				for (int i = 0; i < tmp->seq.l; ++i) {
 					*rev-- = cpl(*fwd++);
 				}
 			} else {
-				memcpy(read->seq.s, al->QueryBases.c_str(), read->seq.l * sizeof(char));
+				memcpy(tmp->seq.s, al->QueryBases.c_str(),
+						tmp->seq.l * sizeof(char));
 			}
 
 			if (!al->Qualities.empty()) {
 				//copy the qualities
-				read->qual.l = al->Qualities.size();
-				if(al->IsReverseStrand()) {
-					for(int i = 0; i < read->qual.l; ++i) {
-						read->qual.s[i] = al->Qualities.c_str()[read->qual.l - 1 - i];
+				tmp->qual.l = al->Qualities.size();
+				if (al->IsReverseStrand()) {
+					for (int i = 0; i < tmp->qual.l; ++i) {
+						tmp->qual.s[i] = al->Qualities.c_str()[tmp->qual.l - 1
+								- i];
 					}
 				} else {
-					memcpy(read->qual.s, al->Qualities.c_str(), read->qual.l * sizeof(char));
+					memcpy(tmp->qual.s, al->Qualities.c_str(),
+							tmp->qual.l * sizeof(char));
 				}
 			}
 
-			if (read->seq.l != read->qual.l) {
+			if (tmp->qual.l == tmp->seq.l
+					|| (tmp->qual.l == 1 && tmp->qual.s[0] == '*')) {
+
+
+				//Log.Message("TAG: %s", al->TagData.c_str());
+
+				copyToRead(read, tmp);
+				return tmp->seq.l;
+			} else {
+				copyToRead(read, tmp);
 				return -2;
 			}
-			return read->seq.m;
+
 		} else {
 
 			//TODO: print directly into the output files

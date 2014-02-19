@@ -20,9 +20,11 @@ using namespace BamTools;
 class BamParser: public IParser {
 
 private:
+	gzFile fp;
 	BamMultiReader reader;
 	bool parse_all;
 	BamAlignment* al;
+	kseq_t * tmp;
 public:
 	virtual ~BamParser() {
 		reader.Close();
@@ -30,7 +32,7 @@ public:
 	}
 
 	virtual void init(char const * fileName);
-	virtual size_t parseRead();
+	virtual size_t doParseRead(MappedRead * read);
 
 };
 #endif
