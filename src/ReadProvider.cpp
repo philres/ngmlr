@@ -224,45 +224,50 @@ uint ReadProvider::init() {
 
 		MappedRead * read = new MappedRead(0, qryMaxLen);
 
-		while ((l = parser1->parseRead(read)) >= 0 && !finish) {
-			if (l > 0) {
-				maxLen = std::max(maxLen, (size_t) read->length);
-				minLen = std::min(minLen, (size_t) read->length);
-				sumLen += read->length;
+		try {
+			while ((l = parser1->parseRead(read)) >= 0 && !finish) {
+				if (l > 0) {
+					maxLen = std::max(maxLen, (size_t) read->length);
+					minLen = std::min(minLen, (size_t) read->length);
+					sumLen += read->length;
 
 //				Log.Message("Name: %s", read->name);
 //				Log.Message("Read: %s", read->Seq);
 //				Log.Message("Qlty: %s", read->qlty);
 
-				readCount += 1;
-				if (estimate && (readCount % estimateStepSize) == 0
-						&& readCount < estimateSize) {
-					ulong mutateFrom;
-					ulong mutateTo;
-					if (isPaired && (readCount & 1)) {
-						//Second mate
-						mutateFrom = 0x0;
-						mutateTo = 0x3;
-					} else {
-						//First mate
-						mutateFrom = 0x2;
-						mutateTo = 0x1;
-					}
-					m_CurrentReadLength = read->length;
-					Log.Verbose("-Iteration");
-					CS::PrefixIteration((char const *) read->Seq,
-							(uint) read->length, fnc, mutateFrom, mutateTo,
-							(void *) this, (uint) 0, (uint) 0);
-					Log.Verbose("-Collect: %s", parser1->read->name.s);
-					CollectResultsFallback(m_CurrentReadLength);
-				} else if (readCount == (estimateSize + 1)) {
-					if ((maxLen - minLen) < 10) {
-						finish = true;
-					} else {
-						Log.Warning("Reads don't have the same length. Determining max. read length now.");
+					readCount += 1;
+					if (estimate && (readCount % estimateStepSize) == 0
+							&& readCount < estimateSize) {
+						ulong mutateFrom;
+						ulong mutateTo;
+						if (isPaired && (readCount & 1)) {
+							//Second mate
+							mutateFrom = 0x0;
+							mutateTo = 0x3;
+						} else {
+							//First mate
+							mutateFrom = 0x2;
+							mutateTo = 0x1;
+						}
+						m_CurrentReadLength = read->length;
+						Log.Verbose("-Iteration");
+						CS::PrefixIteration((char const *) read->Seq,
+								(uint) read->length, fnc, mutateFrom, mutateTo,
+								(void *) this, (uint) 0, (uint) 0);
+						Log.Verbose("-Collect: %s", parser1->read->name.s);
+						CollectResultsFallback(m_CurrentReadLength);
+					} else if (readCount == (estimateSize + 1)) {
+						if ((maxLen - minLen) < 10) {
+							finish = true;
+						} else {
+							Log.Warning("Reads don't have the same length. Determining max. read length now.");
+						}
 					}
 				}
 			}
+		} catch(char * ex) {
+			Log.Error("%s", ex);
+			Fatal();
 		}
 		delete read;
 		read = 0;
@@ -399,7 +404,14 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 	static int const qryMaxLen = Config.GetInt("qry_max_len");
 	MappedRead * read = new MappedRead(id, qryMaxLen);
 
-	int l = parser->parseRead(read);
+	int l = 0;
+
+	try {
+		l = parser->parseRead(read);
+	} catch (char * ex) {
+		Log.Error("%s", ex);
+		Fatal();
+	}
 
 	if (l > 0) {
 		int nameLength = strlen(read->name);
@@ -408,15 +420,6 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 			nameLength -= 2;
 			read->name[nameLength] = '\0';
 		}
-
-//		Log.Message("Name: %s", read->name);
-//		Log.Message("Read: %s", read->Seq);
-//		Log.Message("Qlty: %s", read->qlty);
-//		if(read->AdditionalInfo != 0) {
-//			Log.Message("Ainf: %s", read->AdditionalInfo);
-//		} else {
-//			Log.Message("No additional info.");
-//		}
 
 		NGM.AddReadRead(read->ReadId);
 	} else {

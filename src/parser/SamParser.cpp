@@ -86,7 +86,7 @@ void computeReverseSeq(char * Seq, int qryMaxLen) {
  -1   end-of-file
  -2   truncated quality string
  */
-size_t SamParser::doParseRead(MappedRead * read) {
+int SamParser::doParseRead(MappedRead * read) {
 	tmp->name.l = 0;
 	tmp->seq.l = 0;
 	tmp->qual.l = 0;
@@ -147,15 +147,13 @@ size_t SamParser::doParseRead(MappedRead * read) {
 						}
 					}
 				}
-				copyToRead(read, tmp);
-				return tmp->seq.l;
+				return copyToRead(read, tmp, tmp->seq.l);
 			} else {
 				//if (tmp->qual.l == 1 && tmp->qual.s[0] == '*') {
 				//	tmp->qual.l = 0;
 				//	return 0;
 				//} else {
-				copyToRead(read, tmp);
-				return -2;
+				return copyToRead(read, tmp, -2);
 				//}
 			}
 		}

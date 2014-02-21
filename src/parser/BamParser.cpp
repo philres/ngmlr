@@ -54,7 +54,7 @@ static inline char cpl(char c) {
  -1   end-of-file
  -2   truncated quality string
  */
-size_t BamParser::doParseRead(MappedRead * read) {
+int BamParser::doParseRead(MappedRead * read) {
 
 	while (reader.GetNextAlignmentCore(al[0])) {
 		if (!al->IsMapped() || parse_all) {
@@ -163,11 +163,9 @@ size_t BamParser::doParseRead(MappedRead * read) {
 						read->AdditionalInfo[position] = '\0';
 					}
 				}
-				copyToRead(read, tmp);
-				return tmp->seq.l;
+				return copyToRead(read, tmp, tmp->seq.l);
 			} else {
-				copyToRead(read, tmp);
-				return -2;
+				return copyToRead(read, tmp, -2);
 			}
 
 		} else {

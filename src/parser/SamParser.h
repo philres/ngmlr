@@ -29,11 +29,6 @@ private:
 
 public:
 
-//	SamParser(bool const keepTags) :
-//			parseAdditionalInfo(keepTags) {
-//
-//	}
-
 	virtual ~SamParser() {
 		if (tmp != 0) {
 			kseq_destroy(tmp);
@@ -45,7 +40,7 @@ public:
 	}
 
 	virtual void init(char const * fileName, bool const keepTags);
-	virtual size_t doParseRead(MappedRead * read);
+	virtual int doParseRead(MappedRead * read);
 };
 
 #endif /* SAMPARSER_H_ */

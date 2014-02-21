@@ -15,7 +15,7 @@ volatile int LocationScore::sInstanceCount = 0;
 MappedRead::MappedRead(int const readid, int const qrymaxlen) :
 		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), EqualScoringCount(
 				1), Scores(0), Alignments(0), nScores(0), iScores(0), Paired(0), Status(
-				0), mappingQlty(255), RevSeq(0), Seq(0), qlty(0), name(0), AdditionalInfo(0) {
+				0), mappingQlty(255), s(0), length(0), RevSeq(0), Seq(0), qlty(0), name(0), AdditionalInfo(0) {
 #ifdef INSTANCE_COUNTING
 	AtomicInc(&sInstanceCount);
 	maxSeqCount = std::max(sInstanceCount, maxSeqCount);
@@ -28,6 +28,7 @@ MappedRead::MappedRead(int const readid, int const qrymaxlen) :
 	memset(Seq, '\0', qryMaxLen);
 
 	qlty = new char[qryMaxLen];
+	memset(Seq, '\0', qryMaxLen);
 }
 
 //void MappedRead::AllocBuffers() {

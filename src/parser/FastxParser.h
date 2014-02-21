@@ -34,10 +34,13 @@ public:
 		tmp = kseq_init(fp);
 	}
 
-	virtual size_t doParseRead(MappedRead * read) {
+	virtual int doParseRead(MappedRead * read) {
+		if(read == 0 || read->Seq == 0 || read->name == 0 || read->qlty == 0) {
+			Log.Error("Here!");
+
+		}
 		int l = kseq_read(tmp);
-		copyToRead(read, tmp);
-		return l;
+		return copyToRead(read, tmp, l);
 	}
 
 };

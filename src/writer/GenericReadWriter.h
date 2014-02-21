@@ -103,14 +103,14 @@ public:
 				NGM.AddMappedRead(read->ReadId);
 			} else {
 				if(read->HasFlag(NGMNames::Empty)) {
-					Log.Message("Empty read found: %s. Read will be discarded and not written to output.", read->name);
+					Log.Verbose("Empty read found: %s. Read will be discarded and not written to output.", read->name);
 				} else {
 					DoWriteUnmappedRead(read);
 				}
 			}
 		} else {
 			if(read->HasFlag(NGMNames::Empty)) {
-				Log.Message("Empty read found: %s. Read will be discarded and not written to output.", read->name);
+				Log.Verbose("Empty read found: %s. Read will be discarded and not written to output.", read->name);
 			} else {
 				DoWriteUnmappedRead(read);
 			}
@@ -119,7 +119,7 @@ public:
 
 	void WritePair(MappedRead * const read1, int const scoreId1, MappedRead * const read2, int const scoreId2) {
 		if(read1->HasFlag(NGMNames::Empty) || read2->HasFlag(NGMNames::Empty)) {
-			Log.Message("Empty read found in pair: %s/%s. Both reads will be discarded and not written to output.", read1->name, read2->name);
+			Log.Verbose("Empty read found in pair: %s/%s. Both reads will be discarded and not written to output.", read1->name, read2->name);
 		} else {
 
 			//TODO: fix paired end!!! MULTI MAP!

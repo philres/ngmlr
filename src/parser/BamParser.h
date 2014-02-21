@@ -32,11 +32,6 @@ private:
 
 public:
 
-//	BamParser(bool const keepTags) :
-//			parseAdditionalInfo(keepTags) {
-//
-//	}
-
 	virtual ~BamParser() {
 		if (tmp != 0) {
 			kseq_destroy(tmp);
@@ -48,7 +43,7 @@ public:
 	}
 
 	virtual void init(char const * fileName, bool const keepTags);
-	virtual size_t doParseRead(MappedRead * read);
+	virtual int doParseRead(MappedRead * read);
 
 };
 #endif
