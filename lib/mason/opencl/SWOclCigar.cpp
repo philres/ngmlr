@@ -92,7 +92,8 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 	}
 
 	bool batchSizeDif = !host->isGPU() && (batchSize_ % 4 != 0);
-	int batchSize = (batchSizeDif) ? batchSize_ + 4 : batchSize_;
+//	int batchSize = (batchSizeDif) ? batchSize_ + 4 : batchSize_;
+	int batchSize = (batchSizeDif) ? ((int)(batchSize_ / 4) + 1) * 4 : batchSize_;
 	char const * * const tmpRefSeqList = new char const *[batchSize];
 	char const * * const tmpQrySeqList = new char const *[batchSize];
 
