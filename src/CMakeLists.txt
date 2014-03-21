@@ -33,6 +33,7 @@ add_executable(ngm-core
 					ReadProvider.cpp
 					parser/SamParser.cpp
 					writer/SAMWriter.cpp
+					writer/ScoreWriter.cpp
 					seqan/EndToEndAffine.cpp
 					SequenceProvider.cpp					
 					ScoreBuffer.cpp
