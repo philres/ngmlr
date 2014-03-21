@@ -456,6 +456,7 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("silent_clip", 0);
 	Default("no_unal", 0);
 	Default(KEEPTAGS, 0);
+	Default(SKIP_MATE_CHECK, 0);
 
 	//BS-mapping
 	Default("bs_cutoff", 8);

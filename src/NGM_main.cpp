@@ -274,6 +274,8 @@ Advanced settings:\n\
                                read that have a score in the range of: \n\
                                  [top score * pair-score-cutoff; top score]\n\
                                are taken into account.\n\
+ --skip-mate-check             Don't check that both mates have the same name\n\
+                               (default: off)\n\
  --match-bonus <int>           Match score\n\
                                (default: 10, affine: 10, bs-mapping: 4)\n\
  --mismatch penalty <int>      Mismatch penalty\n\

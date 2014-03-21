@@ -33,6 +33,8 @@ private:
 
 	bool const isPaired;
 
+	bool const skipMateCheck;
+
 	virtual MappedRead * NextRead(IParser * parser, int const id);
 	MappedRead * GenerateSingleRead(int const readid);
 	IParser * DetermineParser(char const * fileName);

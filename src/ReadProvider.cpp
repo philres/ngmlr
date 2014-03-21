@@ -50,7 +50,7 @@ int m_CurrentReadLength;
 ReadProvider::ReadProvider() :
 		parser1(0), parser2(0), peDelimiter(
 				Config.GetString("pe_delimiter")[0]), isPaired(
-				Config.GetInt("paired") > 0) {
+				Config.GetInt("paired") > 0), skipMateCheck(Config.GetInt(SKIP_MATE_CHECK) == 1) {
 
 }
 
@@ -564,10 +564,14 @@ bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1,
 			read2 = GenerateSingleRead(readid2);
 		} else {
 			read1 = NextRead(parser1, readid1);
-			read2 = NextRead(parser2, readid1);
+			read2 = NextRead(parser2, readid2);
 		}
 
 		if (read1 != 0 && read2 != 0) {
+			if (!skipMateCheck && strcmp(read1->name, read2->name) != 0) {
+				Log.Error("Error while reading paired end reads.\nNames of mates don't match: %s and %s.\nPlease check your input files or use ngm-utils interleave.\nIf you are sure that your input files are valid use --skip-mate-check", read1->name, read2->name);
+				Fatal();
+			}
 			read1->Paired = read2;
 			read2->Paired = read1;
 			return true;

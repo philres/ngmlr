@@ -18,6 +18,8 @@ static char const * const ENDTOEND =		 	"end_to_end";
 
 static char const * const KEEPTAGS =		 	"keep_tags";
 
+static char const * const SKIP_MATE_CHECK =		 	"skip_mate_check";
+
 class IConfig
 {
 public:
