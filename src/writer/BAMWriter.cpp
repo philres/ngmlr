@@ -202,7 +202,7 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 	al->AddTag("NM", "i", read->Alignments[scoreId].NM);
 
 	if (Config.GetInt("bs_mapping") == 1) {
-		if (!(read->ReadId & 1)) {
+		if (!(read->ReadId & 1) || read->Paired == 0) {
 			if (read->Scores[scoreId].Location.isReverse()) {
 				al->AddTag("ZS", "Z", std::string("-+"));
 			} else {
