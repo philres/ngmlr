@@ -131,10 +131,6 @@ void CompactPrefixTable::Generate() {
 
 uint CompactPrefixTable::createRefTableIndex(uint const length) {
 
-	//TODO: remove
-	//std::ofstream myfile;
-	//myfile.open ("kmers.txt");
-
 	Timer freqT;
 	freqT.ST();
 	int * freqs = CountKmerFreq(length);
