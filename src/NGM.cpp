@@ -458,9 +458,9 @@ while (Running()) {
 	if (progress) {
 		int processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
 		if (!isPaired) {
-			Log.Progress("Mapped: %d, CRM/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
+			Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
 		} else {
-			Log.Progress("Mapped: %d, CRM/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Pairs: %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->validPairs, NGM.Stats->insertSize);
+			Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Pairs: %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->validPairs, NGM.Stats->insertSize);
 		}
 	}
 #ifdef INSTANCE_COUNTING
