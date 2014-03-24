@@ -46,8 +46,6 @@ private:
 
 	static bool first;
 
-	int * refStartPos;
-
 	IAlignment * aligner;
 
 public:
@@ -61,7 +59,6 @@ public:
 					alignmode(Config.GetInt(MODE, 0, 1)),
 					corridor(Config.GetInt("corridor")),
 					refMaxLen(((Config.GetInt("qry_max_len") + corridor) | 1) + 1), min_mq(Config.GetInt(MIN_MQ)), aligner(mAligner) {
-						refStartPos = 0;
 						pairInsertSum = 0;
 						pairInsertCount = 0;
 						brokenPairs = 0;

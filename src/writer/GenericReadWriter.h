@@ -95,7 +95,7 @@ public:
 						iTable[read->Scores[i].Location] = true;
 						DoWriteRead(read, i);
 					} else {
-						Log.Message("Ignoring duplicated alignment %d for read %s.", i, read->name);
+						Log.Verbose("Ignoring duplicated alignment %d for read %s.", i, read->name);
 					}
 				}
 			}

@@ -133,30 +133,9 @@ void AlignmentBuffer::DoRun() {
 void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 	static int const topn = Config.GetInt("topn");
 	if (mapped) {
+		//Convert mapping position to RefId and position
 		for (int i = 0; i < read->Calculated; ++i) {
-			//Get starting positions on the concatenated reference for all chromosomes
-			static int refCount = SequenceProvider.GetRefCount();
-			if (refStartPos == 0) {
-				refStartPos = new int[refCount / ((NGM.DualStrand()) ? 2 : 1)];
-				int i = 0;
-				int j = 0;
-				while (i < refCount/* && loc.m_Location >= SequenceProvider.GetRefStart(i)*/) {
-					refStartPos[j++] = SequenceProvider.GetRefStart(i);
-					//Log.Message("refstar %d: %d", j-1, SequenceProvider.GetRefStart(i));
-					i += (NGM.DualStrand()) ? 2 : 1;
-				}
-			}
-
-			//Convert position back to Chromosome+Position
-			SequenceLocation loc = read->Scores[i].Location;
-			//Log.Message("Loc: %u", loc.m_Location);
-			int * upper = std::upper_bound(refStartPos, refStartPos + (refCount / ((NGM.DualStrand()) ? 2 : 1)), loc.m_Location);
-			//Log.Message("upper %d %d", *upper, *(upper-1));
-			std::ptrdiff_t refId = ((upper - 1) - refStartPos) * ((NGM.DualStrand()) ? 2 : 1);
-			loc.m_Location -= *(upper - 1);
-			loc.setRefId(refId);
-			//Log.Message("Converted score %d: %hd %d %u", i, loc.m_RefId, refId, loc.m_Location);
-			read->Scores[i].Location = loc;
+			mapped = SequenceProvider.convert(read->Scores[i].Location);
 		}
 	}
 	if (read->Paired != 0) {

@@ -30,7 +30,7 @@ public:
 	virtual void PagingUpdate();
 	static const int maxRefNameLength = 100;
 
-	SequenceLocation convert(MappedRead * read, uint m_Location);
+	bool convert(SequenceLocation & m_Location);
 
 private:
 
@@ -68,6 +68,8 @@ private:
 	int refCount;
 
 	bool m_EnableBS;
+
+	uint * refStartPos;
 
 	void writeEncRefToFile(char const * fileName, uint const refCount, uint const encRefSize);
 	int readEncRefFromFile(char const * fileName);

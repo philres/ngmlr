@@ -131,25 +131,53 @@ static inline char dec4Low(unsigned char c) {
 	return dec4(c & 0xF);
 }
 
-SequenceLocation _SequenceProvider::convert(MappedRead * read, uint m_Location) {
-	SequenceLocation loc;
-	int refCount = SequenceProvider.GetRefCount();
+//SequenceLocation _SequenceProvider::convert(MappedRead * read, uint m_Location) {
+//	SequenceLocation loc;
+//	int refCount = SequenceProvider.GetRefCount();
+//
+//	int j = 0;
+//	while (j < refCount && m_Location >= SequenceProvider.GetRefStart(j)) {
+//		j += (NGM.DualStrand()) ? 2 : 1;
+//	}
+//	if (j == 0) {
+//		//Log.Message("%s (%d) - %s: %s, %s", read->name, read->ReadId, read->Seq, read->Buffer1, read->Buffer2);
+//		Log.Error("Couldn't resolve mapping position: %u!", m_Location);
+//		Fatal();
+//	}
+//	j -= (NGM.DualStrand()) ? 2 : 1;
+//
+//	loc.m_Location = m_Location - SequenceProvider.GetRefStart(j);
+//	loc.setRefId(j);
+//
+//	return loc;
+//}
 
-	int j = 0;
-	while (j < refCount && m_Location >= SequenceProvider.GetRefStart(j)) {
-		j += (NGM.DualStrand()) ? 2 : 1;
+bool _SequenceProvider::convert(SequenceLocation & m_Location) {
+	//Convert position back to Chromosome+Position
+	SequenceLocation loc = m_Location;
+	//Find the next larger chromosome start position in the concatenated reference for the mapping location
+	uint * upper = std::upper_bound(refStartPos, refStartPos + (refCount / ((NGM.DualStrand()) ? 2 : 1)) + 1, loc.m_Location);
+
+	//Check whether the mapping position is in one of the spacer regions between the chromosomes
+	if (((uint) *upper - loc.m_Location) < 1000) {
+		//Report read as unmapped (only happens for --end-to-end)
+		Log.Verbose("Read start position < chromosome start!");
+		Log.Verbose("Name: %s", read->name);
+		Log.Verbose("Loc: %u < %u < %u", (uint)*(upper-1), loc.m_Location, (uint)*(upper));
+
+		Log.Verbose("Seq:   %s", read->Seq);
+		Log.Verbose("CIGAR: %s", read->Alignments[i].pBuffer1);
+		Log.Verbose("MD:    %s", read->Alignments[i].pBuffer2);
+		return false;
+	} else {
+		//Compute actual start position
+		loc.m_Location -= *(upper - 1);
+		std::ptrdiff_t refId = ((upper - 1) - refStartPos) * ((NGM.DualStrand()) ? 2 : 1);
+		loc.setRefId(refId);
+		m_Location = loc;
+		//Log.Message("Converted score %d: %hd %d %u", i, loc.m_RefId, refId, loc.m_Location);
+		return true;
 	}
-	if (j == 0) {
-		//Log.Message("%s (%d) - %s: %s, %s", read->name, read->ReadId, read->Seq, read->Buffer1, read->Buffer2);
-		Log.Error("Couldn't resolve mapping position: %u!", m_Location);
-		Fatal();
-	}
-	j -= (NGM.DualStrand()) ? 2 : 1;
-
-	loc.m_Location = m_Location - SequenceProvider.GetRefStart(j);
-	loc.setRefId(j);
-
-	return loc;
 }
 
 int _SequenceProvider::readEncRefFromFile(char const * fileName) {
@@ -346,6 +374,17 @@ void _SequenceProvider::Init() {
 	}
 #endif
 
+	int refCount = SequenceProvider.GetRefCount();
+	refStartPos = new uint[refCount / ((NGM.DualStrand()) ? 2 : 1) + 1];
+	int i = 0;
+	int j = 0;
+	while (i < refCount) {
+		refStartPos[j++] = SequenceProvider.GetRefStart(i);
+		i += (NGM.DualStrand()) ? 2 : 1;
+	}
+	//Add artificial start position as upper bound for all all reads that map to the last chromosome
+	refStartPos[j] = refStartPos[j - 1] + SequenceProvider.GetRefLen(refCount - 1) + 1000;
+
 }
 
 bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offset, uint bufferLength) {
@@ -458,11 +497,14 @@ bool _SequenceProvider::CheckRefNr(int n) const {
 }
 
 _SequenceProvider::_SequenceProvider() :
-		binRef(0), binRefIndex(0), refCount(0), m_EnableBS(false) {
+		binRef(0), binRefIndex(0), refCount(0), m_EnableBS(false), refStartPos(0) {
 }
 
 _SequenceProvider::~_SequenceProvider() {
 	delete[] binRef;
+	binRef = 0;
+	delete[] refStartPos;
+	refStartPos = 0;
 }
 
 void _SequenceProvider::Cleanup() {
