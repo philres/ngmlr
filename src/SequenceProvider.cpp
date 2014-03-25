@@ -306,40 +306,47 @@ void _SequenceProvider::Init() {
 			c |= enc4(spacer);
 			binRef[binRefIndex++] = c;
 		}
+		int skipped = 0;
 		while ((l = kseq_read(seq)) >= 0) {
 			if(j >= maxRefCount) {
 				Log.Error("Currently NextGenMap can't handle more than %d reference sequences.", maxRefCount);
 				Fatal();
 			}
-			binRefMap[j].SeqStart = binRefIndex * 2;
-			binRefMap[j].SeqLen = seq->seq.l;
-			binRefMap[j].SeqId = j;
-			Log.Verbose("Ref %d: %s (%d), Index: %d", j, seq->name.s, seq->seq.l, binRefIndex);
-			int nameLength = std::min((size_t) maxRefNameLength, seq->name.l);
-			strncpy(binRefMap[j].name, seq->name.s, nameLength);
-			binRefMap[j].NameLen = nameLength;
-			j += 1;
-			char * ref = seq->seq.s;
-			for (size_t i = 0; i < seq->seq.l / 2 * 2; i += 2) {
-				char c = enc4(ref[i]) << 4;
-				c |= enc4(ref[i + 1]);
-				binRef[binRefIndex++] = c;
-			}
-			if (seq->seq.l & 1) {
-				char c = enc4(ref[seq->seq.l - 1]) << 4;
-				c |= enc4(spacer);
-				binRef[binRefIndex++] = c;
-			}
+			if(seq->seq.l > minRefSeqLen) {
+				binRefMap[j].SeqStart = binRefIndex * 2;
+				binRefMap[j].SeqLen = seq->seq.l;
+				binRefMap[j].SeqId = j;
+				Log.Verbose("Ref %d: %s (%d), Index: %d", j, seq->name.s, seq->seq.l, binRefIndex);
+				int nameLength = std::min((size_t) maxRefNameLength, seq->name.l);
+				strncpy(binRefMap[j].name, seq->name.s, nameLength);
+				binRefMap[j].NameLen = nameLength;
+				j += 1;
+				char * ref = seq->seq.s;
+				for (size_t i = 0; i < seq->seq.l / 2 * 2; i += 2) {
+					char c = enc4(ref[i]) << 4;
+					c |= enc4(ref[i + 1]);
+					binRef[binRefIndex++] = c;
+				}
+				if (seq->seq.l & 1) {
+					char c = enc4(ref[seq->seq.l - 1]) << 4;
+					c |= enc4(spacer);
+					binRef[binRefIndex++] = c;
+				}
 
-			for (int i = 0; i < 500; ++i) {
-				//N
-				char c = enc4(spacer) << 4;
-				c |= enc4(spacer);
-				binRef[binRefIndex++] = c;
+				for (int i = 0; i < 500; ++i) {
+					//N
+					char c = enc4(spacer) << 4;
+					c |= enc4(spacer);
+					binRef[binRefIndex++] = c;
+				}
+			} else {
+				Log.Verbose("Reference sequence %s too short (%d). Skipping.", seq->name.s, seq->seq.l);
+				skipped += 1;
 			}
 		}
 		refCount = j;
 		Log.Message("BinRef length: %d (elapsed %f)", binRefIndex, tt.ET());
+		Log.Message("%d reference sequences were skipped (length < %d).", skipped, minRefSeqLen);
 		kseq_destroy(seq);
 		gzclose(gzfp);
 

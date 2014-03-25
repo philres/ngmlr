@@ -70,6 +70,7 @@ private:
 	bool m_EnableBS;
 
 	uint * refStartPos;
+	static const int minRefSeqLen = 10;
 
 	void writeEncRefToFile(char const * fileName, uint const refCount, uint const encRefSize);
 	int readEncRefFromFile(char const * fileName);
