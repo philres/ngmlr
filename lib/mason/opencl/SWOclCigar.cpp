@@ -448,6 +448,7 @@ bool SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short 
 				for (int k = 0; k < length; ++k) {
 					result.pMD[md_offset++] = refSeq[ref_index++];
 				}
+				mismatch += length;
 
 			break;
 			case CIGAR_I:
@@ -457,6 +458,7 @@ bool SWOclCigar::computeCigarMD(Align & result, int const gpuCigarOffset, short 
 				}
 				cigar_offset += printCigarElement('I', length, result.pCigar + cigar_offset);
 				read_index += length;
+				mismatch += length;
 			break;
 			default:
 				Log.Message("Unable to compute alignment for:");
