@@ -76,7 +76,6 @@ void ScoreBuffer::DoRun() {
 			MappedRead * cur_read = scores[i].read;
 			int scoreId = scores[i].scoreId;
 
-
 			cur_read->Scores[scoreId].Score.f = m_ScoreBuffer[i];
 //			Log.Message("SCORE: %f", cur_read->Scores[scoreId].Score.f);
 
@@ -84,7 +83,7 @@ void ScoreBuffer::DoRun() {
 			SequenceLocation rloc = SequenceProvider.convert(cur_read, cur_read->Scores[scoreId].Location.m_Location);
 			int refNameLength = 0;
 			//Log.Message("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", cur_read->name, loc.m_Location, rloc.m_Location, SequenceProvider.GetRefName(rloc.m_RefId, refNameLength), m_ScoreBuffer[i]);
-			fprintf(cmrBed, "%s\t%d\t%d\t%s_%d\t%f\t%c\n", SequenceProvider.GetRefName(rloc.getrefId(), refNameLength), rloc.m_Location - (corridor >> 1), rloc.m_Location - (corridor >> 1) + refMaxLen,  cur_read->name, scoreId, cur_read->Scores[scoreId].Score.f, (rloc.isReverse()) ? '-' : '+');
+			fprintf(cmrBed, "%s\t%d\t%d\t%s_%d\t%f\t%c\n", SequenceProvider.GetRefName(rloc.getrefId(), refNameLength), rloc.m_Location - (corridor >> 1), rloc.m_Location - (corridor >> 1) + refMaxLen, cur_read->name, scoreId, cur_read->Scores[scoreId].Score.f, (rloc.isReverse()) ? '-' : '+');
 #endif
 
 #ifdef _DEBUGSW
@@ -104,7 +103,7 @@ void ScoreBuffer::DoRun() {
 				if (++cur_read->Calculated == cur_read->numScores()) {
 					//all scores computed for single end read
 					assert(cur_read->hasCandidates());
-					if (topn == 1) {
+					if (maxTopScores == 1) {
 						top1SE(cur_read);
 					} else {
 						topNSE(cur_read);
@@ -113,7 +112,7 @@ void ScoreBuffer::DoRun() {
 			} else {
 				if (++cur_read->Calculated == cur_read->numScores() && cur_read->Paired->Calculated == cur_read->Paired->numScores()) {
 					//all scores computed for both mates
-					if (topn == 1) {
+					if (maxTopScores == 1) {
 						if (!fastPairing) {
 							if (cur_read->Paired->hasCandidates())
 								top1PE(cur_read);
@@ -138,42 +137,48 @@ bool sortLocationScore(LocationScore a, LocationScore b) {
 	return a.Score.f > b.Score.f;
 }
 
+int ScoreBuffer::computeMQ(float bestScore, float secondBestScore) {
+	int mq = ceil(MAX_MQ * (bestScore - secondBestScore) / bestScore);
+	return mq;
+}
+
 void ScoreBuffer::top1SE(MappedRead* read) {
-	static const float minF = -1000000;
-	float score_max = 0.0f;
-	float score_smax = 0.0f;
-	int score_max_loc = 0;
-	int score_max_count = 0;
-	//count number of top-scoring regions
+
+	float bestScore = 0.0f;
+	float secondBestScore = 0.0f;
+
+	int bestScoreIndex = 0;
+	int numBestScore = 0;
+
+	//Find top-scoring CMR
 	for (int j = 0; j < read->numScores(); ++j) {
-		if (read->Scores[j].Score.f > score_smax) {
-			if (read->Scores[j].Score.f > score_max) {
-				score_smax = score_max;
-				score_max = read->Scores[j].Score.f;
-				score_max_loc = j;
-				score_max_count = 1;
-			} else if (read->Scores[j].Score.f == score_max) {
-				++score_max_count;
-				score_smax = score_max;
+		if (read->Scores[j].Score.f > secondBestScore) {
+			if (read->Scores[j].Score.f > bestScore) {
+				secondBestScore = bestScore;
+				bestScore = read->Scores[j].Score.f;
+				bestScoreIndex = j;
+				numBestScore = 1;
+			} else if (read->Scores[j].Score.f == bestScore) {
+				++numBestScore;
+				secondBestScore = bestScore;
 			} else {
-				score_smax = read->Scores[j].Score.f;
+				secondBestScore = read->Scores[j].Score.f;
 			}
-		} else if (read->Scores[j].Score.f == score_max) {
-			++score_max_count;
+		} else if (read->Scores[j].Score.f == bestScore) {
+			++numBestScore;
 		}
 	}
 
-	int mq = ceil(MAX_MQ * (score_max - score_smax) / score_max);
-	read->mappingQlty = mq;
+	read->mappingQlty = computeMQ(bestScore, secondBestScore);
 
-	if (score_max_count == 1 || !equalOnly) {
+	if (numBestScore == 1 || !topScoresOnly) {
 		assert(read->hasCandidates());
 
 		//clear all sub-optimal scores and submit best-scoring region to alignment computation
-		read->clearScores(score_max_loc);
+		read->clearScores(bestScoreIndex);
 		read->Calculated = 1;
 		read->Alignments = new Align[read->Calculated];
-		read->EqualScoringCount = score_max_count;
+		read->numTopScores = numBestScore;
 
 		out->addRead(read, 0);
 	} else {
@@ -190,49 +195,95 @@ void ScoreBuffer::computeMQ(MappedRead* read) {
 	//compute mapping quality
 	int mq = MAX_MQ;
 	if (read->numScores() > 1) {
-		mq = ceil(MAX_MQ * (read->Scores[0].Score.f - read->Scores[1].Score.f) / read->Scores[0].Score.f);
+		mq = computeMQ(read->Scores[0].Score.f, read->Scores[1].Score.f);
 	}
 	read->mappingQlty = mq;
 }
 
 void ScoreBuffer::topNSE(MappedRead* read) {
+
 	//Sort scores
 	std::sort(read->Scores, read->Scores + read->numScores(), sortLocationScore);
-	int n = std::min(read->numScores(), topn);
-	int j = 1;
-	int i = 1;
+
+	int numScores = read->numScores();
+
+	int numTopScores = 1;
 	//Count number of top-scoring regions
-	while (i < n && read->Scores[0].Score.f == read->Scores[i].Score.f) {
-		i += 1;
+	while (numTopScores < numScores && read->Scores[0].Score.f == read->Scores[numTopScores].Score.f) {
+		numTopScores += 1;
 	}
-	read->EqualScoringCount = i;
-	if (read->EqualScoringCount < topn - 1 || !equalOnly) {
-		if (equalOnly) {
-			n = i;
+
+	read->numTopScores = numTopScores;
+
+	if (read->numTopScores <= maxTopScores || !topScoresOnly) {
+
+		//Set number of scores to number of best scores (only these will be reported)
+		if (topScoresOnly) {
+			numScores = numTopScores;
 		}
 
 		//compute mapping quality
 		computeMQ(read);
 
-		read->Calculated = n;
+		//numScores alignments will be computed in the next step
+		read->Calculated = numScores;
 		read->Alignments = new Align[read->Calculated];
 
 		//Submit reads to alignment computation
 		out->addRead(read, 0);
-		for (; j < n; ++j) {
-			if (equalOnly && read->Scores[0].Score.f != read->Scores[j].Score.f) {
-				Log.Error("not equal");
+		for (int j = 1; j < numScores; ++j) {
+			if (topScoresOnly && read->Scores[0].Score.f != read->Scores[j].Score.f) {
+				Log.Error("Internal error while processing alignment scores for read %s", read->name);
 				Fatal();
 			}
 			out->addRead(read, j);
 		}
 	} else {
-		//To many equal scoring positions
+		//To many equal scoring positions, report as unmapped
 		read->mappingQlty = 0;
 		read->clearScores();
 		out->addRead(read, -1);
 	}
 }
+
+//void ScoreBuffer::topNSE(MappedRead* read) {
+//	//Sort scores
+//	std::sort(read->Scores, read->Scores + read->numScores(), sortLocationScore);
+//	int n = std::min(read->numScores(), topn);
+//	int j = 1;
+//	int i = 1;
+//	//Count number of top-scoring regions
+//	while (i < n && read->Scores[0].Score.f == read->Scores[i].Score.f) {
+//		i += 1;
+//	}
+//	read->EqualScoringCount = i;
+//	if (read->EqualScoringCount < topn - 1 || !equalOnly) {
+//		if (equalOnly) {
+//			n = i;
+//		}
+//
+//		//compute mapping quality
+//		computeMQ(read);
+//
+//		read->Calculated = n;
+//		read->Alignments = new Align[read->Calculated];
+//
+//		//Submit reads to alignment computation
+//		out->addRead(read, 0);
+//		for (; j < n; ++j) {
+//			if (equalOnly && read->Scores[0].Score.f != read->Scores[j].Score.f) {
+//				Log.Error("not equal");
+//				Fatal();
+//			}
+//			out->addRead(read, j);
+//		}
+//	} else {
+//		//To many equal scoring positions
+//		read->mappingQlty = 0;
+//		read->clearScores();
+//		out->addRead(read, -1);
+//	}
+//}
 
 struct PairScore {
 	float score;
@@ -287,18 +338,18 @@ void ScoreBuffer::top1PE(MappedRead* read) {
 	}
 	Log.Verbose("Pairs with equal score: %d", equalScoreFound);
 	if (topScore > 0.0f) {
-		if (equalScoreFound <= 0 || !equalOnly) {
+		if (equalScoreFound <= 0 || !topScoresOnly) {
 			pairDistSum += distance;
 			pairDistCount += 1;
 			NGM.Stats->insertSize = pairDistSum * 1.0f / (pairDistCount);
 
 			//submit reads to alignment computation
-			read->EqualScoringCount = equalScoreFound;
+			read->numTopScores = equalScoreFound;
 			read->Calculated = 1;
 			read->clearScores(TopScore1);
 			read->Alignments = new Align[read->Calculated];
 
-			mate->EqualScoringCount = equalScoreFound;
+			mate->numTopScores = equalScoreFound;
 			mate->Calculated = 1;
 			mate->clearScores(TopScore2);
 			mate->Alignments = new Align[mate->Calculated];
@@ -378,10 +429,10 @@ void ScoreBuffer::addRead(MappedRead * read, int count) {
 	for (int i = 0; i < count; ++i) {
 		//if(strcmp("HWUSI-EAS475:1:12:17529:18194#0/1", read->name) == 0) {
 		//	Log.Error("Read %s: scorebuffer begin %d/%d", read->name, iScores, swBatchSize);
-			//getchar();
+		//getchar();
 		//}
 		//if(strcmp(read->name, "adb-100bp-20mio-paired.000000071.1") == 0) {
-			Log.Verbose("%s\t%u\t%f\tEND", read->name, newScores[i].Location.m_Location, newScores[i].Score.f);
+		Log.Verbose("%s\t%u\t%f\tEND", read->name, newScores[i].Location.m_Location, newScores[i].Score.f);
 		//}
 		scores[iScores].read = read;
 		scores[iScores++].scoreId = i;

@@ -29,7 +29,7 @@ public:
 
 	int const qryMaxLen;
 
-	uint EqualScoringCount; // Total number of equal scoring results
+	uint numTopScores; // Total number of equal scoring results
 	LocationScore * Scores;
 	Align * Alignments;
 

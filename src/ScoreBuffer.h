@@ -34,8 +34,8 @@ private:
 
 	float const pairScoreCutoff;
 
-	int const topn;
-	bool const equalOnly;
+	int const maxTopScores;
+	bool const topScoresOnly;
 	bool const isPaired;
 	bool const fastPairing;
 
@@ -54,6 +54,7 @@ private:
 
 	void DoRun();
 	void computeMQ(MappedRead* read);
+	int computeMQ(float bestScore, float secondBestScore);
 
 	const char** m_QryBuffer;
 	const char** m_RefBuffer;
@@ -80,7 +81,7 @@ public:
 	static ulong scoreCount;
 
 	ScoreBuffer(IAlignment * mAligner, AlignmentBuffer * mOut) :
-			m_AlignMode(Config.GetInt(MODE, 0, 1)), pairDistCount(1), pairDistSum(0), brokenPairs(0), pairScoreCutoff(Config.GetFloat("pair_score_cutoff")), topn(Config.GetInt("topn")), equalOnly(
+			m_AlignMode(Config.GetInt(MODE, 0, 1)), pairDistCount(1), pairDistSum(0), brokenPairs(0), pairScoreCutoff(Config.GetFloat("pair_score_cutoff")), maxTopScores(Config.GetInt("topn")), topScoresOnly(
 					Config.GetInt("strata")), isPaired(Config.GetInt("paired") != 0), fastPairing(Config.GetInt("fast_pairing") == 1), aligner(
 					mAligner), out(mOut), swBatchSize(aligner->GetScoreBatchSize()) {
 
