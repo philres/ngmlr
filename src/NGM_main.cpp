@@ -206,18 +206,18 @@ Output:\n\
  --hard-clip                   Hard instead of soft clipping in SAM output\n\
  --silent-clip                 Hard clip reads but don't add clipping\n\
                                information to CIGAR string\n\
- --rg-id <ID>                  Adds RG:Z:<ID> to all alignments in SAM/BAM \n\
- --rg-sm                       RG header: Sample\n\
- --rg-lb                       RG header: Library\n\
- --rg-pl                       RG header: Platform\n\
- --rg-ds                       RG header: Description\n\
- --rg-dt                       RG header: Date\n\
- --rg-pu                       RG header: Platform unit\n\
- --rg-pi                       RG header: Median insert size\n\
- --rg-pg                       RG header: Programs\n\
- --rg-cn                       RG header: sequencing center\n\
- --rg-fo                       RG header: Flow order\n\
- --rg-ks                       RG header: Key sequence\n\
+ --rg-id <string>              Adds RG:Z:<string> to all alignments in SAM/BAM \n\
+ --rg-sm <string>              RG header: Sample\n\
+ --rg-lb <string>              RG header: Library\n\
+ --rg-pl <string>              RG header: Platform\n\
+ --rg-ds <string>              RG header: Description\n\
+ --rg-dt <string>              RG header: Date\n\
+ --rg-pu <string>              RG header: Platform unit\n\
+ --rg-pi <string>              RG header: Median insert size\n\
+ --rg-pg <string>              RG header: Programs\n\
+ --rg-cn <string>              RG header: sequencing center\n\
+ --rg-fo <string>              RG header: Flow order\n\
+ --rg-ks <string>              RG header: Key sequence\n\
  -d/--pe-delimiter <char>      Character used in suffix that identifies mate 1\n\
                                and 2. E.g. /1 and /2. This suffixes will be\n\
                                removed to ensure proper SAM output\n\
