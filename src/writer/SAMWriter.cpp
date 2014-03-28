@@ -38,8 +38,45 @@ void SAMWriter::DoWriteProlog() {
 		//TODO: add version
 	std::stringstream version;
 	version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
-	Print("@PG\tID:ngm\tVN:%s\tCL:\"%s\"\n", version.str().c_str(),
-			Config.GetString("cmdline"));
+	Print("@PG\tID:ngm\tNAME:ngm\tVN:%s\tCL:\"%s\"\n", version.str().c_str(), Config.GetString("cmdline"));
+
+	if (RG != 0) {
+		Print("@RG\tID:%s", RG);
+		if (Config.Exists(RG_CN))
+			Print("\tCN:%s", Config.GetString(RG_CN));
+
+		if (Config.Exists(RG_DS))
+			Print("\tDS:%s", Config.GetString(RG_DS));
+
+		if (Config.Exists(RG_DT))
+			Print("\tDT:%s", Config.GetString(RG_DT));
+
+		if (Config.Exists(RG_FO))
+			Print("\tFO:%s", Config.GetString(RG_FO));
+
+		if (Config.Exists(RG_KS))
+			Print("\tKS:%s", Config.GetString(RG_KS));
+
+		if (Config.Exists(RG_LB))
+			Print("\tLB:%s", Config.GetString(RG_LB));
+
+		if (Config.Exists(RG_PG))
+			Print("\tPG:%s", Config.GetString(RG_PG));
+
+		if (Config.Exists(RG_PI))
+			Print("\tPI:%s", Config.GetString(RG_PI));
+
+		if (Config.Exists(RG_PL))
+			Print("\tPL:%s", Config.GetString(RG_PL));
+
+		if (Config.Exists(RG_PU))
+			Print("\tPU:%s", Config.GetString(RG_PU));
+
+		if (Config.Exists(RG_SM))
+			Print("\tSM:%s", Config.GetString(RG_SM));
+
+		Print("\n");
+	}
 
 	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer, true);
 }
@@ -49,9 +86,7 @@ void SAMWriter::DoWriteRead(MappedRead const * const read, int const scoreID) {
 	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer);
 }
 
-void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
-		int const scoreID, char const * pRefName, int const pLoc,
-		int const pDist, int const mappingQlty, int flags) {
+void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scoreID, char const * pRefName, int const pLoc, int const pDist, int const mappingQlty, int flags) {
 
 	NGM.AddWrittenRead(read->ReadId);
 
@@ -109,6 +144,9 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 	}
 
 	//Optional fields
+	if(RG != 0) {
+		Print("RG:Z:%s\t", RG);
+	}
 	Print("AS:i:%d\t", (int) read->Scores[scoreID].Score.f);
 	Print("NM:i:%d\t", read->Alignments[scoreID].NM);
 
@@ -141,8 +179,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 
 }
 
-void SAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1,
-		MappedRead const * const read2, int const scoreId2) {
+void SAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, MappedRead const * const read2, int const scoreId2) {
 	//Proper pair
 	int flags1 = 0x1;
 	int flags2 = 0x1;
@@ -161,22 +198,14 @@ void SAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1,
 		DoWriteUnmappedRead(read1, flags1 | 0x8);
 	} else if (!read1->hasCandidates()) {
 		//First mate unmapped
-		DoWriteReadGeneric(read2, scoreId2, "=",
-				read2->Scores[scoreId2].Location.m_Location, 0,
-				read2->mappingQlty, flags2 | 0x8);
-		DoWriteUnmappedReadGeneric(read1,
-				read2->Scores[scoreId2].Location.getrefId(), '=',
-				read2->Scores[scoreId2].Location.m_Location,
+		DoWriteReadGeneric(read2, scoreId2, "=", read2->Scores[scoreId2].Location.m_Location, 0, read2->mappingQlty, flags2 | 0x8);
+		DoWriteUnmappedReadGeneric(read1, read2->Scores[scoreId2].Location.getrefId(), '=', read2->Scores[scoreId2].Location.m_Location,
 				read2->Scores[scoreId2].Location.m_Location, 0, 0, flags1);
 	} else if (!read2->hasCandidates()) {
 		//Second mate unmapped
-		DoWriteUnmappedReadGeneric(read2,
-				read1->Scores[scoreId1].Location.getrefId(), '=',
-				read1->Scores[scoreId1].Location.m_Location,
+		DoWriteUnmappedReadGeneric(read2, read1->Scores[scoreId1].Location.getrefId(), '=', read1->Scores[scoreId1].Location.m_Location,
 				read1->Scores[scoreId1].Location.m_Location, 0, 0, flags2);
-		DoWriteReadGeneric(read1, scoreId1, "=",
-				read1->Scores[scoreId1].Location.m_Location, 0,
-				read1->mappingQlty, flags1 | 0x8);
+		DoWriteReadGeneric(read1, scoreId1, "=", read1->Scores[scoreId1].Location.m_Location, 0, read1->mappingQlty, flags1 | 0x8);
 	} else {
 		if (!read1->HasFlag(NGMNames::PairedFail)) {
 			//TODO: Check if correct!
@@ -184,26 +213,18 @@ void SAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1,
 			flags1 |= 0x2;
 			flags2 |= 0x2;
 			if (!read1->Scores[scoreId1].Location.isReverse()) {
-				distance = read2->Scores[scoreId2].Location.m_Location
-						+ read2->length
-						- read1->Scores[scoreId1].Location.m_Location;
-				DoWriteReadGeneric(read2, scoreId2, "=",
-						read1->Scores[scoreId1].Location.m_Location,
-						distance * -1, read2->mappingQlty, flags2);
-				DoWriteReadGeneric(read1, scoreId1, "=",
-						read2->Scores[scoreId2].Location.m_Location, distance,
-						read1->mappingQlty, flags1 | 0x20);
+				distance = read2->Scores[scoreId2].Location.m_Location + read2->length - read1->Scores[scoreId1].Location.m_Location;
+				DoWriteReadGeneric(read2, scoreId2, "=", read1->Scores[scoreId1].Location.m_Location, distance * -1, read2->mappingQlty,
+						flags2);
+				DoWriteReadGeneric(read1, scoreId1, "=", read2->Scores[scoreId2].Location.m_Location, distance, read1->mappingQlty,
+						flags1 | 0x20);
 			} else if (!read2->Scores[scoreId2].Location.isReverse()) {
-				distance = read1->Scores[scoreId1].Location.m_Location
-						+ read1->length
-						- read2->Scores[scoreId2].Location.m_Location;
+				distance = read1->Scores[scoreId1].Location.m_Location + read1->length - read2->Scores[scoreId2].Location.m_Location;
 
-				DoWriteReadGeneric(read2, scoreId2, "=",
-						read1->Scores[scoreId1].Location.m_Location, distance,
-						read2->mappingQlty, flags2 | 0x20);
-				DoWriteReadGeneric(read1, scoreId1, "=",
-						read2->Scores[scoreId2].Location.m_Location,
-						distance * -1, read1->mappingQlty, flags1);
+				DoWriteReadGeneric(read2, scoreId2, "=", read1->Scores[scoreId1].Location.m_Location, distance, read2->mappingQlty,
+						flags2 | 0x20);
+				DoWriteReadGeneric(read1, scoreId1, "=", read2->Scores[scoreId2].Location.m_Location, distance * -1, read1->mappingQlty,
+						flags1);
 			}
 		} else {
 			int distance = 0;
@@ -213,25 +234,22 @@ void SAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1,
 			if (read2->Scores[scoreId2].Location.isReverse()) {
 				flags1 |= 0x20;
 			}
-			DoWriteReadGeneric(read2, scoreId2,
-					SequenceProvider.GetRefName(read1->Scores[scoreId1].Location.getrefId(), distance),
-					read1->Scores[scoreId1].Location.m_Location, 0, read2->mappingQlty, flags2);
-			DoWriteReadGeneric(read1, scoreId1,
-					SequenceProvider.GetRefName(read2->Scores[scoreId2].Location.getrefId(), distance),
-					read2->Scores[scoreId2].Location.m_Location, 0, read1->mappingQlty, flags1);
+			DoWriteReadGeneric(read2, scoreId2, SequenceProvider.GetRefName(read1->Scores[scoreId1].Location.getrefId(), distance),
+			read1->Scores[scoreId1].Location.m_Location, 0, read2->mappingQlty, flags2);
+			DoWriteReadGeneric(read1, scoreId1, SequenceProvider.GetRefName(read2->Scores[scoreId2].Location.getrefId(), distance),
+			read2->Scores[scoreId2].Location.m_Location, 0, read1->mappingQlty, flags1);
 
-					//DoWriteRead(read2);
-					//DoWriteRead(read1);
-					//DoWriteUnmappedRead(read2);
-					//DoWriteUnmappedRead(read1);
+			//DoWriteRead(read2);
+			//DoWriteRead(read1);
+			//DoWriteUnmappedRead(read2);
+			//DoWriteUnmappedRead(read1);
 				}
 			}
 	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer);
 }
 
-void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read,
-		int const refId, char const pRefName, int const loc, int const pLoc,
-		int const pDist, int const mappingQlty, int flags = 0) {
+void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int const refId, char const pRefName, int const loc, int const pLoc, int const pDist, int const mappingQlty, int flags =
+		0) {
 	//SRR002320.10000027.1    4       *       0       0       *       *       0       0       TTTATGTTGTTAATGTGTTGGGTGAGTGCGCCCCAT    IIIIIIIIIIIIIIIIIIIIIIIIII
 
 	NGM.AddUnmappedRead(read, MFAIL_NOCAND);
@@ -262,7 +280,7 @@ void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read,
 
 		Print("0\t");
 		Print("*\t");
-		Print("%c\t", pRefName);		//Ref. name of the mate/next fragment
+		Print("%c\t", pRefName); //Ref. name of the mate/next fragment
 		Print("%d\t", pLoc + report_offset);//Position of the mate/next fragment
 		Print("%d\t", pDist);//observed Template LENgth
 		Print("%s\t", readseq);
@@ -270,6 +288,10 @@ void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read,
 			Print("%.*s", qltylen, qltystr);
 		} else {
 			Print("*");
+		}
+
+		if(RG != 0) {
+			Print("\tRG:Z:%s", RG);
 		}
 
 		if(read->AdditionalInfo != 0) {

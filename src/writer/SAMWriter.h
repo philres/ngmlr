@@ -10,6 +10,11 @@ public:
 	SAMWriter(FileWriter * writer) :
 			GenericReadWriter() {
 
+		if(Config.Exists(RG_ID)) {
+			RG = Config.GetString(RG_ID);
+		} else {
+			RG = 0;
+		}
 		m_Writer = writer;
 	}
 
@@ -30,6 +35,8 @@ protected:
 private:
 
 	FileWriter * m_Writer;
+
+	char const * RG;
 };
 
 #endif

@@ -3,7 +3,9 @@
 #ifdef _BAM
 
 #include <string.h>
+#include <iostream>
 #include <sstream>
+#include <string>
 
 //#include "api/BamWriter.h"
 //#include "api/SamHeader.h"
@@ -44,6 +46,45 @@ void BAMWriter::DoWriteProlog() {
 	program.CommandLine = cmdline.str();
 
 	header.Programs.Add(program);
+
+	if (RG.size() > 0) {
+		SamReadGroup rg(RG);
+
+		if (Config.Exists(RG_CN))
+			rg.SequencingCenter = std::string(Config.GetString(RG_CN));
+
+		if (Config.Exists(RG_DS))
+			rg.Description = std::string(Config.GetString(RG_DS));
+
+		if (Config.Exists(RG_DT))
+			rg.ProductionDate = std::string(Config.GetString(RG_DT));
+
+		if (Config.Exists(RG_FO))
+			rg.FlowOrder = std::string(Config.GetString(RG_FO));
+
+		if (Config.Exists(RG_KS))
+			rg.KeySequence = std::string(Config.GetString(RG_KS));
+
+		if (Config.Exists(RG_LB))
+			rg.Library = std::string(Config.GetString(RG_LB));
+
+		if (Config.Exists(RG_PG))
+			rg.Program = std::string(Config.GetString(RG_PG));
+
+		if (Config.Exists(RG_PI))
+			rg.PredictedInsertSize = std::string(Config.GetString(RG_PI));
+
+		if (Config.Exists(RG_PL))
+			rg.SequencingTechnology = std::string(Config.GetString(RG_PL));
+
+		if (Config.Exists(RG_PU))
+			rg.PlatformUnit = std::string(Config.GetString(RG_PU));
+
+		if (Config.Exists(RG_SM))
+			rg.Sample = std::string(Config.GetString(RG_SM));
+
+		header.ReadGroups.Add(rg);
+	}
 
 	char const * refName = 0;
 	int refNameLength = 0;
@@ -218,6 +259,10 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	al->AddTag("XR", "i", read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd);
 	al->AddTag("MD", "Z", std::string(read->Alignments[scoreId].pBuffer2));
 
+	if(RG.size() > 0) {
+		al->AddTag("RG", "Z", RG);
+	}
+
 	buffer[bufferIndex++] = al;
 	if (bufferIndex == (10000 - 1)) {
 		writer->SaveAlignment(buffer, bufferIndex);
@@ -278,13 +323,17 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 			al->Qualities = std::string(readlen, ':');
 		}
 
+		if(RG.size() > 0) {
+			al->AddTag("RG", "Z", RG);
+		}
+
 		//	//Optional fields
 //	al->AddTag("AS", "i", (int) read->TLS()->Score.f);
 //	al->AddTag("MD", "Z", std::string(read->Buffer2));
 //	al->AddTag("X0", "i", (int) read->EqualScoringCount);
 //	al->AddTag("XI", "f", read->Identity);
 
-		//writer->SaveAlignment(al);
+//writer->SaveAlignment(al);
 		buffer[bufferIndex++] = al;
 		if (bufferIndex == (10000 - 1)) {
 			writer->SaveAlignment(buffer, bufferIndex);
@@ -327,21 +376,17 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 		//First mate unmapped
 		flags2 |= 0x8;
 
-		DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.m_Location, 0, read2->mappingQlty, flags2);
-		DoWriteUnmappedReadGeneric(read1,
-				read2->Scores[scoreId2].Location.getrefId(),
-				read2->Scores[scoreId2].Location.getrefId(),
-				read2->Scores[scoreId2].Location.m_Location,
-				read2->Scores[scoreId2].Location.m_Location, 0, 0, flags1);
+		DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.m_Location, 0,
+				read2->mappingQlty, flags2);
+		DoWriteUnmappedReadGeneric(read1, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.getrefId(),
+				read2->Scores[scoreId2].Location.m_Location, read2->Scores[scoreId2].Location.m_Location, 0, 0, flags1);
 	} else if (!read2->hasCandidates()) {
 		flags1 |= 0x8;
 		//Second mate unmapped
-		DoWriteUnmappedReadGeneric(read2,
-				read1->Scores[scoreId1].Location.getrefId(),
-				read1->Scores[scoreId1].Location.getrefId(),
-				read1->Scores[scoreId1].Location.m_Location,
-				read1->Scores[scoreId1].Location.m_Location, 0, 0, flags2);
-		DoWriteReadGeneric(read1, scoreId1, read1->Scores[scoreId1].Location.getrefId(), read1->Scores[scoreId1].Location.m_Location, 0, read1->mappingQlty, flags1);
+		DoWriteUnmappedReadGeneric(read2, read1->Scores[scoreId1].Location.getrefId(), read1->Scores[scoreId1].Location.getrefId(),
+				read1->Scores[scoreId1].Location.m_Location, read1->Scores[scoreId1].Location.m_Location, 0, 0, flags2);
+		DoWriteReadGeneric(read1, scoreId1, read1->Scores[scoreId1].Location.getrefId(), read1->Scores[scoreId1].Location.m_Location, 0,
+				read1->mappingQlty, flags1);
 	} else {
 		if (!read1->HasFlag(NGMNames::PairedFail)) {
 			//TODO: Check if correct!

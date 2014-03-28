@@ -192,20 +192,32 @@ Input:\n\
 Output:\n\
 \n\
  -o/--output <path>            Path to output file.\n\
- -b/--bam                      Output BAM instead of SAM.\n\
- --no-unal                     Don't print unaligned reads to output file.\n\
- --hard-clip                   Hard instead of soft clipping in SAM output\n\
- --silent-clip                 Hard clip reads but don't add clipping\n\
-                               information to CIGAR string\n\
  -n/--topn                     Prints the <n> best alignments sorted by\n\
                                alignment score (default: 1)\n\
- --keep-tags                   Copy BAM/SAM tags present in input file to\n\
-                               output file (default: off)\n\
  --strata                      Only  output  the  highest  scoring  mappings\n\
                                for any  given  read,  up  to <n> mappings per\n\
                                read. If a read has more than <n> mappings with\n\
                                the same score, it is discarded and reported\n\
                                as unmapped.\n\
+ -b/--bam                      Output BAM instead of SAM.\n\
+ --keep-tags                   Copy BAM/SAM tags present in input file to\n\
+                               output file (default: off)\n\
+ --no-unal                     Don't print unaligned reads to output file.\n\
+ --hard-clip                   Hard instead of soft clipping in SAM output\n\
+ --silent-clip                 Hard clip reads but don't add clipping\n\
+                               information to CIGAR string\n\
+ --rg-id <ID>                  Adds RG:Z:<ID> to all alignments in SAM/BAM \n\
+ --rg-sm                       RG header: Sample\n\
+ --rg-lb                       RG header: Library\n\
+ --rg-pl                       RG header: Platform\n\
+ --rg-ds                       RG header: Description\n\
+ --rg-dt                       RG header: Date\n\
+ --rg-pu                       RG header: Platform unit\n\
+ --rg-pi                       RG header: Median insert size\n\
+ --rg-pg                       RG header: Programs\n\
+ --rg-cn                       RG header: sequencing center\n\
+ --rg-fo                       RG header: Flow order\n\
+ --rg-ks                       RG header: Key sequence\n\
  -d/--pe-delimiter <char>      Character used in suffix that identifies mate 1\n\
                                and 2. E.g. /1 and /2. This suffixes will be\n\
                                removed to ensure proper SAM output\n\

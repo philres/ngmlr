@@ -69,6 +69,18 @@ static const struct option long_options[] =
 		{ "pe-delimiter",  		        required_argument, 0, 'd' },
 		{ "keep-tags",      	        no_argument,       0, 0 },
 		{ "skip-mate-check",	        no_argument,       0, 0 },
+		{ "rg-id",	       				required_argument, 0, 0 },
+		{ "rg-cn",       				required_argument, 0, 0 },
+		{ "rg-ds",      				required_argument, 0, 0 },
+		{ "rg-dt",      				required_argument, 0, 0 },
+		{ "rg-fo",     	    			required_argument, 0, 0 },
+		{ "rg-ks",     	 	    		required_argument, 0, 0 },
+		{ "rg-lb",     			    	required_argument, 0, 0 },
+		{ "rg-pg",     				    required_argument, 0, 0 },
+		{ "rg-pi",      				required_argument, 0, 0 },
+		{ "rg-pl",      				required_argument, 0, 0 },
+		{ "rg-pu",      				required_argument, 0, 0 },
+		{ "rg-sm",      				required_argument, 0, 0 },
 	0 };
 
 #endif /* OPTIONS_H_ */
