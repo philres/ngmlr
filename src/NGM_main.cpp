@@ -211,7 +211,7 @@ Output:\n\
  --rg-lb <string>              RG header: Library\n\
  --rg-pl <string>              RG header: Platform\n\
  --rg-ds <string>              RG header: Description\n\
- --rg-dt <string>              RG header: Date\n\
+ --rg-dt <string>              RG header: Date (format: YYYY-MM-DD)\n\
  --rg-pu <string>              RG header: Platform unit\n\
  --rg-pi <string>              RG header: Median insert size\n\
  --rg-pg <string>              RG header: Programs\n\
