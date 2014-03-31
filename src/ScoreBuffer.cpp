@@ -87,13 +87,16 @@ void ScoreBuffer::DoRun() {
 #endif
 
 #ifdef _DEBUGSW
-			MappedRead * cur_read = scores[i]->Read;
-			SequenceLocation loc = scores[i]->Location;
-			SequenceLocation rloc = SequenceProvider.convert(cur_read, loc.m_Location);
+			//MappedRead * cur_read = scores[i]->Read;
+			SequenceLocation loc = cur_read->Scores[scoreId].Location;
+			SequenceLocation rloc = loc;
+			SequenceProvider.convert(rloc);
+
+			Log.Message("%d %d", loc.getrefId(), rloc.getrefId());
 			int refNameLength = 0;
-			Log.Message("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", cur_read->name, loc.m_Location, rloc.m_Location, SequenceProvider.GetRefName(rloc.m_RefId, refNameLength), m_ScoreBuffer[i]);
+			Log.Message("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", cur_read->name, loc.m_Location, rloc.m_Location, SequenceProvider.GetRefName(rloc.getrefId(), refNameLength), m_ScoreBuffer[i]);
 			//Log.Message("%u %u %u %u", loc.m_Location, corridor, (corridor >> 1), loc.m_Location - (corridor >> 1));
-			Log.Message("Strand: %c", (loc.m_RefId & 1) ? '-' : '+');
+			Log.Message("Strand: %c", (loc.getrefId() & 1) ? '-' : '+');
 			Log.Message("Ref:  %.*s", refMaxLen, m_RefBuffer[i]);
 			Log.Message("Read: %s", m_QryBuffer[i]);
 			getchar();
