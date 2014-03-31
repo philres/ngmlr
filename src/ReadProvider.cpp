@@ -569,7 +569,12 @@ bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1,
 
 		if (read1 != 0 && read2 != 0) {
 			if (!skipMateCheck && strcmp(read1->name, read2->name) != 0) {
-				Log.Error("Error while reading paired end reads.\nNames of mates don't match: %s and %s.\nPlease check your input files or use ngm-utils interleave.\nIf you are sure that your input files are valid use --skip-mate-check", read1->name, read2->name);
+				Log.Error("Error while reading paired end reads.");
+				Log.Error("Names of mates don't match: %s and %s.", read1->name, read2->name);
+				Log.Error("NextGenMap expects paired end read names with the format: <read name>/<mate nunber> (e.g. @HWI-ST1176_0172:8:1101:1234:1934/1)");
+				Log.Error("Use -d/--pe-delimiter to specify a different delimiter than '/'");
+				Log.Error("If the format of the read names is correct this error might be caused by missing mates in the input file. Please check your input files or use ngm-utils interleave to match mate pairs.");
+				Log.Error("If you are sure that your input files are valid use --skip-mate-check");
 				Fatal();
 			}
 			read1->Paired = read2;
