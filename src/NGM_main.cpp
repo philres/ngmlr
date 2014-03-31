@@ -104,9 +104,13 @@ int main(int argc, char * argv[]) {
 	InitPlatform();
 
 	// Initialization:
-	_config = new _Config(argc, argv); // Parses command line & parameter file
-	_log = &Log;
-	_Log::Init(); // Inits logging to file
+	try {
+		_config = new _Config(argc, argv); // Parses command line & parameter file
+		_log = &Log;
+		_Log::Init(); // Inits logging to file
+	} catch(...) {
+		Help();
+	}
 
 	Log.setColor(Config.Exists("color"));
 

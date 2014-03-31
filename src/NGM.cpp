@@ -92,7 +92,7 @@ void _NGM::InitProviders() {
 
 	SequenceProvider.Init(); // Prepares input data
 
-	m_RefProvider = new CompactPrefixTable();
+	m_RefProvider = new CompactPrefixTable(NGM.DualStrand());
 
 	if (Config.Exists("qry")
 			|| (Config.Exists("qry1") && Config.Exists("qry2"))) {

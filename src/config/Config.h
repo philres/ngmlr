@@ -31,7 +31,7 @@ public:
 	void Default(char const * const name, int const value);
 	void Default(char const * const name, float const value);
 
-	_Config(int argc, char * argv[]);
+	_Config(int argc, char * argv[], bool praseArgs = true);
 	virtual ~_Config();
 private:
 	bool initialized;

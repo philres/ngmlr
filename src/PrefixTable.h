@@ -54,24 +54,16 @@ struct Index {
 
 class CompactPrefixTable: public IRefProvider {
 public:
-	CompactPrefixTable();
+	CompactPrefixTable(bool const dualStrand = true, bool const skip = true);
 	virtual ~CompactPrefixTable();
 
-	//---section IRefProvider
-	//int GetPageCount() const { return 1; }
 	const RefEntry* GetRefEntry(ulong prefix, RefEntry* entry) const;
-	//void LoadPage(int const page) const { return; }
-	//---section IRefProvider
-	//---section Flattening
-	//static CompactPrefixTable * GenerateFromCache(CSCache const * cache, int const page);
-	//void SaveToCache(CSCache * cache, int const page);
-	//---section Flattening
+
 	static int maxPrefixFreq;
 
 private:
 
 	uint cRefTableLen;
-	//Partition m_Partition;
 	Location* RefTable;
 	Index* RefTableIndex;
 	int m_CurGenSeq;
@@ -86,25 +78,24 @@ private:
 	static uint skipBuild;
 	uint m_RefSkip;
 	uint m_PrefixLength;
+	bool DualStrand;
+	bool skipRep;
 	void Generate();
 	void CreateTable(const uint length);
 	int* CountKmerFreq(const uint length);
 	uint createRefTableIndex(const uint length);
 	static void CountKmer(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
+	static void CountKmerwoSkip(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
 	static void BuildPrefixTable(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
+	static void BuildPrefixTablewoSkip(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
 	void SaveToRefTable(ulong prefix, Location loc);
 	void Clear();
 	void saveToFile(const char* fileName, const uint refIndexSize, const uint refTableSize);
 	uint readFromFile(const char* fileName);
-	//---section Flattening
-	//static CompactPrefixTable * GenerateFromBuffer(char const * pBuffer, ulong const length);
-	//char const * Flatten(ulong & resultSize) const;
-	//char const * Flatten(char * pBuffer, ulong const bufferSize, ulong & resultSize) const;
+
 	ulong CalcSize() const;
 	static bool CheckHeader(const char* const buffer);
 
-	//friend class CSCache;
-	//---section Flattening
 };
 
 #endif /* COMPACTPREFIXTABLE_H_ */

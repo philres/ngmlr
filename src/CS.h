@@ -1,7 +1,7 @@
 #ifndef __CS_H__
 #define __CS_H__
 
-#include "NGM.h"
+//#include "NGM.h"
 
 #include "SequenceLocation.h"
 #include "MappedRead.h"
