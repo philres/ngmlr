@@ -270,8 +270,8 @@ Advanced settings:\n\
                                increases runtime for larger genomes.\n\
  -l/--local                    Perform local alignment. Ends might get clipped.\n\
                                (default: on)\n\
- -e/--end-to-end               Perform local alignment. Ends might get clipped.\n\
-			                   (default: off)\n\
+ -e/--end-to-end               Perform end-to-end alignment. No clipping.\n\
+                               (default: off)\n\
  --affine                      Use alignment algorithms that support affine gap\n\
                                costs. This will give you better alignments for\n\
                                longer indels but will also increase the runtime.\n\
@@ -297,7 +297,7 @@ Advanced settings:\n\
  --gap-ref-penalty <int>       Penalty for a gap in the reference\n\
                                (default: 20, affine: 33, bs-mapping: 10)\n\
  --gap-extend-penalty <int>    Penalty for extending a gap\n\
-			                   (default: 20, affine: 3, bs-mapping: 10)\n\
+                               (default: 20, affine: 3, bs-mapping: 10)\n\
  --match-bonus-tt <int>        Only for bs-mapping (default: 4)\n\
  --match-bonus-tc <int>        Only for bs-mapping (default: 4)\n\
  --color                       Colored text output (default: off)\n\

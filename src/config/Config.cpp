@@ -404,6 +404,26 @@ _Config::_Config(int argc, char * argv[]) {
 
 	Default("affine", 0);
 	Default("max_equal", 1);
+
+	if (Exists(MODE)) {
+		Log.Warning("The parameter '--mode/-m' is depreciated and will be removed in the future. Please use '--local/-l' or '--end-to-end/-e' instead.");
+		if(Exists(LOCAL) || Exists(ENDTOEND)) {
+			Log.Error("'--mode/-m', '--local/-l' and '--end-to-end/-e' can't be used at the same time!");
+			Fatal();
+		}
+	} else {
+		if(!Exists(LOCAL) &&  !Exists(ENDTOEND)) {
+			Default(MODE, 0);
+		} else if(Exists(LOCAL)) {
+			Default(MODE, 0);
+		} else if(Exists(ENDTOEND)) {
+			Default(MODE, 1);
+		} else {
+			Log.Error("'--local/-l' and '--end-to-end/-e' can't be used at the same time!");
+			Fatal();
+		}
+	}
+
 	if (GetInt("bs_mapping") != 1) {
 		if(GetInt("affine")) {
 			Default(MATCH_BONUS, 10);
@@ -424,6 +444,11 @@ _Config::_Config(int argc, char * argv[]) {
 			Log.Error("'--bs-mapping' and '--affine' can't be used at the same time!");
 			Fatal();
 		}
+		if(Exists(ENDTOEND)) {
+			Log.Error("'--bs-mapping' and '--e/--end-to-end' can't be used at the same time!");
+			Fatal();
+		}
+
 		Default(MATCH_BONUS, 4);
 		Default(MISMATCH_PENALTY, 2);
 		Default(GAP_READ_PENALTY, 10);
@@ -459,7 +484,7 @@ _Config::_Config(int argc, char * argv[]) {
 	Default(SKIP_MATE_CHECK, 0);
 
 	//BS-mapping
-	Default("bs_cutoff", 8);
+	Default("bs_cutoff", 6);
 
 	//Others
 	Default("no_progress", 0);
@@ -467,43 +492,22 @@ _Config::_Config(int argc, char * argv[]) {
 
 	initialized = true;
 
-	if (Exists("max_consecutive_indels")) {
+	if (Exists(MAX_C_INDELS)) {
 		if (Exists("corridor")) {
-			Log.Warning("The parameter 'corridor' is depreciated. Please remove the 'corridor' entry from the config file and use 'max-consecutive-indels'.");
+			Log.Warning("The parameter 'corridor' is depreciated. Please remove the 'corridor' entry from the config file and use 'max-consec-indels'.");
 		} else {
-			if (Exists("gpu") && (GetInt("max-max_consecutive_indels-indels") > 40 || GetInt("max_consecutive_indels") < 5)) {
-				Log.Error("[CONFIG] Value max_consecutive_indels : %d out of range [5, 40] - using default value", GetInt("max_consecutive_indels"));
+			if (Exists("gpu") && (GetInt(MAX_C_INDELS) > 40 || GetInt(MAX_C_INDELS) < 5)) {
+				Log.Error("[CONFIG] Value %s : %d out of range [5, 40] - using default value", MAX_C_INDELS, GetInt(MAX_C_INDELS));
 			} else {
 				std::stringstream ss;
-				ss << GetInt("max_consecutive_indels") * 2;
+				ss << GetInt(MAX_C_INDELS) * 2;
 				InternalAdd("corridor", ss.str(), "", true);
 			}
 		}
 	}
 
-	if (Exists(MODE)) {
-		Log.Warning("The parameter '--mode/-m' is depreciated and will be removed in the future. Please use '--local/-l' or '--end-to-end/-e' instead.");
-		if(Exists(LOCAL) || Exists(ENDTOEND)) {
-			Log.Error("'--mode/-m', '--local/-l' and '--end-to-end/-e' can't be used at the same time!");
-			Fatal();
-		}
-	} else {
-		if(!Exists(LOCAL) &&  !Exists(ENDTOEND)) {
-			Default(MODE, 0);
-		} else if(Exists(LOCAL)) {
-			Default(MODE, 0);
-		} else if(Exists(ENDTOEND)) {
-			Default(MODE, 1);
-		} else {
-			Log.Error("'--local/-l' and '--end-to-end/-e' can't be used at the same time!");
-			Fatal();
-		}
-	}
-
 	if (Exists("bam")) {
 		Default("format", 2);
-		//Log.Error("BAM output is currently broken, plaese use SAM and convert to BAM.");
-		//Fatal();
 	} else {
 		Default("format", 1);
 	}
