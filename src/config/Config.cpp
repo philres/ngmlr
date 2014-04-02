@@ -512,6 +512,8 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 			Default("format", 1);
 		}
 
+		Default(ARGOS, 1);
+
 		//Add full command line for CIGARWriter
 		std::stringstream cmdLine;
 		for (TConfigMap::iterator it = config_map->begin(); it != config_map->end(); ++it) {
@@ -532,10 +534,14 @@ _Config::~_Config() {
 	delete config_map;
 }
 
+void showHelp() {
+	throw "Help";
+}
+
 void _Config::ParseArguments(int argc, char * argv[]) {
 
 	if (argc == 1) {
-		Help();
+		showHelp();
 	}
 
 	while (1) {
@@ -544,10 +550,10 @@ void _Config::ParseArguments(int argc, char * argv[]) {
 		int result = getopt_long(argc, argv, getopt_short, long_options, &index);
 		if (result == '?') {
 //			Log.Message("Unkown parameter %c", optopt);
-			Help();
+			showHelp();
 		} else if (result == ':') {
 			Log.Message("Argument missing for parameter %c", optopt);
-			Help();
+			showHelp();
 		} else if (result != -1) {
 			//Log.Message("switch %c, optind %d, opterr %d, optopt %d, arg %s", result, optind, opterr, optopt, optarg);
 			if (result != 0) {
@@ -563,7 +569,7 @@ void _Config::ParseArguments(int argc, char * argv[]) {
 			if (opt->has_arg == required_argument) {
 				if (optarg == 0 || *optarg == '-') {
 					Log.Message("Argument missing for parameter %c", result);
-					Help();
+					showHelp();
 				}
 				InternalAdd(opt->name, optarg, "", false);
 			} else {

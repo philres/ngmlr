@@ -107,9 +107,11 @@ void ScoreBuffer::DoRun() {
 #endif
 
 			if (Config.Exists(ARGOS)) {
-				std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
-				computeMQ(cur_read);
-				out->addRead(cur_read, -1);
+				if (++cur_read->Calculated == cur_read->numScores()) {
+					std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
+					computeMQ(cur_read);
+					out->addRead(cur_read, -1);
+				}
 			} else {
 				if (!isPaired) {
 					if (++cur_read->Calculated == cur_read->numScores()) {
@@ -145,7 +147,6 @@ void ScoreBuffer::DoRun() {
 		scoreTime += tmr.ET();
 	}
 }
-
 
 int ScoreBuffer::computeMQ(float bestScore, float secondBestScore) {
 	int mq = ceil(MAX_MQ * (bestScore - secondBestScore) / bestScore);
