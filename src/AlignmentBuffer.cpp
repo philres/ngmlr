@@ -111,6 +111,7 @@ void AlignmentBuffer::DoRun() {
 			Log.Message("Length: %d", cur_read->length);
 			Log.Message("CIGAR:  %s", alignBuffer[i].pBuffer1);
 			Log.Message("MD:     %s", alignBuffer[i].pBuffer2);
+			Log.Message("Ident:  %f", alignBuffer[i].Identity);
 #endif
 
 			cur_read->Alignments[scoreID] = alignBuffer[i];
@@ -118,7 +119,9 @@ void AlignmentBuffer::DoRun() {
 			//Log.Message("%d %f", cur_read->length, cur_read->Alignments[scoreID].Score);
 
 			if ((cur_read->Calculated - 1) == scoreID) {
-				Log.Verbose("Process aligned read. Equal: %i, ReadId: %i, numScore: %d, calculated: %d, (%s)",cur_read->EqualScoringCount, cur_read->ReadId, cur_read->numScores(), cur_read->Calculated, cur_read->name);
+#ifdef _DEBUGOUT
+				Log.Message("Process aligned read. Equal: %i, ReadId: %i, numScore: %d, calculated: %d, (%s)",cur_read->numTopScores, cur_read->ReadId, cur_read->numScores(), cur_read->Calculated, cur_read->name);
+#endif
 				SaveRead(cur_read);
 			}
 
