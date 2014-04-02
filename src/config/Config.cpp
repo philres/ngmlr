@@ -490,6 +490,8 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("no_progress", 0);
 	Default("pe_delimiter", "/");
 
+	Default(ARGOS, 1);
+
 	initialized = true;
 
 	if (Exists(MAX_C_INDELS)) {

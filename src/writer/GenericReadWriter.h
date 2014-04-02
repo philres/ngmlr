@@ -13,7 +13,6 @@
 #undef module_name
 #define module_name "OUTPUT"
 
-
 class GenericReadWriter {
 
 public:
@@ -72,47 +71,55 @@ public:
 	}
 
 	void WriteRead(MappedRead const * const read, bool mapped = true) {
+		if (Config.Exists(ARGOS)) {
+			if (mapped) {
+				DoWriteRead(read, 0);
+				NGM.AddMappedRead(read->ReadId);
+			} else {
+				DoWriteUnmappedRead(read);
+			}
+		} else {
+			if (mapped) {
+				std::map<SequenceLocation, bool> iTable;
+				bool mappedOnce = false;
+				for (int i = 0; i < read->Calculated; ++i) {
 
-		if (mapped) {
-			std::map<SequenceLocation, bool> iTable;
-			bool mappedOnce = false;
-			for (int i = 0; i < read->Calculated; ++i) {
+					static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
+					static float minResidues = Config.GetFloat("min_residues", 0, 1000);
 
-				static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
-				static float minResidues = Config.GetFloat("min_residues", 0, 1000);
+					if (minResidues <= 1.0f) {
+						minResidues = read->length * minResidues;
+					}
 
-				if (minResidues <= 1.0f) {
-					minResidues = read->length * minResidues;
-				}
+					mapped = mapped && (read->Alignments[i].Identity >= minIdentity);
+					mapped = mapped && ((float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd) >= minResidues);
+					//Log.Message("R: %f >= %f", (read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd), minResidues);
 
-				mapped = mapped && (read->Alignments[i].Identity >= minIdentity);
-				mapped = mapped && ((float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd) >= minResidues);
-				//Log.Message("R: %f >= %f", (read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd), minResidues);
-
-				if (mapped) {
-					mappedOnce = true;
-					if (iTable.find(read->Scores[i].Location) == iTable.end()) {
-						iTable[read->Scores[i].Location] = true;
-						DoWriteRead(read, i);
-					} else {
-						Log.Verbose("Ignoring duplicated alignment %d for read %s.", i, read->name);
+					if (mapped) {
+						mappedOnce = true;
+						if (iTable.find(read->Scores[i].Location) == iTable.end()) {
+							iTable[read->Scores[i].Location] = true;
+							DoWriteRead(read, i);
+						} else {
+							Log.Verbose("Ignoring duplicated alignment %d for read %s.", i, read->name);
+						}
 					}
 				}
-			}
-			if (mappedOnce) {
-				NGM.AddMappedRead(read->ReadId);
+				if (mappedOnce) {
+					NGM.AddMappedRead(read->ReadId);
+				} else {
+					if(read->HasFlag(NGMNames::Empty)) {
+						Log.Verbose("Empty read found: %s. Read will be discarded and not written to output.", read->name);
+					} else {
+						DoWriteUnmappedRead(read);
+					}
+				}
 			} else {
 				if(read->HasFlag(NGMNames::Empty)) {
 					Log.Verbose("Empty read found: %s. Read will be discarded and not written to output.", read->name);
 				} else {
 					DoWriteUnmappedRead(read);
 				}
-			}
-		} else {
-			if(read->HasFlag(NGMNames::Empty)) {
-				Log.Verbose("Empty read found: %s. Read will be discarded and not written to output.", read->name);
-			} else {
-				DoWriteUnmappedRead(read);
 			}
 		}
 	}

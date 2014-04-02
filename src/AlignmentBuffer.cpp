@@ -14,17 +14,21 @@ void AlignmentBuffer::flush() {
 }
 
 void AlignmentBuffer::addRead(MappedRead * read, int scoreID) {
-	if (!read->hasCandidates() || read->mappingQlty < min_mq) {
-		//If read has no CMRs or mapping quality is lower than min mapping quality, output unmapped read
-		//read->clearScores(-1);
-		SaveRead(read, false);
+	if (Config.Exists(ARGOS)) {
+		SaveRead(read, read->hasCandidates());
 	} else {
-		//add alignment computations to buffer. if buffer is full, submit to CPU/GPU
-		reads[nReads].scoreId = scoreID;
-		reads[nReads++].read = read;
-		if (nReads == batchSize) {
-			DoRun();
-			nReads = 0;
+		if (!read->hasCandidates() || read->mappingQlty < min_mq) {
+			//If read has no CMRs or mapping quality is lower than min mapping quality, output unmapped read
+			//read->clearScores(-1);
+			SaveRead(read, false);
+		} else {
+			//add alignment computations to buffer. if buffer is full, submit to CPU/GPU
+			reads[nReads].scoreId = scoreID;
+			reads[nReads++].read = read;
+			if (nReads == batchSize) {
+				DoRun();
+				nReads = 0;
+			}
 		}
 	}
 }

@@ -33,7 +33,9 @@ static char const * const RG_PL =		 	    "rg_pl";
 static char const * const RG_PU =		 	    "rg_pu";
 static char const * const RG_SM =		 	    "rg_sm";
 
-static char const * const MAX_C_INDELS =		 	    "max_consec_indels";
+static char const * const MAX_C_INDELS =	    "max_consec_indels";
+
+static char const * const ARGOS =		 	    "argos";
 
 
 class IConfig

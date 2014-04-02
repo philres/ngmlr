@@ -20,6 +20,10 @@ ulong ScoreBuffer::scoreCount = 0;
 
 float const MAX_MQ = 60.0f;
 
+bool sortLocationScore(LocationScore a, LocationScore b) {
+	return a.Score.f > b.Score.f;
+}
+
 void ScoreBuffer::DoRun() {
 
 	if (iScores != 0) {
@@ -102,32 +106,38 @@ void ScoreBuffer::DoRun() {
 			getchar();
 #endif
 
-			if (!isPaired) {
-				if (++cur_read->Calculated == cur_read->numScores()) {
-					//all scores computed for single end read
-					assert(cur_read->hasCandidates());
-					if (maxTopScores == 1) {
-						top1SE(cur_read);
-					} else {
-						topNSE(cur_read);
-					}
-				}
+			if (Config.Exists(ARGOS)) {
+				std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
+				computeMQ(cur_read);
+				out->addRead(cur_read, -1);
 			} else {
-				if (++cur_read->Calculated == cur_read->numScores() && cur_read->Paired->Calculated == cur_read->Paired->numScores()) {
-					//all scores computed for both mates
-					if (maxTopScores == 1) {
-						if (!fastPairing) {
-							if (cur_read->Paired->hasCandidates())
-								top1PE(cur_read);
-							else
-								top1SE(cur_read);
-						} else {
+				if (!isPaired) {
+					if (++cur_read->Calculated == cur_read->numScores()) {
+						//all scores computed for single end read
+						assert(cur_read->hasCandidates());
+						if (maxTopScores == 1) {
 							top1SE(cur_read);
-							if (cur_read->Paired->hasCandidates())
-								top1SE(cur_read->Paired);
+						} else {
+							topNSE(cur_read);
 						}
-					} else {
-						topNPE(cur_read);
+					}
+				} else {
+					if (++cur_read->Calculated == cur_read->numScores() && cur_read->Paired->Calculated == cur_read->Paired->numScores()) {
+						//all scores computed for both mates
+						if (maxTopScores == 1) {
+							if (!fastPairing) {
+								if (cur_read->Paired->hasCandidates())
+									top1PE(cur_read);
+								else
+									top1SE(cur_read);
+							} else {
+								top1SE(cur_read);
+								if (cur_read->Paired->hasCandidates())
+									top1SE(cur_read->Paired);
+							}
+						} else {
+							topNPE(cur_read);
+						}
 					}
 				}
 			}
@@ -136,9 +146,6 @@ void ScoreBuffer::DoRun() {
 	}
 }
 
-bool sortLocationScore(LocationScore a, LocationScore b) {
-	return a.Score.f > b.Score.f;
-}
 
 int ScoreBuffer::computeMQ(float bestScore, float secondBestScore) {
 	int mq = ceil(MAX_MQ * (bestScore - secondBestScore) / bestScore);
