@@ -2,7 +2,7 @@
 
 #include "PlatformSpecifics.h"
 #include "Log.h"
-#include "NGM.h"
+//#include "NGM.h"
 #include "Debug.h"
 #include "Options.h"
 
@@ -363,167 +363,166 @@ void _Config::ParseFile(char const * const filename) {
 
 // Initializes config by parsing arguments from command line
 // and a config file
-_Config::_Config(int argc, char * argv[]) {
+_Config::_Config(int argc, char * argv[], bool praseArgs) {
 	initialized = false;
 	sealed = false;
 
 	config_map = new TConfigMap();
 	config_arrays = new TConfigMap();
 
-	ParseArguments(argc, argv);
+	if (praseArgs) {
+		ParseArguments(argc, argv);
 
-	if (InternalExists("config")) {
-		ParseFile(InternalGet("config").c_str());
-	}
-
-	//Set default values
-	Default("cpu_threads", 1);
-
-	Default("kmer", 13);
-	Default("kmer_min", 0);
-	Default("max_cmrs", INT_MAX);
-	Default("kmer_skip", 2);
-	Default("skip_save", 0);
-
-	Default("topn", 1);
-	Default("strata", 0);
-	if(Exists("qry1") && Exists("qry2")) {
-		Default("paired", 1);
-	} else {
-		Default("paired", 0);
-	}
-	Default("fast_pairing", 0);
-	Default("pair_score_cutoff", 0.9f);
-
-	Default("bs_mapping", 0);
-
-	Default("max_insert_size", 1000);
-	Default("min_insert_size", 0);
-	Default("qry_start", 0);
-	Default("qry_count", -1);
-
-	Default("affine", 0);
-	Default("max_equal", 1);
-
-	if (Exists(MODE)) {
-		Log.Warning("The parameter '--mode/-m' is depreciated and will be removed in the future. Please use '--local/-l' or '--end-to-end/-e' instead.");
-		if(Exists(LOCAL) || Exists(ENDTOEND)) {
-			Log.Error("'--mode/-m', '--local/-l' and '--end-to-end/-e' can't be used at the same time!");
-			Fatal();
+		if (InternalExists("config")) {
+			ParseFile(InternalGet("config").c_str());
 		}
-	} else {
-		if(!Exists(LOCAL) &&  !Exists(ENDTOEND)) {
-			Default(MODE, 0);
-		} else if(Exists(LOCAL)) {
-			Default(MODE, 0);
-		} else if(Exists(ENDTOEND)) {
-			Default(MODE, 1);
+
+		//Set default values
+		Default("cpu_threads", 1);
+
+		Default("kmer", 13);
+		Default("kmer_min", 0);
+		Default("max_cmrs", INT_MAX);
+		Default("kmer_skip", 2);
+		Default("skip_save", 0);
+
+		Default("topn", 1);
+		Default("strata", 0);
+		if (Exists("qry1") && Exists("qry2")) {
+			Default("paired", 1);
 		} else {
-			Log.Error("'--local/-l' and '--end-to-end/-e' can't be used at the same time!");
-			Fatal();
+			Default("paired", 0);
 		}
-	}
+		Default("fast_pairing", 0);
+		Default("pair_score_cutoff", 0.9f);
 
-	if (GetInt("bs_mapping") != 1) {
-		if(GetInt("affine")) {
-			Default(MATCH_BONUS, 10);
-			Default(MISMATCH_PENALTY, 15);
-			Default(GAP_READ_PENALTY, 33);
-			Default(GAP_REF_PENALTY, 33);
-			Default(GAP_EXTEND_PENALTY, 3);
+		Default("bs_mapping", 0);
+
+		Default("max_insert_size", 1000);
+		Default("min_insert_size", 0);
+		Default("qry_start", 0);
+		Default("qry_count", -1);
+
+		Default("affine", 0);
+		Default("max_equal", 1);
+
+		if (Exists(MODE)) {
+			Log.Warning("The parameter '--mode/-m' is depreciated and will be removed in the future. Please use '--local/-l' or '--end-to-end/-e' instead.");
+			if(Exists(LOCAL) || Exists(ENDTOEND)) {
+				Log.Error("'--mode/-m', '--local/-l' and '--end-to-end/-e' can't be used at the same time!");
+				Fatal();
+			}
 		} else {
-			Default(MATCH_BONUS, 10);
-			Default(MISMATCH_PENALTY, 15);
-			Default(GAP_READ_PENALTY, 20);
-			Default(GAP_REF_PENALTY, 20);
-			Default(GAP_EXTEND_PENALTY, 5);
-		}
-	} else {
-		Log.Message("Using bs-mapping scoring scheme");
-		if(GetInt("affine")) {
-			Log.Error("'--bs-mapping' and '--affine' can't be used at the same time!");
-			Fatal();
-		}
-		if(Exists(ENDTOEND)) {
-			Log.Error("'--bs-mapping' and '--e/--end-to-end' can't be used at the same time!");
-			Fatal();
-		}
-
-		Default(MATCH_BONUS, 4);
-		Default(MISMATCH_PENALTY, 2);
-		Default(GAP_READ_PENALTY, 10);
-		Default(GAP_REF_PENALTY, 10);
-		Default(GAP_EXTEND_PENALTY, 2);
-	}
-	Default(MATCH_BONUS_TT, 4);
-	Default(MATCH_BONUS_TC, 4);
-
-	//Silent
-	Default("dualstrand", 1);
-	Default("overwrite", 1);
-	Default("ref_mode", -1);
-
-	//GPU
-	Default("ocl_threads", 1);
-	Default("block_multiplier", 2);
-	Default("step_count", 4);
-
-	//Filter
-	Default("min_identity", 0.65f);
-	Default("min_residues", 0.5f);
-	Default("min_score", 0.0f);
-	Default(MIN_MQ, 0);
-
-
-	//Output Input options
-	Default("parse_all", 1);
-	Default("hard_clip", 0);
-	Default("silent_clip", 0);
-	Default("no_unal", 0);
-	Default(KEEPTAGS, 0);
-	Default(SKIP_MATE_CHECK, 0);
-
-	//BS-mapping
-	Default("bs_cutoff", 6);
-
-	//Others
-	Default("no_progress", 0);
-	Default("pe_delimiter", "/");
-
-	Default(ARGOS, 1);
-
-	initialized = true;
-
-	if (Exists(MAX_C_INDELS)) {
-		if (Exists("corridor")) {
-			Log.Warning("The parameter 'corridor' is depreciated. Please remove the 'corridor' entry from the config file and use 'max-consec-indels'.");
-		} else {
-			if (Exists("gpu") && (GetInt(MAX_C_INDELS) > 40 || GetInt(MAX_C_INDELS) < 5)) {
-				Log.Error("[CONFIG] Value %s : %d out of range [5, 40] - using default value", MAX_C_INDELS, GetInt(MAX_C_INDELS));
+			if(!Exists(LOCAL) && !Exists(ENDTOEND)) {
+				Default(MODE, 0);
+			} else if(Exists(LOCAL)) {
+				Default(MODE, 0);
+			} else if(Exists(ENDTOEND)) {
+				Default(MODE, 1);
 			} else {
-				std::stringstream ss;
-				ss << GetInt(MAX_C_INDELS) * 2;
-				InternalAdd("corridor", ss.str(), "", true);
+				Log.Error("'--local/-l' and '--end-to-end/-e' can't be used at the same time!");
+				Fatal();
 			}
 		}
-	}
 
-	if (Exists("bam")) {
-		Default("format", 2);
-	} else {
-		Default("format", 1);
-	}
+		if (GetInt("bs_mapping") != 1) {
+			if (GetInt("affine")) {
+				Default(MATCH_BONUS, 10);
+				Default(MISMATCH_PENALTY, 15);
+				Default(GAP_READ_PENALTY, 33);
+				Default(GAP_REF_PENALTY, 33);
+				Default(GAP_EXTEND_PENALTY, 3);
+			} else {
+				Default(MATCH_BONUS, 10);
+				Default(MISMATCH_PENALTY, 15);
+				Default(GAP_READ_PENALTY, 20);
+				Default(GAP_REF_PENALTY, 20);
+				Default(GAP_EXTEND_PENALTY, 5);
+			}
+		} else {
+			Log.Message("Using bs-mapping scoring scheme");
+			if(GetInt("affine")) {
+				Log.Error("'--bs-mapping' and '--affine' can't be used at the same time!");
+				Fatal();
+			}
+			if(Exists(ENDTOEND)) {
+				Log.Error("'--bs-mapping' and '--e/--end-to-end' can't be used at the same time!");
+				Fatal();
+			}
 
-	//Add full command line for CIGARWriter
-	std::stringstream cmdLine;
-	for (TConfigMap::iterator it = config_map->begin(); it != config_map->end(); ++it) {
-		cmdLine << " --" << it->first + " " << it->second;
-		if (config_arrays->count(it->first) != 0) {
-			cmdLine << " {" << (*config_arrays)[it->first];
+			Default(MATCH_BONUS, 4);
+			Default(MISMATCH_PENALTY, 2);
+			Default(GAP_READ_PENALTY, 10);
+			Default(GAP_REF_PENALTY, 10);
+			Default(GAP_EXTEND_PENALTY, 2);
 		}
+		Default(MATCH_BONUS_TT, 4);
+		Default(MATCH_BONUS_TC, 4);
+
+		//Silent
+		Default("dualstrand", 1);
+		Default("overwrite", 1);
+		Default("ref_mode", -1);
+
+		//GPU
+		Default("ocl_threads", 1);
+		Default("block_multiplier", 2);
+		Default("step_count", 4);
+
+		//Filter
+		Default("min_identity", 0.65f);
+		Default("min_residues", 0.5f);
+		Default("min_score", 0.0f);
+		Default(MIN_MQ, 0);
+
+		//Output Input options
+		Default("parse_all", 1);
+		Default("hard_clip", 0);
+		Default("silent_clip", 0);
+		Default("no_unal", 0);
+		Default(KEEPTAGS, 0);
+		Default(SKIP_MATE_CHECK, 0);
+
+		//BS-mapping
+		Default("bs_cutoff", 6);
+
+		//Others
+		Default("no_progress", 0);
+		Default("pe_delimiter", "/");
+
+		initialized = true;
+
+		if (Exists(MAX_C_INDELS)) {
+			if (Exists("corridor")) {
+				Log.Warning("The parameter 'corridor' is depreciated. Please remove the 'corridor' entry from the config file and use 'max-consec-indels'.");
+			} else {
+				if (Exists("gpu") && (GetInt(MAX_C_INDELS) > 40 || GetInt(MAX_C_INDELS) < 5)) {
+					Log.Error("[CONFIG] Value %s : %d out of range [5, 40] - using default value", MAX_C_INDELS, GetInt(MAX_C_INDELS));
+				} else {
+					std::stringstream ss;
+					ss << GetInt(MAX_C_INDELS) * 2;
+					InternalAdd("corridor", ss.str(), "", true);
+				}
+			}
+		}
+
+		if (Exists("bam")) {
+			Default("format", 2);
+		} else {
+			Default("format", 1);
+		}
+
+		//Add full command line for CIGARWriter
+		std::stringstream cmdLine;
+		for (TConfigMap::iterator it = config_map->begin(); it != config_map->end(); ++it) {
+			cmdLine << " --" << it->first + " " << it->second;
+			if (config_arrays->count(it->first) != 0) {
+				cmdLine << " {" << (*config_arrays)[it->first];
+			}
+		}
+		InternalAdd("cmdline", cmdLine.str(), "", true);
+		Log.Message("Parameter: %s", cmdLine.str().c_str());
 	}
-	InternalAdd("cmdline", cmdLine.str(), "", true);
-	Log.Message("Parameter: %s", cmdLine.str().c_str());
 }
 
 //IConfig::~IConfig() {}

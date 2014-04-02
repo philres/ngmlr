@@ -8,12 +8,15 @@ include_directories (../src/writer)
 include_directories (../src/misc)
 include_directories (../src/log)
 include_directories (../src/core)
+include_directories (../src/config)
 include_directories (writer)
 include_directories (paired)
+
 
 include_directories (.)
 
 add_executable(ngm-utils main.cpp
+								kmers/kmer-distribution.cpp
 								paired/interleave-pairs.cpp
 								writer/Writer.cpp								
 								../src/parser/SamParser.cpp
@@ -21,8 +24,12 @@ add_executable(ngm-utils main.cpp
 								../src/core/unix.cpp
 								../src/core/unix_threads.cpp
 								../src/MappedRead.cpp
-								
+								../src/SequenceProvider.cpp
+								../src/config/Config.cpp
+								../src/PrefixTable.cpp
+								../src/CSstatic.cpp
  					)		
+
 
 TARGET_LINK_LIBRARIES(ngm-utils zlibstatic)
 

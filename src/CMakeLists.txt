@@ -21,6 +21,7 @@ add_executable(ngm-core
 					writer/BAMWriter.cpp																	
 					config/Config.cpp					
 					CS.cpp					
+					CSstatic.cpp
 					misc/Debug.cpp													
 					log/Logging.cpp
 					MappedRead.cpp

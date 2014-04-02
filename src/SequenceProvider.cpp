@@ -1,5 +1,7 @@
 #include "SequenceProvider.h"
-#include "NGM.h"
+//#include "NGM.h"
+#include "IConfig.h"
+#include "Log.h"
 
 #include <vector>
 #include <map>
@@ -156,7 +158,7 @@ bool _SequenceProvider::convert(SequenceLocation & m_Location) {
 	//Convert position back to Chromosome+Position
 	SequenceLocation loc = m_Location;
 	//Find the next larger chromosome start position in the concatenated reference for the mapping location
-	uint * upper = std::upper_bound(refStartPos, refStartPos + (refCount / ((NGM.DualStrand()) ? 2 : 1)) + 1, loc.m_Location);
+	uint * upper = std::upper_bound(refStartPos, refStartPos + (refCount / ((DualStrand) ? 2 : 1)) + 1, loc.m_Location);
 
 	//Check whether the mapping position is in one of the spacer regions between the chromosomes
 	if (((uint) *upper - loc.m_Location) < 1000) {
@@ -172,7 +174,7 @@ bool _SequenceProvider::convert(SequenceLocation & m_Location) {
 	} else {
 		//Compute actual start position
 		loc.m_Location -= *(upper - 1);
-		std::ptrdiff_t refId = ((upper - 1) - refStartPos) * ((NGM.DualStrand()) ? 2 : 1);
+		std::ptrdiff_t refId = ((upper - 1) - refStartPos) * ((DualStrand) ? 2 : 1);
 		loc.setRefId(refId);
 		m_Location = loc;
 		//Log.Message("Converted score %d: %hd %d %u", i, loc.m_RefId, refId, loc.m_Location);
@@ -255,7 +257,8 @@ long getSize(char const * const file) {
 	return size;
 }
 
-void _SequenceProvider::Init() {
+void _SequenceProvider::Init(bool dualstrand) {
+	DualStrand = dualstrand;
 	Log.Message("Init sequence provider.");
 	if (!Config.Exists("ref")) {
 		Log.Error("No reference file specified.");
@@ -370,7 +373,7 @@ void _SequenceProvider::Init() {
 		writeEncRefToFile(refFileName.c_str(), (uint) refCount, binRefSize);
 	}
 
-	if (NGM.DualStrand())
+	if (DualStrand)
 	refCount *= 2;
 
 #ifdef VERBOSE
@@ -382,12 +385,12 @@ void _SequenceProvider::Init() {
 #endif
 
 	int refCount = SequenceProvider.GetRefCount();
-	refStartPos = new uint[refCount / ((NGM.DualStrand()) ? 2 : 1) + 1];
+	refStartPos = new uint[refCount / ((DualStrand) ? 2 : 1) + 1];
 	int i = 0;
 	int j = 0;
 	while (i < refCount) {
 		refStartPos[j++] = SequenceProvider.GetRefStart(i);
-		i += (NGM.DualStrand()) ? 2 : 1;
+		i += (DualStrand) ? 2 : 1;
 	}
 	//Add artificial start position as upper bound for all all reads that map to the last chromosome
 	refStartPos[j] = refStartPos[j - 1] + SequenceProvider.GetRefLen(refCount - 1) + 1000;
@@ -396,7 +399,7 @@ void _SequenceProvider::Init() {
 
 bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offset, uint bufferLength) {
 	uint len = bufferLength - 2;
-	if (NGM.DualStrand()) {
+	if (DualStrand) {
 		n >>= 1;
 	}
 //	Log.Message("%u %u %u", offset, bufferLength, binRefIdx[n].SeqLen);
@@ -456,7 +459,7 @@ bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offse
 
 char const * _SequenceProvider::GetRefName(int n, int & len) const {
 	if (CheckRefNr(n)) {
-		if (NGM.DualStrand())
+		if (DualStrand)
 		n >>= 1;
 		len = binRefIdx[n].NameLen;
 
@@ -471,7 +474,7 @@ uint _SequenceProvider::GetConcatRefLen() const {
 
 uint _SequenceProvider::GetRefLen(int n) const {
 	if (CheckRefNr(n)) {
-		if (NGM.DualStrand())
+		if (DualStrand)
 		n >>= 1;
 		return (int) binRefIdx[n].SeqLen;
 	} else {
@@ -481,7 +484,7 @@ uint _SequenceProvider::GetRefLen(int n) const {
 
 uint _SequenceProvider::GetRefStart(int n) const {
 	if (CheckRefNr(n)) {
-		if (NGM.DualStrand())
+		if (DualStrand)
 		n >>= 1;
 		return (int) binRefIdx[n].SeqStart;
 	} else {
@@ -519,5 +522,5 @@ void _SequenceProvider::Cleanup() {
 }
 
 void _SequenceProvider::PagingUpdate() {
-
+	//TODO: remove
 }
