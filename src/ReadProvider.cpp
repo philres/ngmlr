@@ -421,8 +421,13 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 			read->name[nameLength] = '\0';
 		}
 
+		Log.Debug(2, "READ_%d\tINPUT\t%s\t%s\t%s\t%s", id, read->name, read->Seq, read->qlty, read->AdditionalInfo);
+
 		NGM.AddReadRead(read->ReadId);
 	} else {
+
+		Log.Debug(2, "READ_%d\tINPUT\t%s error while reading", id, read->name);
+
 		if(l == -2) {
 			Log.Error("Read %s: Length of read not equal length of quality values.", read->name);
 			Fatal();

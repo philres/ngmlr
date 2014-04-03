@@ -34,6 +34,7 @@ void Init() {
 }
 
 int filterlvl = 0;
+int logLvl;
 bool color = false;
 bool init = false;
 char preBuffer[1024];
@@ -57,7 +58,7 @@ void LogToFile(int lvl, char const * const title, char const * const s, va_list 
 	if (title != 0)
 		written += sprintf(preBuffer, "%s[%s] ", lvlStr[lvl], title);
 	else
-		written += sprintf(preBuffer, "%s ", lvlStr[lvl]);
+		written += sprintf(preBuffer, "%d\t", lvl);
 
 	vsprintf(preBuffer + written, s, args);
 
@@ -126,38 +127,30 @@ std::string add_timestamp(std::string str) {
 	return str;
 }
 
-void _Log::Init() {
-	return; // File logging disbaled
-
+void _Log::Init(char const * logFile, int pLogLvl) {
+	logLvl = pLogLvl;
 	init = true;
 	NGMLock(&__Log::mutex);
 
 	try {
-//		if (Config.Exists("log")) {
-//			if ((logToFile = (Config.GetInt("log") != 0))) {
-//				char const * filename = 0;
-//				if (Config.Exists("logfile"))
-//					filename = Config.GetString("logfile");
-//
-//				if (filename == 0) {
-//					filename = "ngm_%s.log";
-//					filename = add_timestamp(filename).c_str();
-//				}
-//
-//				fp = fopen(filename, "w");
-//				if (fp != 0) {
-//					for (uint i = 0; i < msgLog().size(); ++i) {
-//						fprintf(fp, "%s\n", msgLog()[i].c_str());
-//					}
-//					msgLog().clear();
-//				} else {
-//					LogToConsole(2, "LOG", "Unable to open logfile, logging to file disabled.", 0);
-//					logToFile = false;
-//				}
-//
-//				preInit = false;
-//			}
-//		}
+		if (logFile != 0) {
+
+			fp = fopen(logFile, "w");
+			if (fp != 0) {
+				for (uint i = 0; i < msgLog().size(); ++i) {
+					fprintf(fp, "%s\n", msgLog()[i].c_str());
+				}
+				msgLog().clear();
+				logToFile = true;
+			} else {
+				//LogToConsole(2, "LOG", "Unable to open logfile, logging to file disabled.", 0);
+				Log.Error("Unable to open logfile, logging to file disabled.");
+				logToFile = false;
+			}
+
+			preInit = false;
+
+		}
 	} catch (...) {
 		NGMUnlock(&__Log::mutex);
 		init = false;
@@ -178,9 +171,31 @@ void Fatal() {
 	//Terminating = true;
 	Log.Error("This error is fatal. Quitting...");
 	ResetConsole();
+	if(fp != 0) {
+		fclose(fp);
+	}
 	exit(1);
 }
 
+void _Log::_Debug(int lvl, char const * const title, char const * const s, ...) const {
+	va_list args;
+
+	if (init) {
+		printf("Log Init active - Message blocked.\n");
+		printf("(lvl = %i) (t)%s %s\n", lvl, title, s);
+		return;
+	}
+	NGMLock(&__Log::mutex);
+
+	if (logLvl & lvl) {
+		va_start(args, s);
+		LogToFile(lvl, 0, s, args);
+		va_end(args);
+	}
+
+	NGMUnlock(&__Log::mutex);
+}
+//LogToFile(int lvl, char const * const title, char const * const s, va_list args)
 void _Log::_Message(int lvl, char const * const title, char const * const s, ...) const {
 	va_list args;
 
@@ -212,6 +227,9 @@ void _Log::_Message(int lvl, char const * const title, char const * const s, ...
 }
 
 void _Log::Cleanup() {
+	if (fp != 0) {
+		fclose(fp);
+	}
 	delete pInstance;
 }
 

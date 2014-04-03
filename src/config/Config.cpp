@@ -490,6 +490,11 @@ _Config::_Config(int argc, char * argv[]) {
 	Default("no_progress", 0);
 	Default("pe_delimiter", "/");
 
+	Default("log", "ngm-log.txt");
+
+//	Default("log_lvl", "16383");
+	Default("log_lvl", "8445");
+
 	initialized = true;
 
 	if (Exists(MAX_C_INDELS)) {

@@ -106,7 +106,11 @@ int main(int argc, char * argv[]) {
 	// Initialization:
 	_config = new _Config(argc, argv); // Parses command line & parameter file
 	_log = &Log;
-	_Log::Init(); // Inits logging to file
+	char const * log = 0;
+	if(Config.Exists("log")) {
+		log = Config.GetString("log");
+	}
+	_Log::Init(log, Config.GetInt("log_lvl")); // Inits logging to file
 
 	Log.setColor(Config.Exists("color"));
 

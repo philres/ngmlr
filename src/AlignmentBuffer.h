@@ -48,6 +48,8 @@ private:
 
 	IAlignment * aligner;
 
+	void debugAlgnFinished(MappedRead * read);
+
 public:
 
 	static ulong alignmentCount;

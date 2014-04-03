@@ -87,31 +87,36 @@ public:
 
 				mapped = mapped && (read->Alignments[i].Identity >= minIdentity);
 				mapped = mapped && ((float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd) >= minResidues);
-				//Log.Message("R: %f >= %f", (read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd), minResidues);
+
+				Log.Debug(4, "READ_%d\tOUTPUT\tChecking alignment CRM_%d\t%f >= %f\t%f >= %f", read->ReadId, i, read->Alignments[i].Identity, minIdentity, (float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd), minResidues);
 
 				if (mapped) {
 					mappedOnce = true;
 					if (iTable.find(read->Scores[i].Location) == iTable.end()) {
 						iTable[read->Scores[i].Location] = true;
+						Log.Debug(4, "READ_%d\tOUTPUT\tWriting alignment CRM_%d", read->ReadId, i);
 						DoWriteRead(read, i);
 					} else {
-						Log.Verbose("Ignoring duplicated alignment %d for read %s.", i, read->name);
+						Log.Debug(4, "READ_%d\tOUTPUT\tIgnoring duplicated alignment CRM_%d", read->ReadId, i);
 					}
 				}
 			}
 			if (mappedOnce) {
+				Log.Debug(4, "READ_%d\tOUTPUT\tRead was mapped", read->ReadId);
 				NGM.AddMappedRead(read->ReadId);
 			} else {
 				if(read->HasFlag(NGMNames::Empty)) {
-					Log.Verbose("Empty read found: %s. Read will be discarded and not written to output.", read->name);
+					Log.Debug(4, "READ_%d\tOUTPUT\tRead empty (discard read)", read->ReadId);
 				} else {
+					Log.Debug(4, "READ_%d\tOUTPUT\tRead unmapped", read->ReadId);
 					DoWriteUnmappedRead(read);
 				}
 			}
 		} else {
 			if(read->HasFlag(NGMNames::Empty)) {
-				Log.Verbose("Empty read found: %s. Read will be discarded and not written to output.", read->name);
+				Log.Debug(4, "READ_%d\tOUTPUT\tRead empty (discard read)", read->ReadId);
 			} else {
+				Log.Debug(4, "READ_%d\tOUTPUT\tRead unmapped", read->ReadId);
 				DoWriteUnmappedRead(read);
 			}
 		}

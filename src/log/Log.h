@@ -12,12 +12,13 @@ class _Log : public ILog
 {
 public:
 	static _Log const & Instance();
-	static void Init();
+	static void Init(char const * logFile, int logLvl);
 	static void FilterLevel(int const lvl);
 	static void setColor(bool const color);
 	static void Cleanup();
 
 	void _Message(int const lvl, char const * const title, char const * const msg, ...) const;
+	void _Debug  (int const lvl, char const * const title, char const * const msg, ...) const;
 
 private:
 
