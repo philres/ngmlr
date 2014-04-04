@@ -15,6 +15,7 @@
 
 #include <ctime>
 
+#include "zlib.h"
 #include "Debug.h"
 
 namespace __Log {
@@ -45,7 +46,7 @@ std::vector<std::string> & msgLog() {
 	return *res;
 }
 
-FILE * fp = 0;
+gzFile fp = 0;
 
 char const * lvlStr[] = { "", "[WARNING]", "[ERROR]", "" };
 
@@ -66,8 +67,8 @@ void LogToFile(int lvl, char const * const title, char const * const s, va_list 
 		msgLog().push_back(std::string(preBuffer));
 
 	if (logToFile) {
-		fprintf(fp, "%s\n", preBuffer);
-		fflush(fp);
+		gzprintf(fp, "%s\n", preBuffer);
+		//gzflush(fp);
 	}
 }
 
@@ -135,10 +136,10 @@ void _Log::Init(char const * logFile, int pLogLvl) {
 	try {
 		if (logFile != 0) {
 
-			fp = fopen(logFile, "w");
+			fp = gzopen(logFile, "w");
 			if (fp != 0) {
 				for (uint i = 0; i < msgLog().size(); ++i) {
-					fprintf(fp, "%s\n", msgLog()[i].c_str());
+					gzprintf(fp, "%s\n", msgLog()[i].c_str());
 				}
 				msgLog().clear();
 				logToFile = true;
@@ -172,7 +173,7 @@ void Fatal() {
 	Log.Error("This error is fatal. Quitting...");
 	ResetConsole();
 	if(fp != 0) {
-		fclose(fp);
+		gzclose(fp);
 	}
 	exit(1);
 }
@@ -228,7 +229,7 @@ void _Log::_Message(int lvl, char const * const title, char const * const s, ...
 
 void _Log::Cleanup() {
 	if (fp != 0) {
-		fclose(fp);
+		gzclose(fp);
 	}
 	delete pInstance;
 }

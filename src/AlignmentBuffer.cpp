@@ -26,7 +26,7 @@ void AlignmentBuffer::debugAlgnFinished(MappedRead * read) {
 			SequenceProvider.convert(loc);
 
 			int refNameLength = 0;
-			Log.Debug(128, "READ_%d\tALGN_RESULTS\tCMR_%d\t%f\t%f\t%d\t%s\t%s\t%d\t%s", read->ReadId, i, score.Score.f, alignBuffer[i].Identity, alignBuffer[i].NM, alignBuffer[i].pBuffer1, alignBuffer[i].pBuffer2, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength));
+			Log.Debug(128, "READ_%d\tALGN_RESULTS\tCMR_%d\t%f\t%f\t%d\t%s\t%s\t%d\t%s", read->ReadId, i, score.Score.f, align.Identity, align.NM, align.pBuffer1, align.pBuffer2, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength));
 		}
 
 	}
@@ -120,9 +120,9 @@ void AlignmentBuffer::DoRun() {
 			assert(cur_read->hasCandidates());
 			cur_read->Scores[scoreID].Location.m_Location += alignBuffer[i].PositionOffset - (corridor >> 1);
 
-			Log.Debug(2048, "READ_%d\tALGN_DETAILS\tCMR_%d\t%f\t%f\t%d\t%.*s\t%s", cur_read->ReadId, scoreID, cur_read->Scores[scoreID].Score.f, alignBuffer[i].Identity, alignBuffer[i].NM, refMaxLen, refBuffer[i], qryBuffer[i]);
-
 			cur_read->Alignments[scoreID] = alignBuffer[i];
+
+			Log.Debug(2048, "READ_%d\tALGN_DETAILS\tCMR_%d\t%f\t%f\t%d\t%.*s\t%s", cur_read->ReadId, scoreID, cur_read->Scores[scoreID].Score.f, alignBuffer[i].Identity, alignBuffer[i].NM, refMaxLen, refBuffer[i], qryBuffer[i]);
 
 			if ((cur_read->Calculated - 1) == scoreID) {
 
