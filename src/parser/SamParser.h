@@ -12,6 +12,7 @@
 
 #include <zlib.h>
 #include <stdio.h>
+#include "../SAMRecord.h"
 #include "kseq.h"
 
 int const buffer_size = 10000;
@@ -41,6 +42,7 @@ public:
 
 	virtual void init(char const * fileName, bool const keepTags);
 	virtual int doParseRead(MappedRead * read);
+	virtual int doParseRead(SAMRecord * read);
 };
 
 #endif /* SAMPARSER_H_ */

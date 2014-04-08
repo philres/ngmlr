@@ -11,6 +11,7 @@
 
 #include "Log.h"
 #include "paired/interleave-pairs.h"
+#include "cout-reads/cout-reads.h"
 
 using std::string;
 using TCLAP::ValuesConstraint;
@@ -58,6 +59,7 @@ int main(int argc, char **argv) {
 		std::vector<std::string> allowed;
 		allowed.push_back("interleave");
 		allowed.push_back("filter");
+		allowed.push_back("count");
 		ValuesConstraint<string> allowedVals(allowed);
 
 		UnlabeledValueArg<string> nolabel("program",
@@ -77,7 +79,11 @@ int main(int argc, char **argv) {
 		} else if (nolabel.getValue() == allowed[1]) {
 			char const * name = "ngm-utils filter";
 			argv[1] = const_cast<char *>(name);
-			//filter(argc - 1, argv + 1);
+			//filter(argc - 1, argv + 1);.
+		} else if (nolabel.getValue() == allowed[2]) {
+			char const * name = "ngm-utils count";
+			argv[1] = const_cast<char *>(name);
+			count_reads(argc - 1, argv + 1);
 		} else {
 			throw TCLAP::ArgException("Invalid value found", "program");
 		}

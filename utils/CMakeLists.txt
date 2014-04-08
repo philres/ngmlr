@@ -14,6 +14,7 @@ include_directories (paired)
 include_directories (.)
 
 add_executable(ngm-utils main.cpp
+								cout_reads/cout_reads.cpp
 								paired/interleave-pairs.cpp
 								writer/Writer.cpp								
 								../src/parser/SamParser.cpp
@@ -21,6 +22,7 @@ add_executable(ngm-utils main.cpp
 								../src/core/unix.cpp
 								../src/core/unix_threads.cpp
 								../src/MappedRead.cpp
+								
 								
  					)		
 
