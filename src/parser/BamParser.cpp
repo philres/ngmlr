@@ -183,6 +183,7 @@ int BamParser::doParseRead(SAMRecord * read) {
 
 	while (reader.GetNextAlignmentCore(al[0])) {
 		if (al->IsMapped()) {
+			al->BuildCharData();
 			read->set_read_name(al->Name);
 			read->set_sequence( al->QueryBases);
 			read->set_CIGAR(al->CigarData);

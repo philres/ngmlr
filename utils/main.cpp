@@ -10,8 +10,10 @@
 #include <tclap/CmdLine.h>
 
 #include "Log.h"
+#include "IConfig.h"
+#include "Config.h"
 #include "paired/interleave-pairs.h"
-#include "cout-reads/cout-reads.h"
+#include "cout_reads/cout-reads.h"
 #include "kmers/kmer-distribution.h"
 
 using std::string;
@@ -28,6 +30,7 @@ bool cDebug = true;
 #endif
 
 ILog const * _log = 0;
+IConfig * _config = 0;
 
 // actually platform specific.../care
 ulong const FileSize(char const * const filename) {
@@ -55,6 +58,8 @@ int main(int argc, char **argv) {
 
 	try {
 
+		_config = new _Config(argc, argv, false); // Parses command line & parameter file
+
 		TCLAP::CmdLine cmd("", ' ', "0.1", false);
 
 		std::vector<std::string> allowed;
@@ -66,7 +71,7 @@ int main(int argc, char **argv) {
 		ValuesConstraint<string> allowedVals(allowed);
 
 		UnlabeledValueArg<string> nolabel("program",
-				"Name of the program you want to use. Available programs: interleave",
+				"Name of the program you want to use. Available programs: \n interleave count",
 				true, "string", "name", &allowedVals);
 
 		cmd.add(nolabel);

@@ -19,7 +19,7 @@
 #include <cstring>
 #include "zlib.h"
 
-static int count = 0;
+static int countGZ = 0;
 
 class FileWriter {
 
@@ -30,8 +30,8 @@ public:
 	NGMMutex m_OutputMutex;
 
 	FileWriter(char const * const filename) {
-		count += 1;
-		if(count > 1) {
+		countGZ += 1;
+		if(countGZ > 1) {
 			Log.Error("To many FileWriter instances!");
 			Fatal();
 		}

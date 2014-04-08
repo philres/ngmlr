@@ -18,7 +18,7 @@
 #include <iostream>
 #include <cstring>
 
-static int count = 0;
+static int countFW = 0;
 
 class FileWriter {
 
@@ -29,8 +29,8 @@ public:
 	NGMMutex m_OutputMutex;
 
 	FileWriter(char const * const filename) {
-		count += 1;
-		if(count > 1) {
+		countFW += 1;
+		if(countFW > 1) {
 			Log.Error("To many FileWriter instances!");
 			Fatal();
 		}

@@ -24,6 +24,7 @@
 #include "Writer.h"
 #include "FastqWriter.h"
 #include "SAMRecord.h"
+#include "../paired/interleave-pairs.h"
 
 
 #ifdef _BAM
@@ -50,57 +51,9 @@ struct Sequence {
 	int fragPos;
 };
 
-char seperator = '/';
+int NextSAMRead(IParser * parser, int const id,SAMRecord * & read) {
+//	cout<<"get next read"<<endl;
 
-
-IParser * DetermineParser(char const * fileName) {
-	IParser * parser = 0;
-	gzFile fp = gzopen(fileName, "r");
-	if (!fp) {
-		//File does not exist
-		Log.Error("File %s does not exist!", fileName);
-		Fatal();
-	}
-	char * buffer = new char[1000];
-	while (gzgets(fp, buffer, 1000) > 0 && buffer[0] == '@') {
-	}
-
-	int count = 0;
-	for (size_t i = 0; i < 1000 && buffer[i] != '\0' && buffer[i] != '\n';
-			i++) {
-		if (buffer[i] == '\t') {
-			count++;
-		}
-	}
-	if (count >= 10) {
-		Log.Message("%s is SAM", fileName);
-		parser = new SamParser();
-	} else {
-		if (strncmp(buffer, "BAM", 3) == 0) {
-#ifdef _BAM
-			Log.Message("%s is BAM", fileName);
-			parser= new BamParser();
-#else
-			Log.Error("BAM input detected. NGM was compiled without BAM support!");
-			Fatal();
-#endif
-		} else {
-			if (buffer[0] == '>') {
-				Log.Message("%s is FASTA", fileName);
-			} else {
-				Log.Message("%s is FASTQ", fileName);
-			}
-			parser = new FastXParser();
-		}
-	}
-	delete[] buffer;
-	return parser;
-}
-
-
-SAMRecord * NextRead(IParser * parser, int const id) {
-
-	SAMRecord * read = 0;
 	int l = parser->parseSAMRecord(read);
 	//Log.Message("Name (%d): %s", seq->name.l, seq->name.s);
 	//Log.Message("Seq  (%d): %s", seq->seq.l, seq->seq.s);
@@ -116,16 +69,17 @@ SAMRecord * NextRead(IParser * parser, int const id) {
 		delete read;
 		read = 0;
 	}
-
-	return read;
+//	cout<<"return"<<endl;
+	return l;
 }
 
 
 
 int count_reads(int argc, char **argv) {
 	try {
+
 		TCLAP::CmdLine cmd(
-				"Interleaves paired end reads from two FASTA/Q files into one FASTQ file.",
+				"Counts the number of mapped read per Chromosom using the sam/bam file",
 				' ', "0.1", false);
 
 		TCLAP::ValueArg<std::string> mapped_file("q", "s/bam",
@@ -134,12 +88,12 @@ int count_reads(int argc, char **argv) {
 		TCLAP::ValueArg<std::string> outArg("o", "output", "Output file", true,
 				"", "file");
 
-		TCLAP::SwitchArg noprogressArg("", "noprogress",
-				"Suppress progress output.", cmd, false);
-
-		cmd.add(mapped_file);
+//		TCLAP::SwitchArg noprogressArg("", "noprogress",
+//				"Suppress progress output.", cmd, false);
 		cmd.add(outArg);
-		cmd.add(noprogressArg);
+		cmd.add(mapped_file);
+
+//		cmd.add(noprogressArg);
 
 		cmd.parse(argc, argv);
 
@@ -148,33 +102,30 @@ int count_reads(int argc, char **argv) {
 
 
 		IParser * parser1 = DetermineParser(mapped_file.getValue().c_str());
+
 		parser1->init(mapped_file.getValue().c_str(), false);
 
 		int l1 = 0;
 
-		bool progess = !noprogressArg.getValue();
+		bool progess = true;//!noprogressArg.getValue();
 
 
 		map<string, int> chrs;
 		int nReads=0;
 		bool eof = false;
-		SAMRecord * read1 = 0;
-
+		SAMRecord * read = new SAMRecord();
 		int count = 0;
-
-		while (!eof) {
-			read1 = NextRead(parser1, 0); //-1??
-			if (read1 != 0){
+		while (NextSAMRead(parser1, 0,read) >= 0) {
+			if (read != 0){
 				nReads++;
 			}
-			string chr=read1->get_chr();
+			string chr=read->get_chr();
 			if(chrs.find(chr)==chrs.end()){
 				chrs[chr.c_str()]=1;
 			}else{
 				chrs[chr.c_str()]++;
 			}
 			count += 1;
-			eof = (read1 == 0);
 
 			if (count % 10000 == 0 && progess) {
 				Log.Progress("Processed: %d", count);
@@ -187,6 +138,9 @@ int count_reads(int argc, char **argv) {
 			fprintf(file, "%s",(*i).first.c_str());
 			fprintf(file, "%c",'\t');
 			fprintf(file, "%i",(*i).second);
+			fprintf(file, "%c",'\t');
+			fprintf(file, "%f",(float)(*i).second/(float)nReads *100);
+			fprintf(file, "%c",'\n');
 		}
 		fclose(file);
 		Log.Message("Reads found in files: %d", nReads);

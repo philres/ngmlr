@@ -51,7 +51,7 @@ public:
 		chr = "NOT VALID";
 		read_name = "NOT SET";
 		mq = -1;
-		mapped_flag = 0; //read is not mapped
+		mapped_flag = 4; //read is not mapped
 	}
 	~SAMRecord() {
 
