@@ -18,7 +18,7 @@ public:
 	static _SequenceProvider & Instance();
 	static void Cleanup();
 
-	virtual void Init();
+	virtual void Init(bool dualstrand = true);
 	bool DecodeRefSequence(char* const buffer, int n, uint offset, uint len);
 	// Gets the length of read/reference string n
 	virtual uint GetRefLen(int n) const;
@@ -39,6 +39,7 @@ private:
 
 	bool CheckQryNr(int n) const;
 	bool CheckRefNr(int n) const;
+	bool DualStrand;
 	static _SequenceProvider* pInstance;
 
 	struct RefIdx {
@@ -70,6 +71,7 @@ private:
 	bool m_EnableBS;
 
 	uint * refStartPos;
+
 	static const int minRefSeqLen = 10;
 
 	void writeEncRefToFile(char const * fileName, uint const refCount, uint const encRefSize);

@@ -12,6 +12,7 @@
 #include "Log.h"
 #include "paired/interleave-pairs.h"
 #include "cout-reads/cout-reads.h"
+#include "kmers/kmer-distribution.h"
 
 using std::string;
 using TCLAP::ValuesConstraint;
@@ -60,6 +61,8 @@ int main(int argc, char **argv) {
 		allowed.push_back("interleave");
 		allowed.push_back("filter");
 		allowed.push_back("count");
+		allowed.push_back("kmer");
+
 		ValuesConstraint<string> allowedVals(allowed);
 
 		UnlabeledValueArg<string> nolabel("program",
@@ -84,6 +87,11 @@ int main(int argc, char **argv) {
 			char const * name = "ngm-utils count";
 			argv[1] = const_cast<char *>(name);
 			count_reads(argc - 1, argv + 1);
+			//filter(argc - 1, argv + 1);
+		} else if (nolabel.getValue() == allowed[3]) {
+			char const * name = "ngm-utils kmer";
+			argv[1] = const_cast<char *>(name);
+			kmer_distribution(argc - 1, argv + 1);
 		} else {
 			throw TCLAP::ArgException("Invalid value found", "program");
 		}

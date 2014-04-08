@@ -33,7 +33,7 @@ static const struct option long_options[] =
 		{ "topn", 						required_argument, 0, 'n' },
 		{ "kmer-skip", 					required_argument, 0, 0 },
 		{ "affine", 					no_argument, 0, 0 },
-		{ "max-consecutive-indels",		required_argument, 0, 'C' },
+		{ "max-consec-indels",		required_argument, 0, 'C' },
 		{ "pre-only", 					no_argument,       0, 0 },
 		{ "skip-env", 					no_argument,       0, 0 },
 		{ "bam",    					no_argument,       0, 'b' },

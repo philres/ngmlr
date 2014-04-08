@@ -14,17 +14,21 @@ void AlignmentBuffer::flush() {
 }
 
 void AlignmentBuffer::addRead(MappedRead * read, int scoreID) {
-	if (!read->hasCandidates() || read->mappingQlty < min_mq) {
-		//If read has no CMRs or mapping quality is lower than min mapping quality, output unmapped read
-		//read->clearScores(-1);
-		SaveRead(read, false);
+	if (Config.Exists(ARGOS)) {
+		SaveRead(read, read->hasCandidates());
 	} else {
-		//add alignment computations to buffer. if buffer is full, submit to CPU/GPU
-		reads[nReads].scoreId = scoreID;
-		reads[nReads++].read = read;
-		if (nReads == batchSize) {
-			DoRun();
-			nReads = 0;
+		if (!read->hasCandidates() || read->mappingQlty < min_mq) {
+			//If read has no CMRs or mapping quality is lower than min mapping quality, output unmapped read
+			//read->clearScores(-1);
+			SaveRead(read, false);
+		} else {
+			//add alignment computations to buffer. if buffer is full, submit to CPU/GPU
+			reads[nReads].scoreId = scoreID;
+			reads[nReads++].read = read;
+			if (nReads == batchSize) {
+				DoRun();
+				nReads = 0;
+			}
 		}
 	}
 }
@@ -111,6 +115,7 @@ void AlignmentBuffer::DoRun() {
 			Log.Message("Length: %d", cur_read->length);
 			Log.Message("CIGAR:  %s", alignBuffer[i].pBuffer1);
 			Log.Message("MD:     %s", alignBuffer[i].pBuffer2);
+			Log.Message("Ident:  %f", alignBuffer[i].Identity);
 #endif
 
 			cur_read->Alignments[scoreID] = alignBuffer[i];
@@ -118,7 +123,9 @@ void AlignmentBuffer::DoRun() {
 			//Log.Message("%d %f", cur_read->length, cur_read->Alignments[scoreID].Score);
 
 			if ((cur_read->Calculated - 1) == scoreID) {
-				Log.Verbose("Process aligned read. Equal: %i, ReadId: %i, numScore: %d, calculated: %d, (%s)",cur_read->EqualScoringCount, cur_read->ReadId, cur_read->numScores(), cur_read->Calculated, cur_read->name);
+#ifdef _DEBUGOUT
+				Log.Message("Process aligned read. Equal: %i, ReadId: %i, numScore: %d, calculated: %d, (%s)",cur_read->numTopScores, cur_read->ReadId, cur_read->numScores(), cur_read->Calculated, cur_read->name);
+#endif
 				SaveRead(cur_read);
 			}
 

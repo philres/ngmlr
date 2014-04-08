@@ -20,6 +20,10 @@ ulong ScoreBuffer::scoreCount = 0;
 
 float const MAX_MQ = 60.0f;
 
+bool sortLocationScore(LocationScore a, LocationScore b) {
+	return a.Score.f > b.Score.f;
+}
+
 void ScoreBuffer::DoRun() {
 
 	if (iScores != 0) {
@@ -87,54 +91,61 @@ void ScoreBuffer::DoRun() {
 #endif
 
 #ifdef _DEBUGSW
-			MappedRead * cur_read = scores[i]->Read;
-			SequenceLocation loc = scores[i]->Location;
-			SequenceLocation rloc = SequenceProvider.convert(cur_read, loc.m_Location);
+			//MappedRead * cur_read = scores[i]->Read;
+			SequenceLocation loc = cur_read->Scores[scoreId].Location;
+			SequenceLocation rloc = loc;
+			SequenceProvider.convert(rloc);
+
+			Log.Message("%d %d", loc.getrefId(), rloc.getrefId());
 			int refNameLength = 0;
-			Log.Message("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", cur_read->name, loc.m_Location, rloc.m_Location, SequenceProvider.GetRefName(rloc.m_RefId, refNameLength), m_ScoreBuffer[i]);
+			Log.Message("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", cur_read->name, loc.m_Location, rloc.m_Location, SequenceProvider.GetRefName(rloc.getrefId(), refNameLength), m_ScoreBuffer[i]);
 			//Log.Message("%u %u %u %u", loc.m_Location, corridor, (corridor >> 1), loc.m_Location - (corridor >> 1));
-			Log.Message("Strand: %c", (loc.m_RefId & 1) ? '-' : '+');
+			Log.Message("Strand: %c", (loc.getrefId() & 1) ? '-' : '+');
 			Log.Message("Ref:  %.*s", refMaxLen, m_RefBuffer[i]);
 			Log.Message("Read: %s", m_QryBuffer[i]);
 			getchar();
 #endif
 
-			if (!isPaired) {
+			if (Config.Exists(ARGOS)) {
 				if (++cur_read->Calculated == cur_read->numScores()) {
-					//all scores computed for single end read
-					assert(cur_read->hasCandidates());
-					if (maxTopScores == 1) {
-						top1SE(cur_read);
-					} else {
-						topNSE(cur_read);
-					}
+					std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
+					computeMQ(cur_read);
+					out->addRead(cur_read, -1);
 				}
 			} else {
-				if (++cur_read->Calculated == cur_read->numScores() && cur_read->Paired->Calculated == cur_read->Paired->numScores()) {
-					//all scores computed for both mates
-					if (maxTopScores == 1) {
-						if (!fastPairing) {
-							if (cur_read->Paired->hasCandidates())
-								top1PE(cur_read);
-							else
-								top1SE(cur_read);
-						} else {
+				if (!isPaired) {
+					if (++cur_read->Calculated == cur_read->numScores()) {
+						//all scores computed for single end read
+						assert(cur_read->hasCandidates());
+						if (maxTopScores == 1) {
 							top1SE(cur_read);
-							if (cur_read->Paired->hasCandidates())
-								top1SE(cur_read->Paired);
+						} else {
+							topNSE(cur_read);
 						}
-					} else {
-						topNPE(cur_read);
+					}
+				} else {
+					if (++cur_read->Calculated == cur_read->numScores() && cur_read->Paired->Calculated == cur_read->Paired->numScores()) {
+						//all scores computed for both mates
+						if (maxTopScores == 1) {
+							if (!fastPairing) {
+								if (cur_read->Paired->hasCandidates())
+									top1PE(cur_read);
+								else
+									top1SE(cur_read);
+							} else {
+								top1SE(cur_read);
+								if (cur_read->Paired->hasCandidates())
+									top1SE(cur_read->Paired);
+							}
+						} else {
+							topNPE(cur_read);
+						}
 					}
 				}
 			}
 		}
 		scoreTime += tmr.ET();
 	}
-}
-
-bool sortLocationScore(LocationScore a, LocationScore b) {
-	return a.Score.f > b.Score.f;
 }
 
 int ScoreBuffer::computeMQ(float bestScore, float secondBestScore) {
