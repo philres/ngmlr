@@ -18,6 +18,7 @@ include_directories (paired)
 include_directories (.)
 
 add_executable(ngm-utils main.cpp
+								reformat_fasta/reformat_fasta.cpp
 								cout_reads/cout-reads.cpp
 								kmers/kmer-distribution.cpp
 								paired/interleave-pairs.cpp

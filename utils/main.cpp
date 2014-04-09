@@ -15,6 +15,7 @@
 #include "paired/interleave-pairs.h"
 #include "cout_reads/cout-reads.h"
 #include "kmers/kmer-distribution.h"
+#include "reformat_fasta/reformat_fasta.h"
 
 using std::string;
 using TCLAP::ValuesConstraint;
@@ -67,11 +68,12 @@ int main(int argc, char **argv) {
 		allowed.push_back("filter");
 		allowed.push_back("count");
 		allowed.push_back("kmer");
+		allowed.push_back("reformat_fasta");
 
 		ValuesConstraint<string> allowedVals(allowed);
 
 		UnlabeledValueArg<string> nolabel("program",
-				"Name of the program you want to use. Available programs: \n interleave count",
+				"Name of the program you want to use. Available programs: \n interleave \ncount \nreformat_fasta",
 				true, "string", "name", &allowedVals);
 
 		cmd.add(nolabel);
@@ -79,6 +81,7 @@ int main(int argc, char **argv) {
 		//Change program name
 		argv[0] = const_cast<char *>(name.c_str());
 		cmd.parse(std::min(argc, 2), argv);
+
 
 		if (nolabel.getValue() == allowed[0]) {
 			char const * name = "ngm-utils interleave";
@@ -97,6 +100,10 @@ int main(int argc, char **argv) {
 			char const * name = "ngm-utils kmer";
 			argv[1] = const_cast<char *>(name);
 			kmer_distribution(argc - 1, argv + 1);
+		} else if (nolabel.getValue() == allowed[4]) {
+			char const * name = "ngm-utils reformat";
+			argv[1] = const_cast<char *>(name);
+			reformat_fasta(argc - 1, argv + 1);
 		} else {
 			throw TCLAP::ArgException("Invalid value found", "program");
 		}

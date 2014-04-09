@@ -40,16 +40,16 @@ using std::string;
 #define module_name "MAIN"
 
 
-
-struct nString {
-	char * s;
-	size_t n;
-};
-
-struct Sequence {
-	nString name, seq, qlty;
-	int fragPos;
-};
+//
+//struct nString {
+//	char * s;
+//	size_t n;
+//};
+//
+//struct Sequence {
+//	nString name, seq, qlty;
+//	int fragPos;
+//};
 
 int NextSAMRead(IParser * parser, int const id,SAMRecord * & read) {
 //	cout<<"get next read"<<endl;
@@ -114,21 +114,19 @@ int count_reads(int argc, char **argv) {
 		int nReads=0;
 		bool eof = false;
 		SAMRecord * read = new SAMRecord();
-		int count = 0;
+
 		while (NextSAMRead(parser1, 0,read) >= 0) {
 			if (read != 0){
 				nReads++;
+				string chr=read->get_chr();
+				if(chrs.find(chr)==chrs.end()){
+					chrs[chr.c_str()]=1;
+				}else{
+					chrs[chr.c_str()]++;
+				}
 			}
-			string chr=read->get_chr();
-			if(chrs.find(chr)==chrs.end()){
-				chrs[chr.c_str()]=1;
-			}else{
-				chrs[chr.c_str()]++;
-			}
-			count += 1;
-
-			if (count % 10000 == 0 && progess) {
-				Log.Progress("Processed: %d", count);
+			if (nReads % 10000 == 0 && progess) {
+				Log.Progress("Processed: %d", nReads);
 			}
 		}
 		FILE *file;
