@@ -81,6 +81,8 @@ static const struct option long_options[] =
 		{ "rg-pl",      				required_argument, 0, 0 },
 		{ "rg-pu",      				required_argument, 0, 0 },
 		{ "rg-sm",      				required_argument, 0, 0 },
+		{ "log",        				required_argument, 0, 0 },
+		{ "log-lvl",      				required_argument, 0, 0 },
 	0 };
 
 #endif /* OPTIONS_H_ */

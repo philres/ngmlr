@@ -43,18 +43,15 @@ _NGM & _NGM::Instance() {
 }
 
 _NGM::_NGM() :
-		Stats(NGMStats::InitStats(AppName)), m_ActiveThreads(0), m_NextThread(
-				0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(
-				Config.GetInt("paired") != 0
-						|| (Config.Exists("qry1") && Config.Exists("qry2"))),
+		Stats(NGMStats::InitStats(AppName)), m_ActiveThreads(0), m_NextThread(0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(
+				Config.GetInt("paired") != 0 || (Config.Exists("qry1") && Config.Exists("qry2"))),
 #ifdef _BAM
 				m_OutputFormat(Config.GetInt("format", 0, 2)),
 #else
 				m_OutputFormat(Config.GetInt("format", 0, 1)),
 #endif
-				m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(
-						false), m_UnmappedReads(0), m_MappedReads(0), m_WrittenReads(
-						0), m_ReadReads(0), m_ReadProvider(0) {
+				m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(false), m_UnmappedReads(0), m_MappedReads(
+						0), m_WrittenReads(0), m_ReadReads(0), m_ReadProvider(0) {
 
 	if (Config.Exists("output")) {
 		char const * const output_name = Config.GetString("output");
@@ -94,8 +91,7 @@ void _NGM::InitProviders() {
 
 	m_RefProvider = new CompactPrefixTable();
 
-	if (Config.Exists("qry")
-			|| (Config.Exists("qry1") && Config.Exists("qry2"))) {
+	if (Config.Exists("qry") || (Config.Exists("qry1") && Config.Exists("qry2"))) {
 		m_ReadProvider = new ReadProvider();
 		uint readCount = m_ReadProvider->init();
 	}
@@ -160,7 +156,7 @@ void _NGM::ReleaseWriter() {
 
 void _NGM::AddUnmappedRead(MappedRead const * const read, int reason) {
 	AtomicInc(&m_UnmappedReads);
-	Log.Verbose("Read %s (%i) not mapped (%i)", read->name, read->ReadId, reason);
+	Log.Debug(LOG_OUTPUT_DETAILS, "Read %s (%i) not mapped (%i)", read->name, read->ReadId, reason);
 }
 
 int _NGM::GetUnmappedReadCount() const {
@@ -241,8 +237,7 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 	for (int i = 0; i < desBatchSize && !eof; i = i + 2) {
 		MappedRead * read1 = 0;
 		MappedRead * read2 = 0;
-		eof =
-				!NGM.GetReadProvider()->GenerateRead(m_CurStart + i, read1, m_CurStart + i + 1, read2);
+		eof = !NGM.GetReadProvider()->GenerateRead(m_CurStart + i, read1, m_CurStart + i + 1, read2);
 
 		if (read1 != 0) {
 			count += 1;
@@ -340,39 +335,39 @@ bool _NGM::ThreadActive(int tid, int stage) {
 					++m_ToBlock[stage];
 					blocked = false;
 					m_BlockedThreads[stage]--;
-				Log.Green("Unblock %i @ %i", tid, stage);
+					Log.Green("Unblock %i @ %i", tid, stage);
+				}
 			}
 		}
+		NGMUnlock(&m_SchedulerMutex);
 	}
-	NGMUnlock(&m_SchedulerMutex);
-}
-return true;
+	return true;
 }
 
 void _NGM::StartThreads() {
-int threadcount = Config.GetInt("cpu_threads", 1, 0);
+	int threadcount = Config.GetInt("cpu_threads", 1, 0);
 
 #ifdef _DEBUGCS
-threadcount = 1;
+	threadcount = 1;
 #endif
 
-StartCS(threadcount);
+	StartCS(threadcount);
 
 }
 
 void _NGM::StartCS(int cs_threadcount) {
-int * cpu_affinities = new int[cs_threadcount];
-bool fixCPUs = Config.HasArray("cpu_threads");
+	int * cpu_affinities = new int[cs_threadcount];
+	bool fixCPUs = Config.HasArray("cpu_threads");
 
-if (fixCPUs)
-	Config.GetIntArray("cpu_threads", cpu_affinities, cs_threadcount);
+	if (fixCPUs)
+		Config.GetIntArray("cpu_threads", cpu_affinities, cs_threadcount);
 
-for (int i = 0; i < cs_threadcount; ++i) {
-	NGMTask * cs = 0;
-	cs = new CS();
-	StartThread(cs, (fixCPUs) ? cpu_affinities[i] : -1);
-}
-delete[] cpu_affinities;
+	for (int i = 0; i < cs_threadcount; ++i) {
+		NGMTask * cs = 0;
+		cs = new CS();
+		StartThread(cs, (fixCPUs) ? cpu_affinities[i] : -1);
+	}
+	delete[] cpu_affinities;
 }
 
 #include "OclHost.h"
@@ -380,58 +375,56 @@ delete[] cpu_affinities;
 #include "seqan/EndToEndAffine.h"
 
 IAlignment * _NGM::CreateAlignment(int const mode) {
-IAlignment * instance = 0;
+	IAlignment * instance = 0;
 
-if (Config.GetInt("affine")) {
-	if (Config.Exists("gpu")) {
-		Log.Error("GPU doesn't support affine gap penalties. Please remove --affine or -g/--gpu.");
-		Fatal();
+	if (Config.GetInt("affine")) {
+		if (Config.Exists("gpu")) {
+			Log.Error("GPU doesn't support affine gap penalties. Please remove --affine or -g/--gpu.");
+			Fatal();
+		}
+		instance = new EndToEndAffine();
+	} else {
+		int dev_type = CL_DEVICE_TYPE_CPU;
+
+		if (Config.Exists("gpu")) {
+			dev_type = CL_DEVICE_TYPE_GPU;
+		}
+
+		Log.Debug(LOG_INFO, "INFO", "Mode: %d GPU: %d", mode, mode & 0xFF);
+		OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
+
+		int ReportType = (mode >> 8) & 0xFF;
+		switch (ReportType) {
+			case 1:
+
+			instance = new SWOclCigar(host);
+			break;
+			default:
+			Log.Error("Unsupported report type %i", mode);
+			break;
+		}
 	}
-	instance = new EndToEndAffine();
-} else {
-	int dev_type = CL_DEVICE_TYPE_CPU;
 
-	if (Config.Exists("gpu")) {
-		dev_type = CL_DEVICE_TYPE_GPU;
-	}
-
-	Log.Verbose("Mode: %d GPU: %d", mode, mode & 0xFF);
-	OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
-
-	int ReportType = (mode >> 8) & 0xFF;
-	switch (ReportType) {
-		case 1:
-
-		Log.Verbose("Output: cigar");
-
-		instance = new SWOclCigar(host);
-		break;
-		default:
-		Log.Error("Unsupported report type %i", mode);
-		break;
-	}
-}
-
-return instance;
+	return instance;
 }
 
 void _NGM::DeleteAlignment(IAlignment* instance) {
-OclHost * host = 0;
-if (!Config.GetInt("affine")) {
-	host = ((SWOcl *) instance)->getHost();
-}
+	OclHost * host = 0;
+	if (!Config.GetInt("affine")) {
+		host = ((SWOcl *) instance)->getHost();
+	}
 #ifndef NDEBUG
-Log.Message("Delete alignment called");
+	Log.Message("Delete alignment called");
 #endif
-if (instance != 0) {
-	delete instance;
-	instance = 0;
-}
+	if (instance != 0) {
+		delete instance;
+		instance = 0;
+	}
 
-if (host != 0) {
-	delete host;
-	host = 0;
-}
+	if (host != 0) {
+		delete host;
+		host = 0;
+	}
 }
 
 //TODO: remove
@@ -442,30 +435,30 @@ volatile bool Terminating = false;
 
 void _NGM::MainLoop() {
 
-bool const isPaired = Config.GetInt("paired") > 0;
+	bool const isPaired = Config.GetInt("paired") > 0;
 #ifdef INSTANCE_COUNTING
-int count = 0;
+	int count = 0;
 #endif
-int const threadcount = Config.GetInt("cpu_threads", 1, 0);
-bool const progress = Config.GetInt("no_progress") != 1;
-while (Running()) {
-	Sleep(50);
-	while (!Terminating && _kbhit()) {
-		char ch = _getch();
-		if (ch == 'q')
-			NGM.InitQuit();
-		}
-	if (progress) {
-		int processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
-		if (!isPaired) {
-			Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
+	int const threadcount = Config.GetInt("cpu_threads", 1, 0);
+	bool const progress = Config.GetInt("no_progress") != 1;
+	while (Running()) {
+		Sleep(50);
+		while (!Terminating && _kbhit()) {
+			char ch = _getch();
+			if (ch == 'q')
+				NGM.InitQuit();
+			}
+		if (progress) {
+			int processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
+			if (!isPaired) {
+				Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
 		} else {
 			Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Pairs: %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->validPairs, NGM.Stats->insertSize);
 		}
 	}
 #ifdef INSTANCE_COUNTING
-				if (count++ == 10) {
-					Log.Warning("MappedRead count = %i (max %i) (%d)", MappedRead::sInstanceCount, MappedRead::maxSeqCount, sizeof(MappedRead));
+					if (count++ == 10) {
+						Log.Warning("MappedRead count = %i (max %i) (%d)", MappedRead::sInstanceCount, MappedRead::maxSeqCount, sizeof(MappedRead));
 					Log.Warning("LocationScore count = %i (%d)", LocationScore::sInstanceCount, sizeof(LocationScore));
 					count = 0;
 				}

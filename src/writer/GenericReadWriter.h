@@ -124,7 +124,7 @@ public:
 
 	void WritePair(MappedRead * const read1, int const scoreId1, MappedRead * const read2, int const scoreId2) {
 		if(read1->HasFlag(NGMNames::Empty) || read2->HasFlag(NGMNames::Empty)) {
-			Log.Verbose("Empty read found in pair: %s/%s. Both reads will be discarded and not written to output.", read1->name, read2->name);
+			Log.Debug(LOG_OUTPUT_DETAILS, "Empty read found in pair: %s/%s. Both reads will be discarded and not written to output.", read1->name, read2->name);
 		} else {
 
 			//TODO: fix paired end!!! MULTI MAP!

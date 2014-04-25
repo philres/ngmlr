@@ -92,8 +92,6 @@ public:
 							first = false;
 						}
 
-						Log.Verbose("Alignment batchsize = %i", batchSize);
-
 						reads = new Alignment[batchSize];
 
 						qryBuffer = new char const *[batchSize];

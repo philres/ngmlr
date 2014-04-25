@@ -107,10 +107,11 @@ int main(int argc, char * argv[]) {
 	_config = new _Config(argc, argv); // Parses command line & parameter file
 	_log = &Log;
 	char const * log = 0;
-	if(Config.Exists("log")) {
-		log = Config.GetString("log");
+	if(Config.Exists(LOG)) {
+		log = Config.GetString(LOG);
+		Log.Message("Writing debug log to: %s", log);
 	}
-	_Log::Init(log, Config.GetInt("log_lvl")); // Inits logging to file
+	_Log::Init(log, Config.GetInt(LOG_LVL)); // Inits logging to file
 
 	Log.setColor(Config.Exists("color"));
 

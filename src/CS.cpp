@@ -226,7 +226,6 @@ void CS::AddLocationStd(uint const m_Location, bool const reverse, double const 
 		maxHitNumber = score;
 		//currentThresh = round(maxHitNumber * m_CsSensitivity);
 		currentThresh = maxHitNumber * m_CsSensitivity;
-		Log.Verbose("%f = %f * %f", currentThresh, maxHitNumber, m_CsSensitivity);
 	}
 
 	//If kmer-weight larger than threshold -> add to rList.
@@ -390,14 +389,12 @@ int CS::CollectResultsStd(MappedRead * read) {
 
 	int n = rListLength;
 
-	Log.Verbose("Read: %s, Threshold: %f", read->name, mi_Threshhold);
-
 	debugCS(read, n, mi_Threshhold);
 
 	int index = 0;
 	if (2 * n > tmpSize) {
 		tmpSize = 2 * n * 1.5f;
-		Log.Verbose("Increasing size of location buffer to %d", tmpSize);
+		Log.Debug(LOG_CS_DETAILS, "Increasing size of location buffer to %d", tmpSize);
 		delete[] tmp;
 		tmp = new LocationScore[tmpSize];
 	}
@@ -435,8 +432,6 @@ void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw, AlignmentBuffer * out
 		return;
 
 	int count = read->numScores();
-
-	Log.Verbose("Sending %i candidates for read %i to buffer", count, read->ReadId);
 
 	if (count == 0) {
 		read->Calculated = 0;
@@ -560,7 +555,6 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 }
 
 void CS::DoRun() {
-	Log.Verbose("Launching CS Thread %i (NGM Thread %i)", m_CSThreadID, m_TID);
 
 	IAlignment * oclAligner;
 	int gpu = m_TID;
@@ -576,7 +570,6 @@ void CS::DoRun() {
 		}
 		gpu = gpus[m_TID % threadcount];
 	}
-	Log.Verbose("Thread %d using C/GPU device %d", m_TID, gpu);
 
 	NGM.AquireOutputLock();
 	oclAligner = NGM.CreateAlignment(gpu | (std::min(Config.GetInt("format", 0, 2), 1) << 8));
@@ -587,8 +580,8 @@ void CS::DoRun() {
 	int x_SrchTableLen = (int) pow(2, x_SrchTableBitLen);
 
 	rTable = new CSTableEntry[x_SrchTableLen];
-	Log.Verbose("Sizeof CSTableEntry %d (%d)", sizeof(CSTableEntry), sizeof(SequenceLocation));
-	Log.Verbose("rTable: %d (%d x (%d + %d))", (sizeof(CSTableEntry) + sizeof(int)) * x_SrchTableLen, x_SrchTableLen, sizeof(CSTableEntry), sizeof(int));
+	Log.Debug(LOG_CS_DETAILS, "Sizeof CSTableEntry %d (%d)", sizeof(CSTableEntry), sizeof(SequenceLocation));
+	Log.Debug(LOG_CS_DETAILS, "rTable: %d (%d x (%d + %d))", (sizeof(CSTableEntry) + sizeof(int)) * x_SrchTableLen, x_SrchTableLen, sizeof(CSTableEntry), sizeof(int));
 	rList = new int[x_SrchTableLen];
 
 	for (int i = 0; i < x_SrchTableLen; ++i) {
@@ -609,14 +602,14 @@ void CS::DoRun() {
 	Timer tmr;
 	m_RefProvider = NGM.GetRefProvider(m_TID);
 	while (NGM.ThreadActive(m_TID, GetStage()) && ((m_CurrentBatch = NGM.GetNextReadBatch(m_BatchSize)), (m_CurrentBatch.size() > 0))) {
-		Log.Verbose("CS Thread %i got batch (len %i)", m_TID, m_CurrentBatch.size());
+		Log.Debug(LOG_CS_DETAILS, "CS Thread %i got batch (len %i)", m_TID, m_CurrentBatch.size());
 		tmr.ST();
 
 		int nCRMsSum = RunBatch(scoreBuffer, alignmentBuffer);
 		scoreBuffer->flush();
 
 		float elapsed = tmr.ET();
-		Log.Verbose("CS Thread %i finished batch (len %i) with %i overflows, length %d (elapsed: %.3fs)", m_TID, m_CurrentBatch.size(), m_Overflows, c_SrchTableBitLen, elapsed);
+		Log.Debug(LOG_CS_DETAILS, "CS Thread %i finished batch (len %i) with %i overflows, length %d (elapsed: %.3fs)", m_TID, m_CurrentBatch.size(), m_Overflows, c_SrchTableBitLen, elapsed);
 
 		NGM.Stats->readsPerSecond = (NGM.Stats->csTime + 1.0f / (elapsed / m_CurrentBatch.size())) / 2.0f;
 
@@ -648,7 +641,7 @@ void CS::DoRun() {
 	delete scoreBuffer; scoreBuffer = 0;
 	delete alignmentBuffer; alignmentBuffer = 0;
 	NGM.DeleteAlignment(oclAligner);
-	Log.Verbose("CS Thread %i finished (%i reads processed, %i reads written, %i reads discarded)", m_TID, m_ProcessedReads, m_WrittenReads, m_DiscardedReads);
+	Log.Debug(LOG_CS_DETAILS, "CS Thread %i finished (%i reads processed, %i reads written, %i reads discarded)", m_TID, m_ProcessedReads, m_WrittenReads, m_DiscardedReads);
 }
 void CS::Init() {
 	prefixBasecount = Config.GetInt("kmer", 4, 32);
@@ -673,12 +666,11 @@ CS::CS(bool useBuffer) :
 
 	if (m_EnableBS) {
 		m_PrefixBaseSkip = (Config.Exists("kmer_skip")) ? Config.GetInt("kmer_skip", 0, -1) : cPrefixBaseSkip;
-		Log.Verbose("BS mapping enabled. Applying kmer skip to reads");
 	}
 
 	rTable = 0;
 
-	Log.Verbose("SearchTabLen: %d (%d)", c_SrchTableLen, c_SrchTableBitLen);
+	Log.Debug(LOG_CS_DETAILS, "SearchTabLen: %d (%d)", c_SrchTableLen, c_SrchTableBitLen);
 
 #ifdef _DEBUGCS
 	ofp2 = fopen("cs-results.txt", "w");

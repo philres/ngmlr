@@ -330,7 +330,7 @@ void SWOcl::checkMemory() {
 	config_ref_size = Config.GetInt("qry_max_len") + Config.GetInt("corridor");
 	matrix_length = Config.GetInt("corridor") + 1;
 	batch_size_scoring = computeScoringBatchSize();
-	Log.Verbose("Batchsize (score): %d", batch_size_scoring);
+	Log.Debug(LOG_INFO, "Batchsize (score): %d", batch_size_scoring);
 	read_data_size = batch_size_scoring * Config.GetInt("qry_max_len");
 	ref_data_size = batch_size_scoring * config_ref_size;
 

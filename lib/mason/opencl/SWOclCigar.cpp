@@ -35,7 +35,7 @@ SWOclCigar::SWOclCigar(OclHost * host) :
 				" -D result_number=4 -D CIGAR_M=0 -D CIGAR_I=1 -D CIGAR_D=2 -D CIGAR_N=3 -D CIGAR_S=4 -D CIGAR_H=5 -D CIGAR_P=6 -D CIGAR_EQ=7 -D CIGAR_X=8 ",
 				host) {
 	batch_size_align = computeAlignmentBatchSize();
-	Log.Verbose("Batchsize (alignment): %d", batch_size_align);
+	Log.Debug(LOG_INFO, "Batchsize (alignment): %d", batch_size_align);
 	swAlignScoreKernel = host->setupKernel(clProgram, "oclSW_Score");
 	swAlignScoreKernelGlobal = host->setupKernel(clProgram, "oclSW_ScoreGlobal");
 	swAlignBacktrackingKernel = host->setupKernel(clProgram, "oclSW_Backtracking");
@@ -173,14 +173,14 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 	switch ((mode & 0xFF)) {
 		case 0: {
 
-			Log.Verbose("Alignment mode: local");
+			Log.Debug(LOG_INFO, "Alignment mode: local");
 
 			scoreKernel = swAlignScoreKernel;
 		}
 		break;
 		case 1:
 //#ifndef NDEBUG
-			Log.Verbose("Alignment mode: end-free");
+			Log.Debug(LOG_INFO, "Alignment mode: end-free");
 //#endif
 			scoreKernel = swAlignScoreKernelGlobal;
 		break;
@@ -247,15 +247,9 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 	short * calignments = new short[batchSize * alignment_length * 2];
 	short * gpu_return_values = new short[result_number * batchSize];
 
-	Timer gpuTimer;
-	gpuTimer.ST();
 	runSwBatchKernel(scoreKernel, batchSize, qrySeqList, refSeqList, (char *) extData, results_gpu, alignments_gpu, gpu_return_values,
 			calignments, matrix_gpu, bsdirection_gpu);
 
-	Log.Verbose("GPU Time: %.3fs", gpuTimer.ET());
-
-	Timer cpuTimer;
-	cpuTimer.ST();
 	for (int i = 0; i < batchSize_; ++i) {
 		short * gpuCigar = calignments + i * alignment_length * 2;
 		//results[i].pCigar = new char[alignment_length];
@@ -275,7 +269,6 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 		}
 		results[i].PositionOffset = gpu_return_values[offset + k];
 	}
-	Log.Verbose("CPU Time: %.3fs", cpuTimer.ET());
 
 	delete[] calignments;
 	calignments = 0;

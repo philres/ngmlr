@@ -36,6 +36,10 @@ static char const * const RG_SM =		 	    "rg_sm";
 static char const * const MAX_C_INDELS =		 	    "max_consec_indels";
 
 
+static char const * const LOG =			 	"log";
+static char const * const LOG_LVL =			 	"log_lvl";
+
+
 class IConfig
 {
 public:
