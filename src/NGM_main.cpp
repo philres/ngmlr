@@ -109,7 +109,7 @@ int main(int argc, char * argv[]) {
 	char const * log = 0;
 	if(Config.Exists(LOG)) {
 		log = Config.GetString(LOG);
-		Log.Message("Writing debug log to: %s", log);
+		Log.Message("Writing debug log to: %s (lvl %d)", log, Config.GetInt(LOG_LVL));
 	}
 	_Log::Init(log, Config.GetInt(LOG_LVL)); // Inits logging to file
 
