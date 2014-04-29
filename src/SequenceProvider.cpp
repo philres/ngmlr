@@ -133,27 +133,6 @@ static inline char dec4Low(unsigned char c) {
 	return dec4(c & 0xF);
 }
 
-//SequenceLocation _SequenceProvider::convert(MappedRead * read, uint m_Location) {
-//	SequenceLocation loc;
-//	int refCount = SequenceProvider.GetRefCount();
-//
-//	int j = 0;
-//	while (j < refCount && m_Location >= SequenceProvider.GetRefStart(j)) {
-//		j += (NGM.DualStrand()) ? 2 : 1;
-//	}
-//	if (j == 0) {
-//		//Log.Message("%s (%d) - %s: %s, %s", read->name, read->ReadId, read->Seq, read->Buffer1, read->Buffer2);
-//		Log.Error("Couldn't resolve mapping position: %u!", m_Location);
-//		Fatal();
-//	}
-//	j -= (NGM.DualStrand()) ? 2 : 1;
-//
-//	loc.m_Location = m_Location - SequenceProvider.GetRefStart(j);
-//	loc.setRefId(j);
-//
-//	return loc;
-//}
-
 bool _SequenceProvider::convert(SequenceLocation & m_Location) {
 	//Convert position back to Chromosome+Position
 	SequenceLocation loc = m_Location;
@@ -162,24 +141,26 @@ bool _SequenceProvider::convert(SequenceLocation & m_Location) {
 
 	//Check whether the mapping position is in one of the spacer regions between the chromosomes
 	if (((uint) *upper - loc.m_Location) < 1000) {
-		//Report read as unmapped (only happens for --end-to-end)
 		Log.Verbose("Read start position < chromosome start!");
-		Log.Verbose("Name: %s", read->name);
-		Log.Verbose("Loc: %u < %u < %u", (uint)*(upper-1), loc.m_Location, (uint)*(upper));
-
-		Log.Verbose("Seq:   %s", read->Seq);
-		Log.Verbose("CIGAR: %s", read->Alignments[i].pBuffer1);
-		Log.Verbose("MD:    %s", read->Alignments[i].pBuffer2);
-		return false;
-	} else {
-		//Compute actual start position
-		loc.m_Location -= *(upper - 1);
-		std::ptrdiff_t refId = ((upper - 1) - refStartPos) * ((DualStrand) ? 2 : 1);
-		loc.setRefId(refId);
-		m_Location = loc;
-		//Log.Message("Converted score %d: %hd %d %u", i, loc.m_RefId, refId, loc.m_Location);
-		return true;
+		Log.Verbose("Loc: %u (%d) < %u < %u (%d)", (uint)*(upper-1), ((upper - 2) - refStartPos) * ((DualStrand) ? 2 : 1), loc.m_Location, (uint)*(upper), ((upper - 1) - refStartPos) * ((DualStrand) ? 2 : 1));
+		if(Config.Exists(ARGOS)) {
+			//Set mapping position to start position of chromosome
+			loc.m_Location = *upper;
+			upper += 1;
+		} else {
+			//Report read/position as unmapped (only happens for --end-to-end)
+			return false;
+		}
 	}
+
+	//Compute actual start position
+	loc.m_Location -= *(upper - 1);
+	std::ptrdiff_t refId = ((upper - 1) - refStartPos) * ((DualStrand) ? 2 : 1);
+
+	//Log.Message("Location: %u - Upper: %u - Location: %d, RefId: %d ", m_Location.m_Location, *(upper - 1), loc.m_Location, refId);
+	loc.setRefId(refId);
+	m_Location = loc;
+	return true;
 }
 
 int _SequenceProvider::readEncRefFromFile(char const * fileName) {
@@ -374,7 +355,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 	}
 
 	if (DualStrand)
-	refCount *= 2;
+		refCount *= 2;
 
 #ifdef VERBOSE
 	for (int i = 0; i < refCount; ++i) {
@@ -392,7 +373,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 		refStartPos[j++] = SequenceProvider.GetRefStart(i);
 		i += (DualStrand) ? 2 : 1;
 	}
-	//Add artificial start position as upper bound for all all reads that map to the last chromosome
+		//Add artificial start position as upper bound for all all reads that map to the last chromosome
 	refStartPos[j] = refStartPos[j - 1] + SequenceProvider.GetRefLen(refCount - 1) + 1000;
 
 }
@@ -460,7 +441,7 @@ bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offse
 char const * _SequenceProvider::GetRefName(int n, int & len) const {
 	if (CheckRefNr(n)) {
 		if (DualStrand)
-		n >>= 1;
+			n >>= 1;
 		len = binRefIdx[n].NameLen;
 
 		return binRefIdx[n].name;
@@ -475,7 +456,7 @@ uint _SequenceProvider::GetConcatRefLen() const {
 uint _SequenceProvider::GetRefLen(int n) const {
 	if (CheckRefNr(n)) {
 		if (DualStrand)
-		n >>= 1;
+			n >>= 1;
 		return (int) binRefIdx[n].SeqLen;
 	} else {
 		return 0;
@@ -485,7 +466,7 @@ uint _SequenceProvider::GetRefLen(int n) const {
 uint _SequenceProvider::GetRefStart(int n) const {
 	if (CheckRefNr(n)) {
 		if (DualStrand)
-		n >>= 1;
+			n >>= 1;
 		return (int) binRefIdx[n].SeqStart;
 	} else {
 		return 0;

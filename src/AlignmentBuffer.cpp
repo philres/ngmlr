@@ -142,6 +142,8 @@ void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 	if (mapped) {
 		//Convert mapping position to RefId and position
 		for (int i = 0; i < read->Calculated; ++i) {
+			//TODO: fix for -n > 1
+			//Instead of setting mapped to false set score to 0 and don't print it in the end
 			mapped = SequenceProvider.convert(read->Scores[i].Location);
 		}
 	}
