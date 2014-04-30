@@ -124,7 +124,7 @@ void ScoreBuffer::DoRun() {
 						cur_read->AllocScores(tmp, tmpIndex);
 						std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
 						for(int x = 0; x < cur_read->numScores(); ++x) {
-							std::cout << cur_read->Scores[x].Score.f << " ";
+							std::cout << cur_read->Scores[x].Score.f << std::endl << cur_read->Scores[x].Location.m_Location << std::endl;
 						}
 						std::cout << std::endl;
 						computeMQ(cur_read);
