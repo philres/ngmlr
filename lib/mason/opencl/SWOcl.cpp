@@ -142,9 +142,7 @@ int SWOcl::BatchScore(int const mode, int const batchSize_, char const * const *
 	overall += seq_count;
 	seq_count = 0;
 
-//#ifndef NDEBUG
-	//Log.Verbose("SW finished computing score for %d sequences (elapsed: %.3fs)", batchSize, timer.ET());
-//#endif
+	Log.Verbose("SW finished computing score for %d sequences (elapsed: %.3fs)", batchSize, timer.ET());
 
 	if (batchSizeDif) {
 		for (int i = 0; i < batchSize_; ++i) {
@@ -188,9 +186,9 @@ SWOcl::SWOcl(char const * const oclSwScoreSourceCode, char const * const additio
 
 	Timer timer2;
 	timer2.ST();
-#ifndef NDEBUG
-	Log.Message("SW finished init opencl. (elapsed: %.3fs)", timer2.ET());
-#endif
+
+	Log.Verbose("SW finished init opencl. (elapsed: %.3fs)", timer2.ET());
+
 
 	Timer timer;
 	timer.ST();
@@ -219,9 +217,9 @@ SWOcl::SWOcl(char const * const oclSwScoreSourceCode, char const * const additio
 ////#pragma omp critical
 	//{
 	//if (programUserCount == 0) {
-#ifndef NDEBUG
-	Log.Message("Building program.");
-#endif
+
+	Log.Verbose("Building program.");
+
 	stringstream source;
 	source << oclDefines << std::endl << oclSwScore << oclEndFreeScore << oclSwScoreSourceCode;
 	//			Log.Message("SOURCE: %s", oclEndFreeScore);
@@ -256,27 +254,19 @@ SWOcl::SWOcl(char const * const oclSwScoreSourceCode, char const * const additio
 		reads_gpu = host->allocate(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, read_data_size, cpu_read_data);
 		scaffold_gpu = host->allocate(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, ref_data_size, cpu_ref_data);
 	}
-#ifndef NDEBUG
-	Log.Message("SW finished allocating memory. (elapsed: %.3fs)", timer.ET());
-#endif
+
+	Log.Verbose("SW finished allocating memory. (elapsed: %.3fs)", timer.ET());
+
 }
 
 SWOcl::~SWOcl() {
 
-	//#ifndef NDEBUG
-	//	Log.Warning("Overall score count %d", overall);
-	//	Timer timer;
-	//	timer.ST();
-	//#endif
-	//
-	//
 	clReleaseKernel(swScoringKernel);
 	clReleaseKernel(swScoringKernelGlobal);
 	clReleaseKernel(interleaveKernel);
-	//if (--programUserCount == 0) {
-#ifndef NDEBUG
-	Log.Message("Releasing ocl program.");
-#endif
+
+	Log.Verbose("Releasing ocl program.");
+
 	clReleaseProgram(clProgram);
 	clProgram = 0;
 	//}
@@ -299,10 +289,6 @@ SWOcl::~SWOcl() {
 			cpu_ref_data = 0;
 		}
 	}
-	//
-	//#ifndef NDEBUG
-	//	Log.Message("SW finished releasing memory. (elapsed: %.3fs)", timer.ET());
-	//#endif
 }
 
 int SWOcl::getMaxAllocSize() {
@@ -337,9 +323,8 @@ void SWOcl::checkMemory() {
 	//Check local Memory
 	unsigned int localMemByte = (host->isGPU()) ? (matrix_length * threads_per_block) * 2 : 0;
 	//cl_ulong localMemAvailable = host->getDeviceInfoLong(CL_DEVICE_LOCAL_MEM_SIZE);
-#ifndef NDEBUG
-	Log.Message("You are using %d byte local memory. (%d byte available).", localMemByte, host->getDeviceInfoLong(CL_DEVICE_LOCAL_MEM_SIZE));
-#endif
+	Log.Verbose("You are using %d byte local memory. (%d byte available).", localMemByte, host->getDeviceInfoLong(CL_DEVICE_LOCAL_MEM_SIZE));
+
 	if (!host->checkLocalMemory(localMemByte)) {
 		Log.Error("Not enough local memory available. Please reduce corridor size.");
 		Log.Message("You are using %d byte local memory. (%d byte available).", localMemByte, host->getDeviceInfoLong(CL_DEVICE_LOCAL_MEM_SIZE));
@@ -560,14 +545,12 @@ unsigned int SWOcl::computeScoringBatchSize() {
 		//block_count -= mpCount;
 		//largest_alloc = (block_count * threads_per_block) * (Config.GetInt("corridor") + 2) * (Config.GetInt("qry_max_len") + 1) * sizeof(cl_char);
 		//}
-#ifndef NDEBUG
-		Log.Message("Multi processor count: %d", mpCount);
-		Log.Message("Max. threads per multi processor: %d", host->getThreadPerMulti());
-		Log.Message("Threads per block used: %d", threads_per_block);
-		Log.Message("Block number: %d", block_count);
-		Log.Message("Batch size: %d", (block_count * threads_per_block * alignments_per_thread));
+		Log.Verbose("Multi processor count: %d", mpCount);
+		Log.Verbose("Max. threads per multi processor: %d", host->getThreadPerMulti());
+		Log.Verbose("Threads per block used: %d", threads_per_block);
+		Log.Verbose("Block number: %d", block_count);
+		Log.Verbose("Batch size: %d", (block_count * threads_per_block * alignments_per_thread));
 		//TODO: Print debug info
-#endif
 
 		return block_count * threads_per_block;
 	} else {

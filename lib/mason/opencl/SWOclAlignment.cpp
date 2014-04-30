@@ -140,15 +140,11 @@ int SWOclAlignment::BatchAlign(int const mode, int const batchSize_,
 	cl_kernel scoreKernel;
 	switch ((mode & 0xFF)) {
 	case 0:
-#ifndef NDEBUG
-		Log.Message("Alignment mode: local");
-#endif
+		Log.Verbose("Alignment mode: local");
 		scoreKernel = swAlignScoreKernel;
 		break;
 	case 1:
-#ifndef NDEBUG
-		Log.Message("Alignment mode: end-free");
-#endif
+		Log.Verbose("Alignment mode: end-free");
 		scoreKernel = swAlignScoreKernelGlobal;
 		break;
 	default:
@@ -273,9 +269,7 @@ int SWOclAlignment::BatchAlign(int const mode, int const batchSize_,
 	}
 	host->checkClError("Unable to release memory for alignment.", clErr);
 
-#ifndef NDEBUG
-	Log.Message("SW finished computing alignment for %d sequences (elapsed: %.3fs)", batchSize_, timer.ET());
-#endif
+	Log.Verbose("SW finished computing alignment for %d sequences (elapsed: %.3fs)", batchSize_, timer.ET());
 
 	delete[] tmpRefSeqList;
 	delete[] tmpQrySeqList;
@@ -333,21 +327,17 @@ int SWOclAlignment::computeAlignmentBatchSize() {
 	while (!host->testAllocate(largest_alloc)) {
 		block_count -= mpCount;
 		largest_alloc = getMaxAllocSize(block_count * threads_per_block);
-		//#ifndef NDEBUG
-		Log.Warning("Reducing batch size to %d", block_count * threads_per_block);
-		//#endif
+		Log.Verbose("Reducing batch size to %d", block_count * threads_per_block);
 	}
 //	if (!host->isGPU()) {
 //		block_count *= 4;
 //	}
-#ifndef NDEBUG
-	Log.Message("Multi processor count: %d", mpCount);
-	Log.Message("Max. threads per multi processor: %d", host->getThreadPerMulti());
-	Log.Message("Threads per block used: %d", threads_per_block);
-	Log.Message("Block number: %d", block_count);
-	Log.Message("Batch size: %d", (block_count * threads_per_block));
+	Log.Verbose("Multi processor count: %d", mpCount);
+	Log.Verbose("Max. threads per multi processor: %d", host->getThreadPerMulti());
+	Log.Verbose("Threads per block used: %d", threads_per_block);
+	Log.Verbose("Block number: %d", block_count);
+	Log.Verbose("Batch size: %d", (block_count * threads_per_block));
 	//TODO: Print debug info
-#endif
 
 	return block_count * threads_per_block;
 

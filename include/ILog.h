@@ -51,6 +51,10 @@ extern ILog const * _log;
 #define Verbose(s, ...) null
 #endif
 
+#ifdef DEBUGLOG
 #define Debug(lvl, s, ...) _Debug(lvl, module_name, s, ##__VA_ARGS__)
+#else
+#define Debug(lvl, s, ...) null
+#endif
 
 #endif

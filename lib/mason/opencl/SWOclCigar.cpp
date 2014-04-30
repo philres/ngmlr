@@ -179,9 +179,7 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 		}
 		break;
 		case 1:
-//#ifndef NDEBUG
 			Log.Debug(LOG_INFO, "Alignment mode: end-free");
-//#endif
 			scoreKernel = swAlignScoreKernelGlobal;
 		break;
 		default:
@@ -275,22 +273,18 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 	delete[] gpu_return_values;
 	gpu_return_values = 0;
 
-#ifndef NDEBUG
 	Log.Verbose("Releasing results.");
-#endif
 	clReleaseMemObject(results_gpu);
-#ifndef NDEBUG
+
 	Log.Verbose("Releasing alignments.");
-#endif
 	clReleaseMemObject(alignments_gpu);
-#ifndef NDEBUG
+
 	Log.Verbose("Releasing matrix.");
-#endif
 	clReleaseMemObject(matrix_gpu);
+
 	if (host->isGPU()) {
-#ifndef NDEBUG
 		Log.Verbose("Releasing scaff.");
-#endif
+
 		clReleaseMemObject(c_scaff_gpu);
 		if (bsMapping) {
 			clReleaseMemObject(bsdirection_gpu);
@@ -306,9 +300,7 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 //		delete[] qrySeqList[i];
 //	}
 //	delete[] qrySeqList;
-#ifndef NDEBUG
 	Log.Verbose("SW finished computing alignments for %d sequences (elapsed: %.3fs)", batchSize_, timer.ET());
-#endif
 
 	delete[] tmpRefSeqList;
 	delete[] tmpQrySeqList;
@@ -548,19 +540,15 @@ int SWOclCigar::computeAlignmentBatchSize() {
 		while (!host->testAllocate(largest_alloc)) {
 			block_count -= mpCount;
 			largest_alloc = getMaxAllocSize(block_count * threads_per_block);
-#ifndef NDEBUG
-			Log.Warning("Reducing batch size to %d", block_count * threads_per_block);
-#endif
+			Log.Verbose("Reducing batch size to %d", block_count * threads_per_block);
 		}
 
-#ifndef NDEBUG
-		Log.Message("Multi processor count: %d", mpCount);
-		Log.Message("Max. threads per multi processor: %d", host->getThreadPerMulti());
-		Log.Message("Threads per block used: %d", threads_per_block);
-		Log.Message("Block number: %d", block_count);
-		Log.Message("Batch size: %d", (block_count * threads_per_block));
+		Log.Verbose("Multi processor count: %d", mpCount);
+		Log.Verbose("Max. threads per multi processor: %d", host->getThreadPerMulti());
+		Log.Verbose("Threads per block used: %d", threads_per_block);
+		Log.Verbose("Block number: %d", block_count);
+		Log.Verbose("Batch size: %d", (block_count * threads_per_block));
 		//TODO: Print debug info
-#endif
 
 		return block_count * threads_per_block;
 	} else {

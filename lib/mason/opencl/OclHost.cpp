@@ -44,15 +44,11 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 //		}
 
 	cl_int ciErrNum = CL_SUCCESS;
-#ifndef NDEBUG
-	Log.Message("Using device number %d", gpu_id);
-#endif
+	Log.Verbose("Using device number %d", gpu_id);
 //#pragma omp critical
 //	{
 	if (contextUserCount == 0) {
-#ifndef NDEBUG
-		Log.Message("Creating ocl context.");
-#endif
+		Log.Verbose("Creating ocl context.");
 //		cl_uint ciDeviceCount = 0;
 		cl_platform_id cpPlatform = NULL;
 
@@ -132,11 +128,8 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 	//checkClError("Couldn't create context. Error: ", ciErrNum);
 
 	// create command queue
-#ifndef NDEBUG
 	oclCommandQueue = clCreateCommandQueue(oclGpuContext, oclDevice, 0, &ciErrNum);
-#else
-	oclCommandQueue = clCreateCommandQueue(oclGpuContext, oclDevice, 0, &ciErrNum);
-#endif
+
 	checkClError("Couldn't create command queue for device: ", ciErrNum);
 
 }
@@ -146,9 +139,7 @@ OclHost::~OclHost() {
 	//clReleaseDeviceEXT(oclDevice);
 
 	if (--contextUserCount == 0) {
-#ifndef NDEBUG
-		Log.Message("Releasing ocl context.");
-#endif
+		Log.Verbose("Releasing ocl context.");
 		clReleaseContext(oclGpuContext);
 		oclGpuContext = 0;
 	}
@@ -225,9 +216,7 @@ cl_context OclHost::partitionDevice(cl_platform_id platform, cl_uint ciDeviceCou
 	// Create context for sub-devices
 	cl_context context = clCreateContext(0, 1, subDevices, NULL, NULL, &ciErrNum);
 	checkClError("BLABLABLAB", ciErrNum);
-	//#ifndef NDEBUG
-	Log.Message("Dividing CPU into %d devices.", numSubDevices);
-	//#endif
+	Log.Verbose("Dividing CPU into %d devices.", numSubDevices);
 	free(subDevices);
 //	clReleaseDevice(device);
 //	clReleaseContext(oclCPUContext);
@@ -311,10 +300,7 @@ cl_mem OclHost::allocate(cl_mem_flags flags, size_t size, void * ptr) {
 	cl_int errCode = 0;
 	cl_mem mem = 0;
 	if (checkGlobalMemory(size)) {
-#ifndef NDEBUG
 		Log.Verbose("Allocationg %d bytes on opencl device.", size);
-#endif
-		//std::cout << "TEST: " << size << std::endl;
 		mem = clCreateBuffer(oclGpuContext, flags, size, ptr, &errCode);
 		checkClError("Unable to create buffer.", errCode);
 	} else {
@@ -368,20 +354,15 @@ cl_program OclHost::setUpProgram(char const * const oclSwScore, std::string buil
 
 		//checkClError("Unable to build program.", ciErrNum);
 		//clUnloadCompiler();
-		//#ifndef NDEBUG
 		char cBuildLog[10240];
 
 		clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_OPTIONS, sizeof(cBuildLog), cBuildLog, NULL);
-#ifndef NDEBUG
-		Log.Message("Build options: %s", cBuildLog);
-#endif
+		Log.Verbose("Build options: %s", cBuildLog);
 
 		cl_build_status status;
 		clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_STATUS, sizeof(status), &status, NULL);
 
-#ifndef _DEBUG
 		if (status != CL_SUCCESS) {
-#endif
 			Log.Message("Build status: %s", print_cl_errstring(status));
 			clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_LOG, sizeof(cBuildLog), cBuildLog, NULL);
 
@@ -394,12 +375,9 @@ cl_program OclHost::setUpProgram(char const * const oclSwScore, std::string buil
 				}
 				pBuildLog = strtok(NULL, "\n");
 			}
-#ifndef _DEBUG
 		}
-#endif
 
 		checkClError("Unable to build program.", ciErrNum);
-		//#endif
 		return cpProgram;
 	} else {
 		Log.Error("Unable to load OpenCl kernel source. Error: %d", ciErrNum);

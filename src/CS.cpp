@@ -389,7 +389,11 @@ int CS::CollectResultsStd(MappedRead * read) {
 
 	int n = rListLength;
 
-	debugCS(read, n, mi_Threshhold);
+#ifdef DEBUGLOG
+	if(Config.GetInt(LOG_LVL) > 0) {
+		debugCS(read, n, mi_Threshhold);
+	}
+#endif
 
 	int index = 0;
 	if (2 * n > tmpSize) {

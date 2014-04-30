@@ -11,6 +11,8 @@ project( BamTools )
 # Cmake requirements
 cmake_minimum_required( VERSION 2.6.4 )
 
+SET (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG -g -O3")
+
 # Force the build directory to be different from source directory
 macro( ENSURE_OUT_OF_SOURCE_BUILD MSG )
     string( COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" insource )

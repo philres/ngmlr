@@ -413,9 +413,7 @@ void _NGM::DeleteAlignment(IAlignment* instance) {
 	if (!Config.GetInt("affine")) {
 		host = ((SWOcl *) instance)->getHost();
 	}
-#ifndef NDEBUG
-	Log.Message("Delete alignment called");
-#endif
+	Log.Verbose("Delete alignment called");
 	if (instance != 0) {
 		delete instance;
 		instance = 0;

@@ -50,15 +50,19 @@ add_library(MASonOpenCl    STATIC ${PROJECT_BINARY_DIR}/oclDefines.h
 							${PROJECT_BINARY_DIR}/oclSwCigar.h
 							OclHost.cpp SWOcl.cpp SWOclAlignment.cpp SWOclCigar.cpp Timer.cpp)	
 
-#target_link_libraries(MASonOpenCl "-Wl,-Bdynamic -lOpenCL")
+SET_TARGET_PROPERTIES(MASonOpenCl PROPERTIES COMPILE_FLAGS "-g -O3 -DNDEBUG")
+
 target_link_libraries(MASonOpenCl "-Wl,-Bdynamic${OPENCL_LIBRARIES}")
-#target_link_libraries(MASonOpenClGpu ${OPENCL_LIBRARIES})
 
-ADD_CUSTOM_TARGET(opencl  
-  DEPENDS
-    MASonOpenClCpu MASonOpenCl 
-)
+add_library(MASonOpenCl-debug    STATIC ${PROJECT_BINARY_DIR}/oclDefines.h 
+							${PROJECT_BINARY_DIR}/oclSwScore.h
+							${PROJECT_BINARY_DIR}/oclEndFreeScore.h
+							${PROJECT_BINARY_DIR}/oclSwAlignment.h							
+							${PROJECT_BINARY_DIR}/oclSwCigar.h
+							OclHost.cpp SWOcl.cpp SWOclAlignment.cpp SWOclCigar.cpp Timer.cpp)	
 
+set_target_properties(MASonOpenCl-debug PROPERTIES COMPILE_DEFINITIONS "DEBUGLOG")
 
+SET_TARGET_PROPERTIES(MASonOpenCl-debug PROPERTIES COMPILE_FLAGS "-g3 -O0")
 
-
+target_link_libraries(MASonOpenCl-debug "-Wl,-Bdynamic${OPENCL_LIBRARIES}")

@@ -24,7 +24,6 @@ add_executable(ngm-utils main.cpp
 								
  					)		
 
-TARGET_LINK_LIBRARIES(ngm-utils zlibstatic)
+SET_TARGET_PROPERTIES(ngm-utils PROPERTIES COMPILE_FLAGS "-g -O3 -DNDEBUG")
 
-#TARGET_LINK_LIBRARIES(ngm-utils ${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.9/libStatGen_1.0.9/libStatGen.a)
-#target_link_libraries(ngm-utils z)
+TARGET_LINK_LIBRARIES(ngm-utils zlibstatic)
