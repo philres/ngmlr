@@ -157,7 +157,7 @@ bool _SequenceProvider::convert(SequenceLocation & m_Location) {
 	loc.m_Location -= *(upper - 1);
 	std::ptrdiff_t refId = ((upper - 1) - refStartPos) * ((DualStrand) ? 2 : 1);
 
-	//Log.Message("Location: %u - Upper: %u - Location: %d, RefId: %d ", m_Location.m_Location, *(upper - 1), loc.m_Location, refId);
+	Log.Verbose("Location: %u - Upper: %u - Location: %d, RefId: %d ", m_Location.m_Location, *(upper - 1), loc.m_Location, refId);
 	loc.setRefId(refId);
 	m_Location = loc;
 	return true;

@@ -108,8 +108,31 @@ void ScoreBuffer::DoRun() {
 
 			if (Config.Exists(ARGOS)) {
 				if (++cur_read->Calculated == cur_read->numScores()) {
-					std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
-					computeMQ(cur_read);
+
+					//Filter min score
+					float const minScore = 500.0f;
+					LocationScore * tmp = new LocationScore[cur_read->numScores()];
+					int tmpIndex = 0;
+					for(int j = 0; j < cur_read->numScores(); ++j) {
+						if(cur_read->Scores[j].Score.f >= minScore) {
+							tmp[tmpIndex++] = cur_read->Scores[j];
+						}
+					}
+					if(tmpIndex > 0) {
+						Log.Message("%s: %d %d", cur_read->name, cur_read->numScores(), tmpIndex);
+						cur_read->clearScores(-1);
+						cur_read->AllocScores(tmp, tmpIndex);
+						std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
+						for(int x = 0; x < cur_read->numScores(); ++x) {
+							std::cout << cur_read->Scores[x].Score.f << " ";
+						}
+						std::cout << std::endl;
+						computeMQ(cur_read);
+					} else {
+						Log.Message("%s no candidates!!", cur_read->name);
+					}
+					delete[] tmp; tmp = 0;
+
 					out->addRead(cur_read, -1);
 				}
 			} else {

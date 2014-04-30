@@ -143,22 +143,22 @@ void MappedRead::AllocScores(LocationScore * tmp, int const n) {
 //	return toInsert;
 //}
 
-LocationScore * MappedRead::AddScore(float const score, uint const loc,
-		bool const reverse) {
-//	Log.Error("AddScore");
-	throw "";
-	iScores += 1;
-	LocationScore * toInsert = &Scores[iScores - 1];
-	toInsert->Score.f = score;
-	toInsert->Location.m_Location = loc;
-	toInsert->Location.setReverse(reverse);
-//	toInsert->Read = this;
-	return toInsert;
-	//LocationScore * toInsert = new LocationScore(loc, reverse, score, this);
-	//toInsert->Read = this;
-	//Scores.push_back(toInsert);
-	//return toInsert;
-}
+//LocationScore * MappedRead::AddScore(float const score, uint const loc,
+//		bool const reverse) {
+////	Log.Error("AddScore");
+//	throw "";
+//	iScores += 1;
+//	LocationScore * toInsert = &Scores[iScores - 1];
+//	toInsert->Score.f = score;
+//	toInsert->Location.m_Location = loc;
+//	toInsert->Location.setReverse(reverse);
+////	toInsert->Read = this;
+//	return toInsert;
+//	//LocationScore * toInsert = new LocationScore(loc, reverse, score, this);
+//	//toInsert->Read = this;
+//	//Scores.push_back(toInsert);
+//	//return toInsert;
+//}
 
 void MappedRead::reallocScores(int const n) {
 	if (Scores != 0) {

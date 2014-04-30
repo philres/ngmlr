@@ -59,9 +59,9 @@ public:
 	~MappedRead();
 
 	// Saves score to this Read and returns a pointer to the saved object
-	LocationScore * AddScore(CSTableEntry const & score);
-	LocationScore * AddScore(float const score, uint const loc,
-			bool const reverse);
+	//LocationScore * AddScore(CSTableEntry const & score);
+//	LocationScore * AddScore(float const score, uint const loc,
+//			bool const reverse);
 
 	void reallocScores(int const n);
 	void clearScores(int const TopScore = -1);
