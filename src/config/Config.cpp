@@ -490,11 +490,9 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("no_progress", 0);
 		Default("pe_delimiter", "/");
 
-		Default(ARGOS, 1);
+		//Default(ARGOS, 1);
 
 #ifdef DEBUGLOG
-	//Default("log", "ngm-log.txt.gz");
-
 //	Default("log_lvl", "16383");
 //	Default("log_lvl", "255");
 	Default(LOG_LVL, "0");
