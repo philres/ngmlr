@@ -94,7 +94,6 @@ int main(int argc, char * argv[]) {
 
 	Log.Message("Starting time: %s", currentDateTime().c_str());
 
-
 	//try {
 	Timer tmr;
 	tmr.ST();
@@ -107,8 +106,18 @@ int main(int argc, char * argv[]) {
 	try {
 		_config = new _Config(argc, argv); // Parses command line & parameter file
 		_log = &Log;
-		_Log::Init(); // Inits logging to file
-	} catch(...) {
+		char const * log = 0;
+
+#ifdef DEBUGLOG
+		if(Config.Exists(LOG)) {
+			log = Config.GetString(LOG);
+			Log.Message("Writing debug log to: %s (lvl %d)", log, Config.GetInt(LOG_LVL));
+		}
+		_Log::Init(log, Config.GetInt(LOG_LVL)); // Inits logging to file
+#else
+		_Log::Init(0, 0); // Inits logging to file
+#endif
+	} catch (...) {
 		Help();
 	}
 

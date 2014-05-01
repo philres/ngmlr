@@ -490,6 +490,16 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("no_progress", 0);
 		Default("pe_delimiter", "/");
 
+		Default(ARGOS, 1);
+
+#ifdef DEBUGLOG
+	//Default("log", "ngm-log.txt.gz");
+
+//	Default("log_lvl", "16383");
+//	Default("log_lvl", "255");
+	Default(LOG_LVL, "0");
+#endif
+
 		initialized = true;
 
 		if (Exists(MAX_C_INDELS)) {
@@ -511,8 +521,6 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		} else {
 			Default("format", 1);
 		}
-
-		Default(ARGOS, 1);
 
 		//Add full command line for CIGARWriter
 		std::stringstream cmdLine;
@@ -590,7 +598,6 @@ void _Config::ParseArguments(int argc, char * argv[]) {
 							}
 						}
 						arrayData << " " << optarg << " }";
-						Log.Verbose("%s", arrayData.str().c_str());
 
 						std::stringstream value;
 						value << elementCount;

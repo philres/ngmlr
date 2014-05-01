@@ -5,9 +5,6 @@
  *      Author: philipp_
  */
 
-//#define _TEST
-//#define _DEBUG
-
 #include "OclHost.h"
 #include "SWOclCigar.h"
 #include "SWOclAlignment.h"
@@ -44,34 +41,25 @@ extern "C" dllexport IAlignment * CreateAlignment(int const mode) {
 	dev_type = CL_DEVICE_TYPE_CPU;
 #else
 #endif
-#ifndef NDEBUG
-	Log.Error("Mode: %d GPU: %d", mode, mode & 0xFF);
-#endif
+	Log.Verbose("Mode: %d GPU: %d", mode, mode & 0xFF);
 	OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt(
 			"ocl_threads"));
 
 	SWOcl * instance = 0;
 
-//#ifndef NDEBUG
-		//Log.Error("Alignment mode: %d", mode);
-//#endif
 	int ReportType = (mode >> 8) & 0xFF;
 	switch (ReportType) {
 	case 0:
-#ifndef NDEBUG
-		Log.Message("Output: text");
-#endif
+		Log.Verbose("Output: text");
 		instance = new SWOclAlignment(host);
-		//			instance = new SWOclCigar(host);
 		break;
 	case 1:
-#ifndef NDEBUG
-		Log.Message("Output: cigar");
-#endif
+		Log.Verbose("Output: cigar");
 		instance = new SWOclCigar(host);
 		break;
 	default:
 		Log.Error("Unsupported report type %i", mode);
+		break;
 	}
 	return instance;
 }
@@ -82,9 +70,7 @@ extern "C" dllexport void ExternalDeleteString(char* mem) {
 
 extern "C" dllexport void DeleteAlignment(SWOcl* instance) {
 	OclHost * host = instance->getHost();
-#ifndef NDEBUG
-	Log.Message("Delete alignment called");
-#endif
+	Log.Verbose("Delete alignment called");
 	if (instance != 0) {
 		delete instance;
 		instance = 0;

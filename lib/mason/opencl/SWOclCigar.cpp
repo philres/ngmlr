@@ -35,7 +35,7 @@ SWOclCigar::SWOclCigar(OclHost * host) :
 				" -D result_number=4 -D CIGAR_M=0 -D CIGAR_I=1 -D CIGAR_D=2 -D CIGAR_N=3 -D CIGAR_S=4 -D CIGAR_H=5 -D CIGAR_P=6 -D CIGAR_EQ=7 -D CIGAR_X=8 ",
 				host) {
 	batch_size_align = computeAlignmentBatchSize();
-	Log.Verbose("Batchsize (alignment): %d", batch_size_align);
+	Log.Debug(LOG_INFO, "Batchsize (alignment): %d", batch_size_align);
 	swAlignScoreKernel = host->setupKernel(clProgram, "oclSW_Score");
 	swAlignScoreKernelGlobal = host->setupKernel(clProgram, "oclSW_ScoreGlobal");
 	swAlignBacktrackingKernel = host->setupKernel(clProgram, "oclSW_Backtracking");
@@ -173,15 +173,13 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 	switch ((mode & 0xFF)) {
 		case 0: {
 
-			Log.Verbose("Alignment mode: local");
+			Log.Debug(LOG_INFO, "Alignment mode: local");
 
 			scoreKernel = swAlignScoreKernel;
 		}
 		break;
 		case 1:
-//#ifndef NDEBUG
-			Log.Verbose("Alignment mode: end-free");
-//#endif
+			Log.Debug(LOG_INFO, "Alignment mode: end-free");
 			scoreKernel = swAlignScoreKernelGlobal;
 		break;
 		default:
@@ -247,15 +245,9 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 	short * calignments = new short[batchSize * alignment_length * 2];
 	short * gpu_return_values = new short[result_number * batchSize];
 
-	Timer gpuTimer;
-	gpuTimer.ST();
 	runSwBatchKernel(scoreKernel, batchSize, qrySeqList, refSeqList, (char *) extData, results_gpu, alignments_gpu, gpu_return_values,
 			calignments, matrix_gpu, bsdirection_gpu);
 
-	Log.Verbose("GPU Time: %.3fs", gpuTimer.ET());
-
-	Timer cpuTimer;
-	cpuTimer.ST();
 	for (int i = 0; i < batchSize_; ++i) {
 		short * gpuCigar = calignments + i * alignment_length * 2;
 		//results[i].pCigar = new char[alignment_length];
@@ -275,29 +267,24 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 		}
 		results[i].PositionOffset = gpu_return_values[offset + k];
 	}
-	Log.Verbose("CPU Time: %.3fs", cpuTimer.ET());
 
 	delete[] calignments;
 	calignments = 0;
 	delete[] gpu_return_values;
 	gpu_return_values = 0;
 
-#ifndef NDEBUG
 	Log.Verbose("Releasing results.");
-#endif
 	clReleaseMemObject(results_gpu);
-#ifndef NDEBUG
+
 	Log.Verbose("Releasing alignments.");
-#endif
 	clReleaseMemObject(alignments_gpu);
-#ifndef NDEBUG
+
 	Log.Verbose("Releasing matrix.");
-#endif
 	clReleaseMemObject(matrix_gpu);
+
 	if (host->isGPU()) {
-#ifndef NDEBUG
 		Log.Verbose("Releasing scaff.");
-#endif
+
 		clReleaseMemObject(c_scaff_gpu);
 		if (bsMapping) {
 			clReleaseMemObject(bsdirection_gpu);
@@ -313,9 +300,7 @@ int SWOclCigar::BatchAlign(int const mode, int const batchSize_, char const * co
 //		delete[] qrySeqList[i];
 //	}
 //	delete[] qrySeqList;
-#ifndef NDEBUG
 	Log.Verbose("SW finished computing alignments for %d sequences (elapsed: %.3fs)", batchSize_, timer.ET());
-#endif
 
 	delete[] tmpRefSeqList;
 	delete[] tmpQrySeqList;
@@ -555,19 +540,15 @@ int SWOclCigar::computeAlignmentBatchSize() {
 		while (!host->testAllocate(largest_alloc)) {
 			block_count -= mpCount;
 			largest_alloc = getMaxAllocSize(block_count * threads_per_block);
-#ifndef NDEBUG
-			Log.Warning("Reducing batch size to %d", block_count * threads_per_block);
-#endif
+			Log.Verbose("Reducing batch size to %d", block_count * threads_per_block);
 		}
 
-#ifndef NDEBUG
-		Log.Message("Multi processor count: %d", mpCount);
-		Log.Message("Max. threads per multi processor: %d", host->getThreadPerMulti());
-		Log.Message("Threads per block used: %d", threads_per_block);
-		Log.Message("Block number: %d", block_count);
-		Log.Message("Batch size: %d", (block_count * threads_per_block));
+		Log.Verbose("Multi processor count: %d", mpCount);
+		Log.Verbose("Max. threads per multi processor: %d", host->getThreadPerMulti());
+		Log.Verbose("Threads per block used: %d", threads_per_block);
+		Log.Verbose("Block number: %d", block_count);
+		Log.Verbose("Batch size: %d", (block_count * threads_per_block));
 		//TODO: Print debug info
-#endif
 
 		return block_count * threads_per_block;
 	} else {

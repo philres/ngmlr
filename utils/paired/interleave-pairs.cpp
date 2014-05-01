@@ -298,7 +298,7 @@ int interleave_pairs(int argc, char **argv) {
 		//Log.Message("Interleave %s and %s to %s (delimiter %c)", leftArg.getValue().c_str(), rightArg.getValue().c_str(), outArg.getValue().c_str(), delimiterArg.getValue());
 
 		_log = &Log;
-		_Log::Init(); // Inits logging to file
+		_Log::Init(0, 0); // Inits logging to file
 
 		seperator = delimiterArg.getValue();
 

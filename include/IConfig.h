@@ -38,6 +38,12 @@ static char const * const MAX_C_INDELS =	    "max_consec_indels";
 static char const * const ARGOS =		 	    "argos";
 
 
+#ifdef DEBUGLOG
+static char const * const LOG =			 	"log";
+static char const * const LOG_LVL =			 	"log_lvl";
+#endif
+
+
 class IConfig
 {
 public:

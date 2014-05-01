@@ -14,9 +14,6 @@
 #include "ILog.h"
 #include "IConfig.h"
 
-//#define _DEBUG
-//#define _TEST
-
 #undef module_name
 #define module_name "Score (OpenCL)"
 

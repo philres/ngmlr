@@ -28,7 +28,6 @@ file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 #add_definitions(-D _DEBUGOUT)
 #add_definitions(-D _DEBUGCSKMERS)
 #add_definitions(-D _DEBUGRP)
-
 #Print bed file with all CMRs
 #add_definitions(-D _DEBUGCMRS)
 
@@ -39,10 +38,12 @@ IF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 	SET(CMAKE_BUILD_TYPE Release)
 ENDIF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 
-SET (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'\$ORIGIN/amd-app-sdk/'")
-SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -Wall -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'\$ORIGIN/amd-app-sdk/'")
+#SET (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'\$ORIGIN/amd-app-sdk/'")
+#SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -Wall -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'\$ORIGIN/amd-app-sdk/'")
 
-#include(FindOpenMP)
+SET (CMAKE_CXX_FLAGS_RELEASE "-L${EXECUTABLE_OUTPUT_PATH}/opencl/lib")
+SET (CMAKE_CXX_FLAGS_DEBUG "-L${EXECUTABLE_OUTPUT_PATH}/opencl/lib")
+
 FIND_PACKAGE(OpenMP REQUIRED)
 if(OPENMP_FOUND)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -50,43 +51,20 @@ if(OPENMP_FOUND)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-#FIND_PACKAGE(OpenCL REQUIRED)
-#if(OPENCL_FOUND)
-#	MESSAGE(STATUS "OpenCL include dir: ${OPENCL_INCLUDE_DIRS}")
-#endif()
+
 add_subdirectory(opencl-sdk)
+
 set(OPENCL_LIBRARIES " -lOpenCL")
-
-#FIND_PACKAGE(ZLIB REQUIRED)
-#FIND_PACKAGE(Bamtools QUIET COMPONENTS)
-
-#ADD_DEFINITIONS(-g -O3)
-
-    #SET (CMAKE_EXE_LINKER_FLAGS
-    #"${CMAKE_EXE_LINKER_FLAGS} -L${PROJECT_SOURCE_DIR}/bin/openecl/lib -Wl,-rpath,'$ORIGIN/amd-app-sdk/'" )
-
-    #SET (CMAKE_SHARED_LINKER_FLAGS
-    #"${CMAKE_SHARED_LINKER_FLAGS} -L${PROJECT_SOURCE_DIR}/bin/opencl/lib -Wl,-rpath,'$ORIGIN/amd-app-sdk'" )
-
-#SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'" )
-#SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN:$ORIGIN/amd-app-sdk'" )
-#SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN/mason:$ORIGIN/amd-app/lib/x86_64'" )
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/lib/zlib-1.2.7")
 include_directories("${PROJECT_SOURCE_DIR}/lib/zlib-1.2.7")
 
 add_subdirectory(lib/zlib-1.2.7)
-#add_subdirectory(lib/bamtools-2.2.3)
 add_subdirectory(lib/bamtools-2.3.0)
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/opencl-sdk/AMD-APP-SDK-v2.8.1.0-RC-lnx64/include")
-#LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/bin/amd-app-sdk")
-#include_directories(${OPENCL_INCLUDE_DIRS})
 
 add_subdirectory(lib/mason/opencl)
 add_subdirectory(src)
-
-#add_subdirectory("lib/libStatGen-1.0.9")
-#include_directories("${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.9/libStatGen_1.0.9/include")
 
 add_subdirectory(utils)

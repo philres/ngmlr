@@ -121,7 +121,7 @@ int kmer_distribution(int argc, char **argv) {
 		_config = new _Config(argc, argv, false); // Parses command line & parameter file
 
 		_log = &Log;
-		_Log::Init(); // Inits logging to file
+		_Log::Init(0,0); // Inits logging to file
 
 		((_Config*) _config)->Default("bs_mapping", 0);
 		((_Config*) _config)->Default("skip_save", 0);

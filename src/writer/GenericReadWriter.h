@@ -34,9 +34,12 @@ public:
 protected:
 
 	virtual void DoWriteProlog() = 0;
-	virtual void DoWriteRead(MappedRead const * const read, int const scoreID) = 0;
-	virtual void DoWritePair(MappedRead const * const read1, int const scoreId1, MappedRead const * const read2, int const scoreId2) = 0;
-	virtual void DoWriteUnmappedRead(MappedRead const * const read, int flags = 0x4) = 0;
+	virtual void DoWriteRead(MappedRead const * const read,
+			int const scoreID) = 0;
+	virtual void DoWritePair(MappedRead const * const read1, int const scoreId1,
+			MappedRead const * const read2, int const scoreId2) = 0;
+	virtual void DoWriteUnmappedRead(MappedRead const * const read, int flags =
+			0x4) = 0;
 	virtual void DoWriteEpilog() = 0;
 
 	float identity;
@@ -51,16 +54,13 @@ protected:
 
 	int Print(const char *format, ...) {
 		int done;
-//		NGMLock(&m_OutputMutex);
 		va_list arg;
 
 		va_start(arg, format);
 		done = vsprintf(writeBuffer + bufferPosition, format, arg);
 		bufferPosition += done;
 		va_end(arg);
-//		NGMUnlock(&m_OutputMutex);
 		return done;
-
 	}
 
 private:
@@ -93,31 +93,37 @@ public:
 
 					mapped = mapped && (read->Alignments[i].Identity >= minIdentity);
 					mapped = mapped && ((float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd) >= minResidues);
-					//Log.Message("R: %f >= %f", (read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd), minResidues);
+
+					Log.Debug(4, "READ_%d\tOUTPUT\tChecking alignment CRM_%d\t%f >= %f\t%f >= %f", read->ReadId, i, read->Alignments[i].Identity, minIdentity, (float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd), minResidues);
 
 					if (mapped) {
 						mappedOnce = true;
 						if (iTable.find(read->Scores[i].Location) == iTable.end()) {
 							iTable[read->Scores[i].Location] = true;
+							Log.Debug(4, "READ_%d\tOUTPUT\tWriting alignment CRM_%d", read->ReadId, i);
 							DoWriteRead(read, i);
 						} else {
-							Log.Verbose("Ignoring duplicated alignment %d for read %s.", i, read->name);
+							Log.Debug(4, "READ_%d\tOUTPUT\tIgnoring duplicated alignment CRM_%d", read->ReadId, i);
 						}
 					}
 				}
+
 				if (mappedOnce) {
+					Log.Debug(4, "READ_%d\tOUTPUT\tRead was mapped", read->ReadId);
 					NGM.AddMappedRead(read->ReadId);
 				} else {
 					if(read->HasFlag(NGMNames::Empty)) {
-						Log.Verbose("Empty read found: %s. Read will be discarded and not written to output.", read->name);
+						Log.Debug(4, "READ_%d\tOUTPUT\tRead empty (discard read)", read->ReadId);
 					} else {
+						Log.Debug(4, "READ_%d\tOUTPUT\tRead unmapped", read->ReadId);
 						DoWriteUnmappedRead(read);
 					}
 				}
 			} else {
 				if(read->HasFlag(NGMNames::Empty)) {
-					Log.Verbose("Empty read found: %s. Read will be discarded and not written to output.", read->name);
+					Log.Debug(4, "READ_%d\tOUTPUT\tRead empty (discard read)", read->ReadId);
 				} else {
+					Log.Debug(4, "READ_%d\tOUTPUT\tRead unmapped", read->ReadId);
 					DoWriteUnmappedRead(read);
 				}
 			}
@@ -126,7 +132,7 @@ public:
 
 	void WritePair(MappedRead * const read1, int const scoreId1, MappedRead * const read2, int const scoreId2) {
 		if(read1->HasFlag(NGMNames::Empty) || read2->HasFlag(NGMNames::Empty)) {
-			Log.Verbose("Empty read found in pair: %s/%s. Both reads will be discarded and not written to output.", read1->name, read2->name);
+			Log.Debug(LOG_OUTPUT_DETAILS, "Empty read found in pair: %s/%s. Both reads will be discarded and not written to output.", read1->name, read2->name);
 		} else {
 
 			//TODO: fix paired end!!! MULTI MAP!

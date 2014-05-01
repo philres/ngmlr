@@ -113,7 +113,6 @@ int const CreateMapping(char const * const filename, char const * &pData) {
 	}
 
 	mappings()[fd] = std::pair<char const*, ulong>(pData, len);
-	Log.Verbose("Created mapping %i for %s (len %li)", fd, filename, len); // TODO verbose
 
 	return fd;
 }
@@ -139,7 +138,6 @@ void Remap(int const mapping, char const * & pData)
 	void const * addr = mappings()[mapping].first;
 	ulong len = mappings()[mapping].second;
 
-	Log.Verbose("Remapping %i", mapping);
 	int ret = munmap((void*) addr, len);
 
 	if (ret != 0)
@@ -155,10 +153,8 @@ void Remap(int const mapping, char const * & pData)
 	}
 }
 void CloseMapping(int const mapping) {
-	Log.Verbose("Closing mapping %i", mapping);
 	munmap((void*) mappings()[mapping].first, mappings()[mapping].second);
 	close(mapping);
-	Log.Verbose("Mapping %i closed", mapping);
 }
 
 //bool CheckDLL(char const * const filename) {

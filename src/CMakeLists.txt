@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(NextGenMap)
 
-#include_directories (${CMAKE_BINARY_DIR}/lib/libStatGen_1.0.9/include)
 include_directories (../lib/seqan-library-1.4.1/include)
 include_directories (../lib/bamtools/src/api)
 include_directories (../lib/mason/opencl)
@@ -41,51 +40,55 @@ add_executable(ngm-core
 					core/unix.cpp
 					core/unix_threads.cpp
 					core/windows_threads.cpp
+					core/windows.cpp)										
+					
+ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/NGM_main.cpp")
+
+SET_TARGET_PROPERTIES(ngm-core PROPERTIES COMPILE_FLAGS "-g -O3 -DNDEBUG")
+
+target_link_libraries(ngm-core pthread)
+target_link_libraries(ngm-core MASonOpenCl)	
+TARGET_LINK_LIBRARIES(ngm-core BamTools-static)
+TARGET_LINK_LIBRARIES(ngm-core zlibstatic)
+	
+add_definitions(-D _BAM) 
+
+
+add_executable(ngm-core-debug	
+					parser/BamParser.cpp
+					writer/BAMWriter.cpp																	
+					config/Config.cpp					
+					CS.cpp					
+					CSstatic.cpp
+					misc/Debug.cpp													
+					log/Logging.cpp
+					MappedRead.cpp
+					NGM_main.cpp
+					NGM.cpp
+					core/NGMStats.cpp
+					core/NGMTask.cpp
+					AlignmentBuffer.cpp
+					PrefixTable.cpp														
+					ReadProvider.cpp
+					parser/SamParser.cpp
+					writer/SAMWriter.cpp
+					writer/ScoreWriter.cpp
+					seqan/EndToEndAffine.cpp
+					SequenceProvider.cpp					
+					ScoreBuffer.cpp
+					core/unix.cpp
+					core/unix_threads.cpp
+					core/windows_threads.cpp
 					core/windows.cpp)
 
 
-ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/NGM_main.cpp")
 
-	#STATIC
-    #set(CMAKE_EXE_LINKER_FLAGS -static) 
-    
-    #set(CMAKE_EXE_LINKER_FLAGS " -static-libgcc -static-libstdc++")
-    #set(CMAKE_FIND_LIBRARY_SUFFIXES .a) 
-    #set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)       # remove -Wl,-Bdynamic 
-    #set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS) 
-    #set(CMAKE_SHARED_LIBRARY_C_FLAGS)         # remove -fPIC 
-    #set(CMAKE_SHARED_LIBRARY_CXX_FLAGS) 
-    #set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)    # remove -rdynamic 
-    #set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
-     
-    # Maybe this works as well, haven't tried yet. 
-	#set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS FALSE) 
-	#target_link_libraries(ngm-core /scratch/philipp/src/zlib-1.2.7/zlib/lib/libz.a)
-	
+set_target_properties(ngm-core-debug PROPERTIES COMPILE_DEFINITIONS "DEBUGLOG")
 
-#target_link_libraries(ngm-core z)					
-#target_link_libraries(ngm-core dl)
-target_link_libraries(ngm-core pthread)
-target_link_libraries(ngm-core MASonOpenCl)
-#TARGET_LINK_LIBRARIES(ngm-core ${CMAKE_BINARY_DIR}/lib/libStatGen-1.0.9/libStatGen_1.0.9/libStatGen.a)
-#target_link_libraries(ngm-core /software/ngm/src/bamtools/lib/libbamtools.a)	
+SET_TARGET_PROPERTIES(ngm-core-debug PROPERTIES COMPILE_FLAGS "-g3 -O0")
 
-#if( ${BAMTOOLS_FOUND} )		
-	#ADD_LIBRARY(bamtools STATIC)
-	#SET_TARGET_PROPERTIES(bamtools PROPERTIES IMPORTED_LOCATION ${BAMTOOLS_LIBRARY})
-	#include_directories(${BAMTOOLS_INCLUDE_DIRS})
-	TARGET_LINK_LIBRARIES(ngm-core BamTools-static)
-	TARGET_LINK_LIBRARIES(ngm-core zlibstatic)
-	#TARGET_LINK_LIBRARIES(ngm-core zlib)
-	
-	add_definitions(-D _BAM) 
-#endif()
-
-#find_library(HOARD hoard)
-#if(HOARD) 
-#	message(" --Found libhoard: ${HOARD}")	
-#	target_link_libraries(ngm-core ${HOARD})
-#else()
-#	message(" --Libhoard not found!")	
-#endif()		
+target_link_libraries(ngm-core-debug pthread)
+target_link_libraries(ngm-core-debug MASonOpenCl-debug)	
+TARGET_LINK_LIBRARIES(ngm-core-debug BamTools-static)
+TARGET_LINK_LIBRARIES(ngm-core-debug zlibstatic)
 

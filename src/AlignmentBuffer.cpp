@@ -13,6 +13,31 @@ void AlignmentBuffer::flush() {
 	nReads = 0;
 }
 
+void AlignmentBuffer::debugAlgnFinished(MappedRead * read) {
+	Log.Debug(32, "READ_%d\tALGN\tAll alignments computed (%d)", read->ReadId, read->numScores());
+
+	if(read->numScores() > 0) {
+		for(int i = 0; i < read->numScores(); ++i) {
+
+			LocationScore score = read->Scores[i];
+			Align align = read->Alignments[i];
+
+			SequenceLocation loc = score.Location;
+			SequenceProvider.convert(loc);
+
+			int refNameLength = 0;
+			Log.Debug(128, "READ_%d\tALGN_RESULTS\tCMR_%d\t%f\t%f\t%d\t%s\t%s\t%d\t%s", read->ReadId, i, score.Score.f, align.Identity, align.NM, align.pBuffer1, align.pBuffer2, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength));
+		}
+
+	}
+
+#ifdef _DEBUGCMRS
+	SequenceLocation rloc = SequenceProvider.convert(cur_read, cur_read->Scores[scoreId].Location.m_Location);
+	int refNameLength = 0;
+	fprintf(cmrBed, "%s\t%d\t%d\t%s_%d\t%f\t%c\n", SequenceProvider.GetRefName(rloc.getrefId(), refNameLength), rloc.m_Location - (corridor >> 1), rloc.m_Location - (corridor >> 1) + refMaxLen, cur_read->name, scoreId, cur_read->Scores[scoreId].Score.f, (rloc.isReverse()) ? '-' : '+');
+#endif
+}
+
 void AlignmentBuffer::addRead(MappedRead * read, int scoreID) {
 	if (Config.Exists(ARGOS)) {
 		SaveRead(read, read->hasCandidates());
@@ -22,6 +47,7 @@ void AlignmentBuffer::addRead(MappedRead * read, int scoreID) {
 			//read->clearScores(-1);
 			SaveRead(read, false);
 		} else {
+			Log.Debug(512, "READ_%d\tALGN_BUFFER\tCMR_%d %f (location %u) added to alignment buffer at position %d", read->ReadId, scoreID, read->Scores[scoreID].Score.f, read->Scores[scoreID].Location.m_Location, nReads);
 			//add alignment computations to buffer. if buffer is full, submit to CPU/GPU
 			reads[nReads].scoreId = scoreID;
 			reads[nReads++].read = read;
@@ -36,10 +62,9 @@ void AlignmentBuffer::addRead(MappedRead * read, int scoreID) {
 void AlignmentBuffer::DoRun() {
 
 	int count = nReads;
-	Timer tmr;
-	tmr.ST();
 
 	if (count > 0) {
+		Log.Debug(32, "INFO\tALGN\tSubmitting %d alignment computations.", count);
 		Timer tmr;
 		tmr.ST();
 		alignmentCount += count;
@@ -72,10 +97,6 @@ void AlignmentBuffer::DoRun() {
 			SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), 0,
 					cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), refMaxLen);
 
-			//Log.Message("1: %s", refBuffer[i]);
-			//memset(const_cast<char *>(refBuffer[i] + corridor + cur_read->length), '\0', refMaxLen - (corridor + cur_read->length));
-			//Log.Message("2: %s", refBuffer[i]);
-
 			//initialize arrays for CIGAR and MD string
 			static int const qryMaxLen = Config.GetInt("qry_max_len");
 			alignBuffer[i].pBuffer1 = new char[std::max(1, qryMaxLen) * 4];
@@ -85,18 +106,14 @@ void AlignmentBuffer::DoRun() {
 
 		}
 
-		Log.Verbose("Thread %i invoking alignment (count = %i)", 0, count);
 		//start alignment
-		Timer x;
-		x.ST();
 		int aligned = aligner->BatchAlign(alignmode | (std::max(outputformat, 1) << 8), count, refBuffer, qryBuffer, alignBuffer,
 				(m_EnableBS) ? m_DirBuffer : 0);
 
-		if (aligned == count) {
-			Log.Verbose("Output Thread %i finished batch (Size = %i, Elapsed: %.2fs)", 0, count, x.ET());
-		} else {
-			Log.Error("Error aligning outputs (%i of %i aligned)", aligned, count);
-		}
+		Log.Debug(32, "INFO\tALGN\t%d alignments computed (out of %d)", aligned, count);
+
+		if (aligned != count)
+		Log.Error("Error aligning outputs (%i of %i aligned)", aligned, count);
 
 		//process results
 		for (int i = 0; i < aligned; ++i) {
@@ -106,34 +123,22 @@ void AlignmentBuffer::DoRun() {
 
 			assert(cur_read->hasCandidates());
 			cur_read->Scores[scoreID].Location.m_Location += alignBuffer[i].PositionOffset - (corridor >> 1);
-//					Log.Message("%s: %d %d %f -> %s, %s", cur_read->name, cur_read->QStart, cur_read->QEnd, cur_read->Identity, cur_read->Buffer1, cur_read->Buffer2);
-
-#ifdef _DEBUGOUT
-			Log.Message("Read:   %s", cur_read->name);
-			Log.Message("Score:  %f", cur_read->Scores[scoreID].Score.f);
-			Log.Message("Seq:    %s", cur_read->Seq);
-			Log.Message("Length: %d", cur_read->length);
-			Log.Message("CIGAR:  %s", alignBuffer[i].pBuffer1);
-			Log.Message("MD:     %s", alignBuffer[i].pBuffer2);
-			Log.Message("Ident:  %f", alignBuffer[i].Identity);
-#endif
 
 			cur_read->Alignments[scoreID] = alignBuffer[i];
 
-			//Log.Message("%d %f", cur_read->length, cur_read->Alignments[scoreID].Score);
+			Log.Debug(2048, "READ_%d\tALGN_DETAILS\tCMR_%d\t%f\t%f\t%d\t%.*s\t%s", cur_read->ReadId, scoreID, cur_read->Scores[scoreID].Score.f, alignBuffer[i].Identity, alignBuffer[i].NM, refMaxLen, refBuffer[i], qryBuffer[i]);
 
 			if ((cur_read->Calculated - 1) == scoreID) {
-#ifdef _DEBUGOUT
-				Log.Message("Process aligned read. Equal: %i, ReadId: %i, numScore: %d, calculated: %d, (%s)",cur_read->numTopScores, cur_read->ReadId, cur_read->numScores(), cur_read->Calculated, cur_read->name);
-#endif
+
+				debugAlgnFinished(cur_read);
+
 				SaveRead(cur_read);
 			}
 
 		}
-		Log.Verbose("Output Thread %i finished batch in %.2fs", 0, tmr.ET());
 		alignTime = tmr.ET();
 	} else {
-		Log.Verbose("Nothing to do...waiting");
+		Log.Debug(1, "INFO\tALGN\tEmpty buffer submitted.");
 	}
 }
 
@@ -155,14 +160,21 @@ void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 					LocationScore * ls2 = &read->Paired->Scores[0];
 					int distance =
 							(ls2->Location.m_Location > ls1->Location.m_Location) ?
-									ls2->Location.m_Location - ls1->Location.m_Location + read->length :
-									ls1->Location.m_Location - ls2->Location.m_Location + read->Paired->length;
+									ls2->Location.m_Location
+											- ls1->Location.m_Location
+											+ read->length :
+									ls1->Location.m_Location
+											- ls2->Location.m_Location
+											+ read->Paired->length;
 
 					//int distance = abs(read->TLS()->Location.m_Location - read->Paired->TLS()->Location.m_Location);
 
 					pairInsertCount += 1;
-					if (ls1->Location.getrefId() != ls2->Location.getrefId() || distance < _NGM::sPairMinDistance
-							|| distance > _NGM::sPairMaxDistance || ls1->Location.isReverse() == ls2->Location.isReverse()) {
+					if (ls1->Location.getrefId() != ls2->Location.getrefId()
+							|| distance < _NGM::sPairMinDistance
+							|| distance > _NGM::sPairMaxDistance
+							|| ls1->Location.isReverse()
+									== ls2->Location.isReverse()) {
 //						Log.Message("%d != %d || %d < _%d || %d > %d || %d == %d", ls1->Location.getrefId() , ls2->Location.getrefId(), distance, _NGM::sPairMinDistance, distance, _NGM::sPairMaxDistance, ls1->Location.isReverse(), ls2->Location.isReverse());
 						read->SetFlag(NGMNames::PairedFail);
 						read->Paired->SetFlag(NGMNames::PairedFail);
