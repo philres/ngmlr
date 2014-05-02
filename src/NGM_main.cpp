@@ -147,11 +147,6 @@ int main(int argc, char * argv[]) {
 					Log.Message("Estimated insert size: %d bp", (int)NGM.Stats->insertSize);
 				}
 				Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
-#ifdef INSTANCE_COUNTING
-				Log.Green("Counts:");
-				Log.Message("MappedRead count = %i (max %i)", MappedRead::sInstanceCount, MappedRead::maxSeqCount);
-				Log.Message("LocationScore count = %i", LocationScore::sInstanceCount);
-#endif
 				int discarded = NGM.GetReadReadCount() - (NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount());
 				if (discarded != 0) {
 					Log.Warning("Reads discarded: %d", discarded);
