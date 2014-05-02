@@ -86,6 +86,7 @@ static const struct option long_options[] =
 		{ "log-lvl",      				required_argument, 0, 0 },
 #endif
 		{ "argos",   	  		        no_argument,       0, 0 },
+		{ "argos-min-score",			required_argument, 0, 0 },
 	0 };
 
 #endif /* OPTIONS_H_ */

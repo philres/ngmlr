@@ -79,13 +79,16 @@ private:
 
 	float scoreTime;
 
+	bool argos;
+	float argosMinScore;
+
 public:
 	static ulong scoreCount;
 
 	ScoreBuffer(IAlignment * mAligner, AlignmentBuffer * mOut) :
 			m_AlignMode(Config.GetInt(MODE, 0, 1)), pairDistCount(1), pairDistSum(0), brokenPairs(0), pairScoreCutoff(Config.GetFloat("pair_score_cutoff")), maxTopScores(Config.GetInt("topn")), topScoresOnly(
 					Config.GetInt("strata")), isPaired(Config.GetInt("paired") != 0), fastPairing(Config.GetInt("fast_pairing") == 1), aligner(
-					mAligner), out(mOut), swBatchSize(aligner->GetScoreBatchSize()) {
+					mAligner), out(mOut), swBatchSize(aligner->GetScoreBatchSize()), argos(Config.Exists(ARGOS)), argosMinScore(Config.GetFloat(ARGOS_MINSCORE)) {
 
 		m_QryBuffer = 0;
 		m_RefBuffer = 0;

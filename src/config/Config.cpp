@@ -491,6 +491,7 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("pe_delimiter", "/");
 
 		//Default(ARGOS, 1);
+		Default(ARGOS_MINSCORE, 0);
 
 #ifdef DEBUGLOG
 //	Default("log_lvl", "16383");

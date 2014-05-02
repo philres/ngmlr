@@ -138,69 +138,66 @@ void ScoreBuffer::DoRun() {
 
 			Log.Debug(1024, "READ_%d\tSCORES_DETAILS\tCMR_%d\t%f\t%.*s\t%s", cur_read->ReadId, scoreId, m_ScoreBuffer[i], refMaxLen, m_RefBuffer[i], m_QryBuffer[i]);
 
-			if (Config.Exists(ARGOS)) {
+			if (!isPaired) {
 				if (++cur_read->Calculated == cur_read->numScores()) {
+					//all scores computed for single end read
+					assert(cur_read->hasCandidates());
 
-					//Filter min score
-					float const minScore = 500.0f;
-					LocationScore * tmp = new LocationScore[cur_read->numScores()];
-					int tmpIndex = 0;
-					for(int j = 0; j < cur_read->numScores(); ++j) {
-						if(cur_read->Scores[j].Score.f >= minScore) {
-							tmp[tmpIndex++] = cur_read->Scores[j];
-						}
-					}
+					if (argos) {
+						if(argosMinScore > 0.0f) {
+							//Filter min score
+							LocationScore * tmp = new LocationScore[cur_read->numScores()];
+							int tmpIndex = 0;
+							for(int j = 0; j < cur_read->numScores(); ++j) {
+								if(cur_read->Scores[j].Score.f >= argosMinScore) {
+									tmp[tmpIndex++] = cur_read->Scores[j];
+								}
+							}
 
-					if(tmpIndex > 0) {
-						Log.Message("%s: %d %d", cur_read->name, cur_read->numScores(), tmpIndex);
-						cur_read->clearScores(-1);
-						cur_read->AllocScores(tmp, tmpIndex);
-						std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
-						for(int x = 0; x < cur_read->numScores(); ++x) {
-							std::cout << cur_read->Scores[x].Score.f << std::endl << cur_read->Scores[x].Location.m_Location << std::endl;
+							cur_read->clearScores();
+
+							if(tmpIndex > 0) {
+								cur_read->AllocScores(tmp, tmpIndex);
+								std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
+								cur_read->Calculated = cur_read->numScores();
+								computeMQ(cur_read);
+							} else {
+								Log.Verbose("%s no candidates!!", cur_read->name);
+							}
+							delete[] tmp; tmp = 0;
+						} else {
+							std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
+							computeMQ(cur_read);
 						}
-						std::cout << std::endl;
-						computeMQ(cur_read);
+
+						out->addRead(cur_read, -1);
 					} else {
-						Log.Message("%s no candidates!!", cur_read->name);
-					}
-					delete[] tmp; tmp = 0;
-
-					out->addRead(cur_read, -1);
-				}
-			} else {
-				if (!isPaired) {
-					if (++cur_read->Calculated == cur_read->numScores()) {
-						//all scores computed for single end read
-						assert(cur_read->hasCandidates());
-
 #ifdef DEBUGLOG
 						debugScoresFinished(cur_read);
 #endif
-
 						if (maxTopScores == 1) {
 							top1SE(cur_read);
 						} else {
 							topNSE(cur_read);
 						}
 					}
-				} else {
-					if (++cur_read->Calculated == cur_read->numScores() && cur_read->Paired->Calculated == cur_read->Paired->numScores()) {
-						//all scores computed for both mates
-						if (maxTopScores == 1) {
-							if (!fastPairing) {
-								if (cur_read->Paired->hasCandidates())
-								top1PE(cur_read);
-								else
-								top1SE(cur_read);
-							} else {
-								top1SE(cur_read);
-								if (cur_read->Paired->hasCandidates())
-								top1SE(cur_read->Paired);
-							}
+				}
+			} else {
+				if (++cur_read->Calculated == cur_read->numScores() && cur_read->Paired->Calculated == cur_read->Paired->numScores()) {
+					//all scores computed for both mates
+					if (maxTopScores == 1) {
+						if (!fastPairing) {
+							if (cur_read->Paired->hasCandidates())
+							top1PE(cur_read);
+							else
+							top1SE(cur_read);
 						} else {
-							topNPE(cur_read);
+							top1SE(cur_read);
+							if (cur_read->Paired->hasCandidates())
+							top1SE(cur_read->Paired);
 						}
+					} else {
+						topNPE(cur_read);
 					}
 				}
 			}

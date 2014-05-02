@@ -33,8 +33,8 @@ public:
 	LocationScore * Scores;
 	Align * Alignments;
 
-	int nScores;
 	int iScores;
+
 	MappedRead * Paired; // Read pair
 	uint Status;
 
@@ -58,19 +58,15 @@ public:
 	MappedRead(int const readid, int const qrymaxlen);
 	~MappedRead();
 
-	// Saves score to this Read and returns a pointer to the saved object
-	//LocationScore * AddScore(CSTableEntry const & score);
-//	LocationScore * AddScore(float const score, uint const loc,
-//			bool const reverse);
-
-	void reallocScores(int const n);
+	void AllocScores(LocationScore * tmp, int const n);
+//	void reallocScores(int const n);
 	void clearScores(int const TopScore = -1);
+
 	int numScores() const;
 
 	bool hasCandidates() const;
 
 	void AllocBuffers();
-	void AllocScores(LocationScore * tmp, int const n);
 
 	inline void SetFlag(ReadStatus const flag) {
 		Status |= flag;
