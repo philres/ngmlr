@@ -26,7 +26,10 @@ public:
 	gzFile m_Output;
 
 	GZFileWriter(char const * const filename) {
-		std::string strFilename = std::string(filename) + ".gz";
+		std::string strFilename = std::string(filename);
+		if(!hasSuffix(strFilename, ".gz")) {
+			strFilename += ".gz";
+		}
 		if (!(m_Output = gzopen(strFilename.c_str(), "wb"))) {
 			Log.Error("Unable to open output file %s", filename);
 			Fatal();
@@ -48,6 +51,13 @@ public:
 
 		}
 
+	}
+
+private:
+	bool hasSuffix(const std::string &str, const std::string &suffix)
+	{
+	    return str.size() >= suffix.size() &&
+	           str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 	}
 
 };
