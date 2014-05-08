@@ -8,7 +8,8 @@
 #include "Debug.h"
 #include "PrefixTable.h"
 #include "ReadProvider.h"
-#include "FileWriter.h"
+#include "PlainFileWriter.h"
+#include "GZFileWriter.h"
 #include "SAMWriter.h"
 #include "BAMWriter.h"
 
@@ -64,7 +65,13 @@ _NGM::_NGM() :
 		char const * const output_name = Config.GetString("output");
 		if (m_OutputFormat != 2) {
 			Log.Message("Opening for output (SAM): %s", output_name);
-			m_Output = new FileWriter(output_name);
+			if(Config.Exists(GZ)) {
+				Log.Message("Using GZ file writer.");
+				m_Output = new GZFileWriter(output_name);
+			} else {
+				Log.Message("Using plain file writer.");
+				m_Output = new PlainFileWriter(output_name);
+			}
 		} else {
 			Log.Message("Opening for output (BAM): %s", output_name);
 			m_Output = new FileWriterBam(output_name);

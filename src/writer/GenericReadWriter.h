@@ -3,6 +3,9 @@
 
 #include <map>
 
+#include <stdio.h>
+#include <stdarg.h>
+
 #include "ILog.h"
 #include "Config.h"
 #include "NGM.h"

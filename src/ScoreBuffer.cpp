@@ -149,7 +149,13 @@ void ScoreBuffer::DoRun() {
 							LocationScore * tmp = new LocationScore[cur_read->numScores()];
 							int tmpIndex = 0;
 							for(int j = 0; j < cur_read->numScores(); ++j) {
-								if(cur_read->Scores[j].Score.f >= argosMinScore) {
+								float min = argosMinScore;
+								static float match = (float)Config.GetInt(MATCH_BONUS);
+								if(argosMinScore <= 1.0f) {
+									min = (cur_read->length * match) * argosMinScore;
+								}
+								//Log.Message("%f >= %f", cur_read->Scores[j].Score.f, min);
+								if(cur_read->Scores[j].Score.f >= min) {
 									tmp[tmpIndex++] = cur_read->Scores[j];
 								}
 							}

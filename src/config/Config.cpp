@@ -381,7 +381,11 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("cpu_threads", 1);
 
 		Default("kmer", 13);
-		Default("kmer_min", 0);
+		if(Exists(ARGOS)) {
+			Default("kmer_min", 2);
+		} else {
+			Default("kmer_min", 0);
+		}
 		Default("max_cmrs", INT_MAX);
 		Default("kmer_skip", 2);
 		Default("skip_save", 0);
@@ -490,8 +494,12 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("no_progress", 0);
 		Default("pe_delimiter", "/");
 
-		//Default(ARGOS, 1);
 		Default(ARGOS_MINSCORE, 0);
+
+		if(Exists(ARGOS)) {
+			Default("sensitivity", 0.0f);
+			Override("cpu_threads", 1);
+		}
 
 #ifdef DEBUGLOG
 //	Default("log_lvl", "16383");
