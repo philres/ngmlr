@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "OutputReadBuffer.h"
 #include "Timing.h"
 
 ulong AlignmentBuffer::alignmentCount = 0;
@@ -39,7 +40,7 @@ void AlignmentBuffer::debugAlgnFinished(MappedRead * read) {
 }
 
 void AlignmentBuffer::addRead(MappedRead * read, int scoreID) {
-	if (Config.Exists(ARGOS)) {
+	if (argos) {
 		SaveRead(read, read->hasCandidates());
 	} else {
 		if (!read->hasCandidates() || read->mappingQlty < min_mq) {
@@ -142,7 +143,24 @@ void AlignmentBuffer::DoRun() {
 	}
 }
 
-void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
+void AlignmentBuffer::SaveRead(MappedRead * read, bool mapped) {
+	//if (!argos) {
+		WriteRead(read, mapped);
+//	} else {
+//		if (mapped) {
+//			//Convert mapping position to RefId and position
+//			for (int i = 0; i < read->Calculated; ++i) {
+//				//TODO: fix for -n > 1
+//				//Instead of setting mapped to false set score to 0 and don't print it in the end
+//				mapped = SequenceProvider.convert(read->Scores[i].Location);
+//			}
+//		}
+//		OutputReadBuffer::getInstance().addRead(read, mapped);
+//		OutputReadBuffer::getInstance().getNextRead(m_Writer);
+//	}
+}
+
+void AlignmentBuffer::WriteRead(MappedRead* read, bool mapped) {
 	static int const topn = Config.GetInt("topn");
 	if (mapped) {
 		//Convert mapping position to RefId and position
@@ -160,22 +178,15 @@ void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 					LocationScore * ls2 = &read->Paired->Scores[0];
 					int distance =
 							(ls2->Location.m_Location > ls1->Location.m_Location) ?
-									ls2->Location.m_Location
-											- ls1->Location.m_Location
-											+ read->length :
-									ls1->Location.m_Location
-											- ls2->Location.m_Location
-											+ read->Paired->length;
+									ls2->Location.m_Location - ls1->Location.m_Location + read->length :
+									ls1->Location.m_Location - ls2->Location.m_Location + read->Paired->length;
 
 					//int distance = abs(read->TLS()->Location.m_Location - read->Paired->TLS()->Location.m_Location);
 
 					pairInsertCount += 1;
-					if (ls1->Location.getrefId() != ls2->Location.getrefId()
-							|| distance < _NGM::sPairMinDistance
-							|| distance > _NGM::sPairMaxDistance
-							|| ls1->Location.isReverse()
-									== ls2->Location.isReverse()) {
-//						Log.Message("%d != %d || %d < _%d || %d > %d || %d == %d", ls1->Location.getrefId() , ls2->Location.getrefId(), distance, _NGM::sPairMinDistance, distance, _NGM::sPairMaxDistance, ls1->Location.isReverse(), ls2->Location.isReverse());
+					if (ls1->Location.getrefId() != ls2->Location.getrefId() || distance < _NGM::sPairMinDistance
+							|| distance > _NGM::sPairMaxDistance || ls1->Location.isReverse() == ls2->Location.isReverse()) {
+						//						Log.Message("%d != %d || %d < _%d || %d > %d || %d == %d", ls1->Location.getrefId() , ls2->Location.getrefId(), distance, _NGM::sPairMinDistance, distance, _NGM::sPairMaxDistance, ls1->Location.isReverse(), ls2->Location.isReverse());
 						read->SetFlag(NGMNames::PairedFail);
 						read->Paired->SetFlag(NGMNames::PairedFail);
 						brokenPairs += 1;
@@ -194,7 +205,7 @@ void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 	}
 	if (pairInsertCount % 1000 == 0) {
 		NGM.Stats->validPairs = (pairInsertCount - brokenPairs) * 100.0f / pairInsertCount;
-//		NGM.Stats->insertSize = tSum * 1.0f / (tCount - brokenPairs);
+		//		NGM.Stats->insertSize = tSum * 1.0f / (tCount - brokenPairs);
 	}
 	NGM.GetReadProvider()->DisposeRead(read);
 }

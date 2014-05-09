@@ -35,7 +35,8 @@ add_executable(ngm-core
 					writer/SAMWriter.cpp
 					writer/ScoreWriter.cpp
 					seqan/EndToEndAffine.cpp
-					SequenceProvider.cpp					
+					SequenceProvider.cpp	
+					OutputReadBuffer.cpp	
 					ScoreBuffer.cpp
 					core/unix.cpp
 					core/unix_threads.cpp
@@ -74,7 +75,8 @@ add_executable(ngm-core-debug
 					writer/SAMWriter.cpp
 					writer/ScoreWriter.cpp
 					seqan/EndToEndAffine.cpp
-					SequenceProvider.cpp					
+					SequenceProvider.cpp	
+					OutputReadBuffer.cpp				
 					ScoreBuffer.cpp
 					core/unix.cpp
 					core/unix_threads.cpp

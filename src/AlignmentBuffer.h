@@ -49,6 +49,8 @@ private:
 
 	IAlignment * aligner;
 
+	bool const argos;
+
 	void debugAlgnFinished(MappedRead * read);
 
 public:
@@ -60,7 +62,7 @@ public:
 					NGM.GetOutputFormat()),
 					alignmode(Config.GetInt(MODE, 0, 1)),
 					corridor(Config.GetInt("corridor")),
-					refMaxLen(((Config.GetInt("qry_max_len") + corridor) | 1) + 1), min_mq(Config.GetInt(MIN_MQ)), aligner(mAligner) {
+					refMaxLen(((Config.GetInt("qry_max_len") + corridor) | 1) + 1), min_mq(Config.GetInt(MIN_MQ)), aligner(mAligner), argos(Config.Exists(ARGOS)) {
 						pairInsertSum = 0;
 						pairInsertCount = 0;
 						brokenPairs = 0;
@@ -193,6 +195,7 @@ public:
 					}
 
 					void SaveRead(MappedRead* read, bool mapped = true);
+					void WriteRead(MappedRead* read, bool mapped);
 				};
 
 #endif
