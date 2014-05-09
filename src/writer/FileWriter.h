@@ -10,7 +10,7 @@
 
 #include "NGMThreads.h"
 
-static int count = 0;
+//static int count = 0;
 
 class FileWriter {
 
@@ -19,11 +19,11 @@ public:
 	NGMMutex m_OutputMutex;
 
 	FileWriter() {
-		count += 1;
-		if (count > 1) {
-			Log.Error("To many FileWriter instances!");
-			Fatal();
-		}
+//		count += 1;
+//		if (count > 1) {
+//			Log.Error("To many FileWriter instances!");
+//			Fatal();
+//		}
 		NGMInitMutex(&m_OutputMutex);
 	}
 

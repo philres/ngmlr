@@ -35,14 +35,14 @@ public:
 	}
 
 	virtual int doParseRead(MappedRead * read) {
-		if(read == 0 || read->Seq == 0 || read->name == 0 || read->qlty == 0) {
-			Log.Error("Here!");
-
-		}
 		int l = kseq_read(tmp);
 		return copyToRead(read, tmp, l);
 	}
 
+	virtual int doParseRead(SAMRecord * read) {
+		int l = kseq_read(tmp);
+		return copyToRead(read, tmp, l);
+	}
 };
 
 #endif /* FASTXPARSER_H_ */

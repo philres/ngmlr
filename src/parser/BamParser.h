@@ -39,12 +39,13 @@ public:
 		}
 		reader.Close();
 		gzclose(fp);
+
 		delete al;
 	}
 
 	virtual void init(char const * fileName, bool const keepTags);
 	virtual int doParseRead(MappedRead * read);
-
+	virtual int doParseRead(SAMRecord * read);
 };
 #endif
 

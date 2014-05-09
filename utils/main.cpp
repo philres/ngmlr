@@ -10,8 +10,12 @@
 #include <tclap/CmdLine.h>
 
 #include "Log.h"
+#include "IConfig.h"
+#include "Config.h"
 #include "paired/interleave-pairs.h"
+#include "cout_reads/cout-reads.h"
 #include "kmers/kmer-distribution.h"
+#include "reformat_fasta/reformat_fasta.h"
 
 using std::string;
 using TCLAP::ValuesConstraint;
@@ -27,6 +31,7 @@ bool cDebug = true;
 #endif
 
 ILog const * _log = 0;
+IConfig * _config = 0;
 
 // actually platform specific.../care
 ulong const FileSize(char const * const filename) {
@@ -54,16 +59,21 @@ int main(int argc, char **argv) {
 
 	try {
 
+		_config = new _Config(argc, argv, false); // Parses command line & parameter file
+
 		TCLAP::CmdLine cmd("", ' ', "0.1", false);
 
 		std::vector<std::string> allowed;
 		allowed.push_back("interleave");
 		allowed.push_back("filter");
+		allowed.push_back("count");
 		allowed.push_back("kmer");
+		allowed.push_back("reformat_fasta");
+
 		ValuesConstraint<string> allowedVals(allowed);
 
 		UnlabeledValueArg<string> nolabel("program",
-				"Name of the program you want to use. Available programs: interleave",
+				"Name of the program you want to use. Available programs: \n interleave \ncount \nreformat_fasta",
 				true, "string", "name", &allowedVals);
 
 		cmd.add(nolabel);
@@ -72,6 +82,7 @@ int main(int argc, char **argv) {
 		argv[0] = const_cast<char *>(name.c_str());
 		cmd.parse(std::min(argc, 2), argv);
 
+
 		if (nolabel.getValue() == allowed[0]) {
 			char const * name = "ngm-utils interleave";
 			argv[1] = const_cast<char *>(name);
@@ -79,11 +90,20 @@ int main(int argc, char **argv) {
 		} else if (nolabel.getValue() == allowed[1]) {
 			char const * name = "ngm-utils filter";
 			argv[1] = const_cast<char *>(name);
-			//filter(argc - 1, argv + 1);
+			//filter(argc - 1, argv + 1);.
 		} else if (nolabel.getValue() == allowed[2]) {
+			char const * name = "ngm-utils count";
+			argv[1] = const_cast<char *>(name);
+			count_reads(argc - 1, argv + 1);
+			//filter(argc - 1, argv + 1);
+		} else if (nolabel.getValue() == allowed[3]) {
 			char const * name = "ngm-utils kmer";
 			argv[1] = const_cast<char *>(name);
 			kmer_distribution(argc - 1, argv + 1);
+		} else if (nolabel.getValue() == allowed[4]) {
+			char const * name = "ngm-utils reformat";
+			argv[1] = const_cast<char *>(name);
+			reformat_fasta(argc - 1, argv + 1);
 		} else {
 			throw TCLAP::ArgException("Invalid value found", "program");
 		}

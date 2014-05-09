@@ -15,9 +15,7 @@
 #include <tclap/CmdLine.h>
 
 #include "Log.h"
-#include "IConfig.h"
 #include "IParser.h"
-#include "Config.h"
 #include "PrefixTable.h"
 #include "SequenceProvider.h"
 #include "CS.h"
@@ -40,8 +38,6 @@ struct Sequence {
 	nString name, seq, qlty;
 	int fragPos;
 };
-
-IConfig * _config = 0;
 
 IRefProvider * m_RefProvider = 0;
 
@@ -116,9 +112,6 @@ int kmer_distribution(int argc, char **argv) {
 		cmd.add(kmerArg);
 
 		cmd.parse(argc, argv);
-
-
-		_config = new _Config(argc, argv, false); // Parses command line & parameter file
 
 		_log = &Log;
 		_Log::Init(0,0); // Inits logging to file

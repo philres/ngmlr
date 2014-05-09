@@ -16,7 +16,7 @@
 
 #include "Log.h"
 #include "kseq.h"
-#include "IParser.h"
+
 #include "FastxParser.h"
 #include "SamParser.h"
 #include "Writer.h"
@@ -108,7 +108,7 @@ string parsePairId(string id) {
 
 MappedRead * NextRead(IParser * parser, int const id) {
 
-	MappedRead * read = 0;
+	MappedRead * read = new MappedRead (id,1000);
 	int l = parser->parseRead(read);
 	//Log.Message("Name (%d): %s", seq->name.l, seq->name.s);
 	//Log.Message("Seq  (%d): %s", seq->seq.l, seq->seq.s);

@@ -95,7 +95,6 @@ int SamParser::doParseRead(MappedRead * read) {
 		char * lineBuffer = buffer;
 
 		if (*lineBuffer != '@' && *lineBuffer != '\n') {
-
 			//Name
 			lineBuffer = readField(lineBuffer, tmp->name);
 			if (*lineBuffer == '\0')
@@ -208,4 +207,103 @@ int SamParser::doParseRead(MappedRead * read) {
 //	}
 //	return -1;
 //}
+
+int SamParser::doParseRead(SAMRecord * read) {
+
+	while (gzgets(fp, buffer, buffer_size) != NULL) {
+		char * lineBuffer = buffer;
+
+		if (*lineBuffer != '@' && *lineBuffer != '\n') {
+			//Name
+			string name;
+			while (*lineBuffer != '\0' && *lineBuffer != '\t') {
+				name += *lineBuffer;
+				lineBuffer++;
+			}
+			read->set_read_name(name);
+			name.clear();
+
+			//Skip one \t
+			lineBuffer ++;
+
+			//Flags
+			read->set_mapped_flag(atoi(lineBuffer));
+		}
+
+		if(read->is_mapped()){
+			//Skip the rest:
+			while (*lineBuffer != '\0' && *lineBuffer != '\t') {
+				lineBuffer++;
+			}
+			//Skip one \t
+			lineBuffer ++;
+			string chr;
+			while (*lineBuffer != '\0' && *lineBuffer != '\t') {
+				chr += *lineBuffer;
+				lineBuffer++;
+			}
+			read->set_chr(chr);
+			chr.clear();
+			//Skip one \t
+			lineBuffer ++;
+			read->set_mapping_pos(atoi(lineBuffer));
+			//Skip the rest:
+			while (*lineBuffer != '\0' && *lineBuffer != '\t') {
+				lineBuffer++;
+			}
+			//Skip one \t
+			lineBuffer++;
+			read->set_mapping_quality(atoi(lineBuffer));
+			//Skip the rest:
+			while (*lineBuffer != '\0' && *lineBuffer != '\t') {
+				lineBuffer++;
+			}
+			//Skip one \t
+			lineBuffer ++;
+			string cigar;
+			while (*lineBuffer != '\0' && *lineBuffer != '\t') {
+				cigar += *lineBuffer;
+				lineBuffer++;
+			}
+			read->set_CIGAR(cigar);
+			cigar.clear();
+
+			int skip = 4;
+			while (skip > 0 && *lineBuffer != '\0') {
+				if (*lineBuffer++ == '\t')
+					skip -= 1;
+			}
+			if (*lineBuffer == '\0') {
+				return 0;
+			}
+			string seq;
+			while (*lineBuffer != '\0' && *lineBuffer != '\t') {
+				seq += *lineBuffer;
+				lineBuffer++;
+			}
+			read->set_sequence(seq);
+			seq.clear();
+			//Skip one \t
+			lineBuffer ++;
+			string qual;
+			while (*lineBuffer != '\0' && *lineBuffer != '\t') {
+				qual += *lineBuffer;
+				lineBuffer++;
+			}
+			read->set_qualities(qual);
+			qual.clear();
+			//Skip one \t
+			lineBuffer++;
+			string tags;
+			while (*lineBuffer != '\0') {
+				tags += *lineBuffer;
+				lineBuffer++;
+			}
+			read->set_tags(tags);
+			tags.clear();
+			return read->get_sequence().size();
+		}
+	}
+	return -1;
+}
 
