@@ -123,11 +123,13 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	Print("%u\t", pLoc + report_offset);//Position of the mate/next fragment
 	Print("%d\t", pDist);//observed Template LENgth
 
-	if (hardClip)
-	Print("%.*s\t", read->length - read->Alignments[scoreID].QStart - read->Alignments[scoreID].QEnd,
-			readseq + read->Alignments[scoreID].QStart);
-	else
-	Print("%.*s\t", read->length, readseq);
+	if (hardClip) {
+		Print("%.*s\t", read->length - read->Alignments[scoreID].QStart - read->Alignments[scoreID].QEnd,
+				readseq + read->Alignments[scoreID].QStart);
+	}
+	else {
+		Print("%.*s\t", read->length, readseq);
+	}
 
 	if (qltystr != 0) {
 		if (hardClip)
@@ -239,12 +241,8 @@ void SAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 			DoWriteReadGeneric(read1, scoreId1, SequenceProvider.GetRefName(read2->Scores[scoreId2].Location.getrefId(), distance),
 			read2->Scores[scoreId2].Location.m_Location, 0, read1->mappingQlty, flags1);
 
-			//DoWriteRead(read2);
-			//DoWriteRead(read1);
-			//DoWriteUnmappedRead(read2);
-			//DoWriteUnmappedRead(read1);
-				}
-			}
+		}
+	}
 	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer);
 }
 
@@ -283,7 +281,7 @@ void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 		Print("%c\t", pRefName); //Ref. name of the mate/next fragment
 		Print("%d\t", pLoc + report_offset);//Position of the mate/next fragment
 		Print("%d\t", pDist);//observed Template LENgth
-		Print("%s\t", readseq);
+		Print("%.*s\t", read->length, readseq);
 		if (qltystr != 0) {
 			Print("%.*s", qltylen, qltystr);
 		} else {

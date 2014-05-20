@@ -7,9 +7,6 @@
 #include <sstream>
 #include <string>
 
-//#include "api/BamWriter.h"
-//#include "api/SamHeader.h"
-
 #include "Config.h"
 #include "SequenceProvider.h"
 #include "NGM.h"
@@ -17,12 +14,6 @@
 #include "Version.h"
 
 using namespace BamTools;
-
-//using BamTools::BamWriter;
-//using BamTools::SamHeader;
-//Format: http://samtools.sourceforge.net/SAM1.pdf
-
-//static inline void rev(char * s);
 
 void BAMWriter::DoWriteProlog() {
 	//TODO: check correct format	;
@@ -276,7 +267,6 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 
 	NGM.AddUnmappedRead(read, MFAIL_NOCAND);
 
-	//NGMLock(&m_OutputMutex);
 	if(writeUnmapped) {
 		NGM.AddWrittenRead(read->ReadId);
 		BamAlignment * al = new BamAlignment();
@@ -339,7 +329,6 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 			writer->SaveAlignment(buffer, bufferIndex);
 			bufferIndex = 0;
 		}
-		//NGMUnlock(&m_OutputMutex);
 
 		if (read->AdditionalInfo != 0) {
 			addAdditionalInfo(read, al);
