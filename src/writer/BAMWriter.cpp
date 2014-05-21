@@ -85,16 +85,16 @@ void BAMWriter::DoWriteProlog() {
 		for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
 			refName = SequenceProvider.GetRefName(i, refNameLength);
 			//Print("@SQ\tSN:%.*s\tLN:%d\n", refNameLength, refName, SequenceProvider.GetRefLen(i));
-				RefData bamRef(std::string(refName, refNameLength),SequenceProvider.GetRefLen(i));
-				refs.push_back(bamRef);
-				if (NGM.DualStrand())
-				++i;
-			}
-			else {
-				refName = SequenceProvider.GetRefName(ref * ((NGM.DualStrand()) ? 2 : 1), refNameLength);
-				RefData bamRef(std::string(refName, refNameLength), SequenceProvider.GetRefLen(ref * ((NGM.DualStrand()) ? 2 : 1)));
-				refs.push_back(bamRef);
-			}
+			RefData bamRef(std::string(refName, refNameLength),SequenceProvider.GetRefLen(i));
+			refs.push_back(bamRef);
+			if (NGM.DualStrand())
+			++i;
+		}
+		else {
+			refName = SequenceProvider.GetRefName(ref * ((NGM.DualStrand()) ? 2 : 1), refNameLength);
+			RefData bamRef(std::string(refName, refNameLength), SequenceProvider.GetRefLen(ref * ((NGM.DualStrand()) ? 2 : 1)));
+			refs.push_back(bamRef);
+		}
 
 	if (!writer->Open(file, header, refs)) {
 		Log.Error("Could not open output BAM file");
@@ -359,23 +359,20 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 	}
 	if (!read1->hasCandidates() && !read2->hasCandidates()) {
 		//Both mates unmapped
-		DoWriteUnmappedRead(read2, flags2);
-		DoWriteUnmappedRead(read1, flags1);
+		DoWriteUnmappedRead(read2, flags2 | 0x8);
+		DoWriteUnmappedRead(read1, flags1 | 0x8);
 	} else if (!read1->hasCandidates()) {
 		//First mate unmapped
-		flags2 |= 0x8;
-
 		DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.m_Location, 0,
-				read2->mappingQlty, flags2);
+				read2->mappingQlty, flags2 | 0x8);
 		DoWriteUnmappedReadGeneric(read1, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.getrefId(),
 				read2->Scores[scoreId2].Location.m_Location, read2->Scores[scoreId2].Location.m_Location, 0, 0, flags1);
 	} else if (!read2->hasCandidates()) {
-		flags1 |= 0x8;
 		//Second mate unmapped
 		DoWriteUnmappedReadGeneric(read2, read1->Scores[scoreId1].Location.getrefId(), read1->Scores[scoreId1].Location.getrefId(),
 				read1->Scores[scoreId1].Location.m_Location, read1->Scores[scoreId1].Location.m_Location, 0, 0, flags2);
 		DoWriteReadGeneric(read1, scoreId1, read1->Scores[scoreId1].Location.getrefId(), read1->Scores[scoreId1].Location.m_Location, 0,
-				read1->mappingQlty, flags1);
+				read1->mappingQlty, flags1 | 0x8);
 	} else {
 		if (!read1->HasFlag(NGMNames::PairedFail)) {
 			//TODO: Check if correct!
@@ -407,11 +404,6 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 					read2->mappingQlty, flags2);
 			DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.m_Location, 0,
 					read1->mappingQlty, flags1);
-
-			//DoWriteRead(read2);
-			//DoWriteRead(read1);
-			//DoWriteUnmappedRead(read2);
-			//DoWriteUnmappedRead(read1);
 		}
 	}
 }

@@ -236,11 +236,8 @@ void SAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 			if (read2->Scores[scoreId2].Location.isReverse()) {
 				flags1 |= 0x20;
 			}
-			DoWriteReadGeneric(read2, scoreId2, SequenceProvider.GetRefName(read1->Scores[scoreId1].Location.getrefId(), distance),
-			read1->Scores[scoreId1].Location.m_Location, 0, read2->mappingQlty, flags2);
-			DoWriteReadGeneric(read1, scoreId1, SequenceProvider.GetRefName(read2->Scores[scoreId2].Location.getrefId(), distance),
-			read2->Scores[scoreId2].Location.m_Location, 0, read1->mappingQlty, flags1);
-
+			DoWriteReadGeneric(read2, scoreId2, SequenceProvider.GetRefName(read1->Scores[scoreId1].Location.getrefId(), distance), read1->Scores[scoreId1].Location.m_Location, 0, read2->mappingQlty, flags2);
+			DoWriteReadGeneric(read1, scoreId1, SequenceProvider.GetRefName(read2->Scores[scoreId2].Location.getrefId(), distance), read2->Scores[scoreId2].Location.m_Location, 0, read1->mappingQlty, flags1);
 		}
 	}
 	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer);
