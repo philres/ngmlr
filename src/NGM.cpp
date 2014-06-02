@@ -48,18 +48,15 @@ _NGM & _NGM::Instance() {
 }
 
 _NGM::_NGM() :
-		Stats(NGMStats::InitStats(AppName)), m_ActiveThreads(0), m_NextThread(
-				0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(
-				Config.GetInt("paired") != 0
-						|| (Config.Exists("qry1") && Config.Exists("qry2"))),
+		Stats(NGMStats::InitStats(AppName)), m_ActiveThreads(0), m_NextThread(0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(
+		Config.GetInt("paired") != 0 || (Config.Exists("qry1") && Config.Exists("qry2"))),
 #ifdef _BAM
 				m_OutputFormat(Config.GetInt("format", 0, 2)),
 #else
 				m_OutputFormat(Config.GetInt("format", 0, 1)),
 #endif
-				m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(
-						false), m_UnmappedReads(0), m_MappedReads(0), m_WrittenReads(
-						0), m_ReadReads(0), m_ReadProvider(0) {
+				m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(false), m_UnmappedReads(0), m_MappedReads(
+						0), m_WrittenReads(0), m_ReadReads(0), m_ReadProvider(0) {
 
 	if (Config.Exists("output")) {
 		char const * const output_name = Config.GetString("output");
@@ -105,8 +102,7 @@ void _NGM::InitProviders() {
 
 	m_RefProvider = new CompactPrefixTable(NGM.DualStrand());
 
-	if (Config.Exists("qry")
-			|| (Config.Exists("qry1") && Config.Exists("qry2"))) {
+	if (Config.Exists("qry") || (Config.Exists("qry1") && Config.Exists("qry2"))) {
 		m_ReadProvider = new ReadProvider();
 		uint readCount = m_ReadProvider->init();
 	}
@@ -146,7 +142,7 @@ void _NGM::StartThread(NGMTask * task, int cpu) {
 	m_Threads[m_NextThread] = NGMCreateThread(&_NGM::ThreadFunc, task, false);
 
 	if (cpu != -1)
-		NGMSetThreadAffinity(&m_Threads[m_NextThread], cpu);
+	NGMSetThreadAffinity(&m_Threads[m_NextThread], cpu);
 	++m_StageThreadCount[task->GetStage()];
 	++m_NextThread;
 	++m_ActiveThreads;
@@ -440,14 +436,19 @@ void _NGM::MainLoop() {
 	bool const isPaired = Config.GetInt("paired") > 0;
 	int const threadcount = Config.GetInt("cpu_threads", 1, 0);
 	bool const progress = Config.GetInt("no_progress") != 1;
+	bool const argos = Config.Exists(ARGOS);
+	long lastProcessd = 0;
 	while (Running()) {
 		Sleep(50);
 		if (progress) {
 			int processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
-			if (!isPaired) {
-				Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
-			} else {
-				Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Pairs: %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->validPairs, NGM.Stats->insertSize);
+			if(!argos || (lastProcessd + 1000000) < processed) {
+				lastProcessd = processed;
+				if (!isPaired) {
+					Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
+				} else {
+					Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Pairs: %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->validPairs, NGM.Stats->insertSize);
+				}
 			}
 		}
 	}

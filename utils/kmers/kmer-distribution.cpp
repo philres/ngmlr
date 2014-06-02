@@ -43,14 +43,10 @@ IRefProvider * m_RefProvider = 0;
 
 FILE * ofp;
 
+RefEntry * m_entry = 0;
+
 void CountKmer(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
 
-
-
-	RefEntry * m_entry = new RefEntry(0);
-	m_entry->nextEntry = new RefEntry(0);
-
-	RefEntry const * cur = m_RefProvider->GetRefEntry(prefix, m_entry);
 
 	SequenceLocation loc;
 	loc.m_Location = pos;
@@ -61,7 +57,18 @@ void CountKmer(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* d
 
 	int refNameLength = 0;
 	char const * refName = SequenceProvider.GetRefName(loc.getrefId(), refNameLength);
-	fprintf(ofp, "%s\t%u\t%u\t%d\t%d\n", refName, loc.m_Location, loc.m_Location + 1, cur->refCount, cur->nextEntry->refCount);
+
+	if(strcmp(refName, "2L") == 0 && loc.m_Location == 525937) {
+		Log.Message("Here");
+	}
+
+	RefEntry const * cur = m_RefProvider->GetRefEntry(prefix, m_entry);
+
+	//5 cols: 5th is number on - strand
+	//fprintf(ofp, "%s\t%u\t%u\t%d\t%d\n", refName, loc.m_Location, loc.m_Location + 1, cur->refCount, cur->nextEntry->refCount);
+	//4 cols
+	fprintf(ofp, "%s\t%u\t%u\t%d\n", refName, loc.m_Location, loc.m_Location + 1, cur->refCount);
+
 	//	int * freq = (int *) data;
 //	if (prefix == lastPrefix) {
 //		int currentBin = GetBin(pos);
@@ -79,6 +86,8 @@ void CountKmer(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* d
 //		freq[prefix] += 1;
 //	}
 //	lastPrefix = prefix;
+	//delete m_entry->nextEntry; m_entry->nextEntry = 0;
+	//delete m_entry;
 }
 
 
@@ -155,6 +164,8 @@ int kmer_distribution(int argc, char **argv) {
 		int * freq = new int[length];
 		memset(freq, 0, length);
 
+		m_entry = new RefEntry(0);
+		m_entry->nextEntry = new RefEntry(0);
 
 		Log.Message("Processing: ");
 		ofp = fopen(outArg.getValue().c_str(), "w");
@@ -176,6 +187,8 @@ int kmer_distribution(int argc, char **argv) {
 				Log.Message("%s", refName);
 //
 				CS::PrefixIteration(seq, len, &CountKmer, 0, 0, freq, m_RefSkip, offset);
+
+				delete[] seq; seq = 0;
 //				delete[] seq;
 //				seq = 0;
 //			}
