@@ -4,10 +4,6 @@ Required software:
 build-essentials (gcc, …)
 cmake
 zlib (Ubuntu: zlib1g-dev)
-AMD-APP SDK (required for mapping on the CPU or on ATI GPUs)
-cudatoolkit (required for mapping on Nvidia GPUs)
-For BAM support Bamtools (http://sourceforge.net/projects/bamtools/) is required
-
 
 Build NGM:
 
