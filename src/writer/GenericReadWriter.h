@@ -78,8 +78,8 @@ public:
 			bool mappedOnce = false;
 			for (int i = 0; i < read->Calculated; ++i) {
 
-				static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
-				static float minResidues = Config.GetFloat("min_residues", 0, 1000);
+				float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
+				float minResidues = Config.GetFloat("min_residues", 0, 1000);
 
 				if (minResidues <= 1.0f) {
 					minResidues = read->length * minResidues;
@@ -88,7 +88,7 @@ public:
 				mapped = mapped && (read->Alignments[i].Identity >= minIdentity);
 				mapped = mapped && ((float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd) >= minResidues);
 
-				Log.Debug(4, "READ_%d\tOUTPUT\tChecking alignment CRM_%d\t%f >= %f\t%f >= %f", read->ReadId, i, read->Alignments[i].Identity, minIdentity, (float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd), minResidues);
+				Log.Debug(4, "READ_%d\tOUTPUT\tChecking alignment CRM_%d (read length: %d - %d - %d)\t%f >= %f\t%f >= %f", read->ReadId, i, read->length, read->Alignments[i].QStart, read->Alignments[i].QEnd, read->Alignments[i].Identity, minIdentity, (float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd), minResidues);
 
 				if (mapped) {
 					mappedOnce = true;
