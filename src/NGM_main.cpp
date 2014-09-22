@@ -94,7 +94,6 @@ int main(int argc, char * argv[]) {
 
 	Log.Message("Starting time: %s", currentDateTime().c_str());
 
-
 	//try {
 	Timer tmr;
 	tmr.ST();
@@ -104,22 +103,23 @@ int main(int argc, char * argv[]) {
 	InitPlatform();
 
 	// Initialization:
-	_config = new _Config(argc, argv); // Parses command line & parameter file
-	_log = &Log;
-	char const * log = 0;
+	try {
+		_config = new _Config(argc, argv); // Parses command line & parameter file
+		_log = &Log;
+		char const * log = 0;
 
 #ifdef DEBUGLOG
-	if(Config.Exists(LOG)) {
-		log = Config.GetString(LOG);
-		Log.Message("Writing debug log to: %s (lvl %d)", log, Config.GetInt(LOG_LVL));
-	}
-	_Log::Init(log, Config.GetInt(LOG_LVL)); // Inits logging to file
+		if(Config.Exists(LOG)) {
+			log = Config.GetString(LOG);
+			Log.Message("Writing debug log to: %s (lvl %d)", log, Config.GetInt(LOG_LVL));
+		}
+		_Log::Init(log, Config.GetInt(LOG_LVL)); // Inits logging to file
 #else
-	_Log::Init(0, 0); // Inits logging to file
+		_Log::Init(0, 0); // Inits logging to file
 #endif
-
-
-
+	} catch (...) {
+		Help();
+	}
 
 	Log.setColor(Config.Exists("color"));
 
@@ -147,11 +147,6 @@ int main(int argc, char * argv[]) {
 					Log.Message("Estimated insert size: %d bp", (int)NGM.Stats->insertSize);
 				}
 				Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
-#ifdef INSTANCE_COUNTING
-				Log.Green("Counts:");
-				Log.Message("MappedRead count = %i (max %i)", MappedRead::sInstanceCount, MappedRead::maxSeqCount);
-				Log.Message("LocationScore count = %i", LocationScore::sInstanceCount);
-#endif
 				int discarded = NGM.GetReadReadCount() - (NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount());
 				if (discarded != 0) {
 					Log.Warning("Reads discarded: %d", discarded);

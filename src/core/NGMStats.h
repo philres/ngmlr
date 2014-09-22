@@ -25,13 +25,12 @@ struct NGMStats
 	int TotalPartitions;
 
 	int CSStage;
-	// CS:BuildTable
 	int TotalSeqs;
 	int TotalBases;
 	int CurrentSeq;
 	int CurrentSeqBases;
-	int CurrentBase;
-	int CurrentTotal;
+	//int CurrentBase;
+	//int CurrentTotal;
 	int UniquePrefixCount;
 	int RefEntryCount;
 

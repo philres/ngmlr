@@ -257,7 +257,7 @@ uint ReadProvider::init() {
 						Log.Verbose("-Collect: %s", parser1->read->name.s);
 						CollectResultsFallback(m_CurrentReadLength);
 					} else if (readCount == (estimateSize + 1)) {
-						if ((maxLen - minLen) < 10) {
+						if ((maxLen - minLen) < 10 && !Config.Exists(ARGOS)) {
 							finish = true;
 						} else {
 							Log.Warning("Reads don't have the same length. Determining max. read length now.");
@@ -273,6 +273,7 @@ uint ReadProvider::init() {
 		read = 0;
 		if (!finish) {
 			Log.Message("Reads found in files: %d", readCount);
+			NGM.Stats->TotalSeqs = readCount;
 		}
 		if (readCount == 0) {
 			Log.Error("No reads found in input file.");

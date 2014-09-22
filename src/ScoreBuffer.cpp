@@ -142,19 +142,55 @@ void ScoreBuffer::DoRun() {
 				if (++cur_read->Calculated == cur_read->numScores()) {
 					//all scores computed for single end read
 					assert(cur_read->hasCandidates());
-					debugScoresFinished(cur_read);
 
-					if (maxTopScores == 1) {
-						top1SE(cur_read);
+					if (argos) {
+						if(argosMinScore > 0.0f) {
+							//Filter min score
+							LocationScore * tmp = new LocationScore[cur_read->numScores()];
+							int tmpIndex = 0;
+							for(int j = 0; j < cur_read->numScores(); ++j) {
+								float min = argosMinScore;
+								static float match = (float)Config.GetInt(MATCH_BONUS);
+								if(argosMinScore <= 1.0f) {
+									min = (cur_read->length * match) * argosMinScore;
+								}
+								//Log.Message("%f >= %f", cur_read->Scores[j].Score.f, min);
+								if(cur_read->Scores[j].Score.f >= min) {
+									tmp[tmpIndex++] = cur_read->Scores[j];
+								}
+							}
+
+							cur_read->clearScores();
+
+							if(tmpIndex > 0) {
+								cur_read->AllocScores(tmp, tmpIndex);
+								std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
+								cur_read->Calculated = cur_read->numScores();
+								computeMQ(cur_read);
+							} else {
+								Log.Verbose("%s no candidates!!", cur_read->name);
+							}
+							delete[] tmp; tmp = 0;
+						} else {
+							std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
+							computeMQ(cur_read);
+						}
+
+						out->addRead(cur_read, -1);
 					} else {
-						topNSE(cur_read);
+#ifdef DEBUGLOG
+						debugScoresFinished(cur_read);
+#endif
+						if (maxTopScores == 1) {
+							top1SE(cur_read);
+						} else {
+							topNSE(cur_read);
+						}
 					}
 				}
 			} else {
 				if (++cur_read->Calculated == cur_read->numScores() && cur_read->Paired->Calculated == cur_read->Paired->numScores()) {
 					//all scores computed for both mates
-					debugScoresFinished(cur_read);
-
 					if (maxTopScores == 1) {
 						if (!fastPairing) {
 							if (cur_read->Paired->hasCandidates())
@@ -186,7 +222,7 @@ void ScoreBuffer::top1SE(MappedRead* read) {
 	int bestScoreIndex = 0;
 	int numBestScore = 0;
 
-	//Find top-scoring CMR
+//Find top-scoring CMR
 	for (int j = 0; j < read->numScores(); ++j) {
 		if (read->Scores[j].Score.f > secondBestScore) {
 			if (read->Scores[j].Score.f > bestScore) {
@@ -231,14 +267,16 @@ void ScoreBuffer::top1SE(MappedRead* read) {
 
 void ScoreBuffer::topNSE(MappedRead* read) {
 
-	//Sort scores
-	std::sort(read->Scores, read->Scores + read->numScores(), sortLocationScore);
+//Sort scores
+	std::sort(read->Scores, read->Scores + read->numScores(),
+			sortLocationScore);
 
 	int numScores = read->numScores();
 
 	int numTopScores = 1;
-	//Count number of top-scoring regions
-	while (numTopScores < numScores && read->Scores[0].Score.f == read->Scores[numTopScores].Score.f) {
+//Count number of top-scoring regions
+	while (numTopScores < numScores
+			&& read->Scores[0].Score.f == read->Scores[numTopScores].Score.f) {
 		numTopScores += 1;
 	}
 
@@ -261,7 +299,8 @@ void ScoreBuffer::topNSE(MappedRead* read) {
 		//Submit reads to alignment computation
 		out->addRead(read, 0);
 		for (int j = 1; j < numScores; ++j) {
-			if (topScoresOnly && read->Scores[0].Score.f != read->Scores[j].Score.f) {
+			if (topScoresOnly
+					&& read->Scores[0].Score.f != read->Scores[j].Score.f) {
 				Log.Error("Internal error while processing alignment scores for read %s", read->name);
 				Fatal();
 			}
@@ -319,8 +358,10 @@ void ScoreBuffer::top1PE(MappedRead* read) {
 	MappedRead * mate = read->Paired;
 
 	//Sort scores
-	std::sort(read->Scores, read->Scores + read->numScores(), sortLocationScore);
-	std::sort(mate->Scores, mate->Scores + mate->numScores(), sortLocationScore);
+	std::sort(read->Scores, read->Scores + read->numScores(),
+			sortLocationScore);
+	std::sort(mate->Scores, mate->Scores + mate->numScores(),
+			sortLocationScore);
 
 	computeMQ(read);
 	computeMQ(mate);
@@ -328,13 +369,15 @@ void ScoreBuffer::top1PE(MappedRead* read) {
 	//Use only scores that are > topScore * cutoff
 	float const minScoreRead = read->Scores[0].Score.f * pairScoreCutoff;
 	int nScoreRead = 1;
-	while (nScoreRead < read->numScores() && minScoreRead <= read->Scores[nScoreRead].Score.f) {
+	while (nScoreRead < read->numScores()
+			&& minScoreRead <= read->Scores[nScoreRead].Score.f) {
 		nScoreRead += 1;
 	}
 
 	float const minScoreMate = mate->Scores[0].Score.f * pairScoreCutoff;
 	int nScoreMate = 1;
-	while (nScoreMate < mate->numScores() && minScoreMate <= mate->Scores[nScoreMate].Score.f) {
+	while (nScoreMate < mate->numScores()
+			&& minScoreMate <= mate->Scores[nScoreMate].Score.f) {
 		nScoreMate += 1;
 	}
 
@@ -352,7 +395,8 @@ void ScoreBuffer::top1PE(MappedRead* read) {
 
 	for (int i = 0; i < nScoreRead; ++i) {
 		for (int j = 0; j < nScoreMate; ++j) {
-			if (CheckPairs(&read->Scores[i], read->length, &mate->Scores[j], mate->length, topScore, distance, equalScoreFound)) {
+			if (CheckPairs(&read->Scores[i], read->length, &mate->Scores[j],
+					mate->length, topScore, distance, equalScoreFound)) {
 				TopScore1 = i;
 				TopScore2 = j;
 			}
@@ -404,15 +448,20 @@ void ScoreBuffer::topNPE(MappedRead* read) {
 	Fatal();
 }
 
-bool ScoreBuffer::CheckPairs(LocationScore * ls1, int const readLength1, LocationScore * ls2, int const readLength2, float & pairTopScore, int & insertSize, int & equalScore) {
+bool ScoreBuffer::CheckPairs(LocationScore * ls1, int const readLength1,
+		LocationScore * ls2, int const readLength2, float & pairTopScore,
+		int & insertSize, int & equalScore) {
 
 	//compute insert size
 	int currentInsertsize =
 			(ls2->Location.m_Location > ls1->Location.m_Location) ?
-					ls2->Location.m_Location - ls1->Location.m_Location + readLength2 :
-					ls1->Location.m_Location - ls2->Location.m_Location + readLength1;
+					ls2->Location.m_Location - ls1->Location.m_Location
+							+ readLength2 :
+					ls1->Location.m_Location - ls2->Location.m_Location
+							+ readLength1;
 
-	if (currentInsertsize > _NGM::sPairMinDistance && currentInsertsize < _NGM::sPairMaxDistance) {
+	if (currentInsertsize > _NGM::sPairMinDistance
+			&& currentInsertsize < _NGM::sPairMaxDistance) {
 		//Log.Green("[%d, %d] Score: %f, Distance: %d (%u - %u), AVG: %d", ls1->Read->ReadId, ls2->Read->ReadId, ls1->Score.f + ls2->Score.f, distance, ls2->Location.m_Location, ls1->Location.m_Location, tSum / tCount);
 		float pairScore = ls1->Score.f + ls2->Score.f;
 		if (pairScore > pairTopScore * 1.00f) {

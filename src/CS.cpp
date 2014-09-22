@@ -14,7 +14,6 @@
 
 static const int cInvalidLocation = -99999999;
 static const SequenceLocation sInvalidLocation(cInvalidLocation, 0, false);
-//static const LocationScore sInvalidLocationScore(sInvalidLocation, 0, 0); // { sInvalidLocation, {0} };
 
 //#ifdef _DEBUGCS
 //FILE* ofp2;
@@ -22,13 +21,8 @@ static const SequenceLocation sInvalidLocation(cInvalidLocation, 0, false);
 
 volatile int CS::s_ThreadCount = 0;
 
-//long CS::maxHitSum = 0;
-//long CS::readCount = 0;
-
 bool up = false;
 int kCount = 0;
-
-//int const cThreshhold = 2;
 
 //Default values
 int x_SrchTableBitLen = 24;
@@ -40,18 +34,6 @@ uint const cPrefixBaseSkip = 0;
 float const cOverflowThresh = 0.1f;
 float const cOverflowLimit = 10;
 
-uint CS::prefixBasecount = 13;
-uint CS::prefixBits = prefixBasecount * 2;
-ulong CS::prefixMask = ((ulong) 1 << prefixBits) - 1;
-
-inline int min(int a, int b) {
-	return (a < b) ? a : b;
-}
-
-// A->0 C->1 T->2 G->3
-inline char encode(char c) {
-	return (c >> 1) & 3;
-}
 
 void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uint offset, int prefixBaseCount) {
 	prefixBasecount = prefixBaseCount;
@@ -63,59 +45,6 @@ void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn f
 	prefixBasecount = Config.GetInt("kmer", 4, 32);
 	prefixBits = prefixBasecount * 2;
 	prefixMask = ((ulong) 1 << prefixBits) - 1;
-}
-
-// Iteriert ueber jeden Praefix in sequence und fuehrt fuer diesen die Funktion func aus
-void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uint offset) {
-	if (length < prefixBasecount)
-		return;
-
-	if (*sequence == 'N') {
-		uint n_skip = 1;
-		while (*(sequence + n_skip) == 'N')
-			++n_skip;
-
-		sequence += n_skip;
-
-		if (n_skip >= (length - prefixBasecount))
-			return;
-		length -= n_skip;
-		offset += n_skip;
-	}
-
-	ulong prefix = 0;
-	for (uint i = 0; i < prefixBasecount - 1; ++i) {
-		char c = *(sequence + i);
-		if (c == 'N') {
-			PrefixIteration(sequence + i + 1, length - i - 1, func, mutateFrom, mutateTo, data, prefixskip, offset + i + 1);
-			return;
-		}
-
-		prefix = prefix << 2;
-		char cx = encode(c);
-		prefix |= cx;
-	}
-
-	uint skipcount = prefixskip;
-	for (uint i = prefixBasecount - 1; i < length; ++i) {
-		char c = *(sequence + i);
-		if (c == 'N') {
-			PrefixIteration(sequence + i + 1, length - i - 1, func, mutateFrom, mutateTo, data, prefixskip, offset + i + 1);
-			return;
-		}
-
-		prefix = prefix << 2;
-		char cx = encode(*(sequence + i));
-		prefix |= cx;
-		prefix &= prefixMask;
-
-		if (skipcount == prefixskip) {
-			func(prefix, offset + i + 1 - prefixBasecount, mutateFrom, mutateTo, data);
-			skipcount = 0;
-		} else {
-			++skipcount;
-		}
-	}
 }
 
 // mutate T (0x2) -> C (0x1)
@@ -703,35 +632,8 @@ CS::~CS() {
 	}
 }
 
-//void CS::CheckRTable() {
-//	for (int i = 0; i < c_SrchTableLen; ++i) {
-//		if (rTable[i].Location.m_Location != cInvalidLocation) {
-//			Log.Warning("Unclean rTable (qry = %i, elem = %i): loc = %i", m_CurrentSeq, i, rTable[i].Location.m_Location);
-//			rTable[i] = sInvalidLocationScore;
-//		}
-//	}
-//}
 
 void CS::CheckFallback() {
-//	static float sOverflowThresh =
-//			(Config.Exists("cs_overflowthresh")) ?
-//					Config.GetFloat("cs_overflowthresh", 0.0f, 1.0f) :
-//					cOverflowThresh;
-//	static int sOverflowLimit =
-//			(Config.Exists("cs_overflowlimit")) ?
-//					Config.GetInt("cs_overflowlimit") : cOverflowLimit;
-//
-//	if (sOverflowLimit <= 0) {
-//		m_Fallback = true;
-//	}
-//
-//	if (m_Overflows < sOverflowLimit)
-//		return;
-//
-//	float overflowRatio = (float) m_Overflows / (float) m_ProcessedReads;
-//	if (overflowRatio > sOverflowThresh) {
-//		m_Fallback = true;
-//		Log.Warning("Permanently switching to fallback search (%i out of %i reads overflowed)", m_Overflows, m_ProcessedReads);
-//	}
+
 }
 

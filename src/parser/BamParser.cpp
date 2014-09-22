@@ -177,4 +177,28 @@ int BamParser::doParseRead(MappedRead * read) {
 	return -1;
 }
 
+
+
+int BamParser::doParseRead(SAMRecord * read) {
+
+	while (reader.GetNextAlignmentCore(al[0])) {
+		if (al->IsMapped()) {
+			al->BuildCharData();
+			read->set_read_name(al->Name);
+			read->set_sequence( al->QueryBases);
+			read->set_CIGAR(al->CigarData);
+			read->set_chr(reader.GetReferenceData()[al->RefID].RefName);
+			read->set_mapped_flag(al->AlignmentFlag);
+			read->set_mapping_pos(al->Position);
+			read->set_mapping_quality(al->MapQuality);
+			read->set_qualities(al->Qualities);
+			read->set_sequence(al->QueryBases);
+			read->set_tags(al->TagData);
+			return al->QueryBases.size();
+		}
+	}
+
+	return -1;
+}
+
 #endif

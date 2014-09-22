@@ -5,6 +5,7 @@
 
 #include "SAMWriter.h"
 #include "BAMWriter.h"
+#include "ScoreWriter.h"
 
 #undef module_name
 #define module_name "OUTPUT"
@@ -48,19 +49,20 @@ private:
 
 	IAlignment * aligner;
 
+	bool const argos;
+
 	void debugAlgnFinished(MappedRead * read);
 
 public:
 
 	static ulong alignmentCount;
 
-
 	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
 			batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(
 					NGM.GetOutputFormat()),
 					alignmode(Config.GetInt(MODE, 0, 1)),
 					corridor(Config.GetInt("corridor")),
-					refMaxLen(((Config.GetInt("qry_max_len") + corridor) | 1) + 1), min_mq(Config.GetInt(MIN_MQ)), aligner(mAligner) {
+					refMaxLen(((Config.GetInt("qry_max_len") + corridor) | 1) + 1), min_mq(Config.GetInt(MIN_MQ)), aligner(mAligner), argos(Config.Exists(ARGOS)) {
 						pairInsertSum = 0;
 						pairInsertCount = 0;
 						brokenPairs = 0;
@@ -72,25 +74,59 @@ public:
 
 						int const outputformat = NGM.GetOutputFormat();
 
-						switch (outputformat) {
-							case 0:
-							Log.Error("This output format is not supported any more.");
-							Fatal();
-							break;
-							case 1:
-							m_Writer = (GenericReadWriter*) new SAMWriter((FileWriter*)NGM.getWriter());
-							break;
-							case 2:
-							m_Writer = (GenericReadWriter*) new BAMWriter((FileWriterBam*)NGM.getWriter(), filename);
-							break;
-							default:
-							break;
+						if(Config.Exists(ARGOS)) {
+							m_Writer = (GenericReadWriter*) new ScoreWriter((FileWriter*)NGM.getWriter());
+						} else {
+							switch (outputformat) {
+								case 0:
+								Log.Error("This output format is not supported any more.");
+								Fatal();
+								break;
+								case 1:
+								m_Writer = (GenericReadWriter*) new SAMWriter((FileWriter*)NGM.getWriter());
+								break;
+								case 2:
+								m_Writer = (GenericReadWriter*) new BAMWriter((FileWriterBam*)NGM.getWriter(), filename);
+								break;
+								default:
+								break;
+							}
 						}
 
 						if(first) {
 							m_Writer->WriteProlog();
 							first = false;
 						}
+
+						reads = new Alignment[batchSize];
+
+						qryBuffer = new char const *[batchSize];
+						refBuffer = new char const *[batchSize];
+
+						for (int i = 0; i < batchSize; ++i) {
+							refBuffer[i] = new char[refMaxLen];
+						}
+
+						m_DirBuffer = new char[batchSize];
+
+						alignBuffer = new Align[batchSize];
+						dbLen = std::max(1, Config.GetInt("qry_max_len")) * 8;
+						dBuffer = new char[dbLen];
+
+						dummy = new char[refMaxLen];
+						memset(dummy, '\0', refMaxLen);
+						//dummy[Config.GetInt("qry_max_len") - 1] = '\0';
+
+						alignTime = 0.0f;
+						//}
+						//}
+
+						if(first) {
+							m_Writer->WriteProlog();
+							first = false;
+						}
+
+						Log.Verbose("Alignment batchsize = %i", batchSize);
 
 						reads = new Alignment[batchSize];
 
@@ -159,6 +195,7 @@ public:
 					}
 
 					void SaveRead(MappedRead* read, bool mapped = true);
+					void WriteRead(MappedRead* read, bool mapped);
 				};
 
 #endif

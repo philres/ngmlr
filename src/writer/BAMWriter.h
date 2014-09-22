@@ -1,11 +1,11 @@
 #ifndef ___BAMWRITER_H___
 #define ___BAMWRITER_H___
 
+
+
 #include "GenericReadWriter.h"
-
-#ifdef _BAM
-
 #include "FileWriterBam.h"
+#include <string.h>
 
 class BAMWriter: public GenericReadWriter {
 public:
@@ -54,6 +54,6 @@ private:
 	std::string RG;
 
 };
-#endif
+
 
 #endif //___BAMWRITER_H___

@@ -8,6 +8,8 @@
 #ifndef FILEWRITERBAM_H_
 #define FILEWRITERBAM_H_
 
+#include <string.h>
+
 #include "api/BamAlignment.h"
 #include "api/BamWriter.h"
 #include "api/SamHeader.h"
@@ -32,23 +34,19 @@ public:
 		}
 		NGMInitMutex(&m_OutputMutex);
 		writer = new BamTools::BamWriter();
-		//i = 0;
 	}
-#include <string.h>
+
 	void SaveAlignment(BamTools::BamAlignment * buffer[], int const n) {
 		NGMLock(&m_OutputMutex);
-//		if (i < 10000) {
-//			buffer[i++] = al;
-//		} else {
-			for (int j = 0; j < n; ++j) {
-				if (!writer->SaveAlignment(*buffer[j])) {
-					Log.Error("Couldn't write BAM record!");
-					Fatal();
-				}
-				delete buffer[j]; buffer[j] = 0;
+
+		for (int j = 0; j < n; ++j) {
+			if (!writer->SaveAlignment(*buffer[j])) {
+				Log.Error("Couldn't write BAM record!");
+				Fatal();
 			}
-//			i = 0;
-//		}
+			delete buffer[j];
+			buffer[j] = 0;
+		}
 		NGMUnlock(&m_OutputMutex);
 	}
 
@@ -69,10 +67,6 @@ public:
 
 private:
 	BamTools::BamWriter * writer;
-
-//	BamTools::BamAlignment buffer[10000];
-//
-//	int i;
 
 };
 

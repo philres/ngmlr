@@ -3,6 +3,9 @@
 
 #include <map>
 
+#include <stdio.h>
+#include <stdarg.h>
+
 #include "ILog.h"
 #include "Config.h"
 #include "NGM.h"
@@ -12,7 +15,6 @@
 
 #undef module_name
 #define module_name "OUTPUT"
-
 
 class GenericReadWriter {
 
@@ -52,16 +54,13 @@ protected:
 
 	int Print(const char *format, ...) {
 		int done;
-//		NGMLock(&m_OutputMutex);
 		va_list arg;
 
 		va_start(arg, format);
 		done = vsprintf(writeBuffer + bufferPosition, format, arg);
 		bufferPosition += done;
 		va_end(arg);
-//		NGMUnlock(&m_OutputMutex);
 		return done;
-
 	}
 
 private:
@@ -72,38 +71,54 @@ public:
 	}
 
 	void WriteRead(MappedRead const * const read, bool mapped = true) {
+		if (Config.Exists(ARGOS)) {
+			if (mapped) {
+				DoWriteRead(read, 0);
+				NGM.AddMappedRead(read->ReadId);
+			} else {
+				DoWriteUnmappedRead(read);
+			}
+		} else {
+			if (mapped) {
+				std::map<SequenceLocation, bool> iTable;
+				bool mappedOnce = false;
+				for (int i = 0; i < read->Calculated; ++i) {
 
-		if (mapped) {
-			std::map<SequenceLocation, bool> iTable;
-			bool mappedOnce = false;
-			for (int i = 0; i < read->Calculated; ++i) {
+					float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
+					float minResidues = Config.GetFloat("min_residues", 0, 1000);
 
-				float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
-				float minResidues = Config.GetFloat("min_residues", 0, 1000);
+					if (minResidues <= 1.0f) {
+						minResidues = read->length * minResidues;
+					}
 
-				if (minResidues <= 1.0f) {
-					minResidues = read->length * minResidues;
-				}
+					mapped = mapped && (read->Alignments[i].Identity >= minIdentity);
+					mapped = mapped && ((float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd) >= minResidues);
 
-				mapped = mapped && (read->Alignments[i].Identity >= minIdentity);
-				mapped = mapped && ((float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd) >= minResidues);
+					Log.Debug(4, "READ_%d\tOUTPUT\tChecking alignment CRM_%d (read length: %d - %d - %d)\t%f >= %f\t%f >= %f", read->ReadId, i, read->length, read->Alignments[i].QStart, read->Alignments[i].QEnd, read->Alignments[i].Identity, minIdentity, (float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd), minResidues);
 
-				Log.Debug(4, "READ_%d\tOUTPUT\tChecking alignment CRM_%d (read length: %d - %d - %d)\t%f >= %f\t%f >= %f", read->ReadId, i, read->length, read->Alignments[i].QStart, read->Alignments[i].QEnd, read->Alignments[i].Identity, minIdentity, (float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd), minResidues);
-
-				if (mapped) {
-					mappedOnce = true;
-					if (iTable.find(read->Scores[i].Location) == iTable.end()) {
-						iTable[read->Scores[i].Location] = true;
-						Log.Debug(4, "READ_%d\tOUTPUT\tWriting alignment CRM_%d", read->ReadId, i);
-						DoWriteRead(read, i);
-					} else {
-						Log.Debug(4, "READ_%d\tOUTPUT\tIgnoring duplicated alignment CRM_%d", read->ReadId, i);
+					if (mapped) {
+						mappedOnce = true;
+						if (iTable.find(read->Scores[i].Location) == iTable.end()) {
+							iTable[read->Scores[i].Location] = true;
+							Log.Debug(4, "READ_%d\tOUTPUT\tWriting alignment CRM_%d", read->ReadId, i);
+							DoWriteRead(read, i);
+						} else {
+							Log.Debug(4, "READ_%d\tOUTPUT\tIgnoring duplicated alignment CRM_%d", read->ReadId, i);
+						}
 					}
 				}
-			}
-			if (mappedOnce) {
-				Log.Debug(4, "READ_%d\tOUTPUT\tRead was mapped", read->ReadId);
-				NGM.AddMappedRead(read->ReadId);
+
+				if (mappedOnce) {
+					Log.Debug(4, "READ_%d\tOUTPUT\tRead was mapped", read->ReadId);
+					NGM.AddMappedRead(read->ReadId);
+				} else {
+					if(read->HasFlag(NGMNames::Empty)) {
+						Log.Debug(4, "READ_%d\tOUTPUT\tRead empty (discard read)", read->ReadId);
+					} else {
+						Log.Debug(4, "READ_%d\tOUTPUT\tRead unmapped", read->ReadId);
+						DoWriteUnmappedRead(read);
+					}
+				}
 			} else {
 				if(read->HasFlag(NGMNames::Empty)) {
 					Log.Debug(4, "READ_%d\tOUTPUT\tRead empty (discard read)", read->ReadId);
@@ -111,13 +126,6 @@ public:
 					Log.Debug(4, "READ_%d\tOUTPUT\tRead unmapped", read->ReadId);
 					DoWriteUnmappedRead(read);
 				}
-			}
-		} else {
-			if(read->HasFlag(NGMNames::Empty)) {
-				Log.Debug(4, "READ_%d\tOUTPUT\tRead empty (discard read)", read->ReadId);
-			} else {
-				Log.Debug(4, "READ_%d\tOUTPUT\tRead unmapped", read->ReadId);
-				DoWriteUnmappedRead(read);
 			}
 		}
 	}
@@ -171,6 +179,7 @@ public:
 	void WriteEpilog() {
 		DoWriteEpilog();
 	}
-};
+}
+;
 
 #endif

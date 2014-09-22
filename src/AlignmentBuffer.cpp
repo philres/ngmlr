@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "OutputReadBuffer.h"
 #include "Timing.h"
 
 ulong AlignmentBuffer::alignmentCount = 0;
@@ -39,18 +40,22 @@ void AlignmentBuffer::debugAlgnFinished(MappedRead * read) {
 }
 
 void AlignmentBuffer::addRead(MappedRead * read, int scoreID) {
-	if (!read->hasCandidates() || read->mappingQlty < min_mq) {
-		//If read has no CMRs or mapping quality is lower than min mapping quality, output unmapped read
-		//read->clearScores(-1);
-		SaveRead(read, false);
+	if (argos) {
+		SaveRead(read, read->hasCandidates());
 	} else {
-		Log.Debug(512, "READ_%d\tALGN_BUFFER\tCMR_%d %f (location %u) added to alignment buffer at position %d", read->ReadId, scoreID, read->Scores[scoreID].Score.f, read->Scores[scoreID].Location.m_Location, nReads);
-		//add alignment computations to buffer. if buffer is full, submit to CPU/GPU
-		reads[nReads].scoreId = scoreID;
-		reads[nReads++].read = read;
-		if (nReads == batchSize) {
-			DoRun();
-			nReads = 0;
+		if (!read->hasCandidates() || read->mappingQlty < min_mq) {
+			//If read has no CMRs or mapping quality is lower than min mapping quality, output unmapped read
+			//read->clearScores(-1);
+			SaveRead(read, false);
+		} else {
+			Log.Debug(512, "READ_%d\tALGN_BUFFER\tCMR_%d %f (location %u) added to alignment buffer at position %d", read->ReadId, scoreID, read->Scores[scoreID].Score.f, read->Scores[scoreID].Location.m_Location, nReads);
+			//add alignment computations to buffer. if buffer is full, submit to CPU/GPU
+			reads[nReads].scoreId = scoreID;
+			reads[nReads++].read = read;
+			if (nReads == batchSize) {
+				DoRun();
+				nReads = 0;
+			}
 		}
 	}
 }
@@ -109,7 +114,7 @@ void AlignmentBuffer::DoRun() {
 		Log.Debug(32, "INFO\tALGN\t%d alignments computed (out of %d)", aligned, count);
 
 		if (aligned != count)
-			Log.Error("Error aligning outputs (%i of %i aligned)", aligned, count);
+		Log.Error("Error aligning outputs (%i of %i aligned)", aligned, count);
 
 		//process results
 		for (int i = 0; i < aligned; ++i) {
@@ -138,11 +143,30 @@ void AlignmentBuffer::DoRun() {
 	}
 }
 
-void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
+void AlignmentBuffer::SaveRead(MappedRead * read, bool mapped) {
+	//if (!argos) {
+		WriteRead(read, mapped);
+//	} else {
+//		if (mapped) {
+//			//Convert mapping position to RefId and position
+//			for (int i = 0; i < read->Calculated; ++i) {
+//				//TODO: fix for -n > 1
+//				//Instead of setting mapped to false set score to 0 and don't print it in the end
+//				mapped = SequenceProvider.convert(read->Scores[i].Location);
+//			}
+//		}
+//		OutputReadBuffer::getInstance().addRead(read, mapped);
+//		OutputReadBuffer::getInstance().getNextRead(m_Writer);
+//	}
+}
+
+void AlignmentBuffer::WriteRead(MappedRead* read, bool mapped) {
 	static int const topn = Config.GetInt("topn");
 	if (mapped) {
 		//Convert mapping position to RefId and position
 		for (int i = 0; i < read->Calculated; ++i) {
+			//TODO: fix for -n > 1
+			//Instead of setting mapped to false set score to 0 and don't print it in the end
 			mapped = SequenceProvider.convert(read->Scores[i].Location);
 		}
 	}
@@ -162,7 +186,7 @@ void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 					pairInsertCount += 1;
 					if (ls1->Location.getrefId() != ls2->Location.getrefId() || distance < _NGM::sPairMinDistance
 							|| distance > _NGM::sPairMaxDistance || ls1->Location.isReverse() == ls2->Location.isReverse()) {
-//						Log.Message("%d != %d || %d < _%d || %d > %d || %d == %d", ls1->Location.getrefId() , ls2->Location.getrefId(), distance, _NGM::sPairMinDistance, distance, _NGM::sPairMaxDistance, ls1->Location.isReverse(), ls2->Location.isReverse());
+						//						Log.Message("%d != %d || %d < _%d || %d > %d || %d == %d", ls1->Location.getrefId() , ls2->Location.getrefId(), distance, _NGM::sPairMinDistance, distance, _NGM::sPairMaxDistance, ls1->Location.isReverse(), ls2->Location.isReverse());
 						read->SetFlag(NGMNames::PairedFail);
 						read->Paired->SetFlag(NGMNames::PairedFail);
 						brokenPairs += 1;
@@ -181,7 +205,7 @@ void AlignmentBuffer::SaveRead(MappedRead* read, bool mapped) {
 	}
 	if (pairInsertCount % 1000 == 0) {
 		NGM.Stats->validPairs = (pairInsertCount - brokenPairs) * 100.0f / pairInsertCount;
-//		NGM.Stats->insertSize = tSum * 1.0f / (tCount - brokenPairs);
+		//		NGM.Stats->insertSize = tSum * 1.0f / (tCount - brokenPairs);
 	}
 	NGM.GetReadProvider()->DisposeRead(read);
 }
