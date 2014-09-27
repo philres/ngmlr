@@ -32,6 +32,14 @@ private:
 
 public:
 
+	BamParser(int const p_qryMaxlen) : IParser(p_qryMaxlen) {
+		fp = 0;
+		parse_all = true;
+		al = 0;
+		tmp = 0;
+		parseAdditionalInfo = false;
+	}
+
 	virtual ~BamParser() {
 		if (tmp != 0) {
 			kseq_destroy(tmp);

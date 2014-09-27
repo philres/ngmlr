@@ -25,13 +25,16 @@ public:
 
 	static size_t const MAX_READNAME_LENGTH = 100;
 
-	int qryMaxLen;
+	IParser(int const qrymaxlen) : qryMaxLen(qrymaxlen) {
+
+	}
 
 	virtual ~IParser() {
 
 	}
 
 	virtual void init(char const * fileName, bool const keepTags) = 0;
+
 	int parseRead(MappedRead * pRead) {
 		assert(pRead != 0);
 		return doParseRead(pRead);
@@ -44,11 +47,12 @@ public:
 
 protected:
 
+	int const qryMaxLen;
+
 	virtual int doParseRead(MappedRead * pRead) = 0;
 	virtual int doParseRead(SAMRecord * pRead) = 0;
 
 	int copyToRead(MappedRead * read, kseq_t * kseq, int const l) {
-
 		int nameLength = 0;
 		if (l >= 0) {
 			if (kseq->seq.l == kseq->qual.l || kseq->qual.l == 0) {
@@ -74,8 +78,10 @@ protected:
 
 					}
 				} else {
-					read->length = qryMaxLen - 2;
-					memset(read->Seq, 'N', read->length);
+					read->length = 1;
+					read->Seq[0] = 'N';
+//					read->length = qryMaxLen - 2;
+//					memset(read->Seq, 'N', read->length);
 					read->SetFlag(NGMNames::Empty);
 				}
 

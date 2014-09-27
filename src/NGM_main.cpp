@@ -109,13 +109,13 @@ int main(int argc, char * argv[]) {
 		char const * log = 0;
 
 #ifdef DEBUGLOG
-		if(Config.Exists(LOG)) {
+		if (Config.Exists(LOG)) {
 			log = Config.GetString(LOG);
 			Log.Message("Writing debug log to: %s (lvl %d)", log, Config.GetInt(LOG_LVL));
 		}
 		_Log::Init(log, Config.GetInt(LOG_LVL)); // Inits logging to file
 #else
-		_Log::Init(0, 0); // Inits logging to file
+				_Log::Init(0, 0); // Inits logging to file
 #endif
 	} catch (...) {
 		Help();
@@ -149,10 +149,12 @@ int main(int argc, char * argv[]) {
 				Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
 				int discarded = NGM.GetReadReadCount() - (NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount());
 				if (discarded != 0) {
-					Log.Warning("Reads discarded: %d", discarded);
+//					Log.Warning("Reads discarded: %d", discarded);
+					Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped (%i discarded), %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount() + discarded)),NGM.GetUnmappedReadCount() + discarded, discarded, NGM.GetWrittenReadCount(), tmr.ET());
+				} else {
+					Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped, %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount())),NGM.GetUnmappedReadCount(),NGM.GetWrittenReadCount(), tmr.ET());
 				}
 
-				Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped, %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount())),NGM.GetUnmappedReadCount(), NGM.GetWrittenReadCount(), tmr.ET());
 			} catch (...) {
 				Log.Error("Unhandled exception in control thread");
 			}

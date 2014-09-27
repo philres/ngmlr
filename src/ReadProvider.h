@@ -37,7 +37,7 @@ private:
 
 	virtual MappedRead * NextRead(IParser * parser, int const id);
 	MappedRead * GenerateSingleRead(int const readid);
-	IParser * DetermineParser(char const * fileName);
+	IParser * DetermineParser(char const * fileName, int const qryMaxLen);
 };
 
 #endif /* READPROVIDER_H_ */

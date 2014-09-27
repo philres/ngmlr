@@ -20,6 +20,11 @@ private:
 
 public:
 
+	FastXParser(int const p_qryMaxLen) : IParser(p_qryMaxLen) {
+		fp = 0;
+		tmp = 0;
+	}
+
 	virtual ~FastXParser() {
 		if(tmp != 0)
 		{

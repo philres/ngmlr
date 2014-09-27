@@ -30,6 +30,14 @@ private:
 
 public:
 
+	SamParser(int const p_qryMaxLen) : IParser(p_qryMaxLen) {
+		fp = 0;
+		parse_all = true;
+		buffer = 0;
+		tmp = 0;
+		parseAdditionalInfo = false;
+	}
+
 	virtual ~SamParser() {
 		if (tmp != 0) {
 			kseq_destroy(tmp);

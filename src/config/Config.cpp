@@ -503,8 +503,8 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 
 #ifdef DEBUGLOG
 //	Default("log_lvl", "16383");
-//	Default("log_lvl", "255");
-	Default(LOG_LVL, "0");
+	Default("log_lvl", "255");
+	//Default(LOG_LVL, "0");
 #endif
 
 		initialized = true;

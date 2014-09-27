@@ -49,8 +49,8 @@ int m_CurrentReadLength;
 
 ReadProvider::ReadProvider() :
 		parser1(0), parser2(0), peDelimiter(
-				Config.GetString("pe_delimiter")[0]), isPaired(
-				Config.GetInt("paired") > 0), skipMateCheck(Config.GetInt(SKIP_MATE_CHECK) == 1) {
+		Config.GetString("pe_delimiter")[0]), isPaired(
+		Config.GetInt("paired") > 0), skipMateCheck(Config.GetInt(SKIP_MATE_CHECK) == 1) {
 
 }
 
@@ -64,8 +64,7 @@ int CollectResultsFallback(int const readLength) {
 	float maxCurrent = 0;
 
 	Log.Verbose("-maxHitTableIndex: %d", maxHitTableIndex);
-	for (std::map<SequenceLocation, float>::iterator itr = iTable.begin();
-			itr != iTable.end(); itr++) {
+	for (std::map<SequenceLocation, float>::iterator itr = iTable.begin(); itr != iTable.end(); itr++) {
 		maxCurrent = std::max(maxCurrent, itr->second);
 
 		//if(maxHitTableIndex == 8) {
@@ -74,8 +73,7 @@ int CollectResultsFallback(int const readLength) {
 	}
 
 	static const int skip = (
-			Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0)
-			+ 1;
+	Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
 	//float max = (seq->seq.l - CS::prefixBasecount + 1) / skip;
 
 	int max = ceil((readLength - CS::prefixBasecount + 1) / skip * 1.0);
@@ -93,8 +91,7 @@ int CollectResultsFallback(int const readLength) {
 	return 0;
 }
 
-static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom,
-		ulong mutateTo, void* data) {
+static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
 
 	RefEntry const * cur = m_RefProvider->GetRefEntry(prefix, m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
 
@@ -112,10 +109,7 @@ static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom,
 				SequenceLocation curLoc = cur->ref[i];
 				curLoc.setRefId(1);
 				curLoc.setReverse(true);
-				curLoc.m_Location = GetBin(
-						curLoc.m_Location
-								- (m_CurrentReadLength
-										- (pos + CS::prefixBasecount))); // position offset
+				curLoc.m_Location = GetBin(curLoc.m_Location - (m_CurrentReadLength - (pos + CS::prefixBasecount))); // position offset
 				iTable[curLoc] += weight;
 			}
 
@@ -133,13 +127,11 @@ static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom,
 	}
 }
 
-void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom,
-		ulong mutateTo, void* data, int mpos = 0);
+void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos = 0);
 
-void PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom,
-		ulong mutateTo, void* data) {
+void PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	static int const cMutationLocLimit =
-			Config.Exists("bs_cutoff") ? Config.GetInt("bs_cutoff") : 6;
+	Config.Exists("bs_cutoff") ? Config.GetInt("bs_cutoff") : 6;
 	ulong const mask = 0x3;
 
 	int mutationLocs = 0;
@@ -153,8 +145,7 @@ void PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom,
 		PrefixMutateSearchEx(prefix, pos, mutateFrom, mutateTo, data);
 }
 
-void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom,
-		ulong mutateTo, void* data, int mpos) {
+void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos) {
 	PrefixSearch(prefix, pos, mutateFrom, mutateTo, data);
 
 	ulong const mask = 0x3;
@@ -164,24 +155,23 @@ void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom,
 		if (cur == mutateFrom) {
 			ulong p1 = (prefix & ~(mask << (i * 2)));
 			ulong p2 = (mutateTo << (i * 2));
-			PrefixMutateSearchEx(p1 | p2, pos, mutateFrom, mutateTo, data,
-					i + 1);
+			PrefixMutateSearchEx(p1 | p2, pos, mutateFrom, mutateTo, data, i + 1);
 		}
 	}
 }
 
 uint ReadProvider::init() {
-	typedef void (*PrefixIterationFn)(ulong prefix, uint pos, ulong mutateFrom,
-			ulong mutateTo, void* data);
+	typedef void (*PrefixIterationFn)(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
 	PrefixIterationFn fnc = &PrefixSearch;
 
 	bool const isPaired = Config.GetInt("paired") > 1;
 
 	char const * const fileName1 =
-			Config.Exists("qry1") ?
-					Config.GetString("qry1") : Config.GetString("qry");
+	Config.Exists("qry1") ?
+	Config.GetString("qry1") :
+							Config.GetString("qry");
 	char const * const fileName2 =
-			Config.Exists("qry2") ? Config.GetString("qry2") : 0;
+	Config.Exists("qry2") ? Config.GetString("qry2") : 0;
 
 	bool m_EnableBS = false;
 	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
@@ -195,10 +185,11 @@ uint ReadProvider::init() {
 	Timer tmr;
 	tmr.ST();
 	size_t maxLen = 0;
-	bool estimate = !(Config.Exists("skip_estimate")
-			&& Config.GetInt("skip_estimate"));
+	bool estimate = !(Config.Exists("skip_estimate") && Config.GetInt("skip_estimate"));
 	if (!Config.Exists("qry_max_len") || estimate) {
-		parser1 = DetermineParser(fileName1);
+		//default value for estimation
+		static int const qryMaxLen = 10000;
+		parser1 = DetermineParser(fileName1, qryMaxLen);
 		if (estimate) {
 			Log.Message("Estimating parameter from data");
 
@@ -220,8 +211,6 @@ uint ReadProvider::init() {
 
 		bool finish = false;
 
-		int const qryMaxLen = 10000;
-
 		MappedRead * read = new MappedRead(0, qryMaxLen);
 
 		try {
@@ -236,8 +225,7 @@ uint ReadProvider::init() {
 //				Log.Message("Qlty: %s", read->qlty);
 
 					readCount += 1;
-					if (estimate && (readCount % estimateStepSize) == 0
-							&& readCount < estimateSize) {
+					if (estimate && (readCount % estimateStepSize) == 0 && readCount < estimateSize) {
 						ulong mutateFrom;
 						ulong mutateTo;
 						if (isPaired && (readCount & 1)) {
@@ -251,9 +239,8 @@ uint ReadProvider::init() {
 						}
 						m_CurrentReadLength = read->length;
 						Log.Verbose("-Iteration");
-						CS::PrefixIteration((char const *) read->Seq,
-								(uint) read->length, fnc, mutateFrom, mutateTo,
-								(void *) this, (uint) 0, (uint) 0);
+						CS::PrefixIteration((char const *) read->Seq, (uint) read->length, fnc, mutateFrom, mutateTo, (void *) this,
+								(uint) 0, (uint) 0);
 						Log.Verbose("-Collect: %s", parser1->read->name.s);
 						CollectResultsFallback(m_CurrentReadLength);
 					} else if (readCount == (estimateSize + 1)) {
@@ -320,8 +307,9 @@ uint ReadProvider::init() {
 			float m_CsSensitivity = 0.0f;
 			if (!m_EnableBS) {
 				static const int skip = (
-						Config.Exists("kmer_skip") ?
-								Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
+				Config.Exists("kmer_skip") ?
+				Config.GetInt("kmer_skip", 0, -1) :
+												0) + 1;
 				//float max = (avgLen - CS::prefixBasecount + 1) / skip;
 				int max = ceil((avgLen - CS::prefixBasecount + 1) / skip * 1.0);
 				float avg = sum / maxHitTableIndex * 1.0f;
@@ -382,9 +370,9 @@ uint ReadProvider::init() {
 	}
 	Log.Message("Initializing took %.3fs", tmr.ET());
 
-	parser1 = DetermineParser(fileName1);
+	parser1 = DetermineParser(fileName1, maxLen);
 	if (fileName2 != 0) {
-		parser2 = DetermineParser(fileName2);
+		parser2 = DetermineParser(fileName2, maxLen);
 	}
 
 	return 0;
@@ -409,104 +397,43 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 
 	try {
 		l = parser->parseRead(read);
+
+		if (l >= 0) {
+			int nameLength = strlen(read->name);
+
+			if (isPaired && read->name[nameLength - 2] == peDelimiter) {
+				nameLength -= 2;
+				read->name[nameLength] = '\0';
+			}
+
+			Log.Debug(2, "READ_%d\tINPUT\t%s", id, read->name);
+			Log.Debug(16384, "READ_%d\tINPUT_DETAILS\t%s\t%s\t%s\t%s", id, read->Seq, read->qlty, read->AdditionalInfo);
+
+			NGM.AddReadRead(read->ReadId);
+		} else {
+
+			Log.Debug(2, "READ_%d\tINPUT\t%s error while reading", id, read->name);
+
+			if(l == -2) {
+				Log.Error("Read %s: Length of read not equal length of quality values.", read->name);
+				Fatal();
+			} else if (l != -1) {
+				//TODO correct number when paired
+				Log.Error("Unknown error while parsing read number %d (error code: %d)", id + 1, l);
+				Fatal();
+			}
+			delete read;
+			read = 0;
+		}
 	} catch (char * ex) {
 		Log.Error("%s", ex);
 		Fatal();
 	}
-
-	if (l > 0) {
-		int nameLength = strlen(read->name);
-
-		if (isPaired && read->name[nameLength - 2] == peDelimiter) {
-			nameLength -= 2;
-			read->name[nameLength] = '\0';
-		}
-
-		Log.Debug(2, "READ_%d\tINPUT\t%s", id, read->name);
-		Log.Debug(16384, "READ_%d\tINPUT_DETAILS\t%s\t%s\t%s\t%s", id, read->Seq, read->qlty, read->AdditionalInfo);
-
-		NGM.AddReadRead(read->ReadId);
-	} else {
-
-		Log.Debug(2, "READ_%d\tINPUT\t%s error while reading", id, read->name);
-
-		if(l == -2) {
-			Log.Error("Read %s: Length of read not equal length of quality values.", read->name);
-			Fatal();
-		} else if (l != -1) {
-			//TODO correct number when paired
-			Log.Error("Unknown error while parsing read %d (%d)", id + 1, l);
-			if(isPaired) {
-				Fatal();
-			}
-		}
-		delete read;
-		read = 0;
-	}
-//	if (l >= 0) {
-//		if (parser->read->seq.l == parser->read->qual.l || parser->read->qual.l == 0) {
-//			read = new MappedRead(id, qryMaxLen);
-//
-//			//Name
-//			static size_t const MAX_READNAME_LENGTH = 100;
-//			read->name = new char[MAX_READNAME_LENGTH];
-//			int nameLength = std::min(MAX_READNAME_LENGTH - 1, parser->read->name.l);
-//
-//			if(isPaired && parser->read->name.s[nameLength - 2] == peDelimiter) {
-//				nameLength -= 2;
-//			}
-//
-//			memcpy(read->name, parser->read->name.s, nameLength);
-//			read->name[nameLength] = '\0';
-//
-//			//Sequence
-//			read->Seq = new char[qryMaxLen];
-//			memset(read->Seq, '\0', qryMaxLen);
-//			if (parser->read->seq.l != 0) {
-//				read->length = std::min(parser->read->seq.l, (size_t) qryMaxLen - 1);
-//				int nCount = 0;
-//				for (int i = 0; i < read->length; ++i) {
-//					char c = toupper(parser->read->seq.s[i]);
-//					if (c == 'A' || c == 'T' || c == 'C' || c == 'G') {
-//						read->Seq[i] = c;
-//					} else {
-//						read->Seq[i] = 'N';
-//						nCount += 1;
-//					}
-//
-//				}
-//			} else {
-//				Log.Verbose("Empty read found (%s). Filling with Ns.", read->name);
-//				read->length = qryMaxLen - 2;
-//				memset(read->Seq, 'N', read->length);
-//				read->SetFlag(NGMNames::Empty);
-//			}
-//
-//			//Quality
-//			read->qlty = 0;
-//			if (parser->read->qual.l > 0) {
-//				read->qlty = new char[read->length + 1];
-//				memcpy(read->qlty, parser->read->qual.s, read->length);
-//				read->qlty[read->length] = '\0';
-//			}
-//
-//			NGM.AddReadRead(read->ReadId);
-//		} else {
-//			Log.Error("Discarding read %s. Length of read not equal length of quality values.", parser->read->name.s);
-//			Fatal();
-//		}
-//	} else {
-//		if (l == -1) {
-//			Log.Verbose("End of input file reached.");
-//		} else {
-//			Log.Error("Error while parsing read %d (%d)", id, l);
-//			Fatal();
-//		}
-//	}
 	return read;
 }
 
-IParser * ReadProvider::DetermineParser(char const * fileName) {
+IParser * ReadProvider::DetermineParser(char const * fileName, int const qryMaxLen) {
+
 	gzFile fp = gzopen(fileName, "r");
 	if (!fp) {
 		//File does not exist
@@ -519,20 +446,19 @@ IParser * ReadProvider::DetermineParser(char const * fileName) {
 	}
 
 	int count = 0;
-	for (size_t i = 0; i < 1000 && buffer[i] != '\0' && buffer[i] != '\n';
-			i++) {
+	for (size_t i = 0; i < 1000 && buffer[i] != '\0' && buffer[i] != '\n'; i++) {
 		if (buffer[i] == '\t') {
 			count++;
 		}
 	}
 	if (count >= 10) {
 		Log.Message("Input is SAM");
-		parser = new SamParser();
+		parser = new SamParser(qryMaxLen);
 	} else {
 		if (strncmp(buffer, "BAM", 3) == 0) {
 #ifdef _BAM
 			Log.Message("Input is BAM");
-			parser= new BamParser();
+			parser= new BamParser(qryMaxLen);
 #else
 			Log.Error("BAM input detected. NGM was compiled without BAM support!");
 			Fatal();
@@ -543,7 +469,7 @@ IParser * ReadProvider::DetermineParser(char const * fileName) {
 			} else {
 				Log.Message("Input is Fastq");
 			}
-			parser = new FastXParser();
+			parser = new FastXParser(qryMaxLen);
 		}
 	}
 	gzclose(fp);
@@ -561,8 +487,7 @@ MappedRead * ReadProvider::GenerateSingleRead(int const readid) {
 }
 
 // Sequential (important for pairs!) read generation
-bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1,
-		int const readid2, MappedRead * & read2) {
+bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1, int const readid2, MappedRead * & read2) {
 
 	if (isPaired) {
 		static bool const isInterleaved = Config.Exists("qry");

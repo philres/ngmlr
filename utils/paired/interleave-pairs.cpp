@@ -47,7 +47,10 @@ struct Sequence {
 
 char seperator = '/';
 
+int const maxReadLength = 10000;
+
 IParser * DetermineParser(char const * fileName) {
+
 	IParser * parser = 0;
 	gzFile fp = gzopen(fileName, "r");
 	if (!fp) {
@@ -68,12 +71,12 @@ IParser * DetermineParser(char const * fileName) {
 	}
 	if (count >= 10) {
 		Log.Message("%s is SAM", fileName);
-		parser = new SamParser();
+		parser = new SamParser(maxReadLength);
 	} else {
 		if (strncmp(buffer, "BAM", 3) == 0) {
 #ifdef _BAM
 			Log.Message("%s is BAM", fileName);
-			parser= new BamParser();
+			parser= new BamParser(maxReadLength);
 #else
 			Log.Error("BAM input detected. NGM was compiled without BAM support!");
 			Fatal();
@@ -84,7 +87,7 @@ IParser * DetermineParser(char const * fileName) {
 			} else {
 				Log.Message("%s is FASTQ", fileName);
 			}
-			parser = new FastXParser();
+			parser = new FastXParser(maxReadLength);
 		}
 	}
 	delete[] buffer;
