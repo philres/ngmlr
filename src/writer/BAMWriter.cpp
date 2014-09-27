@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <cmath>
 
 #include "Config.h"
 #include "SequenceProvider.h"
@@ -241,7 +242,8 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 		}
 	}
 
-	al->AddTag("XI", "f", read->Alignments[scoreId].Identity);
+	float identity = round(read->Alignments[scoreId].Identity * 10000.0f) / 10000.0f;
+	al->AddTag("XI", "f", identity);
 	al->AddTag("X0", "i", (int) read->numTopScores);
 //TODO: fix. Calculated used to be the number of score computed. Now it is the number of computed alignments.
 //Thus it can't be used for X1 anymore.

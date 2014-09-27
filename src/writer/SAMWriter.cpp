@@ -4,6 +4,7 @@
 #include <sstream>
 #include <algorithm>
 #include <string.h>
+#include <cmath>
 
 #include "Config.h"
 #include "SequenceProvider.h"
@@ -38,7 +39,7 @@ void SAMWriter::DoWriteProlog() {
 		//TODO: add version
 	std::stringstream version;
 	version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
-	Print("@PG\tID:ngm\tNAME:ngm\tVN:%s\tCL:\"%s\"\n", version.str().c_str(), Config.GetString("cmdline"));
+	Print("@PG\tID:ngm\tPN:ngm\tVN:%s\tCL:\"%s\"\n", version.str().c_str(), Config.GetString("cmdline"));
 
 	if (RG != 0) {
 		Print("@RG\tID:%s", RG);
@@ -168,7 +169,8 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 		}
 	}
 
-	Print("XI:f:%f\t", read->Alignments[scoreID].Identity);
+	float identity = round(read->Alignments[scoreID].Identity * 10000.0f) / 10000.0f;
+	Print("XI:f:%g\t", identity);
 	Print("X0:i:%d\t", read->numTopScores);
 	//TODO: fix. Calculated used to be the number of score computed. Now it is the number of computed alignments.
 	//Thus it can't be used for X1 anymore.
