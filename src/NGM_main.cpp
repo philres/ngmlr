@@ -315,8 +315,8 @@ Advanced settings:\n\
                                (default: off)\n\
 \n\
 \n";
-	printf(help_msg);
-	exit(0);
+	fprintf(stderr, "%s", help_msg);
+	exit(1);
 }
 
 // actually platform specific.../care
