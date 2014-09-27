@@ -19,17 +19,20 @@
 #include <iostream>
 #include <cstring>
 
-
-class PlainFileWriter : public FileWriter {
+class PlainFileWriter: public FileWriter {
 
 public:
 
 	FILE * m_Output;
 
 	PlainFileWriter(char const * const filename) {
-		if (!(m_Output = fopen(filename, "w"))) {
-			Log.Error("Unable to open output file %s", filename);
-			Fatal();
+		if (filename == 0) {
+			m_Output = stdout;
+		} else {
+			if (!(m_Output = fopen(filename, "w"))) {
+				Log.Error("Unable to open output file %s", filename);
+				Fatal();
+			}
 		}
 	}
 

@@ -51,7 +51,11 @@ public:
 	}
 
 	bool Open(char const * const filename, BamTools::SamHeader header, BamTools::RefVector refs) {
-		return writer->Open(filename, header, refs);
+		if(filename == 0) {
+			return writer->Open("stdout", header, refs);
+		} else {
+			return writer->Open(filename, header, refs);
+		}
 	}
 
 	~FileWriterBam() {

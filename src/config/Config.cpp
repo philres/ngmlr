@@ -626,7 +626,7 @@ void _Config::ParseArguments(int argc, char * argv[]) {
 
 	/* print all other parameters */
 	while (optind < argc) {
-		printf("other parameter: <%s>\n", argv[optind++]);
+		fprintf(stderr, "other parameter: <%s>\n", argv[optind++]);
 	}
 
 }

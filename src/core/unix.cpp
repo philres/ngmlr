@@ -50,11 +50,11 @@ namespace _PlatformSpecifics_unix
 using namespace _PlatformSpecifics_unix;
 
 void SetConsoleColor(ConsoleColor color) {
-	printf("\e[%sm", colors[color]);
+	fprintf(stderr, "\e[%sm", colors[color]);
 }
 
 void ResetConsoleColor() {
-	printf("\e[0m");
+	fprintf(stderr, "\e[0m");
 }
 
 void ClearConsole() {
@@ -260,7 +260,7 @@ void HandleSignal(int sig)
 void MuteSignal(int sig)
 {
 	ResetConsoleColor();
-	printf("Resources freed by OS. Exiting normally...\n");
+	fprintf(stderr, "Resources freed by OS. Exiting normally...\n");
 	exit(0);
 }
 

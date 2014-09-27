@@ -46,9 +46,7 @@ bool CheckOutput() {
 			}
 		}
 	} else {
-		Log.Error("No output file (-o) specified.");
-		Help();
-		return false;
+		Log.Error("No output file (-o) specified. Writing to stdout.");
 	}
 	if((Config.Exists("qry1") && Config.Exists("qry2"))) {
 		if (!FileExists(Config.GetString("qry1"))) {

@@ -75,7 +75,7 @@ void LogToFile(int lvl, char const * const title, char const * const s, va_list 
 // rewind lines
 inline void rwl() {
 	for (int i = 0; i < rwd; ++i)
-		printf("\033[A\033[2K");
+		fprintf(stderr, "\033[A\033[2K");
 	rwd = 0;
 }
 
@@ -91,18 +91,18 @@ void LogToConsole(bool color, int lvl, char const * const title, char const * co
 	if (title != 0) {
 		if (lvl > 0 && color)
 			SetConsoleColor((ConsoleColor) (MessageTitle + (lvl * 2)));
-		printf("[%s] ", title);
+		fprintf(stderr, "[%s] ", title);
 	}
 
 	if (color)
 		SetConsoleColor((ConsoleColor) (Message + (lvl * 2)));
 	if (args != 0)
-		vprintf(s, args);
+		vfprintf(stderr, s, args);
 	else
-		printf("%s", s);
+		fprintf(stderr, "%s", s);
 	if (color)
 		ResetConsoleColor();
-	printf("\n");
+	fprintf(stderr, "\n");
 	if (progress) {
 		rwd = 1;
 	}
@@ -182,8 +182,8 @@ void _Log::_Debug(int lvl, char const * const title, char const * const s, ...) 
 	va_list args;
 
 	if (init) {
-		printf("Log Init active - Message blocked.\n");
-		printf("(lvl = %i) (t)%s %s\n", lvl, title, s);
+		fprintf(stderr, "Log Init active - Message blocked.\n");
+		fprintf(stderr, "(lvl = %i) (t)%s %s\n", lvl, title, s);
 		return;
 	}
 	NGMLock(&__Log::mutex);
@@ -201,8 +201,8 @@ void _Log::_Message(int lvl, char const * const title, char const * const s, ...
 	va_list args;
 
 	if (init) {
-		printf("Log Init active - Message blocked.\n");
-		printf("(lvl = %i) (t)%s %s\n", lvl, title, s);
+		fprintf(stderr, "Log Init active - Message blocked.\n");
+		fprintf(stderr, "(lvl = %i) (t)%s %s\n", lvl, title, s);
 		return;
 	}
 	NGMLock(&__Log::mutex);
@@ -220,7 +220,7 @@ void _Log::_Message(int lvl, char const * const title, char const * const s, ...
 	if (lvl == 1) {
 		warningCount += 1;
 		if (warningCount > 100) {
-			printf("Max number of warnings reached!\nPlease report this issue on http://github.com/Cibiv/NextGenMap/issues!\n");
+			fprintf(stderr, "Max number of warnings reached!\nPlease report this issue on http://github.com/Cibiv/NextGenMap/issues!\n");
 			Fatal();
 		}
 	}

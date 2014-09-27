@@ -58,23 +58,25 @@ _NGM::_NGM() :
 				m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(false), m_UnmappedReads(0), m_MappedReads(
 						0), m_WrittenReads(0), m_ReadReads(0), m_ReadProvider(0) {
 
-	if (Config.Exists("output")) {
-		char const * const output_name = Config.GetString("output");
-		if (m_OutputFormat != 2) {
+	char const * const output_name = Config.Exists("output") ? Config.GetString("output") : 0;
+	if (m_OutputFormat != 2) {
+		if (output_name != 0) {
 			Log.Message("Opening for output (SAM): %s", output_name);
-			if(Config.Exists(GZ)) {
-				Log.Message("Using GZ file writer.");
-				m_Output = new GZFileWriter(output_name);
-			} else {
-				Log.Message("Using plain file writer.");
-				m_Output = new PlainFileWriter(output_name);
-			}
 		} else {
-			Log.Message("Opening for output (BAM): %s", output_name);
-			m_Output = new FileWriterBam(output_name);
+			Log.Message("Wrinting output (SAM) to stdout");
+		}
+		if(Config.Exists(GZ)) {
+			m_Output = new GZFileWriter(output_name);
+		} else {
+			m_Output = new PlainFileWriter(output_name);
 		}
 	} else {
-		m_Output = 0;
+		if (output_name != 0) {
+			Log.Message("Opening for output (BAM): %s", output_name);
+		} else {
+			Log.Message("Wrinting output (BAM) to stdout");
+		}
+		m_Output = new FileWriterBam(output_name);
 	}
 
 	Log.Message("NGM Core initialization");
@@ -91,9 +93,9 @@ _NGM::_NGM() :
 	memset(m_BlockedThreads, 0, cMaxStage * sizeof(int));
 	memset(m_ToBlock, 0, cMaxStage * sizeof(int));
 	if (m_Paired && !m_DualStrand)
-	Log.Error("Logical error: Paired read mode without dualstrand search.");
+		Log.Error("Logical error: Paired read mode without dualstrand search.");
 
-}
+	}
 
 void _NGM::InitProviders() {
 	CS::Init();
