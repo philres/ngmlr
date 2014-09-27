@@ -15,9 +15,6 @@
 static const int cInvalidLocation = -99999999;
 static const SequenceLocation sInvalidLocation(cInvalidLocation, 0, false);
 
-//#ifdef _DEBUGCS
-//FILE* ofp2;
-//#endif
 
 volatile int CS::s_ThreadCount = 0;
 
@@ -179,7 +176,6 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 	float max = 0.0f;
 	for (int i = 0; i < c_SrchTableLen; ++i) {
 
-		//Log.Message("%u %u", rTable[i].state, currentState);
 		if ((rTable[i].state & 0x7FFFFFFF) == currentState) {
 
 			max = std::max(std::max(max, rTable[i].fScore), rTable[i].rScore);
@@ -213,95 +209,6 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 	Log.Debug(8, "READ_%d\tCS\tSummary: %d CMRs (%d without filter), %d accepted, theta: %f, max: %f", read->ReadId, n, count, accepted, mi_Threshhold, max);
 
 }
-
-//#ifdef _DEBUGCS
-//#include <stdio.h>
-//#include <sstream>
-
-//void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
-//	FILE* ofp;
-//	std::stringstream str;
-//	str << "kmers-" << read->name << ".csv";
-//	ofp = fopen(str.str().c_str(), "w");
-//
-//	FILE* ofpBed;
-//	std::stringstream strBed;
-//	strBed << "cmrs-" << read->name << ".bed";
-//	ofpBed = fopen(strBed.str().c_str(), "w");
-//
-//	int count = 0;
-//	float max = 0.0f;
-//	for (int i = 0; i < c_SrchTableLen; ++i) {
-//
-//		//Log.Message("%u %u", rTable[i].state, currentState);
-//		if ((rTable[i].state & 0x7FFFFFFF) == currentState) {
-//
-//			max = std::max(std::max(max, rTable[i].fScore), rTable[i].rScore);
-//			//Correct position
-//			int refCount = SequenceProvider.GetRefCount();
-//			uint m_Location = ResolveBin(rTable[i].m_Location);
-//			int j = 0;
-//			while (j < refCount && m_Location >= SequenceProvider.GetRefStart(j)) {
-//				j += (NGM.DualStrand()) ? 2 : 1;
-//			}
-//			if (j == 0) {
-//				//Log.Message("%s (%d) - %s: %s, %s", read->name, read->ReadId, read->Seq, read->Buffer1, read->Buffer2);
-//				//Log.Error("Couldn't resolve mapping position: %u!", m_Location);
-//				//Fatal();
-//			} else {
-//				j -= (NGM.DualStrand()) ? 2 : 1;
-//
-//				m_Location -= SequenceProvider.GetRefStart(j);
-//			}
-//			int m_RefId = j;
-//			int refNameLength = 0;
-//			if (rTable[i].fScore > 0.0f) {
-//				if(rTable[i].fScore >= mi_Threshhold) {
-//#ifdef _DEBUGCSVERBOSE
-//					Log.Green("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].fScore);
-//					fprintf(ofpBed, "%s\t%d\t%d\t%s\t%f\t+\n", SequenceProvider.GetRefName(m_RefId, refNameLength), m_Location, m_Location + 12, read->name, rTable[i].fScore);
-//#endif
-//				} else {
-//#ifdef _DEBUGCSVERBOSE
-//					//Log.Message("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].fScore);
-//#endif
-//				}
-//#ifdef _DEBUGCSKMERS
-//				fprintf(ofp, "%d\t%d\t%u\t%u\t%i\t%f\n", read->ReadId, 1, rTable[i].m_Location, m_Location, m_RefId, rTable[i].fScore);
-//#endif
-//				count += 1;
-//			}
-//			if (rTable[i].rScore > 0.0f) {
-//				if(rTable[i].rScore >= mi_Threshhold) {
-//#ifdef _DEBUGCSVERBOSE
-//					Log.Green("%s - Loc: %u (+), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].rScore);
-//					fprintf(ofpBed, "%s\t%d\t%d\t%s\t%f\t-\n", SequenceProvider.GetRefName(m_RefId, refNameLength), m_Location, m_Location + 12, read->name, rTable[i].rScore);
-//#endif
-//				} else {
-//#ifdef _DEBUGCSVERBOSE
-//					//Log.Message("%s - Loc: %u (-), Location: %u (Ref: %s), Score: %f", read->name, rTable[i].m_Location, m_Location, SequenceProvider.GetRefName(m_RefId, refNameLength), rTable[i].rScore);
-//#endif
-//				}
-//#ifdef _DEBUGCSKMERS
-//				fprintf(ofp, "%d\t%d\t%u\t%u\t%i\t%f\n", read->ReadId, -1, rTable[i].m_Location, m_Location, m_RefId, rTable[i].rScore);
-//#endif
-//				count += 1;
-//			}
-//		}
-//	}
-//	fclose(ofp);
-//	fclose(ofpBed);
-//#ifdef _DEBUGCSVERBOSE
-//	Log.Green("Read %s: %d CMRs, %d before filtering, theta: %f, max: %f", read->name, count, n, mi_Threshhold, max);
-//#endif
-//	//Log.Green("max = %f", max);
-//	//Log.Green("n = %d", n);
-//	//Log.Green("c = %d", count);
-//	//Log.Green("t = %f", mi_Threshhold);
-//	fprintf(ofp2, "%s\t%f\t%d\t%d\t%f\n", read->name, max, n, count, mi_Threshhold);
-//
-//}
-//#endif
 
 int CS::CollectResultsStd(MappedRead * read) {
 
@@ -390,11 +297,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 	for (size_t i = 0; i < m_CurrentBatch.size(); ++i) {
 
 		m_CurrentSeq = m_CurrentBatch[i]->ReadId;
-//		//TODO: remove
-//		if(strcmp("HWUSI-EAS475:1:12:17529:18194#0/1", m_CurrentBatch[i]->name) == 0) {
-//			Log.Error("Read %s: candidate search %d", m_CurrentBatch[i]->name, m_TID);
-//			getchar();
-//		}
+
 		currentState = 2 * i;
 		rListLength = 0;
 		maxHitNumber = 0.0f;
@@ -431,20 +334,12 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 				PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
 				nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
 			} catch (int overflow) {
-//				Log.Verbose("Interrupt on read %i: %i candidates in %i slots filled by %i prefixes containing %i locs",
-//						m_CurrentSeq,
-//						m_Candidates,
-//						m_UsedSlots,
-//						m_TotalPrefixes,
-//						m_TotalLocs);
-
 				++m_Overflows;
 
 				// Initiate fallback search on iTable
 				fallback = true;
 			}
 		}
-		//Log.Message("CCount %u", cCount);
 		if (fallback) {
 			int c_SrchTableBitLenBackup = c_SrchTableBitLen;
 			int x = 2;
@@ -474,14 +369,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 			c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
 		}
 
-//#ifdef _DEBUGCS
-//		Log.Warning("You are in DEBUGCS mode. Program quits after CMR search.");
-//		NGM.AddMappedRead(m_CurrentBatch[i]->ReadId);
-//		delete m_CurrentBatch[i];
-//		m_CurrentBatch[i] = 0;
-//#else
 		SendToBuffer(m_CurrentBatch[i], sw, out);
-//#endif
 	}
 
 	return nScoresSum;
@@ -559,13 +447,13 @@ void CS::DoRun() {
 				c_SrchTableBitLen -= 1;
 				c_BitShift = 32 - c_SrchTableBitLen;
 				c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
-//			Log.Warning("Overflow: Switching to %d bits (%d, %d)", c_SrchTableBitLen, c_BitShift, c_SrchTableLen);
+				Log.Debug(LOG_CS_DETAILS, "Overflow: Switching to %d bits (%d, %d)", c_SrchTableBitLen, c_BitShift, c_SrchTableLen);
 			} else if (m_Overflows > m_BatchSize * 0.01f) {
 				c_SrchTableBitLen += 1;
 				c_BitShift = 32 - c_SrchTableBitLen;
 				c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
 				up = true;
-//			Log.Warning("Overflow: Switching to %d bits (%d, %d)", c_SrchTableBitLen, c_BitShift, c_SrchTableLen);
+				Log.Debug(LOG_CS_DETAILS, "Overflow: Switching to %d bits (%d, %d)", c_SrchTableBitLen, c_BitShift, c_SrchTableLen);
 			}
 		}
 		m_Overflows = 0;
