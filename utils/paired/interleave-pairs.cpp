@@ -47,10 +47,10 @@ struct Sequence {
 
 char seperator = '/';
 
-int const maxReadLength = 10000;
+int const maxReadLength = 1000;
 
-IParser * DetermineParser(char const * fileName) {
-
+IParser * DetermineParserStr(string strfileName) {
+	char const * fileName = strfileName.c_str();
 	IParser * parser = 0;
 	gzFile fp = gzopen(fileName, "r");
 	if (!fp) {
@@ -61,10 +61,10 @@ IParser * DetermineParser(char const * fileName) {
 	char * buffer = new char[1000];
 	while (gzgets(fp, buffer, 1000) > 0 && buffer[0] == '@') {
 	}
+	gzclose(fp);
 
 	int count = 0;
-	for (size_t i = 0; i < 1000 && buffer[i] != '\0' && buffer[i] != '\n';
-			i++) {
+	for (size_t i = 0; i < 1000 && buffer[i] != '\0' && buffer[i] != '\n'; i++) {
 		if (buffer[i] == '\t') {
 			count++;
 		}
@@ -110,106 +110,48 @@ string parsePairId(string id) {
 }
 
 MappedRead * NextRead(IParser * parser, int const id) {
+	MappedRead * read = new MappedRead(id, maxReadLength);
 
-	MappedRead * read = new MappedRead (id,1000);
-	int l = parser->parseRead(read);
-	//Log.Message("Name (%d): %s", seq->name.l, seq->name.s);
-	//Log.Message("Seq  (%d): %s", seq->seq.l, seq->seq.s);
-	//Log.Message("Qual (%d): %s", seq->qual.l, seq->qual.s);
-	if (l <= 0) {
-		if (l == -2) {
-			Log.Error("Read %s: Length of read not equal length of quality values.", read->name);
-			Fatal();
-		} else if (l != -1) {
-			//TODO correct number when paired
-			Log.Error("Unknown error while parsing read %d (%d)", id + 1, l);
-			Fatal();
-		}
-		delete read;
-		read = 0;
-	}
-//		if (parser->read->seq.l == parser->read->qual.l || parser->read->qual.l == 0) {
-		//read = new MappedRead(id, 10000);
+	int l = 0;
 
-		//Name
-//			static size_t const MAX_READNAME_LENGTH = 100;
-//			read->name = new char[MAX_READNAME_LENGTH];
-//			int nameLength = std::min(MAX_READNAME_LENGTH - 1, parser->read->name.l);
-//			memcpy(read->name, parser->read->name.s, nameLength);
-//			read->name[nameLength] = '\0';
+	try {
+		l = parser->parseRead(read);
 
-//			char const * debugRead = "FCC01PDACXX:4:1101:10342:37018#0/1";
-//			if(strcmp(read->name, debugRead) == 0) {
-//				Log.Error("Read %s found: assigning id %d", debugRead, read->ReadId);
-//			}
-
-		//Sequence
-//			read->length = parser->read->seq.l;
+		if (l >= 0) {
+			//Reduce memory usage by only
+//			char * tmp = read->Seq;
 //			read->Seq = new char[read->length + 1];
-//			memset(read->Seq, '\0', read->length + 1);
-//			int nCount = 0;
-//			for (int i = 0; i < read->length; ++i) {
-//				char c = toupper(parser->read->seq.s[i]);
-//				if (c == 'A' || c == 'T' || c == 'C' || c == 'G') {
-//					read->Seq[i] = c;
-//				} else {
-//					read->Seq[i] = 'N';
-//					nCount += 1;
-//				}
-//
-//			}
-//			if (nCount > qryMaxLen * 0.5f) {
-//				Log.Warning("Discarding read %s (too many Ns)", read->name);
-//				delete read;
-//				return 0;
-//			}
-//			for (int i = read->length; i < qryMaxLen; ++i) {
-//				read->Seq[i] = '\0';
-//			}
+//			strcpy(read->Seq, tmp);
+//			delete[] tmp; tmp = 0;
 
-		//memcpy(read->Seq, seq->seq.s, read->length);
+		} else {
 
-		//Quality
-//			read->qlty = 0;
-//			if (parser->read->qual.l > 0) {
-//				read->qlty = new char[read->length + 1];
-//				memcpy(read->qlty, parser->read->qual.s, read->length);
-//				read->qlty[read->length] = '\0';
-//			}
-
-////			Log.Message("%s", read->name);
-////			Log.Message("%s", read->Seq);
-////			if (read->qlty != 0)
-////				Log.Message("%s", read->qlty);
-//
-//		} else {
-//			Log.Error("Discarding read %s. Length of read not equal length of quality values.", parser->read->name.s);
-//			Fatal();
-//		}
-//	} else {
-//		if (l == -1) {
-//			Log.Verbose("End of input file reached.");
-//		} else {
-//			Log.Error("Error while parsing read %d (%d)", id, l);
-//			Fatal();
-//		}
-//	}
+			if(l == -2) {
+				Log.Error("Read %s: Length of read not equal length of quality values.", read->name);
+				Fatal();
+			} else if (l != -1) {
+				//TODO correct number when paired
+				Log.Error("Unknown error while parsing read number %d (error code: %d)", id + 1, l);
+				Fatal();
+			}
+			delete read;
+			read = 0;
+		}
+	} catch (char * ex) {
+		Log.Error("%s", ex);
+		Fatal();
+	}
 	return read;
 }
 
-int parseNext(map<string, MappedRead *> & pairs, MappedRead * read,
-		Writer * writer, int fragNumber, int & writtenReads) {
-//	Entry * entryLeft = new Entry;
-//	entryLeft->first = isFirst;
+int parseNext(map<string, MappedRead *> & pairs, MappedRead * read, Writer * writer, int fragNumber, int & writtenReads) {
 
 	MappedRead * entryLeft = read;
 	MappedRead * entryRight = 0;
 
 	string nameLeft;
-//
-//	if (parser->read(nameLeft, entryLeft)) {
 	if (read != 0) {
-//		Entry * entryRight = 0;
+
 		nameLeft = parsePairId(entryLeft->name);
 		if (pairs.find(nameLeft) != pairs.end()) {
 			Log.Verbose("Pair found %s", nameLeft.c_str());
@@ -227,26 +169,12 @@ int parseNext(map<string, MappedRead *> & pairs, MappedRead * read,
 					<< ")! Do you have two reads with the same name in one file?" << std::endl;
 				}
 			}
-//
+
 			writer->writeRead(entryLeft);
 			writer->writeRead(entryRight);
-//			//writerLeft->writeRead(seq1->name.s, seq1->name.l, seq1->seq.s, seq1->seq.l, seq1->qual.s, seq1->qual.l);
-//
-//			//writerRight->writeRead(seq2->name.s, seq2->name.l, seq2->seq.s, seq2->seq.l, seq2->qual.s, seq2->qual.l);
-//
-//			//FilePosition outputPositionLeft = writerLeft->writeRead(entryLeft, maxReadLength);
-//
-//			//TODO: Ask if here should really be entryLeft???
-//			//FilePosition outputPositionRight = writerRight->writeRead(entryRight, maxReadLength);
-//
+
 			writtenReads += 1;
-////			if (outputPositionLeft != outputPositionRight) {
-////				//TODO:
-////				throw "Invalid output position in function parseNext.";
-////			}
-//			//writerLeft.writeIndexEntryRead(entryLeft, checkRead(entryLeft));
-//			//writerRight.writeIndexEntryRead(entryRight, checkRead(entryRight));
-//
+
 			pairs.erase(nameLeft);
 			cleareEntry(entryLeft);
 			cleareEntry(entryRight);
@@ -266,29 +194,20 @@ int interleave_pairs(int argc, char **argv) {
 
 	try {
 
-		TCLAP::CmdLine cmd(
-				"Interleaves paired end reads from two FASTA/Q files into one FASTQ file.",
-				' ', "0.1", false);
+		TCLAP::CmdLine cmd("Interleaves paired end reads from two FASTA/Q files into one FASTQ file.", ' ', "0.1", false);
 
-		TCLAP::ValueArg<std::string> leftArg("1", "m1",
-				"Upstream mates (FASTA/Q)", true, "", "file");
-		TCLAP::ValueArg<std::string> rightArg("2", "m2",
-				"Downstream mates (FASTA/Q)", true, "", "file");
+		TCLAP::ValueArg<std::string> leftArg("1", "m1", "Upstream mates (FASTA/Q)", true, "", "file");
+		TCLAP::ValueArg<std::string> rightArg("2", "m2", "Downstream mates (FASTA/Q)", true, "", "file");
 
-		TCLAP::ValueArg<std::string> outArg("o", "output", "Output file", true,
-				"", "file");
-		TCLAP::ValueArg<std::string> unpairedArg("u", "unpaired",
-				"Write reads without mate to this file.", false, "", "file");
+		TCLAP::ValueArg<std::string> outArg("o", "output", "Output file", true, "", "file");
+		TCLAP::ValueArg<std::string> unpairedArg("u", "unpaired", "Write reads without mate to this file.", false, "", "file");
 
-		TCLAP::ValueArg<char> delimiterArg("d", "delimiter",
-				"The character that precedes the 1 and 2 in the input files.",
-				false, '/', "char");
+		TCLAP::ValueArg<char> delimiterArg("d", "delimiter", "The character that precedes the 1 and 2 in the input files.", false, '/',
+				"char");
 
-		TCLAP::SwitchArg noprogressArg("", "noprogress",
-				"Suppress progress output.", cmd, false);
+		TCLAP::SwitchArg noprogressArg("", "noprogress", "Suppress progress output.", cmd, false);
 
-		TCLAP::SwitchArg forceArg("f", "force",
-				"Force finishing even if no pairs are found.", cmd, false);
+		TCLAP::SwitchArg forceArg("f", "force", "Force finishing even if no pairs are found.", cmd, false);
 
 		cmd.add(delimiterArg);
 		cmd.add(unpairedArg);
@@ -307,9 +226,9 @@ int interleave_pairs(int argc, char **argv) {
 
 		Writer * writer = new FastqWriter(outArg.getValue().c_str());
 
-		IParser * parser1 = DetermineParser(leftArg.getValue().c_str());
+		IParser * parser1 = DetermineParserStr(leftArg.getValue());
 		parser1->init(leftArg.getValue().c_str(), false);
-		IParser * parser2 = DetermineParser(rightArg.getValue().c_str());
+		IParser * parser2 = DetermineParserStr(rightArg.getValue());
 		parser2->init(rightArg.getValue().c_str(), false);
 
 		int l1 = 0;
@@ -359,6 +278,7 @@ int interleave_pairs(int argc, char **argv) {
 				MappedRead * read = it->second;
 				unmappedWriter->writeRead(read);
 				nUnmappedRead += 1;
+				delete read; read = 0;
 			}
 			delete unmappedWriter; unmappedWriter = 0;
 		} else {
@@ -376,6 +296,7 @@ int interleave_pairs(int argc, char **argv) {
 	} catch(char const * msg) {
 		std::cerr << "Exception: " << msg << std::endl;
 	}
+
 
 	return 0;
 }

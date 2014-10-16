@@ -9,6 +9,8 @@
 #define INTERLEAVE_PAIRS_H_
 #include "IParser.h"
 
+#include <string>
+
 int interleave_pairs(int argc, char **argv);
-IParser * DetermineParser(char const * fileName);
+IParser * DetermineParserStr(std::string fileName);
 #endif /* INTERLEAVE_PAIRS_H_ */

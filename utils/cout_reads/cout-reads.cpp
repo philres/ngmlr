@@ -101,7 +101,7 @@ int count_reads(int argc, char **argv) {
 		_Log::Init(0,0); // Inits logging to file
 
 
-		IParser * parser1 = DetermineParser(mapped_file.getValue().c_str());
+		IParser * parser1 = DetermineParserStr(mapped_file.getValue());
 
 		parser1->init(mapped_file.getValue().c_str(), false);
 

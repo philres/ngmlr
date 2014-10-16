@@ -20,6 +20,7 @@ private:
 	int mapped_flag;
 	string chr;
 	int mapping_pos;
+	int pair_number;
 
 	vector<CigarOp> cigar;
 	string read_name;
@@ -88,6 +89,10 @@ public:
 		this->tags = tags;
 	}
 
+	void set_pair_number(int pair_number) {
+		this->pair_number = pair_number;
+	}
+
 // ############# Getter: ################
 	int get_mapped_flag() {
 		return this->mapped_flag;
@@ -124,6 +129,10 @@ public:
 	}
 	string get_tags() {
 		return this->tags;
+	}
+
+	int get_pair_number() {
+		return this->pair_number;
 	}
 
 // ############# Query Flag: ################
