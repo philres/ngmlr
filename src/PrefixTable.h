@@ -50,6 +50,30 @@ struct Index {
 
 };
 
+//Represents a single hashtable unit
+//For genomes < 4GB, we always only use one unit with no genomic offset
+//In order to support larger genomes (genomic kmer position can be > INT_MAX),
+//we create another hashtable unit, assign it an offset value, and store all the large
+//kmer positions there.
+struct TableUnit
+{
+	 TableUnit() : cRefTableLen(0), RefTable(0), RefTableIndex(0), Offset(0) {}
+	~TableUnit()
+	{
+		delete[] RefTable;
+		RefTable = 0;
+
+		delete[] RefTableIndex;
+		RefTableIndex = 0;
+	}
+
+	uint      cRefTableLen;
+	Location* RefTable;
+	Index*    RefTableIndex;
+
+	uint64    Offset;
+};
+
 #pragma pack(pop)
 
 class CompactPrefixTable: public IRefProvider {
@@ -62,10 +86,26 @@ public:
 	static int maxPrefixFreq;
 
 private:
+	//How many table units do we need?
+	//Table units created:
+	//Reference genome size divided by c_tableLocMax, offsets increasing every table by c_tableLocMax
+	static const uint64 c_tableLocMax = 100000; //4294967296; //UINT_MAX
 
-	uint cRefTableLen;
-	Location* RefTable;
-	Index* RefTableIndex;
+	uint64 m_genomeLocMax; // == SequenceProvider.GetTotalLen()?
+
+	TableUnit* m_Units;
+	int m_UnitCount;
+
+		//Static members used to direct generation of table units
+
+		static TableUnit* CurrentUnit;
+
+		//Used to control which kmers should be counted for index building, only locations
+		//that will be in the unit should also be in the index
+		static uint64 kmerCountMinLocation;
+		static uint64 kmerCountMaxLocation;
+	
+
 	int m_CurGenSeq;
 	int m_RECount;
 	int m_RRCount;
@@ -93,8 +133,7 @@ private:
 	void saveToFile(const char* fileName, const uint refIndexSize, const uint refTableSize);
 	uint readFromFile(const char* fileName);
 
-	ulong CalcSize() const;
-	static bool CheckHeader(const char* const buffer);
+
 
 };
 

@@ -27,6 +27,8 @@ public:
 	const virtual char* GetRefName(int n, int& len) const;
 	virtual uint GetRefStart(int n) const;
 
+	long GetTotalLen() { return refFileLen; }
+
 	virtual void PagingUpdate();
 	static const int maxRefNameLength = 100;
 

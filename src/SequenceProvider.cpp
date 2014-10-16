@@ -262,6 +262,8 @@ void _SequenceProvider::Init(bool dualstrand) {
 		std::map<int, RefIdx> binRefMap;
 
 		long size = getSize(Config.GetString("ref"));
+		refFileLen = size;
+
 		Log.Message("Size of reference genome %ld (%ld)", size, UINT_MAX);
 		if (size > UINT_MAX) {
 			Log.Error("Reference genome too long! NGM can't handle genomes larger than %ld bytes.", UINT_MAX);

@@ -13,7 +13,7 @@ struct Location {
 
 struct RefEntry {
 	//static const int cIncrements[] = { 10, 20, 50, 100 };
-	static int MaxRefsPerEntry;
+	static int MaxRefsPerEntry; //UNUSED
 
 	RefEntry(int locs = MaxRefsPerEntry) {
 		reverse = false;

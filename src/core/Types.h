@@ -3,6 +3,8 @@
 
 typedef unsigned int uint;
 
+typedef unsigned long long uint64;
+
 #ifndef _WIN32
 typedef unsigned long ulong;
 #endif
