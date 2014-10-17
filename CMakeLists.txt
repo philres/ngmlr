@@ -5,9 +5,9 @@ set( NGM_VERSION_MAJOR 0 )
 set( NGM_VERSION_MINOR 4 )
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Building in debug mode!")
-    set( NGM_VERSION_BUILD 12-debug )
+    set( NGM_VERSION_BUILD 13-debug )
 else()
-	set( NGM_VERSION_BUILD 12 )
+	set( NGM_VERSION_BUILD 13 )
 ENDIF()
 
 
