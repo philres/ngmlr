@@ -71,7 +71,7 @@ struct TableUnit
 	Location* RefTable;
 	Index*    RefTableIndex;
 
-	uint64    Offset;
+	uint    Offset;
 };
 
 #pragma pack(pop)
@@ -86,25 +86,25 @@ public:
 	static int maxPrefixFreq;
 
 private:
-	//How many table units do we need?
-	//Table units created:
-	//Reference genome size divided by c_tableLocMax, offsets increasing every table by c_tableLocMax
-	static const uint64 c_tableLocMax = 100000; //4294967296; //UINT_MAX
+	//Biggest location value supported by a single table (precision of used location data type)
+	//=> Determines: How many table units do we need?
+	//   Table units created:
+	//      Reference genome size divided by c_tableLocMax, offsets increasing every table by c_tableLocMax
+	static const uint64 c_tableLocMax = 4294967296 * 2 - 1; //4294967296; //UINT_MAX
 
-	uint64 m_genomeLocMax; // == SequenceProvider.GetTotalLen()?
-
+	//Table units array
 	TableUnit* m_Units;
 	int m_UnitCount;
 
-		//Static members used to direct generation of table units
+	//Static members used to direct generation of table units
+	static TableUnit* CurrentUnit;
 
-		static TableUnit* CurrentUnit;
-
-		//Used to control which kmers should be counted for index building, only locations
-		//that will be in the unit should also be in the index
-		static uint64 kmerCountMinLocation;
-		static uint64 kmerCountMaxLocation;
+	//Used to control which kmers should be counted for index building, only locations
+	//that will be in the unit should also be in the index
+	static uint64 kmerCountMinLocation;
+	static uint64 kmerCountMaxLocation;
 	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	int m_CurGenSeq;
 	int m_RECount;
@@ -130,8 +130,8 @@ private:
 	static void BuildPrefixTablewoSkip(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
 	void SaveToRefTable(ulong prefix, Location loc);
 	void Clear();
-	void saveToFile(const char* fileName, const uint refIndexSize, const uint refTableSize);
-	uint readFromFile(const char* fileName);
+	void saveToFile(const char* fileName, const uint refIndexSize);
+	void readFromFile(const char* fileName);
 
 
 

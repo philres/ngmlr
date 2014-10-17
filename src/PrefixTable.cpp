@@ -104,18 +104,6 @@ inline int GetBin(uint pos) {
 CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		m_RECount(0), m_RRCount(0), m_BCalls(0), m_TotalLocs(0), DualStrand(dualStrand), skipRep(skip) {
 
-	uint genomeSize = SequenceProvider.GetTotalLen(); //TODO: Does this function work as expected?
-
-	m_UnitCount = 1 + genomeSize / c_tableLocMax;
-	m_Units = new TableUnit[ m_UnitCount ];
-
-	Log.Message("Allocated %d hashtable units",m_UnitCount);
-
-	kmerCountMinLocation = 0;
-	kmerCountMaxLocation = c_tableLocMax;
-
-	//
-
 	bool m_EnableBS = false;
 	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 
@@ -134,13 +122,21 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 	char * cacheFile = new char[refFileName.str().size() + 1];
 	strcpy(cacheFile, refFileName.str().c_str());
 
-	//TODO
 	if (!FileExists(cacheFile)) {
+		kmerCountMinLocation = 0;
+		kmerCountMaxLocation = c_tableLocMax;
+
+		uint genomeSize = SequenceProvider.GetTotalLen(); //TODO: Does this function work as expected?
+		m_UnitCount = 1 + genomeSize / c_tableLocMax;
+		m_Units = new TableUnit[ m_UnitCount ];
+
+		Log.Message("Allocated %d hashtable units",m_UnitCount);
+
 		CreateTable(indexLength);
 		
-		//saveToFile(cacheFile, indexLength, cRefTableLen);
+		saveToFile(cacheFile, indexLength);
 	} else {
-		//cRefTableLen = readFromFile(cacheFile);
+		readFromFile(cacheFile);
 	}
 }
 
@@ -359,9 +355,6 @@ void CompactPrefixTable::BuildPrefixTable(ulong prefix, uint pos, ulong mutateFr
 	if( pos < kmerCountMinLocation || pos > kmerCountMaxLocation )
 		return;
 
-	if(pos%5000==0)
-		Log.Message("Running prefix %u->%p",pos,(void*)CurrentUnit);
-
 	CompactPrefixTable * _this = (CompactPrefixTable*) data;
 	_this->m_BCalls++;
 
@@ -489,8 +482,8 @@ RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * initia
 	return initial_entry;
 }
 
-void CompactPrefixTable::saveToFile(char const * fileName, uint const refIndexSize, uint const refTableSize) {
-	/*if (!Config.GetInt("skip_save")) {
+void CompactPrefixTable::saveToFile(char const * fileName, uint const refIndexSize) {
+	if (!Config.GetInt("skip_save")) {
 		Timer wtmr;
 		wtmr.ST();
 		Log.Message("Writing RefTable to %s", fileName);
@@ -500,10 +493,19 @@ void CompactPrefixTable::saveToFile(char const * fileName, uint const refIndexSi
 			fwrite(&refTabCookie, sizeof(uint), 1, fp);
 			fwrite(&m_PrefixLength, sizeof(uint), 1, fp);
 			fwrite(&m_RefSkip, sizeof(uint), 1, fp);
+			fwrite(&m_UnitCount, sizeof(int), 1, fp);
 			fwrite(&refIndexSize, sizeof(uint), 1, fp);
-			fwrite(&refTableSize, sizeof(uint), 1, fp);
-			fwrite(RefTableIndex, sizeof(Index), refIndexSize, fp);
-			fwrite(RefTable, sizeof(Location), refTableSize, fp);
+
+			for( int i = 0; i < m_UnitCount; ++ i )
+			{
+				TableUnit& curr = m_Units[ i ];
+
+				fwrite(&curr.cRefTableLen, sizeof(uint), 1, fp);
+				fwrite(curr.RefTableIndex, sizeof(Index), refIndexSize, fp);
+				fwrite(curr.RefTable, sizeof(Location), curr.cRefTableLen, fp);
+				fwrite(&curr.Offset, sizeof(uint), 1, fp);
+			}
+
 			fclose(fp);
 		} else {
 			Log.Error("Error while opening file %s for writing.", fileName);
@@ -512,11 +514,11 @@ void CompactPrefixTable::saveToFile(char const * fileName, uint const refIndexSi
 		Log.Message("Writing to disk took %.2fs", wtmr.ET());
 	} else {
 		Log.Warning("RefTable is not saved to disk! (--skip-save)");
-	}*/
+	}
 }
 
-uint CompactPrefixTable::readFromFile(char const * fileName) {
-	/*Log.Message("Reading RefTable from %s", fileName);
+void CompactPrefixTable::readFromFile(char const * fileName) {
+	Log.Message("Reading RefTable from %s", fileName);
 	Timer wtmr;
 	wtmr.ST();
 	uint refIndexSize = 0;
@@ -539,13 +541,24 @@ uint CompactPrefixTable::readFromFile(char const * fileName) {
 		Log.Error("Please delete it and run NGM again.");
 		Fatal();
 	}
+
+	fread(&m_UnitCount, sizeof(int), 1, fp );
 	fread(&refIndexSize, sizeof(uint), 1, fp);
-	fread(&refTableSize, sizeof(uint), 1, fp);
-	RefTableIndex = new Index[refIndexSize];
-	fread(RefTableIndex, sizeof(Index), refIndexSize, fp);
-	RefTable = new Location[refTableSize + 1];
-	fread(RefTable, sizeof(Location), refTableSize, fp);
+
+	m_Units = new TableUnit[ m_UnitCount ];
+
+	for( int i = 0; i < m_UnitCount; ++ i )
+	{
+		TableUnit& curr = m_Units[ i ];
+
+		fread(&curr.cRefTableLen, sizeof(uint), 1, fp);
+		curr.RefTableIndex = new Index[refIndexSize];
+		fread(curr.RefTableIndex, sizeof(Index), refIndexSize, fp);
+		curr.RefTable = new Location[curr.cRefTableLen + 1];
+		fread(curr.RefTable, sizeof(Location), curr.cRefTableLen, fp);
+		fread(&curr.Offset, sizeof(uint), 1, fp);
+	}
+
 	fclose(fp);
 	Log.Message("Reading from disk took %.2fs", wtmr.ET());
-	return refTableSize;*/
 }
