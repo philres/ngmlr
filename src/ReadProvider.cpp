@@ -106,7 +106,7 @@ static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateT
 
 		if (cur->reverse) {
 			for (int i = 0; i < n; ++i) {
-				SequenceLocation curLoc = cur->ref[i];
+				SequenceLocation curLoc( cur->ref[i], cur->offset );
 				curLoc.setRefId(1);
 				curLoc.setReverse(true);
 				curLoc.m_Location = GetBin(curLoc.m_Location - (m_CurrentReadLength - (pos + CS::prefixBasecount))); // position offset
@@ -115,7 +115,7 @@ static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateT
 
 		} else {
 			for (int i = 0; i < n; ++i) {
-				SequenceLocation curLoc = cur->ref[i];
+				SequenceLocation curLoc( cur->ref[i], cur->offset );
 				curLoc.setRefId(0);
 				curLoc.setReverse(false);
 				curLoc.m_Location = GetBin(curLoc.m_Location - pos); // position offset

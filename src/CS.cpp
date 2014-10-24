@@ -105,7 +105,8 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 
 		int const n = cur->refCount;
 		for (int i = 0; i < n; ++i) {
-			cs->AddLocationStd(cs->GetBin(cur->ref[i].m_Location - correction), cur->reverse, weight);
+			uloc loc = cur->getRealLocation(cur->ref[i]);
+			cs->AddLocationStd(cs->GetBin(loc - correction), cur->reverse, weight);
 		}
 
 		cur = cur->nextEntry;

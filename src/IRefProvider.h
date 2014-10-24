@@ -28,6 +28,9 @@ struct RefEntry {
 
 		delete[] ref;
 	}
+
+	inline uloc getRealLocation(const Location& loc) const { return uloc( loc.m_Location ) + offset; }
+
 	Location * ref;
 	uloc offset; //Offset for all Locations
 	bool reverse;
