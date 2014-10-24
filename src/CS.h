@@ -79,7 +79,7 @@ protected:
 	float currentThresh;
 	float maxHitNumber;
 
-	inline uint Hash(uint n) {
+	inline uint Hash(uint n) { //TODO_GENOMESIZE: How is this affected by locations > UINT_MAX
 		//Multiplication Method (Corment)
 		//		static float A = 0.5f * (sqrt(5) - 1);
 		//		static uint m = floor(A * pow(2, 32));
@@ -116,7 +116,7 @@ public:
 		return l;
 	}
 	//AddLocationFn AddLocation;
-	virtual void AddLocationStd(const uint loc, const bool reverse, const double freq);
+	virtual void AddLocationStd(const uloc loc, const bool reverse, const double freq);
 	void AddLocationFallback(const SequenceLocation& loc, const double freq);
 	static uint prefixBasecount;
 	static uint prefixBits;

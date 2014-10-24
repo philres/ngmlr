@@ -113,7 +113,7 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 	}
 }
 
-void CS::AddLocationStd(uint const m_Location, bool const reverse, double const freq) {
+void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const freq) {
 	uint hpoc = c_SrchTableLen;
 	uint l = (uint) c_SrchTableLen;
 	bool newEntry = false;
