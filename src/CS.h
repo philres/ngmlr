@@ -59,12 +59,12 @@ protected:
 	int c_SrchTableLen;
 	uint m_PrefixBaseSkip;
 	bool m_Fallback;
-	typedef void (*PrefixIterationFn)(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
+	typedef void (*PrefixIterationFn)(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
 	typedef void (CS::*AddLocationFn)(const SequenceLocation& loc, const double freq);
-	static void BuildPrefixTable(ulong prefix, uint pos, void* data);
-	static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
+	static void BuildPrefixTable(ulong prefix, uloc pos, void* data);
+	static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
 
-	static void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos = 0);
+	static void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos = 0);
 	virtual int CollectResultsStd(MappedRead* read);
 	int CollectResultsFallback(MappedRead* read);
 	void FilterScore(LocationScore* score);
@@ -132,7 +132,7 @@ public:
 
 	static void Init();
 	static void Cleanup();
-	static void PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
+	static void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
 	static void PrefixIteration(const char* sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip = 0,
 			uint offset = 0);
 	static void PrefixIteration(const char* sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uint offset,

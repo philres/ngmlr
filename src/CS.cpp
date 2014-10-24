@@ -50,7 +50,7 @@ void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn f
 //ulong mutateFrom = 0x2;
 //ulong mutateTo = 0x1;
 
-void CS::PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
+void CS::PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	static int const cMutationLocLimit = Config.GetInt("bs_cutoff");
 	ulong const mask = 0x3;
 
@@ -65,7 +65,7 @@ void CS::PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom, ulong muta
 		PrefixMutateSearchEx(prefix, pos, mutateFrom, mutateTo, data);
 }
 
-void CS::PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos) {
+void CS::PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos) {
 	PrefixSearch(prefix, pos, mutateFrom, mutateTo, data);
 
 	ulong const mask = 0x3;
@@ -80,7 +80,7 @@ void CS::PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mu
 	}
 }
 
-void CS::PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
+void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	CS * cs = (CS*) data;
 
 	RefEntry const * cur = cs->m_RefProvider->GetRefEntry(prefix, cs->m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz

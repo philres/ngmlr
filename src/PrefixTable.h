@@ -124,10 +124,10 @@ private:
 	void CreateTable(const uint length);
 	int* CountKmerFreq(const uint length);
 	uint createRefTableIndex(const uint length);
-	static void CountKmer(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
-	static void CountKmerwoSkip(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
-	static void BuildPrefixTable(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
-	static void BuildPrefixTablewoSkip(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
+	static void CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
+	static void CountKmerwoSkip(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
+	static void BuildPrefixTable(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
+	static void BuildPrefixTablewoSkip(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
 	void SaveToRefTable(ulong prefix, Location loc);
 	void Clear();
 	void saveToFile(const char* fileName, const uint refIndexSize);

@@ -45,7 +45,7 @@ FILE * ofp;
 
 RefEntry * m_entry = 0;
 
-void CountKmer(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
+void CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 
 
 	SequenceLocation loc;

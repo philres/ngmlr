@@ -319,7 +319,7 @@ void CompactPrefixTable::CreateTable(uint const length) {
 
 }
 
-void CompactPrefixTable::CountKmer(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
+void CompactPrefixTable::CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	if( pos < kmerCountMinLocation || pos > kmerCountMaxLocation )
 		return;
 
@@ -342,7 +342,7 @@ void CompactPrefixTable::CountKmer(ulong prefix, uint pos, ulong mutateFrom, ulo
 	lastPrefix = prefix;
 }
 
-void CompactPrefixTable::CountKmerwoSkip(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
+void CompactPrefixTable::CountKmerwoSkip(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	if( pos < kmerCountMinLocation || pos > kmerCountMaxLocation )
 		return;
 
@@ -351,18 +351,22 @@ void CompactPrefixTable::CountKmerwoSkip(ulong prefix, uint pos, ulong mutateFro
 
 }
 
-void CompactPrefixTable::BuildPrefixTable(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
-	if( pos < kmerCountMinLocation || pos > kmerCountMaxLocation )
+void CompactPrefixTable::BuildPrefixTable(ulong prefix, uloc real_pos, ulong mutateFrom, ulong mutateTo, void* data) {
+	if( real_pos < kmerCountMinLocation || real_pos > kmerCountMaxLocation )
 		return;
+
+	//Rebase position using current hashtable unit offset
+	uloc temp_pos = real_pos - CurrentUnit->Offset;
+	uint reduced_pos( temp_pos );
 
 	CompactPrefixTable * _this = (CompactPrefixTable*) data;
 	_this->m_BCalls++;
 
 	if (prefix == lastPrefix) {
-		int currentBin = GetBin(pos);
+		int currentBin = GetBin(real_pos);
 		if (currentBin != lastBin || lastBin == -1) {
 			if (CurrentUnit->RefTableIndex[prefix].used()) {
-				Location tmp = {pos};
+				Location tmp = {reduced_pos};
 				_this->SaveToRefTable(prefix, tmp);
 			}
 		} else {
@@ -370,27 +374,31 @@ void CompactPrefixTable::BuildPrefixTable(ulong prefix, uint pos, ulong mutateFr
 //			Log.Message("Prefix %d (skip):\t%d (%d)\t%d (%d)\t(%ld)", prefix, lastPos, lastBin, pos, currentBin, skipCount);
 		}
 		lastBin = currentBin;
-		lastPos = pos;
+		lastPos = real_pos;
 	} else {
 		lastBin = -1;
 		lastPos = -1;
 		if (CurrentUnit->RefTableIndex[prefix].used()) {
-			Location tmp = {pos};
+			Location tmp = {reduced_pos};
 			_this->SaveToRefTable(prefix, tmp);
 		}
 	}
 	lastPrefix = prefix;
 }
 
-void CompactPrefixTable::BuildPrefixTablewoSkip(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
-	if( pos < kmerCountMinLocation || pos > kmerCountMaxLocation )
+void CompactPrefixTable::BuildPrefixTablewoSkip(ulong prefix, uloc real_pos, ulong mutateFrom, ulong mutateTo, void* data) {
+	if( real_pos < kmerCountMinLocation || real_pos > kmerCountMaxLocation )
 		return;
+
+	//Rebase position using current hashtable unit offset
+	uloc temp_pos = real_pos - CurrentUnit->Offset;
+	uint reduced_pos( temp_pos );
 
 	CompactPrefixTable * _this = (CompactPrefixTable*) data;
 	_this->m_BCalls++;
 
 	if (CurrentUnit->RefTableIndex[prefix].used()) {
-		Location tmp = {pos};
+		Location tmp = {reduced_pos};
 		_this->SaveToRefTable(prefix, tmp);
 	}
 }
@@ -423,7 +431,6 @@ RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * initia
 
 	for( int i = 0; i < m_UnitCount; ++ i )
 	{
-
 		uint      cRefTableLen = m_Units[i].cRefTableLen;
 		Location* RefTable = m_Units[i].RefTable;
 		Index*    RefTableIndex = m_Units[i].RefTableIndex;
@@ -441,14 +448,17 @@ RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * initia
 	//		entry->weight = 1.0f;
 			entry->refCount = maxLength;
 			entry->refTotal = maxLength;
+			entry->offset = m_Units[i].Offset;
 		} else {
 			entry->weight = 0.0f;
 			entry->refCount = 0;
 			entry->refTotal = 0;
+			entry->offset = m_Units[i].Offset;
 		}
 
 		ulong compRevPrefix = revComp(prefix);
 		RefEntry * revEntry = entry->nextEntry;
+
 		if (RefTableIndex[compRevPrefix].used()) {
 			start = RefTableIndex[compRevPrefix].m_TabIndex - 1;
 			//TODO: Fix Invalid read of size 4
@@ -460,10 +470,12 @@ RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * initia
 	//		revEntry->weight = 1.0f;
 			revEntry->refCount = maxLength;
 			entry->refTotal = revEntry->refTotal = entry->refTotal + maxLength;
+			revEntry->offset = m_Units[i].Offset;
 		} else {
 			revEntry->weight = 0.0f;
 			revEntry->refCount = 0;
 			revEntry->refTotal = 0;
+			revEntry->offset = m_Units[i].Offset;
 		}
 		//}
 

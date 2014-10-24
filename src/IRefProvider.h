@@ -29,6 +29,7 @@ struct RefEntry {
 		delete[] ref;
 	}
 	Location * ref;
+	uloc offset; //Offset for all Locations
 	bool reverse;
 	float weight;
 	int refCount;

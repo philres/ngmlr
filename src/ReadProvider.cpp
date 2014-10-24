@@ -91,7 +91,7 @@ int CollectResultsFallback(int const readLength) {
 	return 0;
 }
 
-static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
+static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 
 	RefEntry const * cur = m_RefProvider->GetRefEntry(prefix, m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
 
@@ -127,9 +127,9 @@ static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateT
 	}
 }
 
-void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos = 0);
+void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos = 0);
 
-void PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
+void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	static int const cMutationLocLimit =
 	Config.Exists("bs_cutoff") ? Config.GetInt("bs_cutoff") : 6;
 	ulong const mask = 0x3;
@@ -145,7 +145,7 @@ void PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo
 		PrefixMutateSearchEx(prefix, pos, mutateFrom, mutateTo, data);
 }
 
-void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos) {
+void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos) {
 	PrefixSearch(prefix, pos, mutateFrom, mutateTo, data);
 
 	ulong const mask = 0x3;
@@ -161,7 +161,7 @@ void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutate
 }
 
 uint ReadProvider::init() {
-	typedef void (*PrefixIterationFn)(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
+	typedef void (*PrefixIterationFn)(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
 	PrefixIterationFn fnc = &PrefixSearch;
 
 	bool const isPaired = Config.GetInt("paired") > 1;
