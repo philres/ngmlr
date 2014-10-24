@@ -36,8 +36,8 @@ TableUnit* CompactPrefixTable::CurrentUnit;
 
 //Used to control which kmers should be counted for index building, only locations
 //that will be in the unit should also be in the index
-uint64 CompactPrefixTable::kmerCountMinLocation;
-uint64 CompactPrefixTable::kmerCountMaxLocation;
+uloc CompactPrefixTable::kmerCountMinLocation;
+uloc CompactPrefixTable::kmerCountMaxLocation;
 
 static const unsigned char ReverseTable16[] = { 0x00, 0x04, 0x08, 0x0C, 0x01, 0x05, 0x09, 0x0D, 0x02, 0x06, 0x0A, 0x0E, 0x03, 0x07, 0x0B,
 		0x0F };

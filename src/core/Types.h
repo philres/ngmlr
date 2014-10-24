@@ -3,7 +3,8 @@
 
 typedef unsigned int uint;
 
-typedef unsigned long long uint64;
+//Type for holding genomic locations
+typedef unsigned long long uloc;
 
 #ifndef _WIN32
 typedef unsigned long ulong;

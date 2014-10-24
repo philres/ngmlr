@@ -90,7 +90,7 @@ private:
 	//=> Determines: How many table units do we need?
 	//   Table units created:
 	//      Reference genome size divided by c_tableLocMax, offsets increasing every table by c_tableLocMax
-	static const uint64 c_tableLocMax = 4294967296 * 2 - 1; //4294967296; //UINT_MAX
+	static const uloc c_tableLocMax = 4294967296 * 2 - 1; //4294967296; //UINT_MAX
 
 	//Table units array
 	TableUnit* m_Units;
@@ -101,8 +101,8 @@ private:
 
 	//Used to control which kmers should be counted for index building, only locations
 	//that will be in the unit should also be in the index
-	static uint64 kmerCountMinLocation;
-	static uint64 kmerCountMaxLocation;
+	static uloc kmerCountMinLocation;
+	static uloc kmerCountMaxLocation;
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
