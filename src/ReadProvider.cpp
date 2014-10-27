@@ -54,7 +54,7 @@ ReadProvider::ReadProvider() :
 
 }
 
-inline int GetBin(uint pos) {
+inline uloc GetBin(uloc pos) {
 	static int shift = CS::calc_binshift(20);
 	return pos >> shift;
 	//return pos;
@@ -239,8 +239,8 @@ uint ReadProvider::init() {
 						}
 						m_CurrentReadLength = read->length;
 						Log.Verbose("-Iteration");
-						CS::PrefixIteration((char const *) read->Seq, (uint) read->length, fnc, mutateFrom, mutateTo, (void *) this,
-								(uint) 0, (uint) 0);
+						CS::PrefixIteration((char const *) read->Seq, uloc::from_uint32( read->length ), fnc, mutateFrom, mutateTo, (void *) this,
+								(uint) 0, uloc::from_uint32(0) );
 						Log.Verbose("-Collect: %s", parser1->read->name.s);
 						CollectResultsFallback(m_CurrentReadLength);
 					} else if (readCount == (estimateSize + 1)) {

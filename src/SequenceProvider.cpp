@@ -137,15 +137,15 @@ bool _SequenceProvider::convert(SequenceLocation & m_Location) {
 	//Convert position back to Chromosome+Position
 	SequenceLocation loc = m_Location;
 	//Find the next larger chromosome start position in the concatenated reference for the mapping location
-	uint * upper = std::upper_bound(refStartPos, refStartPos + (refCount / ((DualStrand) ? 2 : 1)) + 1, loc.m_Location);
+	uloc * upper = std::upper_bound(refStartPos, refStartPos + (refCount / ((DualStrand) ? 2 : 1)) + 1, loc.m_Location);
 
 	//Check whether the mapping position is in one of the spacer regions between the chromosomes
-	if (((uint) *upper - loc.m_Location) < 1000) {
+	if ( (*upper - loc.m_Location) < uloc::from_uint32(1000)) { //TODO_GENOMESIZE: *upper has to be uloc size
 		Log.Verbose("Read start position < chromosome start!");
-		Log.Verbose("Loc: %u (%d) < %u < %u (%d)", (uint)*(upper-1), ((upper - 2) - refStartPos) * ((DualStrand) ? 2 : 1), loc.m_Location, (uint)*(upper), ((upper - 1) - refStartPos) * ((DualStrand) ? 2 : 1));
+		Log.Verbose("Loc: %u (%d) < %u < %u (%d)", (uloc)*(upper-1), ((upper - 2) - refStartPos) * ((DualStrand) ? 2 : 1), loc.m_Location, (uint)*(upper), ((upper - 1) - refStartPos) * ((DualStrand) ? 2 : 1));
 		if(Config.Exists(ARGOS)) {
 			//Set mapping position to start position of chromosome
-			loc.m_Location = *upper;
+			loc.m_Location = (uloc) *upper;
 			upper += 1;
 		} else {
 			//Report read/position as unmapped (only happens for --end-to-end)
@@ -177,8 +177,8 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName) {
 
 	fread(&cookie, sizeof(uint), 1, fp);
 	fread(&refCount, sizeof(uint), 1, fp);
-	fread(&binRefIndex, sizeof(uint), 1, fp);
-	fread(&encRefSize, sizeof(uint), 1, fp);
+	fread(&binRefIndex, sizeof(uloc), 1, fp);
+	fread(&encRefSize, sizeof(uloc), 1, fp);
 	if (cookie != refEncCookie) {
 		fclose(fp);
 		Log.Error("Invalid encoded reference file found: %s.", fileName);
@@ -200,7 +200,7 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName) {
 	return refCount;
 }
 
-void _SequenceProvider::writeEncRefToFile(char const * fileName, uint const refCount, uint const encRefSize) {
+void _SequenceProvider::writeEncRefToFile(char const * fileName, uint const refCount, uloc const encRefSize) {
 	if (!Config.GetInt("skip_save")) {
 		Timer wtmr;
 		wtmr.ST();
@@ -209,25 +209,25 @@ void _SequenceProvider::writeEncRefToFile(char const * fileName, uint const refC
 		fp = fopen(fileName, "wb");
 		fwrite(&refEncCookie, sizeof(uint), 1, fp);
 		fwrite(&refCount, sizeof(uint), 1, fp);
-		fwrite(&binRefIndex, sizeof(uint), 1, fp);
-		fwrite(&encRefSize, sizeof(uint), 1, fp);
+		fwrite(&binRefIndex, sizeof(uloc), 1, fp);
+		fwrite(&encRefSize, sizeof(uloc), 1, fp);
 
 		fwrite(binRefIdx, sizeof(RefIdx), refCount, fp);
-		fwrite(binRef, sizeof(char), encRefSize, fp);
+		fwrite(binRef, sizeof(char), uloc::to_uloc(encRefSize), fp);
 
 		fclose(fp);
 		Log.Message("Writing to disk took %.2fs", wtmr.ET());
 	}
 }
 
-long getSize(char const * const file) {
+uloc getSize(char const * const file) { //TODO_GENOMESIZE: Does this work right?
 	gzFile gzfp;
 	kseq_t *seq;
 	gzfp = gzopen(Config.GetString("ref"), "r");
 	seq = kseq_init(gzfp);
 	int l = 0;
 	//1000 -> padding at beginning
-	long size = 1000;
+	uloc size = uloc::from_uint32(1000);
 	while ((l = kseq_read(seq)) >= 0) {
 		//1000 -> 1000 x N padding
 		int s = (seq->seq.l | 1) + 1;
@@ -261,18 +261,19 @@ void _SequenceProvider::Init(bool dualstrand) {
 		Log.Message("Encoding reference sequence.");
 		std::map<int, RefIdx> binRefMap;
 
-		long size = getSize(Config.GetString("ref"));
+		uloc size = getSize(Config.GetString("ref"));
 		refFileLen = size;
 
-		Log.Message("Size of reference genome %ld (%ld)", size, UINT_MAX);
-		if (size > UINT_MAX) {
-			Log.Error("Reference genome too long! NGM can't handle genomes larger than %ld bytes.", UINT_MAX);
+		Log.Message("Size of reference genome %llu (%llu)", uloc::to_uloc(size), ULLONG_MAX);
+		/* If size > INT64_MAX, then we literally got a big problem
+		if (size > ULLONG_MAX) {
+			Log.Error("Reference genome too long! NGM can't handle genomes larger than %ld bytes.", ULLONG_MAX );
 			Fatal();
-		}
+		}*/
 
-		uint const binRefSize = ((size / 2) | 1) + 1;
-		Log.Message("Allocating %u (%u) bytes for the reference.", binRefSize, FileSize(Config.GetString("ref")));
-		binRef = new char[binRefSize];
+		uloc const binRefSize = ((size / 2) | 1) + 1;
+		Log.Message("Allocating %llu (%llu) bytes for the reference.", uloc::to_uloc(binRefSize), FileSize(Config.GetString("ref"))); //TODO_GENOMESIZE: Check/adapt FileSize for uloc
+		binRef = new char[uloc::to_uloc(binRefSize)];
 
 		gzFile gzfp;
 		kseq_t *seq;
@@ -290,7 +291,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 		for (int i = 0; i < 500; ++i) {
 			char c = enc4(spacer) << 4;
 			c |= enc4(spacer);
-			binRef[binRefIndex++] = c;
+			binRef[uloc::to_uloc(binRefIndex++)] = c;
 		}
 		int skipped = 0;
 		while ((l = kseq_read(seq)) >= 0) {
@@ -311,19 +312,19 @@ void _SequenceProvider::Init(bool dualstrand) {
 				for (size_t i = 0; i < seq->seq.l / 2 * 2; i += 2) {
 					char c = enc4(ref[i]) << 4;
 					c |= enc4(ref[i + 1]);
-					binRef[binRefIndex++] = c;
+					binRef[uloc::to_uloc(binRefIndex++)] = c;
 				}
 				if (seq->seq.l & 1) {
 					char c = enc4(ref[seq->seq.l - 1]) << 4;
 					c |= enc4(spacer);
-					binRef[binRefIndex++] = c;
+					binRef[uloc::to_uloc(binRefIndex++)] = c;
 				}
 
 				for (int i = 0; i < 500; ++i) {
 					//N
 					char c = enc4(spacer) << 4;
 					c |= enc4(spacer);
-					binRef[binRefIndex++] = c;
+					binRef[uloc::to_uloc(binRefIndex++)] = c;
 				}
 			} else {
 				Log.Verbose("Reference sequence %s too short (%d). Skipping.", seq->name.s, seq->seq.l);
@@ -331,12 +332,12 @@ void _SequenceProvider::Init(bool dualstrand) {
 			}
 		}
 		refCount = j;
-		Log.Message("BinRef length: %d (elapsed %f)", binRefIndex, tt.ET());
+		Log.Message("BinRef length: %ull (elapsed %f)", uloc::to_uloc(binRefIndex), tt.ET());
 		Log.Message("%d reference sequences were skipped (length < %d).", skipped, minRefSeqLen);
 		kseq_destroy(seq);
 		gzclose(gzfp);
 
-		binRefIndex *= 2;
+		binRefIndex = binRefIndex * 2;
 
 		if (binRefMap.size() != (size_t) refCount) {
 			Log.Error("Error while building ref index.");
@@ -368,7 +369,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 #endif
 
 	int refCount = SequenceProvider.GetRefCount();
-	refStartPos = new uint[refCount / ((DualStrand) ? 2 : 1) + 1];
+	refStartPos = new uloc[refCount / ((DualStrand) ? 2 : 1) + 1];
 	int i = 0;
 	int j = 0;
 	while (i < refCount) {
@@ -380,14 +381,14 @@ void _SequenceProvider::Init(bool dualstrand) {
 
 }
 
-bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offset, uint bufferLength) {
-	uint len = bufferLength - 2;
+bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uloc offset, uloc bufferLength) {
+	uloc len = bufferLength - 2;
 	if (DualStrand) {
 		n >>= 1;
 	}
 //	Log.Message("%u %u %u", offset, bufferLength, binRefIdx[n].SeqLen);
 	//if (offset >= binRefIdx[n].SeqLen || offset < 0) {
-	if (offset >= GetConcatRefLen() || offset < 0) {
+	if (offset >= GetConcatRefLen()) {
 		Log.Verbose("Invalid reference location. Offset: %d", offset);
 		return false;
 	}
@@ -397,7 +398,7 @@ bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offse
 //		len -= nCount;
 //		offset = 0;
 //	}
-	uint end = 0;
+	uloc end = uloc::from_uint32(0);
 	if ((offset + len) > GetConcatRefLen()) {
 		end = (offset + len) - GetConcatRefLen();
 		len -= end;
@@ -408,29 +409,29 @@ bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uint offse
 //		len -= end;
 //	}
 //	int start = binRefIdx[n].SeqStart + ceil(offset / 2.0);
-	int start = ceil(offset / 2.0);
+	uloc start = (offset + 1)/2; //TODO: Check if equiv to ceil(offset / 2.0);
 
 	uint codedIndex = 0;
 //	for (int i = 0; i < nCount; ++i) {
 //		buffer[codedIndex++] = 'x';
 //	}
-	if (offset & 1) {
-		buffer[codedIndex++] = dec4Low(binRef[start - 1]);
+	if (uloc::to_uloc(offset & 1)) {
+		buffer[codedIndex++] = dec4Low(binRef[uloc::to_uloc(start - 1)]);
 	}
-	for (uint i = 0; i < ceil(len / 2.0); ++i) {
-		buffer[codedIndex++] = dec4High(binRef[start + i]);
-		buffer[codedIndex++] = dec4Low(binRef[start + i]);
+	for (uloc i = uloc::from_uint32(0); i < (len+1)/2; ++i) { //TODO_GENOMESIZE: i < ceil(len / 2.0)
+		buffer[codedIndex++] = dec4High(binRef[uloc::to_uloc(start + i)]);
+		buffer[codedIndex++] = dec4Low(binRef[uloc::to_uloc(start + i)]);
 	}
-	if (len & 1) {
+	if (uloc::to_uloc(len & 1)) {
 		buffer[codedIndex - 1] = 'x';
 	}
-	for (uint i = 0; i < end; ++i) {
+	for (uloc i = uloc::from_uint32(0); i < end; ++i) {
 		buffer[codedIndex++] = 'x';
 	}
 
 	if (codedIndex > bufferLength) {
-		Log.Error("nCount: %d, offset: %d, len: %d (%d), seqlen: %d, end: %d, start: %d, index: %d", 0, offset, bufferLength, (int)ceil(len / 2.0), binRefIdx[n].SeqLen, end, start, codedIndex);
-		Log.Error("%.*s", bufferLength, buffer);
+		Log.Error("nCount: %d, offset: %d, len: %d (%d), seqlen: %d, end: %d, start: %d, index: %d", 0, uloc::to_uloc(offset), uloc::to_uloc(bufferLength), uloc::to_uloc((len+1)/2), binRefIdx[n].SeqLen, uloc::to_uloc(end), uloc::to_uloc(start), codedIndex);
+		Log.Error("%.*s", uloc::to_uloc(bufferLength), buffer);
 		Fatal();
 	}
 
@@ -451,27 +452,27 @@ char const * _SequenceProvider::GetRefName(int n, int & len) const {
 	return 0;
 }
 
-uint _SequenceProvider::GetConcatRefLen() const {
+uloc _SequenceProvider::GetConcatRefLen() const {
 	return binRefIndex - 1;
 }
 
-uint _SequenceProvider::GetRefLen(int n) const {
+uloc _SequenceProvider::GetRefLen(int n) const {
 	if (CheckRefNr(n)) {
 		if (DualStrand)
 			n >>= 1;
-		return (int) binRefIdx[n].SeqLen;
+		return uloc::from_uint32(binRefIdx[n].SeqLen);
 	} else {
-		return 0;
+		return uloc::from_uint32(0);
 	}
 }
 
-uint _SequenceProvider::GetRefStart(int n) const {
+uloc _SequenceProvider::GetRefStart(int n) const {
 	if (CheckRefNr(n)) {
 		if (DualStrand)
 			n >>= 1;
-		return (int) binRefIdx[n].SeqStart;
+		return binRefIdx[n].SeqStart;
 	} else {
-		return 0;
+		return uloc::from_uint32(0);
 	}
 }
 
@@ -490,7 +491,9 @@ bool _SequenceProvider::CheckRefNr(int n) const {
 }
 
 _SequenceProvider::_SequenceProvider() :
-		binRef(0), binRefIndex(0), refCount(0), m_EnableBS(false), refStartPos(0) {
+		 binRef(0), refStartPos(0), refCount(0), m_EnableBS(false) {
+
+			binRefIndex = uloc::from_uint32(0);
 }
 
 _SequenceProvider::~_SequenceProvider() {

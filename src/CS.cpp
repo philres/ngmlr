@@ -32,7 +32,7 @@ float const cOverflowThresh = 0.1f;
 float const cOverflowLimit = 10;
 
 
-void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uint offset, int prefixBaseCount) {
+void CS::PrefixIteration(char const * sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uloc offset, int prefixBaseCount) {
 	prefixBasecount = prefixBaseCount;
 	prefixBits = prefixBasecount * 2;
 	prefixMask = ((ulong) 1 << prefixBits) - 1;
@@ -97,7 +97,7 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 		//cs->weightSum += cur->weight;
 		float weight = 1.0f;
 
-		uint correction = (cur->reverse) ? (readLength - (pos + CS::prefixBasecount)) : pos;
+		uloc correction = (cur->reverse) ? (readLength - (pos + CS::prefixBasecount)) : pos;
 
 //#ifdef _DEBUGCSVERBOSE
 //		Log.Message("Qry Seq %i - Prefix 0x%x got %i locs (sum %i)", cs->m_CurrentSeq, prefix, cur->refTotal);
@@ -106,7 +106,7 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 		int const n = cur->refCount;
 		for (int i = 0; i < n; ++i) {
 			uloc loc = cur->getRealLocation(cur->ref[i]);
-			cs->AddLocationStd(cs->GetBin(loc - correction), cur->reverse, weight);
+			cs->AddLocationStd(cs->GetBin( loc - correction ), cur->reverse, weight);
 		}
 
 		cur = cur->nextEntry;
@@ -118,7 +118,7 @@ void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const 
 	uint l = (uint) c_SrchTableLen;
 	bool newEntry = false;
 
-	uint hpo = Hash(m_Location);
+	uint hpo = Hash( uloc::to_uint32(m_Location) ); //TODO_GENOMESIZE: Fix precision loss here! (Adapt multiplication hash func)
 	while ((newEntry = (rTable[hpo].state & 0x7FFFFFFF) == currentState) && !(rTable[hpo].m_Location == m_Location)) {
 		++hpo;
 		if (hpo >= l)
@@ -188,19 +188,19 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 			int refNameLength = 0;
 			if (rTable[i].fScore > 0.0f) {
 				if(rTable[i].fScore >= mi_Threshhold) {
-					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %u (+), Location: %u (Ref: %s), Score: %f (ACCEPT)", read->ReadId, rTable[i].m_Location, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
+					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, uloc::to_uloc(rTable[i].m_Location), uloc::to_uloc(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
 					accepted += 1;
 				} else {
-					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %u (+), Location: %u (Ref: %s), Score: %f (REJECT)", read->ReadId, rTable[i].m_Location, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
+					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, uloc::to_uloc(rTable[i].m_Location), uloc::to_uloc(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
 				}
 				count += 1;
 			}
 			if (rTable[i].rScore > 0.0f) {
 				if(rTable[i].rScore >= mi_Threshhold) {
-					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %u (-), Location: %u (Ref: %s), Score: %f (ACCEPT)", read->ReadId, rTable[i].m_Location, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
+					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, uloc::to_uloc(rTable[i].m_Location), uloc::to_uloc(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
 					accepted += 1;
 				} else {
-					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %u (-), Location: %u (Ref: %s), Score: %f (REJECT)", read->ReadId, rTable[i].m_Location, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
+					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, uloc::to_uloc(rTable[i].m_Location), uloc::to_uloc(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
 				}
 				count += 1;
 			}
@@ -328,7 +328,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 			NGM.Stats->CS[m_CSThreadID].CurrentRead = m_CurrentSeq;
 
 		char const * const qrySeq = m_CurrentBatch[i]->Seq;
-		int qryLen = m_CurrentBatch[i]->length;
+		uloc qryLen = uloc::from_uint32(m_CurrentBatch[i]->length);
 
 		if (!fallback) {
 			try {

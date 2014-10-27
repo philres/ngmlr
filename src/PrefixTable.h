@@ -57,7 +57,7 @@ struct Index {
 //kmer positions there.
 struct TableUnit
 {
-	 TableUnit() : cRefTableLen(0), RefTable(0), RefTableIndex(0), Offset(0) {}
+	 TableUnit() : cRefTableLen(0), RefTable(0), RefTableIndex(0) { Offset = uloc::from_uint32(0); }
 	~TableUnit()
 	{
 		delete[] RefTable;
@@ -71,7 +71,7 @@ struct TableUnit
 	Location* RefTable;
 	Index*    RefTableIndex;
 
-	uint    Offset;
+	uloc      Offset;
 };
 
 #pragma pack(pop)
@@ -90,7 +90,7 @@ private:
 	//=> Determines: How many table units do we need?
 	//   Table units created:
 	//      Reference genome size divided by c_tableLocMax, offsets increasing every table by c_tableLocMax
-	static const uloc c_tableLocMax = 4294967296 * 2 - 1; //4294967296; //UINT_MAX
+	static uloc c_tableLocMax; //4294967296; //UINT_MAX
 
 	//Table units array
 	TableUnit* m_Units;
@@ -112,8 +112,8 @@ private:
 	int m_BCalls;
 	ulong m_TotalLocs;
 	static ulong lastPrefix;
-	static int lastBin;
-	static int lastPos;
+	static loc lastBin;
+	static uloc lastPos;
 	static uint skipCount;
 	static uint skipBuild;
 	uint m_RefSkip;

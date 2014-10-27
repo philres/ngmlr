@@ -18,15 +18,18 @@
 
 extern int lastSeqTotal;
 
-static uint const refTabCookie = 0x1701D;
+static uint const refTabCookie = 0x1701D;\
+
+
+uloc CompactPrefixTable::c_tableLocMax = uloc::from_uint64( 4294967296 * 2 - 1 );
 
 int lastSeqTotal = 0;
 
 int CompactPrefixTable::maxPrefixFreq = 1000;
 
 ulong CompactPrefixTable::lastPrefix;
-int CompactPrefixTable::lastBin;
-int CompactPrefixTable::lastPos;
+loc CompactPrefixTable::lastBin;
+uloc CompactPrefixTable::lastPos;
 
 uint CompactPrefixTable::skipCount;
 uint CompactPrefixTable::skipBuild;
@@ -93,9 +96,9 @@ static inline int calc_binshift(int corridor) {
 	return l;
 }
 
-inline int GetBin(uint pos) {
+inline loc GetBin(uloc pos) { //TODO_GENOMESIZE: Broken by uloc?
 	static int shift = calc_binshift(12);
-	return pos >> shift;
+	return uloc::to_loc( pos >> shift );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -123,11 +126,11 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 	strcpy(cacheFile, refFileName.str().c_str());
 
 	if (!FileExists(cacheFile)) {
-		kmerCountMinLocation = 0;
+		kmerCountMinLocation = uloc::from_uint32(0);
 		kmerCountMaxLocation = c_tableLocMax;
 
-		uint genomeSize = SequenceProvider.GetTotalLen(); //TODO: Does this function work as expected?
-		m_UnitCount = 1 + genomeSize / c_tableLocMax;
+		uloc genomeSize = SequenceProvider.GetConcatRefLen(); //TODO: Does this function work as expected?
+		m_UnitCount = uloc::to_uint32( 1 + genomeSize / c_tableLocMax );
 		m_Units = new TableUnit[ m_UnitCount ];
 
 		Log.Message("Allocated %d hashtable units",m_UnitCount);
@@ -163,9 +166,9 @@ int * CompactPrefixTable::CountKmerFreq(uint length) {
 
 		if (!DualStrand || !(m_CurGenSeq % 2)) {
 
-			uint offset = SequenceProvider.GetRefStart(m_CurGenSeq);
-			uint len = SequenceProvider.GetRefLen(m_CurGenSeq);
-			char * seq = new char[len + 2];
+			uloc offset = SequenceProvider.GetRefStart(m_CurGenSeq);
+			uloc len = SequenceProvider.GetRefLen(m_CurGenSeq);
+			char * seq = new char[uloc::to_uloc(len) + 2];
 			SequenceProvider.DecodeRefSequence(seq, m_CurGenSeq, offset, len);
 
 			if(skipRep) {
@@ -193,9 +196,9 @@ void CompactPrefixTable::Generate() {
 			Timer t;
 			t.ST();
 
-			uint offset = SequenceProvider.GetRefStart(m_CurGenSeq);
-			uint len = SequenceProvider.GetRefLen(m_CurGenSeq);
-			char * seq = new char[len + 2];
+			uloc offset = SequenceProvider.GetRefStart(m_CurGenSeq);
+			uloc len = SequenceProvider.GetRefLen(m_CurGenSeq);
+			char * seq = new char[uloc::to_uloc(len) + 2];
 			SequenceProvider.DecodeRefSequence(seq, m_CurGenSeq, offset, len);
 
 			if(skipRep) {
@@ -325,7 +328,7 @@ void CompactPrefixTable::CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulo
 
 	int * freq = (int *) data;
 	if (prefix == lastPrefix) {
-		int currentBin = GetBin(pos);
+		loc currentBin = GetBin(pos);
 		if (currentBin != lastBin || lastBin == -1) {
 			freq[prefix] += 1;
 		} else {
@@ -336,7 +339,7 @@ void CompactPrefixTable::CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulo
 		lastPos = pos;
 	} else {
 		lastBin = -1;
-		lastPos = -1;
+		lastPos = uloc::from_int32( 0 ); //TODO_GENOMESIZE: Still working (was signed and set to -1)
 		freq[prefix] += 1;
 	}
 	lastPrefix = prefix;
@@ -357,7 +360,7 @@ void CompactPrefixTable::BuildPrefixTable(ulong prefix, uloc real_pos, ulong mut
 
 	//Rebase position using current hashtable unit offset
 	uloc temp_pos = real_pos - CurrentUnit->Offset;
-	uint reduced_pos( temp_pos );
+	uint reduced_pos = uloc::to_uint32( temp_pos );
 
 	CompactPrefixTable * _this = (CompactPrefixTable*) data;
 	_this->m_BCalls++;
@@ -377,7 +380,7 @@ void CompactPrefixTable::BuildPrefixTable(ulong prefix, uloc real_pos, ulong mut
 		lastPos = real_pos;
 	} else {
 		lastBin = -1;
-		lastPos = -1;
+		lastPos = uloc::from_int32(0); //TODO_GENOMESIZE: Still working (was signed and set to -1)
 		if (CurrentUnit->RefTableIndex[prefix].used()) {
 			Location tmp = {reduced_pos};
 			_this->SaveToRefTable(prefix, tmp);
@@ -392,7 +395,7 @@ void CompactPrefixTable::BuildPrefixTablewoSkip(ulong prefix, uloc real_pos, ulo
 
 	//Rebase position using current hashtable unit offset
 	uloc temp_pos = real_pos - CurrentUnit->Offset;
-	uint reduced_pos( temp_pos );
+	uint reduced_pos = uloc::to_uint32( temp_pos );
 
 	CompactPrefixTable * _this = (CompactPrefixTable*) data;
 	_this->m_BCalls++;

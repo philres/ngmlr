@@ -23,7 +23,7 @@ inline char encode(char c) {
 
 
 // Iteriert ueber jeden Praefix in sequence und fuehrt fuer diesen die Funktion func aus
-void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uint offset) {
+void CS::PrefixIteration(char const * sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uloc offset) {
 	if (length < prefixBasecount)
 		return;
 
@@ -41,10 +41,10 @@ void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn f
 	}
 
 	ulong prefix = 0;
-	for (uint i = 0; i < prefixBasecount - 1; ++i) {
-		char c = *(sequence + i);
+	for (uloc i = uloc::from_uint32(0); i < prefixBasecount - 1; ++i) {
+		char c = *(sequence + uloc::to_uloc(i));
 		if (c == 'N') {
-			PrefixIteration(sequence + i + 1, length - i - 1, func, mutateFrom, mutateTo, data, prefixskip, offset + i + 1);
+			PrefixIteration(sequence + uloc::to_uloc(i) + 1, uloc::from_uloc(uloc::to_uloc(length) - uloc::to_uloc(i) - 1), func, mutateFrom, mutateTo, data, prefixskip, uloc::from_uloc(uloc::to_uloc(offset) + uloc::to_uloc(i) + 1));
 			return;
 		}
 
@@ -54,20 +54,20 @@ void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn f
 	}
 
 	uint skipcount = prefixskip;
-	for (uint i = prefixBasecount - 1; i < length; ++i) {
-		char c = *(sequence + i);
+	for (uloc i = uloc::from_uint32( prefixBasecount - 1 ); i < length; ++i) {
+		char c = *(sequence + uloc::to_uloc(i));
 		if (c == 'N') {
-			PrefixIteration(sequence + i + 1, length - i - 1, func, mutateFrom, mutateTo, data, prefixskip, offset + i + 1);
+			PrefixIteration(sequence + uloc::to_uloc(i) + 1, uloc::from_uloc(uloc::to_uloc(length) - uloc::to_uloc(i) - 1), func, mutateFrom, mutateTo, data, prefixskip, uloc::from_uloc(uloc::to_uloc(offset) + uloc::to_uloc(i) + 1));
 			return;
 		}
 
 		prefix = prefix << 2;
-		char cx = encode(*(sequence + i));
+		char cx = encode(*(sequence + uloc::to_uloc(i)));
 		prefix |= cx;
 		prefix &= prefixMask;
 
 		if (skipcount == prefixskip) {
-			func(prefix, offset + i + 1 - prefixBasecount, mutateFrom, mutateTo, data);
+			func(prefix, uloc::from_uloc( uloc::to_uloc(offset) + uloc::to_uloc(i) + 1 - prefixBasecount ), mutateFrom, mutateTo, data);
 			skipcount = 0;
 		} else {
 			++skipcount;

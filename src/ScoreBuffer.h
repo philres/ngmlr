@@ -63,7 +63,7 @@ private:
 	float* m_ScoreBuffer;
 
 	int qryMaxLen;
-	int refMaxLen;
+	uloc refMaxLen;
 
 	int corridor;
 	char * m_DirBuffer;
@@ -107,10 +107,10 @@ public:
 		m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 
 		qryMaxLen = Config.GetInt("qry_max_len");
-		refMaxLen = ((qryMaxLen + Config.GetInt("corridor")) | 1) + 1;
+		refMaxLen = uloc::from_uint32( ((qryMaxLen + Config.GetInt("corridor")) | 1) + 1 );
 
 		for (int i = 0; i < swBatchSize; ++i) {
-			m_RefBuffer[i] = new char[refMaxLen];
+			m_RefBuffer[i] = new char[uloc::to_uloc(refMaxLen)];
 		}
 
 		scores = new Score[swBatchSize];

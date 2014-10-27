@@ -87,13 +87,13 @@ protected:
 		return ((n) * m) >> c_BitShift;
 	}
 
-	inline uint GetBin(uint pos) {
+	inline uloc GetBin(uloc pos) { //TODO_GENOMESIZE: How is this affected by locations > UINT_MAX
 		//static int shift = calc_binshift(Config.GetInt("corridor"));
 		static int shift = calc_binshift(12);
 		return pos >> shift;
 	}
 
-	inline uint ResolveBin(uint bin) {
+	inline uloc ResolveBin(uloc bin) {
 //		static int shift = calc_binshift(Config.GetInt("corridor"));
 		static int shift = calc_binshift(12);
 		static uint offset = (shift > 0) ? 1 << (shift - 1) : 0;
@@ -133,9 +133,9 @@ public:
 	static void Init();
 	static void Cleanup();
 	static void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
-	static void PrefixIteration(const char* sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip = 0,
-			uint offset = 0);
-	static void PrefixIteration(const char* sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uint offset,
+	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip = 0,
+			uloc offset = uloc::from_uint32( 0 ) );
+	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uloc offset,
 			int prefixBaseCount);
 	CS(bool useBuffer = true);
 	~CS();
