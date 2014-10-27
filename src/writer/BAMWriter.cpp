@@ -86,14 +86,14 @@ void BAMWriter::DoWriteProlog() {
 		for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
 			refName = SequenceProvider.GetRefName(i, refNameLength);
 			//Print("@SQ\tSN:%.*s\tLN:%d\n", refNameLength, refName, SequenceProvider.GetRefLen(i));
-			RefData bamRef(std::string(refName, refNameLength),uloc::to_uint32(SequenceProvider.GetRefLen(i)));
+			RefData bamRef(std::string(refName, refNameLength),ULOC_TO_UINT32(SequenceProvider.GetRefLen(i)));
 			refs.push_back(bamRef);
 			if (NGM.DualStrand())
 			++i;
 		}
 		else {
 			refName = SequenceProvider.GetRefName(ref * ((NGM.DualStrand()) ? 2 : 1), refNameLength);
-			RefData bamRef(std::string(refName, refNameLength), uloc::to_uint32(SequenceProvider.GetRefLen(ref * ((NGM.DualStrand()) ? 2 : 1))));
+			RefData bamRef(std::string(refName, refNameLength), ULOC_TO_UINT32(SequenceProvider.GetRefLen(ref * ((NGM.DualStrand()) ? 2 : 1))));
 			refs.push_back(bamRef);
 		}
 
@@ -174,7 +174,7 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	al->Name = std::string(readname);
 	al->Length = readlen;
 	al->MapQuality = read->mappingQlty;
-	al->Position = uloc::to_uint32( read->Scores[scoreId].Location.m_Location );
+	al->Position = ULOC_TO_UINT32( read->Scores[scoreId].Location.m_Location );
 
 	if (hardClip) {
 		al->QueryBases = std::string(readseq + read->Alignments[scoreId].QStart,
@@ -365,15 +365,15 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 		DoWriteUnmappedRead(read1, flags1 | 0x8);
 	} else if (!read1->hasCandidates()) {
 		//First mate unmapped
-		DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.getrefId(), uloc::to_uint32(read2->Scores[scoreId2].Location.m_Location), 0,
+		DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.getrefId(), ULOC_TO_UINT32(read2->Scores[scoreId2].Location.m_Location), 0,
 				read2->mappingQlty, flags2 | 0x8);
 		DoWriteUnmappedReadGeneric(read1, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.getrefId(),
-				uloc::to_uint32(read2->Scores[scoreId2].Location.m_Location), uloc::to_uint32(read2->Scores[scoreId2].Location.m_Location), 0, 0, flags1);
+				ULOC_TO_UINT32(read2->Scores[scoreId2].Location.m_Location), ULOC_TO_UINT32(read2->Scores[scoreId2].Location.m_Location), 0, 0, flags1);
 	} else if (!read2->hasCandidates()) {
 		//Second mate unmapped
 		DoWriteUnmappedReadGeneric(read2, read1->Scores[scoreId1].Location.getrefId(), read1->Scores[scoreId1].Location.getrefId(),
-				uloc::to_uint32(read1->Scores[scoreId1].Location.m_Location), uloc::to_uint32(read1->Scores[scoreId1].Location.m_Location), 0, 0, flags2);
-		DoWriteReadGeneric(read1, scoreId1, read1->Scores[scoreId1].Location.getrefId(), uloc::to_uint32(read1->Scores[scoreId1].Location.m_Location), 0,
+				ULOC_TO_UINT32(read1->Scores[scoreId1].Location.m_Location), ULOC_TO_UINT32(read1->Scores[scoreId1].Location.m_Location), 0, 0, flags2);
+		DoWriteReadGeneric(read1, scoreId1, read1->Scores[scoreId1].Location.getrefId(), ULOC_TO_UINT32(read1->Scores[scoreId1].Location.m_Location), 0,
 				read1->mappingQlty, flags1 | 0x8);
 	} else {
 		if (!read1->HasFlag(NGMNames::PairedFail)) {
@@ -382,18 +382,18 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 			flags1 |= 0x2;
 			flags2 |= 0x2;
 			if (!read1->Scores[scoreId1].Location.isReverse()) {
-				distance = uloc::to_uint32(read2->Scores[scoreId2].Location.m_Location) + read2->length - uloc::to_uint32(read1->Scores[scoreId1].Location.m_Location);
+				distance = ULOC_TO_UINT32(read2->Scores[scoreId2].Location.m_Location) + read2->length - ULOC_TO_UINT32(read1->Scores[scoreId1].Location.m_Location);
 				DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.getrefId(),
-						uloc::to_uint32(read1->Scores[scoreId1].Location.m_Location), distance * -1, read2->mappingQlty, flags2);
+						ULOC_TO_UINT32(read1->Scores[scoreId1].Location.m_Location), distance * -1, read2->mappingQlty, flags2);
 				DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.getrefId(),
-						uloc::to_uint32(read2->Scores[scoreId2].Location.m_Location), distance, read1->mappingQlty, flags1 | 0x20);
+						ULOC_TO_UINT32(read2->Scores[scoreId2].Location.m_Location), distance, read1->mappingQlty, flags1 | 0x20);
 			} else if (!read2->Scores[scoreId2].Location.isReverse()) {
-				distance = uloc::to_uint32(read1->Scores[scoreId1].Location.m_Location) + read1->length - uloc::to_uint32(read2->Scores[scoreId2].Location.m_Location);
+				distance = ULOC_TO_UINT32(read1->Scores[scoreId1].Location.m_Location) + read1->length - ULOC_TO_UINT32(read2->Scores[scoreId2].Location.m_Location);
 
 				DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.getrefId(),
-						uloc::to_uint32(read1->Scores[scoreId1].Location.m_Location), distance, read2->mappingQlty, flags2 | 0x20);
+						ULOC_TO_UINT32(read1->Scores[scoreId1].Location.m_Location), distance, read2->mappingQlty, flags2 | 0x20);
 				DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.getrefId(),
-						uloc::to_uint32(read2->Scores[scoreId2].Location.m_Location), distance * -1, read1->mappingQlty, flags1);
+						ULOC_TO_UINT32(read2->Scores[scoreId2].Location.m_Location), distance * -1, read1->mappingQlty, flags1);
 			}
 		} else {
 			if (read1->Scores[scoreId1].Location.isReverse()) {
@@ -402,9 +402,9 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 			if (read2->Scores[scoreId2].Location.isReverse()) {
 				flags1 |= 0x20;
 			}
-			DoWriteReadGeneric(read2, scoreId2, read1->Scores[scoreId1].Location.getrefId(), uloc::to_uint32(read1->Scores[scoreId1].Location.m_Location), 0,
+			DoWriteReadGeneric(read2, scoreId2, read1->Scores[scoreId1].Location.getrefId(), ULOC_TO_UINT32(read1->Scores[scoreId1].Location.m_Location), 0,
 					read2->mappingQlty, flags2);
-			DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.getrefId(), uloc::to_uint32(read2->Scores[scoreId2].Location.m_Location), 0,
+			DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.getrefId(), ULOC_TO_UINT32(read2->Scores[scoreId2].Location.m_Location), 0,
 					read1->mappingQlty, flags1);
 		}
 	}

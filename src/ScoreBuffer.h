@@ -107,10 +107,10 @@ public:
 		m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 
 		qryMaxLen = Config.GetInt("qry_max_len");
-		refMaxLen = uloc::from_uint32( ((qryMaxLen + Config.GetInt("corridor")) | 1) + 1 );
+		refMaxLen = ULOC_FROM_UINT32( ((qryMaxLen + Config.GetInt("corridor")) | 1) + 1 );
 
 		for (int i = 0; i < swBatchSize; ++i) {
-			m_RefBuffer[i] = new char[uloc::to_uloc(refMaxLen)];
+			m_RefBuffer[i] = new char[ULOC_TO_ULOC(refMaxLen)];
 		}
 
 		scores = new Score[swBatchSize];

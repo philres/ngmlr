@@ -239,8 +239,8 @@ uint ReadProvider::init() {
 						}
 						m_CurrentReadLength = read->length;
 						Log.Verbose("-Iteration");
-						CS::PrefixIteration((char const *) read->Seq, uloc::from_uint32( read->length ), fnc, mutateFrom, mutateTo, (void *) this,
-								(uint) 0, uloc::from_uint32(0) );
+						CS::PrefixIteration((char const *) read->Seq, ULOC_FROM_UINT32( read->length ), fnc, mutateFrom, mutateTo, (void *) this,
+								(uint) 0, ULOC_FROM_UINT32(0) );
 						Log.Verbose("-Collect: %s", parser1->read->name.s);
 						CollectResultsFallback(m_CurrentReadLength);
 					} else if (readCount == (estimateSize + 1)) {

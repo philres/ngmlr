@@ -49,7 +49,7 @@ void AlignmentBuffer::addRead(MappedRead * read, int scoreID) {
 			//read->clearScores(-1);
 			SaveRead(read, false);
 		} else {
-			Log.Debug(512, "READ_%d\tALGN_BUFFER\tCMR_%d %f (location %llu) added to alignment buffer at position %d", read->ReadId, scoreID, read->Scores[scoreID].Score.f, uloc::to_uloc(read->Scores[scoreID].Location.m_Location), nReads);
+			Log.Debug(512, "READ_%d\tALGN_BUFFER\tCMR_%d %f (location %llu) added to alignment buffer at position %d", read->ReadId, scoreID, read->Scores[scoreID].Score.f, ULOC_TO_ULOC(read->Scores[scoreID].Location.m_Location), nReads);
 			//add alignment computations to buffer. if buffer is full, submit to CPU/GPU
 			reads[nReads].scoreId = scoreID;
 			reads[nReads++].read = read;
@@ -128,7 +128,7 @@ void AlignmentBuffer::DoRun() {
 
 			cur_read->Alignments[scoreID] = alignBuffer[i];
 
-			Log.Debug(2048, "READ_%d\tALGN_DETAILS\tCMR_%d\t%f\t%f\t%llu\t%.*s\t%s", cur_read->ReadId, scoreID, cur_read->Scores[scoreID].Score.f, alignBuffer[i].Identity, alignBuffer[i].NM, uloc::to_uloc(refMaxLen), refBuffer[i], qryBuffer[i]);
+			Log.Debug(2048, "READ_%d\tALGN_DETAILS\tCMR_%d\t%f\t%f\t%llu\t%.*s\t%s", cur_read->ReadId, scoreID, cur_read->Scores[scoreID].Score.f, alignBuffer[i].Identity, alignBuffer[i].NM, ULOC_TO_ULOC(refMaxLen), refBuffer[i], qryBuffer[i]);
 
 			if ((cur_read->Calculated - 1) == scoreID) {
 
@@ -177,7 +177,7 @@ void AlignmentBuffer::WriteRead(MappedRead* read, bool mapped) {
 				if (read->hasCandidates() && read->Paired->hasCandidates()) {
 					LocationScore * ls1 = &read->Scores[0];
 					LocationScore * ls2 = &read->Paired->Scores[0];
-					int distance = uloc::to_int32(
+					int distance = ULOC_TO_INT32(
 							(ls2->Location.m_Location > ls1->Location.m_Location) ?
 									ls2->Location.m_Location - ls1->Location.m_Location + read->length :
 									ls1->Location.m_Location - ls2->Location.m_Location + read->Paired->length );

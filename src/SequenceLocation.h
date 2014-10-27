@@ -10,7 +10,7 @@ struct SequenceLocation {
 	uloc m_Location;
 
 	bool used() const {
-		return m_Location != uloc::from_uint32( 0 );
+		return m_Location != ULOC_FROM_UINT32( 0 );
 	}
 
 	int getrefId() const {
@@ -47,7 +47,7 @@ struct SequenceLocation {
 	}
 
 	SequenceLocation() {
-		m_Location = uloc::from_uint32( 0 );
+		m_Location = ULOC_FROM_UINT32( 0 );
 		m_RefId = 0;
 	}
 
@@ -58,13 +58,13 @@ struct SequenceLocation {
 	}
 
 	SequenceLocation(uint const loc, short const refid, bool const reverse) {
-		m_Location = uloc::from_uint32( loc );
+		m_Location = ULOC_FROM_UINT32( loc );
 		setRefId(refid);
 		setReverse(reverse);
 	}
 
 	SequenceLocation(Location const & other, uloc offset) {
-		m_Location = uloc::from_uint32( other.m_Location ) + offset;
+		m_Location = ULOC_FROM_UINT32( other.m_Location ) + offset;
 		setRefId(0);
 	}
 

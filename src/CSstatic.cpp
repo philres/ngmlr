@@ -41,10 +41,10 @@ void CS::PrefixIteration(char const * sequence, uloc length, PrefixIterationFn f
 	}
 
 	ulong prefix = 0;
-	for (uloc i = uloc::from_uint32(0); i < prefixBasecount - 1; ++i) {
-		char c = *(sequence + uloc::to_uloc(i));
+	for (uloc i = ULOC_FROM_UINT32(0); i < prefixBasecount - 1; ++i) {
+		char c = *(sequence + ULOC_TO_ULOC(i));
 		if (c == 'N') {
-			PrefixIteration(sequence + uloc::to_uloc(i) + 1, uloc::from_uloc(uloc::to_uloc(length) - uloc::to_uloc(i) - 1), func, mutateFrom, mutateTo, data, prefixskip, uloc::from_uloc(uloc::to_uloc(offset) + uloc::to_uloc(i) + 1));
+			PrefixIteration(sequence + ULOC_TO_ULOC(i) + 1, ULOC_FROM_ULOC(ULOC_TO_ULOC(length) - ULOC_TO_ULOC(i) - 1), func, mutateFrom, mutateTo, data, prefixskip, ULOC_FROM_ULOC(ULOC_TO_ULOC(offset) + ULOC_TO_ULOC(i) + 1));
 			return;
 		}
 
@@ -54,20 +54,20 @@ void CS::PrefixIteration(char const * sequence, uloc length, PrefixIterationFn f
 	}
 
 	uint skipcount = prefixskip;
-	for (uloc i = uloc::from_uint32( prefixBasecount - 1 ); i < length; ++i) {
-		char c = *(sequence + uloc::to_uloc(i));
+	for (uloc i = ULOC_FROM_UINT32( prefixBasecount - 1 ); i < length; ++i) {
+		char c = *(sequence + ULOC_TO_ULOC(i));
 		if (c == 'N') {
-			PrefixIteration(sequence + uloc::to_uloc(i) + 1, uloc::from_uloc(uloc::to_uloc(length) - uloc::to_uloc(i) - 1), func, mutateFrom, mutateTo, data, prefixskip, uloc::from_uloc(uloc::to_uloc(offset) + uloc::to_uloc(i) + 1));
+			PrefixIteration(sequence + ULOC_TO_ULOC(i) + 1, ULOC_FROM_ULOC(ULOC_TO_ULOC(length) - ULOC_TO_ULOC(i) - 1), func, mutateFrom, mutateTo, data, prefixskip, ULOC_FROM_ULOC(ULOC_TO_ULOC(offset) + ULOC_TO_ULOC(i) + 1));
 			return;
 		}
 
 		prefix = prefix << 2;
-		char cx = encode(*(sequence + uloc::to_uloc(i)));
+		char cx = encode(*(sequence + ULOC_TO_ULOC(i)));
 		prefix |= cx;
 		prefix &= prefixMask;
 
 		if (skipcount == prefixskip) {
-			func(prefix, uloc::from_uloc( uloc::to_uloc(offset) + uloc::to_uloc(i) + 1 - prefixBasecount ), mutateFrom, mutateTo, data);
+			func(prefix, ULOC_FROM_ULOC( ULOC_TO_ULOC(offset) + ULOC_TO_ULOC(i) + 1 - prefixBasecount ), mutateFrom, mutateTo, data);
 			skipcount = 0;
 		} else {
 			++skipcount;

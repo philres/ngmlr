@@ -118,7 +118,7 @@ void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const 
 	uint l = (uint) c_SrchTableLen;
 	bool newEntry = false;
 
-	uint hpo = Hash( uloc::to_uint32(m_Location) ); //TODO_GENOMESIZE: Fix precision loss here! (Adapt multiplication hash func)
+	uint hpo = Hash( ULOC_TO_UINT32(m_Location) ); //TODO_GENOMESIZE: Fix precision loss here! (Adapt multiplication hash func)
 	while ((newEntry = (rTable[hpo].state & 0x7FFFFFFF) == currentState) && !(rTable[hpo].m_Location == m_Location)) {
 		++hpo;
 		if (hpo >= l)
@@ -188,19 +188,19 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 			int refNameLength = 0;
 			if (rTable[i].fScore > 0.0f) {
 				if(rTable[i].fScore >= mi_Threshhold) {
-					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, uloc::to_uloc(rTable[i].m_Location), uloc::to_uloc(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
+					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, ULOC_TO_ULOC(rTable[i].m_Location), ULOC_TO_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
 					accepted += 1;
 				} else {
-					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, uloc::to_uloc(rTable[i].m_Location), uloc::to_uloc(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
+					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, ULOC_TO_ULOC(rTable[i].m_Location), ULOC_TO_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
 				}
 				count += 1;
 			}
 			if (rTable[i].rScore > 0.0f) {
 				if(rTable[i].rScore >= mi_Threshhold) {
-					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, uloc::to_uloc(rTable[i].m_Location), uloc::to_uloc(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
+					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, ULOC_TO_ULOC(rTable[i].m_Location), ULOC_TO_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
 					accepted += 1;
 				} else {
-					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, uloc::to_uloc(rTable[i].m_Location), uloc::to_uloc(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
+					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, ULOC_TO_ULOC(rTable[i].m_Location), ULOC_TO_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
 				}
 				count += 1;
 			}
@@ -328,7 +328,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 			NGM.Stats->CS[m_CSThreadID].CurrentRead = m_CurrentSeq;
 
 		char const * const qrySeq = m_CurrentBatch[i]->Seq;
-		uloc qryLen = uloc::from_uint32(m_CurrentBatch[i]->length);
+		uloc qryLen = ULOC_FROM_UINT32(m_CurrentBatch[i]->length);
 
 		if (!fallback) {
 			try {

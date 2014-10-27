@@ -134,7 +134,7 @@ public:
 	static void Cleanup();
 	static void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
 	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip = 0,
-			uloc offset = uloc::from_uint32( 0 ) );
+			uloc offset = ULOC_FROM_UINT32( 0 ) );
 	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uloc offset,
 			int prefixBaseCount);
 	CS(bool useBuffer = true);
