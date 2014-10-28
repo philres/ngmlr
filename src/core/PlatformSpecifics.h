@@ -33,11 +33,11 @@ int GetPID();
 void Sleep(int msec);
 
 bool const FileExists(char const * const filename);
-ulong const FileSize(char const * const filename);
+uloc const FileSize(char const * const filename);
 int const CreateMapping(char const * const filename, char const * &pData);
 void Remap(int const mapping, char const * & pData);
 void CloseMapping(int const mapping);
-ulong GetMapLength(int const map);
+uloc GetMapLength(int const map);
 
 //bool CheckDLL(char const * const filename);
 //int const InitDLL(char const * const filename);

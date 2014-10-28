@@ -40,9 +40,9 @@ namespace _PlatformSpecifics_unix
 		return *res;
 	}
 
-	std::map<int, std::pair<char const *, ulong> > & mappings()
+	std::map<int, std::pair<char const *, uloc> > & mappings()
 	{
-		static std::map<int, std::pair<char const *, ulong> > * res = new std::map<int, std::pair<char const *, ulong> >();
+		static std::map<int, std::pair<char const *, uloc> > * res = new std::map<int, std::pair<char const *, uloc> >();
 		return *res;
 	}
 }
@@ -95,15 +95,15 @@ int const CreateMapping(char const * const filename, char const * &pData) {
 		Log.Error("Error opening file %s for mapping (error %i).", filename, errno);
 		Fatal();
 	}
-	ulong len = FileSize(filename);
+	uloc len = FileSize(filename);
 
-	pData = (const char*) mmap(0, len, PROT_READ, MAP_PRIVATE, fd, 0);
+	pData = (const char*) mmap64(0, ULOC_TO_ULOC(len), PROT_READ, MAP_PRIVATE, fd, 0);
 	if (pData == MAP_FAILED)
 	{
 		Log.Error("Error mapping file %s into memory (Error returned from mmap: %i)", filename, errno);
 		if (errno == EINVAL)
 		{
-			Log.Error("Args: Addr=0, Len=%lu, Offset=0", len);
+			Log.Error("Args: Addr=0, Len=%llu, Offset=0", ULOC_TO_ULOC(len));
 		}
 		else if (errno == ENOMEM)
 		{
@@ -112,16 +112,16 @@ int const CreateMapping(char const * const filename, char const * &pData) {
 		Fatal();
 	}
 
-	mappings()[fd] = std::pair<char const*, ulong>(pData, len);
+	mappings()[fd] = std::pair<char const*, uloc>(pData, len);
 
 	return fd;
 }
-ulong GetMapLength(int const map)
+uloc GetMapLength(int const map)
 {
 	if (mappings().count(map) != 1)
 	{
 		Log.Error("Couldnt get size of invalid mapping %i", map);
-		return 0;
+		return ULOC_FROM_ULOC(0);
 	}
 	else
 		return mappings()[map].second;
@@ -136,14 +136,14 @@ void Remap(int const mapping, char const * & pData)
 	}
 
 	void const * addr = mappings()[mapping].first;
-	ulong len = mappings()[mapping].second;
+	uloc len = mappings()[mapping].second;
 
-	int ret = munmap((void*) addr, len);
+	int ret = munmap((void*) addr, ULOC_TO_ULOC(len)); //TODO_GENOMESIZE: munmap64?
 
 	if (ret != 0)
-		Log.Error("Remap error: Unmap returned %i (addr = 0x%x, len = %i)", errno, addr, len);
+		Log.Error("Remap error: Unmap returned %i (addr = 0x%x, len = %llu)", errno, addr, ULOC_TO_ULOC(len));
 
-	pData = (const char*)mmap(0, len, PROT_READ, MAP_PRIVATE, mapping, 0);
+	pData = (const char*)mmap64(0, ULOC_TO_ULOC(len), PROT_READ, MAP_PRIVATE, mapping, 0);
 	mappings()[mapping].first = pData;
 
 	if (pData == MAP_FAILED)
@@ -153,7 +153,7 @@ void Remap(int const mapping, char const * & pData)
 	}
 }
 void CloseMapping(int const mapping) {
-	munmap((void*) mappings()[mapping].first, mappings()[mapping].second);
+	munmap((void*) mappings()[mapping].first, ULOC_TO_ULOC(mappings()[mapping].second));
 	close(mapping);
 }
 

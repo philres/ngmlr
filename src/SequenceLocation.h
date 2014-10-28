@@ -57,12 +57,6 @@ struct SequenceLocation {
 		setReverse(reverse);
 	}
 
-	SequenceLocation(uint const loc, short const refid, bool const reverse) {
-		m_Location = ULOC_FROM_UINT32( loc );
-		setRefId(refid);
-		setReverse(reverse);
-	}
-
 	SequenceLocation(Location const & other, uloc offset) {
 		m_Location = ULOC_FROM_UINT32( other.m_Location ) + offset;
 		setRefId(0);

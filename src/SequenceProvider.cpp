@@ -168,7 +168,7 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName) {
 	Timer wtmr;
 	wtmr.ST();
 
-	uint encRefSize = 0;
+	uloc encRefSize = 0;
 	uint refCount = 0;
 	uint cookie = 0;
 
@@ -192,8 +192,8 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName) {
 	binRefIdx = new RefIdx[refCount];
 	fread(binRefIdx, sizeof(RefIdx), refCount, fp);
 
-	binRef = new char[encRefSize];
-	fread(binRef, sizeof(char), encRefSize, fp);
+	binRef = new char[ULOC_TO_ULOC(encRefSize)];
+	fread(binRef, sizeof(char), ULOC_TO_ULOC(encRefSize), fp);
 	fclose(fp);
 	Log.Message("Reading from disk took %.2fs", wtmr.ET());
 
@@ -272,7 +272,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 		}*/
 
 		uloc const binRefSize = ((size / 2) | 1) + 1;
-		Log.Message("Allocating %llu (%llu) bytes for the reference.", ULOC_TO_ULOC(binRefSize), FileSize(Config.GetString("ref"))); //TODO_GENOMESIZE: Check/adapt FileSize for uloc
+		Log.Message("Allocating %llu (%llu) bytes for the reference.", ULOC_TO_ULOC(binRefSize), ULOC_TO_ULOC(FileSize(Config.GetString("ref")))); //TODO_GENOMESIZE: Check/adapt FileSize for uloc
 		binRef = new char[ULOC_TO_ULOC(binRefSize)];
 
 		gzFile gzfp;

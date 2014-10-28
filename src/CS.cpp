@@ -13,7 +13,7 @@
 #define module_name "CS"
 
 static const int cInvalidLocation = -99999999;
-static const SequenceLocation sInvalidLocation(cInvalidLocation, 0, false);
+static const SequenceLocation sInvalidLocation( ULOC_FROM_INT32(cInvalidLocation), 0, false);
 
 
 volatile int CS::s_ThreadCount = 0;
