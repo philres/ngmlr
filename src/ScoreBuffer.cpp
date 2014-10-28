@@ -62,7 +62,7 @@ void ScoreBuffer::debugScoresFinished(MappedRead * read) {
 			SequenceProvider.convert(loc);
 
 			int refNameLength = 0;
-			Log.Debug(64, "READ_%d\tSCORES_RESULTS\tCMR_%d\t%f\t%llu\t%s", read->ReadId, i, score.Score.f, ULOC_TO_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength));
+			Log.Debug(64, "READ_%d\tSCORES_RESULTS\tCMR_%d\t%f\t%llu\t%s", read->ReadId, i, score.Score.f, GET_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength));
 		}
 
 	}
@@ -111,7 +111,7 @@ void ScoreBuffer::DoRun() {
 							loc.m_Location - (corridor >> 1), refMaxLen)) {
 				Log.Warning("Could not decode reference for alignment (read: %s)", cur_read->name);
 				Log.Warning("Read sequence: %s", cur_read->Seq);
-				memset(const_cast<char *>(m_RefBuffer[i]), 'N', ULOC_TO_ULOC(refMaxLen));
+				memset(const_cast<char *>(m_RefBuffer[i]), 'N', GET_ULOC(refMaxLen));
 			}
 
 			m_ScoreBuffer[i] = -1;
@@ -137,7 +137,7 @@ void ScoreBuffer::DoRun() {
 			cur_read->Scores[scoreId].Score.f = m_ScoreBuffer[i];
 
 			//TODO_GENOMESIZE: Re-enable me
-			//Log.Debug(1024, "READ_%d\tSCORES_DETAILS\tCMR_%d\t%f\t%.*s\t%s", cur_read->ReadId, scoreId, m_ScoreBuffer[i], ULOC_TO_ULOC(refMaxLen), m_RefBuffer[i], m_QryBuffer[i]);
+			//Log.Debug(1024, "READ_%d\tSCORES_DETAILS\tCMR_%d\t%f\t%.*s\t%s", cur_read->ReadId, scoreId, m_ScoreBuffer[i], GET_ULOC(refMaxLen), m_RefBuffer[i], m_QryBuffer[i]);
 
 			if (!isPaired) {
 				if (++cur_read->Calculated == cur_read->numScores()) {
@@ -501,7 +501,7 @@ void ScoreBuffer::addRead(MappedRead * read, int count) {
 	//Adding scores to buffer. If buffer full, submit to CPU/GPU for score computation
 	for (int i = 0; i < count; ++i) {
 
-		Log.Debug(256, "READ_%d\tSCORES_BUFFER\tCMR_%d %f (location %llu) added to score buffer at position %d", read->ReadId, i, newScores[i].Score.f, ULOC_TO_ULOC( newScores[i].Location.m_Location ), iScores);
+		Log.Debug(256, "READ_%d\tSCORES_BUFFER\tCMR_%d %f (location %llu) added to score buffer at position %d", read->ReadId, i, newScores[i].Score.f, GET_ULOC( newScores[i].Location.m_Location ), iScores);
 
 		scores[iScores].read = read;
 		scores[iScores++].scoreId = i;

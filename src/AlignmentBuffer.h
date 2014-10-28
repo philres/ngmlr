@@ -106,7 +106,7 @@ public:
 						refBuffer = new char const *[batchSize];
 
 						for (int i = 0; i < batchSize; ++i) {
-							refBuffer[i] = new char[ULOC_TO_ULOC(refMaxLen)];
+							refBuffer[i] = new char[GET_ULOC(refMaxLen)];
 						}
 
 						m_DirBuffer = new char[batchSize];
@@ -115,8 +115,8 @@ public:
 						dbLen = std::max(1, Config.GetInt("qry_max_len")) * 8;
 						dBuffer = new char[dbLen];
 
-						dummy = new char[ULOC_TO_ULOC(refMaxLen)];
-						memset(dummy, '\0', ULOC_TO_ULOC(refMaxLen));
+						dummy = new char[GET_ULOC(refMaxLen)];
+						memset(dummy, '\0', GET_ULOC(refMaxLen));
 						//dummy[Config.GetInt("qry_max_len") - 1] = '\0';
 
 						alignTime = 0.0f;
@@ -136,7 +136,7 @@ public:
 						refBuffer = new char const *[batchSize];
 
 						for (int i = 0; i < batchSize; ++i) {
-							refBuffer[i] = new char[ULOC_TO_ULOC(refMaxLen)];
+							refBuffer[i] = new char[GET_ULOC(refMaxLen)];
 						}
 
 						m_DirBuffer = new char[batchSize];
@@ -145,8 +145,8 @@ public:
 						dbLen = std::max(1, Config.GetInt("qry_max_len")) * 8;
 						dBuffer = new char[dbLen];
 
-						dummy = new char[ULOC_TO_ULOC(refMaxLen)];
-						memset(dummy, '\0', ULOC_TO_ULOC(refMaxLen));
+						dummy = new char[GET_ULOC(refMaxLen)];
+						memset(dummy, '\0', GET_ULOC(refMaxLen));
 						//dummy[Config.GetInt("qry_max_len") - 1] = '\0';
 
 						alignTime = 0.0f;

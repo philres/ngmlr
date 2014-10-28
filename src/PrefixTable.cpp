@@ -21,7 +21,7 @@ extern int lastSeqTotal;
 static uint const refTabCookie = 0x1701D;\
 
 
-uloc CompactPrefixTable::c_tableLocMax = ULOC_FROM_ULOC( 4294967296 - 1 );
+uloc CompactPrefixTable::c_tableLocMax = MAKE_ULOC( 4294967296 - 1 );
 
 int lastSeqTotal = 0;
 
@@ -168,7 +168,7 @@ int * CompactPrefixTable::CountKmerFreq(uint length) {
 
 			uloc offset = SequenceProvider.GetRefStart(m_CurGenSeq);
 			uloc len = SequenceProvider.GetRefLen(m_CurGenSeq);
-			char * seq = new char[ULOC_TO_ULOC(len) + 2];
+			char * seq = new char[GET_ULOC(len) + 2];
 			SequenceProvider.DecodeRefSequence(seq, m_CurGenSeq, offset, len);
 
 			if(skipRep) {
@@ -198,7 +198,7 @@ void CompactPrefixTable::Generate() {
 
 			uloc offset = SequenceProvider.GetRefStart(m_CurGenSeq);
 			uloc len = SequenceProvider.GetRefLen(m_CurGenSeq);
-			char * seq = new char[ULOC_TO_ULOC(len) + 2];
+			char * seq = new char[GET_ULOC(len) + 2];
 			SequenceProvider.DecodeRefSequence(seq, m_CurGenSeq, offset, len);
 
 			if(skipRep) {

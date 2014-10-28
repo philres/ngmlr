@@ -110,7 +110,7 @@ public:
 		refMaxLen = ULOC_FROM_UINT32( ((qryMaxLen + Config.GetInt("corridor")) | 1) + 1 );
 
 		for (int i = 0; i < swBatchSize; ++i) {
-			m_RefBuffer[i] = new char[ULOC_TO_ULOC(refMaxLen)];
+			m_RefBuffer[i] = new char[GET_ULOC(refMaxLen)];
 		}
 
 		scores = new Score[swBatchSize];

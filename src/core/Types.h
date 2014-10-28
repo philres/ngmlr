@@ -10,7 +10,7 @@ typedef unsigned int uint;
 //Temporary, used for identifying illegal conversions
 typedef long long loc;
 
-//#define ULOC_WRAPPER
+#define ULOC_WRAPPER
 
 #ifdef ULOC_WRAPPER
 
@@ -90,28 +90,28 @@ typedef long long loc;
 		friend const bool operator>=(uint left,const uloc& right) { return left >= right._val; }
 		friend const bool operator<=(uint left,const uloc& right) { return left <= right._val; }
 
-		static uloc from_uint32(uint v)  { uloc ul; ul._val = v; return ul; }
-		static uint to_uint32(const uloc& other) { return other._val; }
-		static uloc from_int32(int v)  { uloc ul; ul._val = v; return ul; }
-		static int to_int32(const uloc& other) { return other._val; }
-		static uloc from_loc(loc v)  { uloc ul; ul._val = v; return ul; }
-		static loc to_loc(const uloc& other) { return (loc) other._val; }
-		static uloc from_uloc(unsigned long long v)  { uloc ul; ul._val = v; return ul; }
-		static unsigned long long to_uloc(const uloc& other) { return (unsigned long long) other._val; }
+		static uloc _from_uint32(uint v)  { uloc ul; ul._val = v; return ul; }
+		static uint _to_uint32(const uloc& other) { return other._val; }
+		static uloc _from_int32(int v)  { uloc ul; ul._val = v; return ul; }
+		static int _to_int32(const uloc& other) { return other._val; }
+		static uloc _from_loc(loc v)  { uloc ul; ul._val = v; return ul; }
+		static loc _to_loc(const uloc& other) { return (loc) other._val; }
+		static uloc _from_uloc(unsigned long long v)  { uloc ul; ul._val = v; return ul; }
+		static unsigned long long _to_uloc(const uloc& other) { return (unsigned long long) other._val; }
 
 	};
 
-	#define ULOC_FROM_UINT32 uloc::from_uint32
-	#define ULOC_TO_UINT32   uloc::to_uint32
+	#define ULOC_FROM_UINT32 uloc::_from_uint32
+	#define ULOC_TO_UINT32   uloc::_to_uint32
 
-	#define ULOC_FROM_INT32  uloc::from_int32
-	#define ULOC_TO_INT32    uloc::to_int32
+	#define ULOC_FROM_INT32  uloc::_from_int32
+	#define ULOC_TO_INT32    uloc::_to_int32
 
-	#define ULOC_FROM_LOC    uloc::from_loc
-	#define ULOC_TO_LOC      uloc::to_loc
+	#define ULOC_FROM_LOC    uloc::_from_loc
+	#define ULOC_TO_LOC      uloc::_to_loc
 
-	#define ULOC_FROM_ULOC   uloc::from_uloc
-	#define ULOC_TO_ULOC     uloc::to_uloc
+	#define MAKE_ULOC   uloc::_from_uloc
+	#define GET_ULOC     uloc::_to_uloc
 
 #else
 
@@ -127,8 +127,8 @@ typedef long long loc;
 	#define ULOC_FROM_LOC
 	#define ULOC_TO_LOC
 
-	#define ULOC_FROM_ULOC
-	#define ULOC_TO_ULOC
+	#define MAKE_ULOC
+	#define GET_ULOC
 
 #endif
 

@@ -188,19 +188,19 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 			int refNameLength = 0;
 			if (rTable[i].fScore > 0.0f) {
 				if(rTable[i].fScore >= mi_Threshhold) {
-					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, ULOC_TO_ULOC(rTable[i].m_Location), ULOC_TO_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
+					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, GET_ULOC(rTable[i].m_Location), GET_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
 					accepted += 1;
 				} else {
-					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, ULOC_TO_ULOC(rTable[i].m_Location), ULOC_TO_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
+					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, GET_ULOC(rTable[i].m_Location), GET_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
 				}
 				count += 1;
 			}
 			if (rTable[i].rScore > 0.0f) {
 				if(rTable[i].rScore >= mi_Threshhold) {
-					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, ULOC_TO_ULOC(rTable[i].m_Location), ULOC_TO_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
+					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, GET_ULOC(rTable[i].m_Location), GET_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
 					accepted += 1;
 				} else {
-					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, ULOC_TO_ULOC(rTable[i].m_Location), ULOC_TO_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
+					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, GET_ULOC(rTable[i].m_Location), GET_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
 				}
 				count += 1;
 			}

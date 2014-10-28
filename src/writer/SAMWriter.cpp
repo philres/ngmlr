@@ -26,14 +26,14 @@ void SAMWriter::DoWriteProlog() {
 	if (ref == -1)
 		for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
 			refName = SequenceProvider.GetRefName(i, refNameLength);
-			Print("@SQ\tSN:%.*s\tLN:%llu\n", refNameLength, refName,ULOC_TO_ULOC(SequenceProvider.GetRefLen(i)));
+			Print("@SQ\tSN:%.*s\tLN:%llu\n", refNameLength, refName,GET_ULOC(SequenceProvider.GetRefLen(i)));
 			if (NGM.DualStrand())
 			++i;
 			m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer, false);
 		}
 		else {
 			refName = SequenceProvider.GetRefName(ref * ((NGM.DualStrand()) ? 2 : 1), refNameLength);
-			Print("@SQ\tSN:%.*s\tLN:%llu\n", refNameLength, refName, ULOC_TO_ULOC(SequenceProvider.GetRefLen(ref * ((NGM.DualStrand()) ? 2 : 1))));
+			Print("@SQ\tSN:%.*s\tLN:%llu\n", refNameLength, refName, GET_ULOC(SequenceProvider.GetRefLen(ref * ((NGM.DualStrand()) ? 2 : 1))));
 		}
 
 		//TODO: add version

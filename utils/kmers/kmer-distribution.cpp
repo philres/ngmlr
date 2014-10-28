@@ -67,7 +67,7 @@ void CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* d
 	//5 cols: 5th is number on - strand
 	//fprintf(ofp, "%s\t%u\t%u\t%d\t%d\n", refName, loc.m_Location, loc.m_Location + 1, cur->refCount, cur->nextEntry->refCount);
 	//4 cols
-	fprintf(ofp, "%s\t%llu\t%llu\t%d\n", refName, ULOC_TO_ULOC(loc.m_Location), ULOC_TO_ULOC(loc.m_Location + 1), cur->refCount);
+	fprintf(ofp, "%s\t%llu\t%llu\t%d\n", refName, GET_ULOC(loc.m_Location), GET_ULOC(loc.m_Location + 1), cur->refCount);
 
 	//	int * freq = (int *) data;
 //	if (prefix == lastPrefix) {
@@ -179,7 +179,7 @@ int kmer_distribution(int argc, char **argv) {
 				uloc offset = SequenceProvider.GetRefStart(i);
 				uloc len = SequenceProvider.GetRefLen(i);
 				int m_RefSkip = 0;
-				char * seq = new char[ULOC_TO_ULOC(len + 2)];
+				char * seq = new char[GET_ULOC(len + 2)];
 				SequenceProvider.DecodeRefSequence(seq, i, offset, len);
 
 				int refNameLength = 0;

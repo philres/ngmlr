@@ -168,7 +168,7 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName) {
 	Timer wtmr;
 	wtmr.ST();
 
-	uloc encRefSize = 0;
+	uloc encRefSize = MAKE_ULOC(0);
 	uint refCount = 0;
 	uint cookie = 0;
 
@@ -192,8 +192,8 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName) {
 	binRefIdx = new RefIdx[refCount];
 	fread(binRefIdx, sizeof(RefIdx), refCount, fp);
 
-	binRef = new char[ULOC_TO_ULOC(encRefSize)];
-	fread(binRef, sizeof(char), ULOC_TO_ULOC(encRefSize), fp);
+	binRef = new char[GET_ULOC(encRefSize)];
+	fread(binRef, sizeof(char), GET_ULOC(encRefSize), fp);
 	fclose(fp);
 	Log.Message("Reading from disk took %.2fs", wtmr.ET());
 
@@ -213,7 +213,7 @@ void _SequenceProvider::writeEncRefToFile(char const * fileName, uint const refC
 		fwrite(&encRefSize, sizeof(uloc), 1, fp);
 
 		fwrite(binRefIdx, sizeof(RefIdx), refCount, fp);
-		fwrite(binRef, sizeof(char), ULOC_TO_ULOC(encRefSize), fp);
+		fwrite(binRef, sizeof(char), GET_ULOC(encRefSize), fp);
 
 		fclose(fp);
 		Log.Message("Writing to disk took %.2fs", wtmr.ET());
@@ -264,7 +264,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 		uloc size = getSize(Config.GetString("ref"));
 		refFileLen = size;
 
-		Log.Message("Size of reference genome %llu (%llu)", ULOC_TO_ULOC(size), ULLONG_MAX);
+		Log.Message("Size of reference genome %llu (%llu)", GET_ULOC(size), ULLONG_MAX);
 		/* If size > INT64_MAX, then we literally got a big problem
 		if (size > ULLONG_MAX) {
 			Log.Error("Reference genome too long! NGM can't handle genomes larger than %ld bytes.", ULLONG_MAX );
@@ -272,8 +272,8 @@ void _SequenceProvider::Init(bool dualstrand) {
 		}*/
 
 		uloc const binRefSize = ((size / 2) | 1) + 1;
-		Log.Message("Allocating %llu (%llu) bytes for the reference.", ULOC_TO_ULOC(binRefSize), ULOC_TO_ULOC(FileSize(Config.GetString("ref")))); //TODO_GENOMESIZE: Check/adapt FileSize for uloc
-		binRef = new char[ULOC_TO_ULOC(binRefSize)];
+		Log.Message("Allocating %llu (%llu) bytes for the reference.", GET_ULOC(binRefSize), GET_ULOC(FileSize(Config.GetString("ref")))); //TODO_GENOMESIZE: Check/adapt FileSize for uloc
+		binRef = new char[GET_ULOC(binRefSize)];
 
 		gzFile gzfp;
 		kseq_t *seq;
@@ -291,7 +291,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 		for (int i = 0; i < 500; ++i) {
 			char c = enc4(spacer) << 4;
 			c |= enc4(spacer);
-			binRef[ULOC_TO_ULOC(binRefIndex++)] = c;
+			binRef[GET_ULOC(binRefIndex++)] = c;
 		}
 		int skipped = 0;
 		while ((l = kseq_read(seq)) >= 0) {
@@ -312,19 +312,19 @@ void _SequenceProvider::Init(bool dualstrand) {
 				for (size_t i = 0; i < seq->seq.l / 2 * 2; i += 2) {
 					char c = enc4(ref[i]) << 4;
 					c |= enc4(ref[i + 1]);
-					binRef[ULOC_TO_ULOC(binRefIndex++)] = c;
+					binRef[GET_ULOC(binRefIndex++)] = c;
 				}
 				if (seq->seq.l & 1) {
 					char c = enc4(ref[seq->seq.l - 1]) << 4;
 					c |= enc4(spacer);
-					binRef[ULOC_TO_ULOC(binRefIndex++)] = c;
+					binRef[GET_ULOC(binRefIndex++)] = c;
 				}
 
 				for (int i = 0; i < 500; ++i) {
 					//N
 					char c = enc4(spacer) << 4;
 					c |= enc4(spacer);
-					binRef[ULOC_TO_ULOC(binRefIndex++)] = c;
+					binRef[GET_ULOC(binRefIndex++)] = c;
 				}
 			} else {
 				Log.Verbose("Reference sequence %s too short (%d). Skipping.", seq->name.s, seq->seq.l);
@@ -332,7 +332,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 			}
 		}
 		refCount = j;
-		Log.Message("BinRef length: %ull (elapsed %f)", ULOC_TO_ULOC(binRefIndex), tt.ET());
+		Log.Message("BinRef length: %ull (elapsed %f)", GET_ULOC(binRefIndex), tt.ET());
 		Log.Message("%d reference sequences were skipped (length < %d).", skipped, minRefSeqLen);
 		kseq_destroy(seq);
 		gzclose(gzfp);
@@ -415,14 +415,14 @@ bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uloc offse
 //	for (int i = 0; i < nCount; ++i) {
 //		buffer[codedIndex++] = 'x';
 //	}
-	if (ULOC_TO_ULOC(offset & 1)) {
-		buffer[codedIndex++] = dec4Low(binRef[ULOC_TO_ULOC(start - 1)]);
+	if (GET_ULOC(offset & 1)) {
+		buffer[codedIndex++] = dec4Low(binRef[GET_ULOC(start - 1)]);
 	}
 	for (uloc i = ULOC_FROM_UINT32(0); i < (len+1)/2; ++i) { //TODO_GENOMESIZE: i < ceil(len / 2.0)
-		buffer[codedIndex++] = dec4High(binRef[ULOC_TO_ULOC(start + i)]);
-		buffer[codedIndex++] = dec4Low(binRef[ULOC_TO_ULOC(start + i)]);
+		buffer[codedIndex++] = dec4High(binRef[GET_ULOC(start + i)]);
+		buffer[codedIndex++] = dec4Low(binRef[GET_ULOC(start + i)]);
 	}
-	if (ULOC_TO_ULOC(len & 1)) {
+	if (GET_ULOC(len & 1)) {
 		buffer[codedIndex - 1] = 'x';
 	}
 	for (uloc i = ULOC_FROM_UINT32(0); i < end; ++i) {
@@ -430,8 +430,8 @@ bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uloc offse
 	}
 
 	if (codedIndex > bufferLength) {
-		Log.Error("nCount: %d, offset: %d, len: %d (%d), seqlen: %d, end: %d, start: %d, index: %d", 0, ULOC_TO_ULOC(offset), ULOC_TO_ULOC(bufferLength), ULOC_TO_ULOC((len+1)/2), binRefIdx[n].SeqLen, ULOC_TO_ULOC(end), ULOC_TO_ULOC(start), codedIndex);
-		Log.Error("%.*s", ULOC_TO_ULOC(bufferLength), buffer);
+		Log.Error("nCount: %d, offset: %d, len: %d (%d), seqlen: %d, end: %d, start: %d, index: %d", 0, GET_ULOC(offset), GET_ULOC(bufferLength), GET_ULOC((len+1)/2), binRefIdx[n].SeqLen, GET_ULOC(end), GET_ULOC(start), codedIndex);
+		Log.Error("%.*s", GET_ULOC(bufferLength), buffer);
 		Fatal();
 	}
 
