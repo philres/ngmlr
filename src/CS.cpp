@@ -111,6 +111,11 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 
 		cur = cur->nextEntry;
 	}
+
+	//TODO_GENOMESIZE: Properly solve this
+	//delete cs->m_entry;
+	//cs->m_entry = new RefEntry(0);
+	//cs->m_entry->nextEntry = new RefEntry(0);
 }
 
 void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const freq) {
@@ -502,6 +507,9 @@ CS::CS(bool useBuffer) :
 	m_entry->nextEntry = new RefEntry(0);
 	tmpSize = 10000;
 	tmp = new LocationScore[tmpSize];
+
+	m_entry->nextEntry->nextEntry = new RefEntry(0);
+	m_entry->nextEntry->nextEntry->nextEntry = new RefEntry(0);
 
 }
 

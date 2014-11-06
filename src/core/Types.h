@@ -8,11 +8,12 @@ typedef unsigned int uint;
 //typedef unsigned long long uloc;
 
 //Temporary, used for identifying illegal conversions
-typedef long long loc;
 
-#define ULOC_WRAPPER
+//#define ULOC_WRAPPER
 
 #ifdef ULOC_WRAPPER
+
+	typedef long long loc;
 
 	class uloc
 	{
@@ -115,15 +116,15 @@ typedef long long loc;
 
 #else
 
+	//typedef unsigned long long uloc;
+	typedef long long loc;
 	typedef unsigned long long uloc;
-	//typedef unsigned int uloc;
 
 	#define ULOC_FROM_UINT32
 	#define ULOC_TO_UINT32
 
 	#define ULOC_FROM_INT32
 	#define ULOC_TO_INT32
-
 	#define ULOC_FROM_LOC
 	#define ULOC_TO_LOC
 

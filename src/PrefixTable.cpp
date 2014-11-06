@@ -133,7 +133,7 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		m_UnitCount = ULOC_TO_UINT32( 1 + genomeSize / c_tableLocMax );
 		m_Units = new TableUnit[ m_UnitCount ];
 
-		Log.Message("Allocated %d hashtable units",m_UnitCount);
+		Log.Message("Allocated %d hashtable units (tableLocMax=2^%f, genomeSize=2^%f)",m_UnitCount,log(c_tableLocMax)*M_LOG2E,log(genomeSize)*M_LOG2E);
 
 		CreateTable(indexLength);
 		
@@ -155,7 +155,7 @@ void CompactPrefixTable::Clear() {
 
 int * CompactPrefixTable::CountKmerFreq(uint length) {
 
-	Log.Message("Number of k-mers: %d", length);
+	Log.Message("\tNumber of k-mers: %d", length);
 	int * freq = new int[length];
 	memset(freq, 0, length);
 
@@ -213,9 +213,9 @@ void CompactPrefixTable::Generate() {
 	}
 
 	if (skipBuild == skipCount) {
-		Log.Message("Number of repetitive k-mers ignored: %d", skipBuild);
+		Log.Message("\tNumber of repetitive k-mers ignored: %d", skipBuild);
 	} else {
-		Log.Error("SkipBuild (%d) != SkipCount (%d)", skipCount, skipBuild);
+		Log.Error("\tSkipBuild (%d) != SkipCount (%d)", skipCount, skipBuild);
 	}
 }
 
@@ -224,7 +224,7 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 	Timer freqT;
 	freqT.ST();
 	int * freqs = CountKmerFreq(length);
-	Log.Message("Counting kmers took %.2fs", freqT.ET());
+	Log.Message("\tCounting kmers took %.2fs", freqT.ET());
 
 	Timer t;
 	t.ST();
@@ -267,10 +267,10 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 	delete[] freqs;
 	freqs = 0;
 
-	Log.Message("Average number of positions per prefix: %f", avg);
-	Log.Message("%d prefixes are ignored due to the frequency cutoff (%d)", ignoredPrefixes, maxPrefixFreq);
-	Log.Message("Index size: %d byte (%d x %d)", length * sizeof(Index), length, sizeof(Index));
-	Log.Message("Generating index took %.2fs", t.ET());
+	Log.Message("\tAverage number of positions per prefix: %f", avg);
+	Log.Message("\t%d prefixes are ignored due to the frequency cutoff (%d)", ignoredPrefixes, maxPrefixFreq);
+	Log.Message("\tIndex size: %d byte (%d x %d)", length * sizeof(Index), length, sizeof(Index));
+	Log.Message("\tGenerating index took %.2fs", t.ET());
 	return next;
 }
 
@@ -279,7 +279,7 @@ void CompactPrefixTable::CreateTable(uint const length) {
 	{
 		CurrentUnit = &m_Units[ i ];
 
-		Log.Message("Building RefTable (kmer length: %d, reference skip: %d)", m_PrefixLength, m_RefSkip);
+		Log.Message("Building RefTable #%d (kmer length: %d, reference skip: %d)", i, m_PrefixLength, m_RefSkip);
 		Timer gtmr;
 		gtmr.ST();
 		CurrentUnit->cRefTableLen = createRefTableIndex(length);
@@ -292,12 +292,12 @@ void CompactPrefixTable::CreateTable(uint const length) {
 		for (uint i = 0; i < CurrentUnit->cRefTableLen + 1; ++i) {
 			CurrentUnit->RefTable[i].m_Location = 0;
 		}
-		Log.Message("Allocating and initializing prefix Table took %.2fs", tmr.ET());
-		Log.Message("Number of prefix positions is %d (%d)", CurrentUnit->cRefTableLen, sizeof(Location));
-		Log.Message("Size of RefTable is %ld", (ulong)CurrentUnit->cRefTableLen * (ulong)sizeof(Location));
+		Log.Message("\tAllocating and initializing prefix Table took %.2fs", tmr.ET());
+		Log.Message("\tNumber of prefix positions is %d (%d)", CurrentUnit->cRefTableLen, sizeof(Location));
+		Log.Message("\tSize of RefTable is %ld", (ulong)CurrentUnit->cRefTableLen * (ulong)sizeof(Location));
 
 		Generate();
-		Log.Message("Overall time for creating RefTable: %.2fs", gtmr.ET());
+		Log.Message("\tOverall time for creating RefTable: %.2fs", gtmr.ET());
 
 		kmerCountMinLocation += c_tableLocMax;
 		kmerCountMaxLocation += c_tableLocMax;
@@ -484,13 +484,14 @@ RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * initia
 
 		if( m_UnitCount > 1 )
 		{
-			RefEntry* new_sense = new RefEntry(0);
-			RefEntry* new_antisense = new RefEntry(0);
+			//RefEntry* new_sense = new RefEntry(0);
+			//RefEntry* new_antisense = new RefEntry(0);
 
-			revEntry->nextEntry = new_sense;
-			new_sense->nextEntry = new_antisense;
+			//revEntry->nextEntry = new_sense;
+			//new_sense->nextEntry = new_antisense;
 
-			entry = new_sense;
+			//entry = new_sense;
+			entry = revEntry->nextEntry;
 		}
 	}
 

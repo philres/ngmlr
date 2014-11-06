@@ -80,7 +80,7 @@ int CollectResultsFallback(int const readLength) {
 
 	if (max > 1.0f && maxCurrent <= max) {
 #ifdef _DEBUGRP
-		maxHitTableDebug[maxHitTableIndex] = maxCurrent;
+	maxHitTableDebug[maxHitTableIndex] = maxCurrent;
 #endif
 		maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))); // * 0.85f + 0.05f;
 		//Log.Message("Result: %f, %f, %f, %f -> %f", maxCurrent, maxCurrent / seq->seq.l, max, max / seq->seq.l, maxHitTable[maxHitTableIndex-1]);
@@ -202,6 +202,10 @@ uint ReadProvider::init() {
 			m_RefProvider = NGM.GetRefProvider(0);
 			m_entry = new RefEntry(0);
 			m_entry->nextEntry = new RefEntry(0);
+
+			//TODO_GENOMESIZE: Fixme
+        		m_entry->nextEntry->nextEntry = new RefEntry(0);
+        		m_entry->nextEntry->nextEntry->nextEntry = new RefEntry(0);
 		}
 
 		int l = 0;
