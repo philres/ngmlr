@@ -123,7 +123,7 @@ void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const 
 	uint l = (uint) c_SrchTableLen;
 	bool newEntry = false;
 
-	uint hpo = Hash( ULOC_TO_UINT32(m_Location) ); //TODO_GENOMESIZE: Fix precision loss here! (Adapt multiplication hash func)
+	uint hpo = Hash( m_Location ); //TODO_GENOMESIZE: Fix precision loss here! (Adapt multiplication hash func)
 	while ((newEntry = (rTable[hpo].state & 0x7FFFFFFF) == currentState) && !(rTable[hpo].m_Location == m_Location)) {
 		++hpo;
 		if (hpo >= l)
@@ -354,7 +354,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 				try {
 
 					c_SrchTableBitLen = c_SrchTableBitLenBackup + x;
-					c_BitShift = 32 - c_SrchTableBitLen;
+					c_BitShift = 64 - c_SrchTableBitLen;
 					c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
 
 					rListLength = 0;
@@ -371,7 +371,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 				}
 			}
 			c_SrchTableBitLen = c_SrchTableBitLenBackup;
-			c_BitShift = 32 - c_SrchTableBitLen;
+			c_BitShift = 64 - c_SrchTableBitLen;
 			c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
 		}
 
@@ -451,12 +451,12 @@ void CS::DoRun() {
 		if (!Config.Exists("search_table_length")) {
 			if (m_Overflows <= 5 && !up && c_SrchTableBitLen > 8) {
 				c_SrchTableBitLen -= 1;
-				c_BitShift = 32 - c_SrchTableBitLen;
+				c_BitShift = 64 - c_SrchTableBitLen;
 				c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
 				Log.Debug(LOG_CS_DETAILS, "Overflow: Switching to %d bits (%d, %d)", c_SrchTableBitLen, c_BitShift, c_SrchTableLen);
 			} else if (m_Overflows > m_BatchSize * 0.01f) {
 				c_SrchTableBitLen += 1;
-				c_BitShift = 32 - c_SrchTableBitLen;
+				c_BitShift = 64 - c_SrchTableBitLen;
 				c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
 				up = true;
 				Log.Debug(LOG_CS_DETAILS, "Overflow: Switching to %d bits (%d, %d)", c_SrchTableBitLen, c_BitShift, c_SrchTableLen);
@@ -485,7 +485,7 @@ void CS::Init() {
 CS::CS(bool useBuffer) :
 		m_CSThreadID((useBuffer) ? (AtomicInc(&s_ThreadCount) - 1) : -1), m_BatchSize(cBatchSize / Config.GetInt("qry_avg_len")), m_ProcessedReads(
 				0), m_WrittenReads(0), m_DiscardedReads(0), m_EnableBS(false), m_Overflows(0), m_entry(new RefEntry(0)), c_SrchTableBitLen(
-				Config.Exists("search_table_length") ? Config.GetInt("search_table_length") : 16), c_BitShift(32 - c_SrchTableBitLen), c_SrchTableLen(
+				Config.Exists("search_table_length") ? Config.GetInt("search_table_length") : 16), c_BitShift(64 - c_SrchTableBitLen), c_SrchTableLen(
 				(int) pow(2, c_SrchTableBitLen)), m_PrefixBaseSkip(0), m_Fallback((c_SrchTableLen <= 0)) // cTableLen <= 0 means always use fallback
 {
 

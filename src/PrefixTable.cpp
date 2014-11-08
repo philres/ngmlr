@@ -133,7 +133,7 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		m_UnitCount = ULOC_TO_UINT32( 1 + genomeSize / c_tableLocMax );
 		m_Units = new TableUnit[ m_UnitCount ];
 
-		Log.Message("Allocated %d hashtable units (tableLocMax=2^%f, genomeSize=2^%f)",m_UnitCount,log(c_tableLocMax)*M_LOG2E,log(genomeSize)*M_LOG2E);
+		Log.Message("Allocated %d hashtable units (tableLocMax=2^%f, genomeSize=2^%f)",m_UnitCount,log(GET_ULOC(c_tableLocMax))*M_LOG2E,log(GET_ULOC(genomeSize))*M_LOG2E);
 
 		CreateTable(indexLength);
 		
