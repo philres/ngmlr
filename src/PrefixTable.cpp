@@ -18,7 +18,7 @@
 
 extern int lastSeqTotal;
 
-static uint const refTabCookie = 0x1701D;\
+static uint const refTabCookie = 0x1701D;
 
 
 uloc CompactPrefixTable::c_tableLocMax = MAKE_ULOC( 4294967296 - 1 );
@@ -29,7 +29,7 @@ int CompactPrefixTable::maxPrefixFreq = 1000;
 
 ulong CompactPrefixTable::lastPrefix;
 loc CompactPrefixTable::lastBin;
-uloc CompactPrefixTable::lastPos;
+loc CompactPrefixTable::lastPos;
 
 uint CompactPrefixTable::skipCount;
 uint CompactPrefixTable::skipBuild;
@@ -278,6 +278,7 @@ void CompactPrefixTable::CreateTable(uint const length) {
 	for( int i = 0; i < m_UnitCount; ++ i )
 	{
 		CurrentUnit = &m_Units[ i ];
+		CurrentUnit->Offset = kmerCountMinLocation;
 
 		Log.Message("Building RefTable #%d (kmer length: %d, reference skip: %d)", i, m_PrefixLength, m_RefSkip);
 		Timer gtmr;
@@ -339,7 +340,7 @@ void CompactPrefixTable::CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulo
 		lastPos = pos;
 	} else {
 		lastBin = -1;
-		lastPos = ULOC_FROM_INT32( 0 ); //TODO_GENOMESIZE: Still working (was signed and set to -1)
+		lastPos = -1; //TODO_GENOMESIZE: Still working (was signed and set to -1) (now -1 again)
 		freq[prefix] += 1;
 	}
 	lastPrefix = prefix;

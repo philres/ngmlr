@@ -7,7 +7,7 @@ struct Location {
 	uint m_Location;
 
 	bool used() {
-		return m_Location != 0;
+		return m_Location != 0; //TODO_GENOMESIZE: May be null (first loc in second hashtable/)
 	}
 };
 

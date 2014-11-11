@@ -113,7 +113,7 @@ private:
 	ulong m_TotalLocs;
 	static ulong lastPrefix;
 	static loc lastBin;
-	static uloc lastPos;
+	static loc lastPos;
 	static uint skipCount;
 	static uint skipBuild;
 	uint m_RefSkip;

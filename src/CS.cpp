@@ -104,6 +104,8 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 //#endif
 
 		int const n = cur->refCount;
+
+
 		for (int i = 0; i < n; ++i) {
 			uloc loc = cur->getRealLocation(cur->ref[i]);
 			cs->AddLocationStd(cs->GetBin( loc - correction ), cur->reverse, weight);
@@ -118,10 +120,17 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 	//cs->m_entry->nextEntry = new RefEntry(0);
 }
 
+
 void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const freq) {
 	uint hpoc = c_SrchTableLen;
 	uint l = (uint) c_SrchTableLen;
 	bool newEntry = false;
+
+	/*if( m_Location > pow(2,32))
+		over++;
+	else
+		under++;
+	Log.Message("Over/Under: %f", over/under);*/
 
 	uint hpo = Hash( m_Location ); //TODO_GENOMESIZE: Fix precision loss here! (Adapt multiplication hash func)
 	while ((newEntry = (rTable[hpo].state & 0x7FFFFFFF) == currentState) && !(rTable[hpo].m_Location == m_Location)) {

@@ -81,10 +81,10 @@ protected:
 
 	inline uint Hash(uloc n) { //TODO_GENOMESIZE: How is this affected by locations > UINT_MAX
 		//Multiplication Method (Corment)
-		static float A = 0.5f * (sqrt(5) - 1);
-		static uloc m = floor(A * pow(2, 64));
+		//static float A = 0.5f * (sqrt(5) - 1);
+		//static uloc m = floor(A * pow(2, 64));
 		//static uint m = 2654435761;
-		// static uloc m = 11400714819323199488u;
+		static uloc m = 11400714819323199488u;
 
 		return ULOC_TO_UINT32( (n * m) >> c_BitShift );
 	}
