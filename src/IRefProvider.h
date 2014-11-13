@@ -22,7 +22,7 @@ struct RefEntry {
 		refTotal = 0;
 	}
 	~RefEntry() {
-		delete[] ref;
+		//delete[] ref;
 	}
 
 	inline uloc getRealLocation(const Location& loc) const { return ULOC_FROM_UINT32( loc.m_Location ) + offset; }
