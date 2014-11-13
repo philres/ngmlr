@@ -13,19 +13,15 @@ struct Location {
 
 struct RefEntry {
 	//static const int cIncrements[] = { 10, 20, 50, 100 };
-	static int MaxRefsPerEntry; //UNUSED
+	//static int MaxRefsPerEntry; //UNUSED
 
-	RefEntry(int locs = MaxRefsPerEntry) {
+	RefEntry(int locs = 0) {
 		reverse = false;
 		weight = 0.0f;
 		refCount = 0;
 		refTotal = 0;
-		nextEntry = 0;
 	}
 	~RefEntry() {
-		if (nextEntry != 0)
-			delete nextEntry;
-
 		delete[] ref;
 	}
 
@@ -37,7 +33,6 @@ struct RefEntry {
 	float weight;
 	int refCount;
 	int refTotal;
-	RefEntry* nextEntry;
 private:
 	RefEntry(void const * pEntries, int count);
 	friend class PrefixTable;
@@ -49,6 +44,8 @@ public:
 
 	virtual RefEntry const * GetRefEntry(ulong prefix,
 			RefEntry * entry = 0) const = 0;
+
+	virtual uint GetRefEntryChainLength() const = 0;
 
 	virtual ~IRefProvider() {
 	}

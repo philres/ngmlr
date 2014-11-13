@@ -44,6 +44,7 @@ IRefProvider * m_RefProvider = 0;
 FILE * ofp;
 
 RefEntry * m_entry = 0;
+uint m_entryCount = 0;
 
 void CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 
@@ -164,8 +165,11 @@ int kmer_distribution(int argc, char **argv) {
 		int * freq = new int[length];
 		memset(freq, 0, length);
 
-		m_entry = new RefEntry(0);
-		m_entry->nextEntry = new RefEntry(0);
+		//m_entry = new RefEntry(0);
+		//m_entry->nextEntry = new RefEntry(0);
+
+		m_entryCount = m_RefProvider->GetRefEntryChainLength();
+		m_entry = new RefEntry[m_entryCount];
 
 		Log.Message("Processing: ");
 		ofp = fopen(outArg.getValue().c_str(), "w");

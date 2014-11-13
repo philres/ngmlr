@@ -83,7 +83,8 @@ void CS::PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom, ulong mu
 void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	CS * cs = (CS*) data;
 
-	RefEntry const * cur = cs->m_RefProvider->GetRefEntry(prefix, cs->m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
+	RefEntry const * entries = cs->m_RefProvider->GetRefEntry(prefix, cs->m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
+	RefEntry const * cur = entries;
 
 	int const readLength = cs->m_CurrentReadLength;
 
@@ -91,7 +92,7 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 		kCount += 1;
 	}
 
-	while (cur != 0) {
+	for( int i = 0; i < cs->m_entryCount; i ++ ) {
 		//Get kmer-weight.
 		//float weight = cur->weight / 100.0f;
 		//cs->weightSum += cur->weight;
@@ -111,7 +112,7 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 			cs->AddLocationStd(cs->GetBin( loc - correction ), cur->reverse, weight);
 		}
 
-		cur = cur->nextEntry;
+		cur ++;
 	}
 
 	//TODO_GENOMESIZE: Properly solve this
@@ -437,6 +438,7 @@ void CS::DoRun() {
 
 	Timer tmr;
 	m_RefProvider = NGM.GetRefProvider(m_TID);
+	AllocRefEntryChain();
 	while (NGM.ThreadActive(m_TID, GetStage()) && ((m_CurrentBatch = NGM.GetNextReadBatch(m_BatchSize)), (m_CurrentBatch.size() > 0))) {
 		Log.Debug(LOG_CS_DETAILS, "CS Thread %i got batch (len %i)", m_TID, m_CurrentBatch.size());
 		tmr.ST();
@@ -493,7 +495,7 @@ void CS::Init() {
 
 CS::CS(bool useBuffer) :
 		m_CSThreadID((useBuffer) ? (AtomicInc(&s_ThreadCount) - 1) : -1), m_BatchSize(cBatchSize / Config.GetInt("qry_avg_len")), m_ProcessedReads(
-				0), m_WrittenReads(0), m_DiscardedReads(0), m_EnableBS(false), m_Overflows(0), m_entry(new RefEntry(0)), c_SrchTableBitLen(
+				0), m_WrittenReads(0), m_DiscardedReads(0), m_EnableBS(false), m_Overflows(0), m_entry(0), c_SrchTableBitLen(
 				Config.Exists("search_table_length") ? Config.GetInt("search_table_length") : 16), c_BitShift(64 - c_SrchTableBitLen), c_SrchTableLen(
 				(int) pow(2, c_SrchTableBitLen)), m_PrefixBaseSkip(0), m_Fallback((c_SrchTableLen <= 0)) // cTableLen <= 0 means always use fallback
 {
@@ -513,13 +515,14 @@ CS::CS(bool useBuffer) :
 #endif
 
 	currentState = 0;
-	m_entry->nextEntry = new RefEntry(0);
 	tmpSize = 10000;
 	tmp = new LocationScore[tmpSize];
+}
 
-	m_entry->nextEntry->nextEntry = new RefEntry(0);
-	m_entry->nextEntry->nextEntry->nextEntry = new RefEntry(0);
-
+void CS::AllocRefEntryChain()
+{
+	m_entryCount = m_RefProvider->GetRefEntryChainLength();
+	m_entry = new RefEntry[ m_entryCount ];
 }
 
 CS::~CS() {
@@ -535,6 +538,11 @@ CS::~CS() {
 
 	if (rList != 0) {
 		delete[] rList;
+	}
+
+	if (m_entry != 0) {
+		delete[] m_entry;
+		m_entry = 0;
 	}
 }
 

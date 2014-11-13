@@ -104,6 +104,11 @@ inline loc GetBin(uloc pos) { //TODO_GENOMESIZE: Broken by uloc?
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+uint CompactPrefixTable::GetRefEntryChainLength() const
+{
+	return m_UnitCount * 2;
+}
+
 CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		m_RECount(0), m_RRCount(0), m_BCalls(0), m_TotalLocs(0), DualStrand(dualStrand), skipRep(skip) {
 
@@ -129,7 +134,7 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		kmerCountMinLocation = ULOC_FROM_UINT32(0);
 		kmerCountMaxLocation = c_tableLocMax;
 
-		uloc genomeSize = SequenceProvider.GetConcatRefLen(); //TODO: Does this function work as expected?
+		uloc genomeSize = SequenceProvider.GetConcatRefLen();
 		m_UnitCount = ULOC_TO_UINT32( 1 + genomeSize / c_tableLocMax );
 		m_Units = new TableUnit[ m_UnitCount ];
 
@@ -429,12 +434,12 @@ void CompactPrefixTable::SaveToRefTable(ulong prefix, Location loc) {
 	++m_TotalLocs;
 }
 
-RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * initial_entry) const {
+RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * entries) const {
 
-	RefEntry* entry = initial_entry;
-
-	for( int i = 0; i < m_UnitCount; ++ i )
+	for( int i = 0; i < m_UnitCount; i ++ )
 	{
+		RefEntry* entry = &entries[ i * 2 ];
+
 		uint      cRefTableLen = m_Units[i].cRefTableLen;
 		Location* RefTable = m_Units[i].RefTable;
 		Index*    RefTableIndex = m_Units[i].RefTableIndex;
@@ -461,7 +466,7 @@ RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * initia
 		}
 
 		ulong compRevPrefix = revComp(prefix);
-		RefEntry * revEntry = entry->nextEntry;
+		RefEntry * revEntry = &entries[ i * 2 + 1 ];
 
 		if (RefTableIndex[compRevPrefix].used()) {
 			start = RefTableIndex[compRevPrefix].m_TabIndex - 1;
@@ -481,22 +486,9 @@ RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * initia
 			revEntry->refTotal = 0;
 			revEntry->offset = m_Units[i].Offset;
 		}
-		//}
-
-		if( m_UnitCount > 1 )
-		{
-			//RefEntry* new_sense = new RefEntry(0);
-			//RefEntry* new_antisense = new RefEntry(0);
-
-			//revEntry->nextEntry = new_sense;
-			//new_sense->nextEntry = new_antisense;
-
-			//entry = new_sense;
-			entry = revEntry->nextEntry;
-		}
 	}
 
-	return initial_entry;
+	return entries;
 }
 
 void CompactPrefixTable::saveToFile(char const * fileName, uint const refIndexSize) {

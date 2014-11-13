@@ -54,6 +54,7 @@ protected:
 	//float weightSum;
 	const IRefProvider* m_RefProvider;
 	RefEntry* m_entry;
+	uint m_entryCount;
 	int c_SrchTableBitLen;
 	int c_BitShift;
 	int c_SrchTableLen;
@@ -71,6 +72,9 @@ protected:
 	void CheckFallback();
 	virtual int RunBatch(ScoreBuffer * sw, AlignmentBuffer * out);
 	void SendToBuffer(MappedRead* read, ScoreBuffer * sw, AlignmentBuffer * out);
+
+	void AllocRefEntryChain();
+
 	CSTableEntry* rTable; // standard
 	int currentState;
 	int* rList;

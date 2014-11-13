@@ -32,6 +32,7 @@ using NGMNames::ReadStatus;
 
 static IRefProvider const * m_RefProvider;
 static RefEntry * m_entry;
+static uint m_entryCount;
 static std::map<SequenceLocation, float> iTable; // fallback
 
 //uint const estimateSize = 10000;
@@ -93,9 +94,10 @@ int CollectResultsFallback(int const readLength) {
 
 static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 
-	RefEntry const * cur = m_RefProvider->GetRefEntry(prefix, m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
+	RefEntry const * entries = m_RefProvider->GetRefEntry(prefix, m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
+	RefEntry const * cur = entries;
 
-	while (cur != 0) {
+	for( int i = 0; i < m_entryCount; i ++ ) {
 		//Get kmer-weight.
 //		float weight = cur->weight;
 		float weight = 1.0f;
@@ -123,7 +125,7 @@ static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateT
 			}
 		}
 
-		cur = cur->nextEntry;
+		cur ++;
 	}
 }
 
@@ -200,12 +202,9 @@ uint ReadProvider::init() {
 			maxHitTableIndex = 0;
 
 			m_RefProvider = NGM.GetRefProvider(0);
-			m_entry = new RefEntry(0);
-			m_entry->nextEntry = new RefEntry(0);
 
-			//TODO_GENOMESIZE: Fixme
-        		m_entry->nextEntry->nextEntry = new RefEntry(0);
-        		m_entry->nextEntry->nextEntry->nextEntry = new RefEntry(0);
+			m_entryCount = m_RefProvider->GetRefEntryChainLength();
+			m_entry = new RefEntry[ m_entryCount ];
 		}
 
 		int l = 0;

@@ -82,6 +82,7 @@ public:
 	virtual ~CompactPrefixTable();
 
 	const RefEntry* GetRefEntry(ulong prefix, RefEntry* entry) const;
+	uint GetRefEntryChainLength() const;
 
 	static int maxPrefixFreq;
 
@@ -94,7 +95,7 @@ private:
 
 	//Table units array
 	TableUnit* m_Units;
-	int m_UnitCount;
+	uint m_UnitCount;
 
 	//Static members used to direct generation of table units
 	static TableUnit* CurrentUnit;
@@ -132,7 +133,6 @@ private:
 	void Clear();
 	void saveToFile(const char* fileName, const uint refIndexSize);
 	void readFromFile(const char* fileName);
-
 
 
 };
