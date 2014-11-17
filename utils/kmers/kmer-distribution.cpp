@@ -44,8 +44,9 @@ IRefProvider * m_RefProvider = 0;
 FILE * ofp;
 
 RefEntry * m_entry = 0;
+uint m_entryCount = 0;
 
-void CountKmer(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
+void CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 
 
 	SequenceLocation loc;
@@ -67,7 +68,7 @@ void CountKmer(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* d
 	//5 cols: 5th is number on - strand
 	//fprintf(ofp, "%s\t%u\t%u\t%d\t%d\n", refName, loc.m_Location, loc.m_Location + 1, cur->refCount, cur->nextEntry->refCount);
 	//4 cols
-	fprintf(ofp, "%s\t%u\t%u\t%d\n", refName, loc.m_Location, loc.m_Location + 1, cur->refCount);
+	fprintf(ofp, "%s\t%llu\t%llu\t%d\n", refName, loc.m_Location, loc.m_Location + 1, cur->refCount);
 
 	//	int * freq = (int *) data;
 //	if (prefix == lastPrefix) {
@@ -164,8 +165,11 @@ int kmer_distribution(int argc, char **argv) {
 		int * freq = new int[length];
 		memset(freq, 0, length);
 
-		m_entry = new RefEntry(0);
-		m_entry->nextEntry = new RefEntry(0);
+		//m_entry = new RefEntry(0);
+		//m_entry->nextEntry = new RefEntry(0);
+
+		m_entryCount = m_RefProvider->GetRefEntryChainLength();
+		m_entry = new RefEntry[m_entryCount];
 
 		Log.Message("Processing: ");
 		ofp = fopen(outArg.getValue().c_str(), "w");
@@ -176,8 +180,8 @@ int kmer_distribution(int argc, char **argv) {
 //
 //			if (!DualStrand || !(m_CurGenSeq % 2)) {
 //
-				uint offset = SequenceProvider.GetRefStart(i);
-				uint len = SequenceProvider.GetRefLen(i);
+				uloc offset = SequenceProvider.GetRefStart(i);
+				uloc len = SequenceProvider.GetRefLen(i);
 				int m_RefSkip = 0;
 				char * seq = new char[len + 2];
 				SequenceProvider.DecodeRefSequence(seq, i, offset, len);

@@ -24,7 +24,7 @@ private:
 	bool m_EnableBS;
 	int const batchSize;
 	int const corridor;
-	int const refMaxLen;
+	uloc const refMaxLen;
 	int const min_mq;
 
 	Alignment * reads;
@@ -62,7 +62,9 @@ public:
 					NGM.GetOutputFormat()),
 					alignmode(Config.GetInt(MODE, 0, 1)),
 					corridor(Config.GetInt("corridor")),
-					refMaxLen(((Config.GetInt("qry_max_len") + corridor) | 1) + 1), min_mq(Config.GetInt(MIN_MQ)), aligner(mAligner), argos(Config.Exists(ARGOS)) {
+					refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
+					min_mq(Config.GetInt(MIN_MQ)),
+					aligner(mAligner), argos(Config.Exists(ARGOS)) {
 						pairInsertSum = 0;
 						pairInsertCount = 0;
 						brokenPairs = 0;

@@ -23,7 +23,7 @@ inline char encode(char c) {
 
 
 // Iteriert ueber jeden Praefix in sequence und fuehrt fuer diesen die Funktion func aus
-void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uint offset) {
+void CS::PrefixIteration(char const * sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uloc offset) {
 	if (length < prefixBasecount)
 		return;
 
@@ -41,7 +41,7 @@ void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn f
 	}
 
 	ulong prefix = 0;
-	for (uint i = 0; i < prefixBasecount - 1; ++i) {
+	for (uloc i = 0; i < prefixBasecount - 1; ++i) {
 		char c = *(sequence + i);
 		if (c == 'N') {
 			PrefixIteration(sequence + i + 1, length - i - 1, func, mutateFrom, mutateTo, data, prefixskip, offset + i + 1);
@@ -54,7 +54,7 @@ void CS::PrefixIteration(char const * sequence, uint length, PrefixIterationFn f
 	}
 
 	uint skipcount = prefixskip;
-	for (uint i = prefixBasecount - 1; i < length; ++i) {
+	for (uloc i = prefixBasecount - 1; i < length; ++i) {
 		char c = *(sequence + i);
 		if (c == 'N') {
 			PrefixIteration(sequence + i + 1, length - i - 1, func, mutateFrom, mutateTo, data, prefixskip, offset + i + 1);

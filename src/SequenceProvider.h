@@ -19,13 +19,13 @@ public:
 	static void Cleanup();
 
 	virtual void Init(bool dualstrand = true);
-	bool DecodeRefSequence(char* const buffer, int n, uint offset, uint len);
+	bool DecodeRefSequence(char* const buffer, int n, uloc offset, uloc len);
 	// Gets the length of read/reference string n
-	virtual uint GetRefLen(int n) const;
-	virtual uint GetConcatRefLen() const;
+	virtual uloc GetRefLen(int n) const;
+	virtual uloc GetConcatRefLen() const;
 	virtual int GetRefCount() const;
 	const virtual char* GetRefName(int n, int& len) const;
-	virtual uint GetRefStart(int n) const;
+	virtual uloc GetRefStart(int n) const;
 
 	virtual void PagingUpdate();
 	static const int maxRefNameLength = 100;
@@ -45,7 +45,7 @@ private:
 	struct RefIdx {
 		uint SeqId;
 		uint Flags;
-		ulong SeqStart;
+		uloc SeqStart;
 		uint SeqLen;
 		uint NameLen;
 		char name[maxRefNameLength];
@@ -53,28 +53,28 @@ private:
 
 	RefIdx * binRefIdx;
 	char* binRef;
-	int binRefIndex;
+	uloc binRefIndex;
 
 	// Files
 	std::string refFileName;
 	std::string refBaseFileName;
 
-	long refFileLen;
-	long refCplFileLen;
+	uloc refFileLen;
+	uloc refCplFileLen;
 
-	long refBaseFileLen;
+	uloc refBaseFileLen;
 
-	uint binRefSize;
+	uloc binRefSize;
 
 	int refCount;
 
 	bool m_EnableBS;
 
-	uint * refStartPos;
+	uloc * refStartPos;
 
 	static const int minRefSeqLen = 10;
 
-	void writeEncRefToFile(char const * fileName, uint const refCount, uint const encRefSize);
+	void writeEncRefToFile(char const * fileName, uint const refCount, uloc const encRefSize);
 	int readEncRefFromFile(char const * fileName);
 
 };

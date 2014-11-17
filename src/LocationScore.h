@@ -7,7 +7,7 @@
 struct MappedRead;
 
 struct CSTableEntry {
-	uint m_Location;
+	uloc m_Location;
 	uint state;
 	float fScore;
 	float rScore;

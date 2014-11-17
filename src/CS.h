@@ -54,23 +54,27 @@ protected:
 	//float weightSum;
 	const IRefProvider* m_RefProvider;
 	RefEntry* m_entry;
+	uint m_entryCount;
 	int c_SrchTableBitLen;
 	int c_BitShift;
 	int c_SrchTableLen;
 	uint m_PrefixBaseSkip;
 	bool m_Fallback;
-	typedef void (*PrefixIterationFn)(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
+	typedef void (*PrefixIterationFn)(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
 	typedef void (CS::*AddLocationFn)(const SequenceLocation& loc, const double freq);
-	static void BuildPrefixTable(ulong prefix, uint pos, void* data);
-	static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
+	static void BuildPrefixTable(ulong prefix, uloc pos, void* data);
+	static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
 
-	static void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos = 0);
+	static void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos = 0);
 	virtual int CollectResultsStd(MappedRead* read);
 	int CollectResultsFallback(MappedRead* read);
 	void FilterScore(LocationScore* score);
 	void CheckFallback();
 	virtual int RunBatch(ScoreBuffer * sw, AlignmentBuffer * out);
 	void SendToBuffer(MappedRead* read, ScoreBuffer * sw, AlignmentBuffer * out);
+
+	void AllocRefEntryChain();
+
 	CSTableEntry* rTable; // standard
 	int currentState;
 	int* rList;
@@ -79,21 +83,23 @@ protected:
 	float currentThresh;
 	float maxHitNumber;
 
-	inline uint Hash(uint n) {
+	inline uint Hash(uloc n) {
 		//Multiplication Method (Corment)
-		//		static float A = 0.5f * (sqrt(5) - 1);
-		//		static uint m = floor(A * pow(2, 32));
-		static uint m = 2654435761;
-		return ((n) * m) >> c_BitShift;
+		//static float A = 0.5f * (sqrt(5) - 1);
+		//static uloc m = floor(A * pow(2, 64));
+		//static uint m = 2654435761;
+		static uloc m = 11400714819323199488u;
+
+		return uint( (n * m) >> c_BitShift );
 	}
 
-	inline uint GetBin(uint pos) {
+	inline uloc GetBin(uloc pos) {
 		//static int shift = calc_binshift(Config.GetInt("corridor"));
 		static int shift = calc_binshift(12);
 		return pos >> shift;
 	}
 
-	inline uint ResolveBin(uint bin) {
+	inline uloc ResolveBin(uloc bin) {
 //		static int shift = calc_binshift(Config.GetInt("corridor"));
 		static int shift = calc_binshift(12);
 		static uint offset = (shift > 0) ? 1 << (shift - 1) : 0;
@@ -116,7 +122,7 @@ public:
 		return l;
 	}
 	//AddLocationFn AddLocation;
-	virtual void AddLocationStd(const uint loc, const bool reverse, const double freq);
+	virtual void AddLocationStd(const uloc loc, const bool reverse, const double freq);
 	void AddLocationFallback(const SequenceLocation& loc, const double freq);
 	static uint prefixBasecount;
 	static uint prefixBits;
@@ -132,10 +138,10 @@ public:
 
 	static void Init();
 	static void Cleanup();
-	static void PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
-	static void PrefixIteration(const char* sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip = 0,
-			uint offset = 0);
-	static void PrefixIteration(const char* sequence, uint length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uint offset,
+	static void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
+	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip = 0,
+			uloc offset = 0 );
+	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uloc offset,
 			int prefixBaseCount);
 	CS(bool useBuffer = true);
 	~CS();

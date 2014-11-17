@@ -63,7 +63,7 @@ private:
 	float* m_ScoreBuffer;
 
 	int qryMaxLen;
-	int refMaxLen;
+	uloc refMaxLen;
 
 	int corridor;
 	char * m_DirBuffer;

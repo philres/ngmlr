@@ -32,6 +32,7 @@ using NGMNames::ReadStatus;
 
 static IRefProvider const * m_RefProvider;
 static RefEntry * m_entry;
+static uint m_entryCount;
 static std::map<SequenceLocation, float> iTable; // fallback
 
 //uint const estimateSize = 10000;
@@ -54,7 +55,7 @@ ReadProvider::ReadProvider() :
 
 }
 
-inline int GetBin(uint pos) {
+inline uloc GetBin(uloc pos) {
 	static int shift = CS::calc_binshift(20);
 	return pos >> shift;
 	//return pos;
@@ -80,7 +81,7 @@ int CollectResultsFallback(int const readLength) {
 
 	if (max > 1.0f && maxCurrent <= max) {
 #ifdef _DEBUGRP
-		maxHitTableDebug[maxHitTableIndex] = maxCurrent;
+	maxHitTableDebug[maxHitTableIndex] = maxCurrent;
 #endif
 		maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))); // * 0.85f + 0.05f;
 		//Log.Message("Result: %f, %f, %f, %f -> %f", maxCurrent, maxCurrent / seq->seq.l, max, max / seq->seq.l, maxHitTable[maxHitTableIndex-1]);
@@ -91,11 +92,12 @@ int CollectResultsFallback(int const readLength) {
 	return 0;
 }
 
-static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
+static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 
-	RefEntry const * cur = m_RefProvider->GetRefEntry(prefix, m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
+	RefEntry const * entries = m_RefProvider->GetRefEntry(prefix, m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
+	RefEntry const * cur = entries;
 
-	while (cur != 0) {
+	for( int i = 0; i < m_entryCount; i ++ ) {
 		//Get kmer-weight.
 //		float weight = cur->weight;
 		float weight = 1.0f;
@@ -106,7 +108,7 @@ static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateT
 
 		if (cur->reverse) {
 			for (int i = 0; i < n; ++i) {
-				SequenceLocation curLoc = cur->ref[i];
+				SequenceLocation curLoc( cur->ref[i], cur->offset );
 				curLoc.setRefId(1);
 				curLoc.setReverse(true);
 				curLoc.m_Location = GetBin(curLoc.m_Location - (m_CurrentReadLength - (pos + CS::prefixBasecount))); // position offset
@@ -115,7 +117,7 @@ static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateT
 
 		} else {
 			for (int i = 0; i < n; ++i) {
-				SequenceLocation curLoc = cur->ref[i];
+				SequenceLocation curLoc( cur->ref[i], cur->offset );
 				curLoc.setRefId(0);
 				curLoc.setReverse(false);
 				curLoc.m_Location = GetBin(curLoc.m_Location - pos); // position offset
@@ -123,13 +125,13 @@ static void PrefixSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateT
 			}
 		}
 
-		cur = cur->nextEntry;
+		cur ++;
 	}
 }
 
-void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos = 0);
+void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos = 0);
 
-void PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data) {
+void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	static int const cMutationLocLimit =
 	Config.Exists("bs_cutoff") ? Config.GetInt("bs_cutoff") : 6;
 	ulong const mask = 0x3;
@@ -145,7 +147,7 @@ void PrefixMutateSearch(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo
 		PrefixMutateSearchEx(prefix, pos, mutateFrom, mutateTo, data);
 }
 
-void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos) {
+void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos) {
 	PrefixSearch(prefix, pos, mutateFrom, mutateTo, data);
 
 	ulong const mask = 0x3;
@@ -161,7 +163,7 @@ void PrefixMutateSearchEx(ulong prefix, uint pos, ulong mutateFrom, ulong mutate
 }
 
 uint ReadProvider::init() {
-	typedef void (*PrefixIterationFn)(ulong prefix, uint pos, ulong mutateFrom, ulong mutateTo, void* data);
+	typedef void (*PrefixIterationFn)(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
 	PrefixIterationFn fnc = &PrefixSearch;
 
 	bool const isPaired = Config.GetInt("paired") > 1;
@@ -200,8 +202,9 @@ uint ReadProvider::init() {
 			maxHitTableIndex = 0;
 
 			m_RefProvider = NGM.GetRefProvider(0);
-			m_entry = new RefEntry(0);
-			m_entry->nextEntry = new RefEntry(0);
+
+			m_entryCount = m_RefProvider->GetRefEntryChainLength();
+			m_entry = new RefEntry[ m_entryCount ];
 		}
 
 		int l = 0;
@@ -239,8 +242,8 @@ uint ReadProvider::init() {
 						}
 						m_CurrentReadLength = read->length;
 						Log.Verbose("-Iteration");
-						CS::PrefixIteration((char const *) read->Seq, (uint) read->length, fnc, mutateFrom, mutateTo, (void *) this,
-								(uint) 0, (uint) 0);
+						CS::PrefixIteration((char const *) read->Seq, read->length, fnc, mutateFrom, mutateTo, (void *) this,
+								(uint) 0, 0 );
 						Log.Verbose("-Collect: %s", parser1->read->name.s);
 						CollectResultsFallback(m_CurrentReadLength);
 					} else if (readCount == (estimateSize + 1)) {

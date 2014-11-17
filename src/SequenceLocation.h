@@ -7,7 +7,7 @@
 #include <assert.h>
 
 struct SequenceLocation {
-	uint m_Location;
+	uloc m_Location;
 
 	bool used() const {
 		return m_Location != 0;
@@ -51,14 +51,14 @@ struct SequenceLocation {
 		m_RefId = 0;
 	}
 
-	SequenceLocation(uint const loc, short const refid, bool const reverse) {
+	SequenceLocation(uloc const loc, short const refid, bool const reverse) {
 		m_Location = loc;
 		setRefId(refid);
 		setReverse(reverse);
 	}
 
-	SequenceLocation(Location const & other) {
-		m_Location = other.m_Location;
+	SequenceLocation(Location const & other, uloc offset) {
+		m_Location = other.m_Location + offset;
 		setRefId(0);
 	}
 

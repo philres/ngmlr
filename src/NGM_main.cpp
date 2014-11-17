@@ -318,7 +318,7 @@ Advanced settings:\n\
 }
 
 // actually platform specific.../care
-ulong const FileSize(char const * const filename) {
+uloc const FileSize(char const * const filename) {
 	FILE * fp = fopen(filename, "rb");
 	if (fp == 0) {
 		Log.Warning("Tried to get size of nonexistent file %s", filename);
@@ -328,7 +328,7 @@ ulong const FileSize(char const * const filename) {
 	if (fseek(fp, 0, SEEK_END) != 0)
 		return 0;
 
-	ulong end = ftell(fp);
+	uloc end = ftello64(fp);
 	fclose(fp);
 	return end;
 }
