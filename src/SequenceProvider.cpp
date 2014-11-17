@@ -140,7 +140,7 @@ bool _SequenceProvider::convert(SequenceLocation & m_Location) {
 	uloc * upper = std::upper_bound(refStartPos, refStartPos + (refCount / ((DualStrand) ? 2 : 1)) + 1, loc.m_Location);
 
 	//Check whether the mapping position is in one of the spacer regions between the chromosomes
-	if ( (*upper - loc.m_Location) < ULOC_FROM_UINT32(1000)) { //TODO_GENOMESIZE: *upper has to be uloc size
+	if ( (*upper - loc.m_Location) < ULOC_FROM_UINT32(1000)) {
 		Log.Verbose("Read start position < chromosome start!");
 		Log.Verbose("Loc: %u (%d) < %u < %u (%d)", (uloc)*(upper-1), ((upper - 2) - refStartPos) * ((DualStrand) ? 2 : 1), loc.m_Location, (uint)*(upper), ((upper - 1) - refStartPos) * ((DualStrand) ? 2 : 1));
 		if(Config.Exists(ARGOS)) {
@@ -220,7 +220,7 @@ void _SequenceProvider::writeEncRefToFile(char const * fileName, uint const refC
 	}
 }
 
-uloc getSize(char const * const file) { //TODO_GENOMESIZE: Does this work right?
+uloc getSize(char const * const file) {
 	gzFile gzfp;
 	kseq_t *seq;
 	gzfp = gzopen(Config.GetString("ref"), "r");
@@ -272,7 +272,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 		}*/
 
 		uloc const binRefSize = ((size / 2) | 1) + 1;
-		Log.Message("Allocating %llu (%llu) bytes for the reference.", GET_ULOC(binRefSize), GET_ULOC(FileSize(Config.GetString("ref")))); //TODO_GENOMESIZE: Check/adapt FileSize for uloc
+		Log.Message("Allocating %llu (%llu) bytes for the reference.", GET_ULOC(binRefSize), GET_ULOC(FileSize(Config.GetString("ref"))));
 		binRef = new char[GET_ULOC(binRefSize)];
 
 		gzFile gzfp;
@@ -418,7 +418,7 @@ bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n, uloc offse
 	if (GET_ULOC(offset & 1)) {
 		buffer[codedIndex++] = dec4Low(binRef[GET_ULOC(start - 1)]);
 	}
-	for (uloc i = ULOC_FROM_UINT32(0); i < (len+1)/2; ++i) { //TODO_GENOMESIZE: i < ceil(len / 2.0)
+	for (uloc i = ULOC_FROM_UINT32(0); i < (len+1)/2; ++i) {
 		buffer[codedIndex++] = dec4High(binRef[GET_ULOC(start + i)]);
 		buffer[codedIndex++] = dec4Low(binRef[GET_ULOC(start + i)]);
 	}

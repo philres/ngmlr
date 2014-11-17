@@ -114,11 +114,6 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 
 		cur ++;
 	}
-
-	//TODO_GENOMESIZE: Properly solve this
-	//delete cs->m_entry;
-	//cs->m_entry = new RefEntry(0);
-	//cs->m_entry->nextEntry = new RefEntry(0);
 }
 
 
@@ -133,7 +128,7 @@ void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const 
 		under++;
 	Log.Message("Over/Under: %f", over/under);*/
 
-	uint hpo = Hash( m_Location ); //TODO_GENOMESIZE: Fix precision loss here! (Adapt multiplication hash func)
+	uint hpo = Hash( m_Location );
 	while ((newEntry = (rTable[hpo].state & 0x7FFFFFFF) == currentState) && !(rTable[hpo].m_Location == m_Location)) {
 		++hpo;
 		if (hpo >= l)

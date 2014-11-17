@@ -96,7 +96,7 @@ static inline int calc_binshift(int corridor) {
 	return l;
 }
 
-inline loc GetBin(uloc pos) { //TODO_GENOMESIZE: Broken by uloc?
+inline loc GetBin(uloc pos) {
 	static int shift = calc_binshift(12);
 	return ULOC_TO_LOC( pos >> shift );
 }
@@ -345,7 +345,7 @@ void CompactPrefixTable::CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulo
 		lastPos = ULOC_TO_LOC(pos);
 	} else {
 		lastBin = -1;
-		lastPos = -1; //TODO_GENOMESIZE: Still working (was signed and set to -1) (now -1 again)
+		lastPos = -1;
 		freq[prefix] += 1;
 	}
 	lastPrefix = prefix;

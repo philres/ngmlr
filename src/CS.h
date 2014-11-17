@@ -83,7 +83,7 @@ protected:
 	float currentThresh;
 	float maxHitNumber;
 
-	inline uint Hash(uloc n) { //TODO_GENOMESIZE: How is this affected by locations > UINT_MAX
+	inline uint Hash(uloc n) {
 		//Multiplication Method (Corment)
 		//static float A = 0.5f * (sqrt(5) - 1);
 		//static uloc m = floor(A * pow(2, 64));
@@ -93,7 +93,7 @@ protected:
 		return ULOC_TO_UINT32( (n * m) >> c_BitShift );
 	}
 
-	inline uloc GetBin(uloc pos) { //TODO_GENOMESIZE: How is this affected by locations > UINT_MAX
+	inline uloc GetBin(uloc pos) {
 		//static int shift = calc_binshift(Config.GetInt("corridor"));
 		static int shift = calc_binshift(12);
 		return pos >> shift;
