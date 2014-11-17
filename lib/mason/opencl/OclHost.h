@@ -8,7 +8,12 @@
 #ifndef OCLHOST_H_
 #define OCLHOST_H_
 
+#ifdef MAC
+#include <OpenCL/opencl.h>
+#else
 #include <CL/opencl.h>
+#endif
+
 #include <string>
 
 #include "ILog.h"

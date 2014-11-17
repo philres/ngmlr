@@ -8,7 +8,11 @@
 #ifndef SWOCL_H_
 #define SWOCL_H_
 
+#ifdef MAC
+#include <OpenCL/opencl.h>
+#else
 #include <CL/opencl.h>
+#endif
 
 #include "IAlignment.h"
 #include "ILog.h"
