@@ -13,7 +13,7 @@
 #define module_name "CS"
 
 //static const int cInvalidLocation = -99999999;
-static const SequenceLocation sInvalidLocation( MAKE_ULOC(9223372036854775808u), 0, false);
+static const SequenceLocation sInvalidLocation( 9223372036854775808u, 0, false);
 
 
 volatile int CS::s_ThreadCount = 0;
@@ -198,19 +198,19 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 			int refNameLength = 0;
 			if (rTable[i].fScore > 0.0f) {
 				if(rTable[i].fScore >= mi_Threshhold) {
-					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, GET_ULOC(rTable[i].m_Location), GET_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
+					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, rTable[i].m_Location, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
 					accepted += 1;
 				} else {
-					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, GET_ULOC(rTable[i].m_Location), GET_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
+					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (+), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, rTable[i].m_Location, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].fScore);
 				}
 				count += 1;
 			}
 			if (rTable[i].rScore > 0.0f) {
 				if(rTable[i].rScore >= mi_Threshhold) {
-					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, GET_ULOC(rTable[i].m_Location), GET_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
+					Log.Debug(8192, "READ_%d\tCS_RESULTS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (ACCEPT)", read->ReadId, rTable[i].m_Location, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
 					accepted += 1;
 				} else {
-					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, GET_ULOC(rTable[i].m_Location), GET_ULOC(loc.m_Location), SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
+					Log.Debug(4096, "READ_%d\tCS_DETAILS\tInternal location: %llu (-), Location: %llu (Ref: %s), Score: %f (REJECT)", read->ReadId, rTable[i].m_Location, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), rTable[i].rScore);
 				}
 				count += 1;
 			}
@@ -338,7 +338,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 			NGM.Stats->CS[m_CSThreadID].CurrentRead = m_CurrentSeq;
 
 		char const * const qrySeq = m_CurrentBatch[i]->Seq;
-		uloc qryLen = ULOC_FROM_UINT32(m_CurrentBatch[i]->length);
+		uloc qryLen = m_CurrentBatch[i]->length;
 
 		if (!fallback) {
 			try {

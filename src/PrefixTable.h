@@ -57,7 +57,7 @@ struct Index {
 //kmer positions there.
 struct TableUnit
 {
-	 TableUnit() : cRefTableLen(0), RefTable(0), RefTableIndex(0) { Offset = ULOC_FROM_UINT32(0); }
+	 TableUnit() : cRefTableLen(0), RefTable(0), RefTableIndex(0) { Offset = 0; }
 	~TableUnit()
 	{
 		delete[] RefTable;

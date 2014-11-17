@@ -54,7 +54,7 @@ void ScoreWriter::DoWriteReadGeneric(MappedRead const * const read, int const sc
 		//fprintf(ofp2, "\t%u:%f", cur_read->Scores[j].Location.m_Location, cur_read->Scores[j].Score.f);
 
 		int current = (int) read->Scores[j].Score.f;
-		Print("\t%d:%u:%d:%d", read->Scores[j].Location.getrefId() / 2, ULOC_TO_UINT32(read->Scores[j].Location.m_Location), read->Scores[j].Location.isReverse(), abs(last - current));
+		Print("\t%d:%u:%d:%d", read->Scores[j].Location.getrefId() / 2, read->Scores[j].Location.m_Location, read->Scores[j].Location.isReverse(), abs(last - current));
 		last = current;
 	}
 	Print("\n");

@@ -41,10 +41,10 @@ void CS::PrefixIteration(char const * sequence, uloc length, PrefixIterationFn f
 	}
 
 	ulong prefix = 0;
-	for (uloc i = ULOC_FROM_UINT32(0); i < prefixBasecount - 1; ++i) {
-		char c = *(sequence + GET_ULOC(i));
+	for (uloc i = 0; i < prefixBasecount - 1; ++i) {
+		char c = *(sequence + i);
 		if (c == 'N') {
-			PrefixIteration(sequence + GET_ULOC(i) + 1, MAKE_ULOC(GET_ULOC(length) - GET_ULOC(i) - 1), func, mutateFrom, mutateTo, data, prefixskip, MAKE_ULOC(GET_ULOC(offset) + GET_ULOC(i) + 1));
+			PrefixIteration(sequence + i + 1, length - i - 1, func, mutateFrom, mutateTo, data, prefixskip, offset + i + 1);
 			return;
 		}
 
@@ -54,20 +54,20 @@ void CS::PrefixIteration(char const * sequence, uloc length, PrefixIterationFn f
 	}
 
 	uint skipcount = prefixskip;
-	for (uloc i = ULOC_FROM_UINT32( prefixBasecount - 1 ); i < length; ++i) {
-		char c = *(sequence + GET_ULOC(i));
+	for (uloc i = prefixBasecount - 1; i < length; ++i) {
+		char c = *(sequence + i);
 		if (c == 'N') {
-			PrefixIteration(sequence + GET_ULOC(i) + 1, MAKE_ULOC(GET_ULOC(length) - GET_ULOC(i) - 1), func, mutateFrom, mutateTo, data, prefixskip, MAKE_ULOC(GET_ULOC(offset) + GET_ULOC(i) + 1));
+			PrefixIteration(sequence + i + 1, length - i - 1, func, mutateFrom, mutateTo, data, prefixskip, offset + i + 1);
 			return;
 		}
 
 		prefix = prefix << 2;
-		char cx = encode(*(sequence + GET_ULOC(i)));
+		char cx = encode(*(sequence + i));
 		prefix |= cx;
 		prefix &= prefixMask;
 
 		if (skipcount == prefixskip) {
-			func(prefix, MAKE_ULOC( GET_ULOC(offset) + GET_ULOC(i) + 1 - prefixBasecount ), mutateFrom, mutateTo, data);
+			func(prefix, offset + i + 1 - prefixBasecount, mutateFrom, mutateTo, data);
 			skipcount = 0;
 		} else {
 			++skipcount;

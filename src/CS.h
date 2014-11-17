@@ -88,9 +88,9 @@ protected:
 		//static float A = 0.5f * (sqrt(5) - 1);
 		//static uloc m = floor(A * pow(2, 64));
 		//static uint m = 2654435761;
-		static uloc m = MAKE_ULOC(11400714819323199488u);
+		static uloc m = 11400714819323199488u;
 
-		return ULOC_TO_UINT32( (n * m) >> c_BitShift );
+		return uint( (n * m) >> c_BitShift );
 	}
 
 	inline uloc GetBin(uloc pos) {
@@ -140,7 +140,7 @@ public:
 	static void Cleanup();
 	static void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
 	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip = 0,
-			uloc offset = ULOC_FROM_UINT32( 0 ) );
+			uloc offset = 0 );
 	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uloc offset,
 			int prefixBaseCount);
 	CS(bool useBuffer = true);

@@ -322,13 +322,13 @@ uloc const FileSize(char const * const filename) {
 	FILE * fp = fopen(filename, "rb");
 	if (fp == 0) {
 		Log.Warning("Tried to get size of nonexistent file %s", filename);
-		return MAKE_ULOC(0);
+		return 0;
 	}
 
 	if (fseek(fp, 0, SEEK_END) != 0)
-		return MAKE_ULOC(0);
+		return 0;
 
-	uloc end = MAKE_ULOC(ftello64(fp));
+	uloc end = ftello64(fp);
 	fclose(fp);
 	return end;
 }

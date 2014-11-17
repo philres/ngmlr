@@ -62,7 +62,7 @@ public:
 					NGM.GetOutputFormat()),
 					alignmode(Config.GetInt(MODE, 0, 1)),
 					corridor(Config.GetInt("corridor")),
-					refMaxLen(ULOC_FROM_INT32((Config.GetInt("qry_max_len") + corridor) | 1) + 1),
+					refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
 					min_mq(Config.GetInt(MIN_MQ)),
 					aligner(mAligner), argos(Config.Exists(ARGOS)) {
 						pairInsertSum = 0;
@@ -106,7 +106,7 @@ public:
 						refBuffer = new char const *[batchSize];
 
 						for (int i = 0; i < batchSize; ++i) {
-							refBuffer[i] = new char[GET_ULOC(refMaxLen)];
+							refBuffer[i] = new char[refMaxLen];
 						}
 
 						m_DirBuffer = new char[batchSize];
@@ -115,8 +115,8 @@ public:
 						dbLen = std::max(1, Config.GetInt("qry_max_len")) * 8;
 						dBuffer = new char[dbLen];
 
-						dummy = new char[GET_ULOC(refMaxLen)];
-						memset(dummy, '\0', GET_ULOC(refMaxLen));
+						dummy = new char[refMaxLen];
+						memset(dummy, '\0', refMaxLen);
 						//dummy[Config.GetInt("qry_max_len") - 1] = '\0';
 
 						alignTime = 0.0f;
@@ -136,7 +136,7 @@ public:
 						refBuffer = new char const *[batchSize];
 
 						for (int i = 0; i < batchSize; ++i) {
-							refBuffer[i] = new char[GET_ULOC(refMaxLen)];
+							refBuffer[i] = new char[refMaxLen];
 						}
 
 						m_DirBuffer = new char[batchSize];
@@ -145,8 +145,8 @@ public:
 						dbLen = std::max(1, Config.GetInt("qry_max_len")) * 8;
 						dBuffer = new char[dbLen];
 
-						dummy = new char[GET_ULOC(refMaxLen)];
-						memset(dummy, '\0', GET_ULOC(refMaxLen));
+						dummy = new char[refMaxLen];
+						memset(dummy, '\0', refMaxLen);
 						//dummy[Config.GetInt("qry_max_len") - 1] = '\0';
 
 						alignTime = 0.0f;
