@@ -12,8 +12,8 @@
 #undef module_name
 #define module_name "CS"
 
-static const int cInvalidLocation = -99999999;
-static const SequenceLocation sInvalidLocation( ULOC_FROM_INT32(cInvalidLocation), 0, false);
+//static const int cInvalidLocation = -99999999;
+static const SequenceLocation sInvalidLocation( MAKE_ULOC(9223372036854775808u), 0, false);
 
 
 volatile int CS::s_ThreadCount = 0;

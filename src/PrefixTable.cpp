@@ -342,7 +342,7 @@ void CompactPrefixTable::CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulo
 //			Log.Message("Prefix %d (skip):\t%d (%d)\t%d (%d)\t(%ld)", prefix, lastPos, lastBin, pos, currentBin, skipCount);
 		}
 		lastBin = currentBin;
-		lastPos = pos;
+		lastPos = ULOC_TO_LOC(pos);
 	} else {
 		lastBin = -1;
 		lastPos = -1; //TODO_GENOMESIZE: Still working (was signed and set to -1) (now -1 again)
@@ -383,10 +383,10 @@ void CompactPrefixTable::BuildPrefixTable(ulong prefix, uloc real_pos, ulong mut
 //			Log.Message("Prefix %d (skip):\t%d (%d)\t%d (%d)\t(%ld)", prefix, lastPos, lastBin, pos, currentBin, skipCount);
 		}
 		lastBin = currentBin;
-		lastPos = real_pos;
+		lastPos = ULOC_TO_LOC(real_pos);
 	} else {
 		lastBin = -1;
-		lastPos = ULOC_FROM_INT32(0); //TODO_GENOMESIZE: Still working (was signed and set to -1)
+		lastPos = -1;
 		if (CurrentUnit->RefTableIndex[prefix].used()) {
 			Location tmp = {reduced_pos};
 			_this->SaveToRefTable(prefix, tmp);
