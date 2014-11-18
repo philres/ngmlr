@@ -18,7 +18,7 @@
 
 extern int lastSeqTotal;
 
-static uint const refTabCookie = 0x1701D;
+static uint const refTabCookie = 0x1701E;
 
 
 uloc CompactPrefixTable::c_tableLocMax = 4294967296 - 1;
