@@ -175,10 +175,11 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName) {
 	FILE *fp;
 	fp = fopen(fileName, "rb");
 
-	fread(&cookie, sizeof(uint), 1, fp);
-	fread(&refCount, sizeof(uint), 1, fp);
-	fread(&binRefIndex, sizeof(uloc), 1, fp);
-	fread(&encRefSize, sizeof(uloc), 1, fp);
+	size_t read = 0;
+	read = fread(&cookie, sizeof(uint), 1, fp);
+	read = fread(&refCount, sizeof(uint), 1, fp);
+	read = fread(&binRefIndex, sizeof(uloc), 1, fp);
+	read = fread(&encRefSize, sizeof(uloc), 1, fp);
 	if (cookie != refEncCookie) {
 		fclose(fp);
 		Log.Error("Invalid encoded reference file found: %s.", fileName);
@@ -190,9 +191,10 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName) {
 		Fatal();
 	}
 	binRefIdx = new RefIdx[refCount];
-	fread(binRefIdx, sizeof(RefIdx), refCount, fp);
+	read = fread(binRefIdx, sizeof(RefIdx), refCount, fp);
 
-	binRef = new char[encRefSize]; fread(binRef, sizeof(char), encRefSize, fp);
+	binRef = new char[encRefSize];
+	read = fread(binRef, sizeof(char), encRefSize, fp);
 	fclose(fp);
 	Log.Message("Reading from disk took %.2fs", wtmr.ET());
 

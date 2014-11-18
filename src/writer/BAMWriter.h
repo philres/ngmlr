@@ -39,13 +39,14 @@ protected:
 	virtual void DoWriteEpilog();
 
 private:
-	char const * const file;
 	void translate_flag(BamTools::BamAlignment * al, int flags);
 	void addAdditionalInfo(const MappedRead* const read, BamTools::BamAlignment* al);
 
-	NGMMutex m_OutputMutex;
-
 	FileWriterBam * writer;
+
+	char const * const file;
+
+	NGMMutex m_OutputMutex;
 
 	BamTools::BamAlignment * buffer[10000];
 

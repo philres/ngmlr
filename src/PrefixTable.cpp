@@ -530,6 +530,7 @@ void CompactPrefixTable::readFromFile(char const * fileName) {
 	Log.Message("Reading RefTable from %s", fileName);
 	Timer wtmr;
 	wtmr.ST();
+	size_t read = 0;
 	uint refIndexSize = 0;
 	uint refTableSize = 0;
 	uint prefixBasecount = 0;
@@ -541,9 +542,9 @@ void CompactPrefixTable::readFromFile(char const * fileName) {
 		Log.Error("Couldn't open file %s for reading.", fileName);
 		Fatal();
 	}
-	fread(&cookie, sizeof(uint), 1, fp);
-	fread(&prefixBasecount, sizeof(uint), 1, fp);
-	fread(&refskip, sizeof(uint), 1, fp);
+	read = fread(&cookie, sizeof(uint), 1, fp);
+	read = fread(&prefixBasecount, sizeof(uint), 1, fp);
+	read = fread(&refskip, sizeof(uint), 1, fp);
 	if (cookie != refTabCookie || prefixBasecount != m_PrefixLength || refskip != m_RefSkip) {
 		fclose(fp);
 		Log.Error("Invalid reference table found: %s.", fileName);
@@ -551,8 +552,8 @@ void CompactPrefixTable::readFromFile(char const * fileName) {
 		Fatal();
 	}
 
-	fread(&m_UnitCount, sizeof(int), 1, fp );
-	fread(&refIndexSize, sizeof(uint), 1, fp);
+	read = fread(&m_UnitCount, sizeof(int), 1, fp );
+	read = fread(&refIndexSize, sizeof(uint), 1, fp);
 
 	m_Units = new TableUnit[ m_UnitCount ];
 
@@ -560,12 +561,12 @@ void CompactPrefixTable::readFromFile(char const * fileName) {
 	{
 		TableUnit& curr = m_Units[ i ];
 
-		fread(&curr.cRefTableLen, sizeof(uint), 1, fp);
+		read = fread(&curr.cRefTableLen, sizeof(uint), 1, fp);
 		curr.RefTableIndex = new Index[refIndexSize];
-		fread(curr.RefTableIndex, sizeof(Index), refIndexSize, fp);
+		read = fread(curr.RefTableIndex, sizeof(Index), refIndexSize, fp);
 		curr.RefTable = new Location[curr.cRefTableLen + 1];
-		fread(curr.RefTable, sizeof(Location), curr.cRefTableLen, fp);
-		fread(&curr.Offset, sizeof(uint), 1, fp);
+		read = fread(curr.RefTable, sizeof(Location), curr.cRefTableLen, fp);
+		read = fread(&curr.Offset, sizeof(uint), 1, fp);
 	}
 
 	fclose(fp);

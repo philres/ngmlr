@@ -132,12 +132,12 @@ void BAMWriter::addAdditionalInfo(const MappedRead * const read, BamAlignment * 
 								atoi(token.substr(last + 1, token.length() - last).c_str()));
 					} else if (type == Constants::BAM_TAG_TYPE_UINT8 || type == Constants::BAM_TAG_TYPE_UINT16
 							|| type == Constants::BAM_TAG_TYPE_UINT32) {
-						token.substr(first + 1, last - first - 1), atoi(token.substr(last + 1, token.length() - last).c_str());
+						//token.substr(first + 1, last - first - 1), atoi(token.substr(last + 1, token.length() - last).c_str());
 					} else if (type == Constants::BAM_TAG_TYPE_STRING || type == Constants::BAM_TAG_TYPE_ASCII) {
 						al->AddTag(token.substr(0, first), token.substr(first + 1, last - first - 1),
 								token.substr(last + 1, token.length() - last));
 					} else if (type == Constants::BAM_TAG_TYPE_FLOAT) {
-						token.substr(first + 1, last - first - 1), atof(token.substr(last + 1, token.length() - last).c_str());
+						//token.substr(first + 1, last - first - 1), atof(token.substr(last + 1, token.length() - last).c_str());
 					}
 				}
 			}

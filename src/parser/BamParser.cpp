@@ -87,7 +87,7 @@ int BamParser::doParseRead(MappedRead * read) {
 				char const * fwd = al->QueryBases.c_str();
 				char * rev = tmp->seq.s + tmp->seq.l - 1;
 
-				for (int i = 0; i < tmp->seq.l; ++i) {
+				for (size_t i = 0; i < tmp->seq.l; ++i) {
 					*rev-- = cpl(*fwd++);
 				}
 			} else {
@@ -99,7 +99,7 @@ int BamParser::doParseRead(MappedRead * read) {
 				//copy the qualities
 				tmp->qual.l = al->Qualities.size();
 				if (al->IsReverseStrand()) {
-					for (int i = 0; i < tmp->qual.l; ++i) {
+					for (size_t i = 0; i < tmp->qual.l; ++i) {
 						tmp->qual.s[i] = al->Qualities.c_str()[tmp->qual.l - 1
 								- i];
 					}
