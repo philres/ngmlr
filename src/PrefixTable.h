@@ -100,27 +100,31 @@ private:
 	//Static members used to direct generation of table units
 	static TableUnit* CurrentUnit;
 
+
+	/********************************************************************/
+	/*************Used only for building reference table*****************/
+	/********************************************************************/
 	//Used to control which kmers should be counted for index building, only locations
 	//that will be in the unit should also be in the index
 	static uloc kmerCountMinLocation;
 	static uloc kmerCountMaxLocation;
-	
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	int m_CurGenSeq;
-	int m_RECount;
-	int m_RRCount;
-	int m_BCalls;
-	ulong m_TotalLocs;
 	static ulong lastPrefix;
 	static loc lastBin;
 	static loc lastPos;
 	static uint skipCount;
 	static uint skipBuild;
+
 	uint m_RefSkip;
 	uint m_PrefixLength;
+	/********************************************************************/
+
+	//Config values
 	bool DualStrand;
 	bool skipRep;
+
+
 	void Generate();
 	void CreateTable(const uint length);
 	int* CountKmerFreq(const uint length);
@@ -134,6 +138,7 @@ private:
 	void saveToFile(const char* fileName, const uint refIndexSize);
 	void readFromFile(const char* fileName);
 
+	void test();
 
 };
 

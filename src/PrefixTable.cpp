@@ -20,7 +20,6 @@ extern int lastSeqTotal;
 
 static uint const refTabCookie = 0x1701E;
 
-
 uloc CompactPrefixTable::c_tableLocMax = 4294967296 - 1;
 
 int lastSeqTotal = 0;
@@ -33,7 +32,6 @@ loc CompactPrefixTable::lastPos;
 
 uint CompactPrefixTable::skipCount;
 uint CompactPrefixTable::skipBuild;
-
 
 TableUnit* CompactPrefixTable::CurrentUnit;
 
@@ -104,13 +102,12 @@ inline loc GetBin(uloc pos) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-uint CompactPrefixTable::GetRefEntryChainLength() const
-{
+uint CompactPrefixTable::GetRefEntryChainLength() const {
 	return m_UnitCount * 2;
 }
 
 CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
-		m_RECount(0), m_RRCount(0), m_BCalls(0), m_TotalLocs(0), DualStrand(dualStrand), skipRep(skip) {
+		DualStrand(dualStrand), skipRep(skip) {
 
 	bool m_EnableBS = false;
 	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
@@ -122,7 +119,7 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		Log.Verbose("BS mapping enabled. Kmer skip on ref is set to 0");
 	}
 	m_PrefixLength = CS::prefixBasecount;
-	uint indexLength = (int) pow(4.0, (double) m_PrefixLength);
+	uint indexLength = (int) pow(4.0, (double) m_PrefixLength) + 1;
 
 	std::stringstream refFileName;
 	refFileName << std::string(Config.GetString("ref")) << "-ht-" << m_PrefixLength << "-" << m_RefSkip << ".ngm";
@@ -136,15 +133,52 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 
 		uloc genomeSize = SequenceProvider.GetConcatRefLen();
 		m_UnitCount = 1 + genomeSize / c_tableLocMax;
-		m_Units = new TableUnit[ m_UnitCount ];
+		m_Units = new TableUnit[m_UnitCount];
 
 		Log.Message("Allocated %d hashtable units (tableLocMax=2^%f, genomeSize=2^%f)",m_UnitCount,log(c_tableLocMax)*M_LOG2E,log(genomeSize)*M_LOG2E);
 
 		CreateTable(indexLength);
-		
+
 		saveToFile(cacheFile, indexLength);
 	} else {
 		readFromFile(cacheFile);
+	}
+
+//	test();
+}
+
+void CompactPrefixTable::test() {
+	uint indexLength = (int) pow(4.0, (double) m_PrefixLength);
+	Log.Message("Index length: %u", indexLength);
+	for (int i = 0; i < m_UnitCount; ++i) {
+		TableUnit * unit = &m_Units[i];
+		Index * index = unit->RefTableIndex;
+
+		for (int j = 0; j < indexLength; ++j) {
+			uloc start = index[j].m_TabIndex - 1;
+			//TODO: Fix Invalid read of size 4
+			int maxLength = index[j + 1].m_TabIndex - 1 - start;
+			if (!(maxLength >= 0 && maxLength <= 1000 && start >= 0 && start < unit->cRefTableLen)) {
+				printf("Error in index:\n");
+				printf("%d: %u %d %d\n", j - 1, index[j - 1].m_TabIndex, index[j - 1].m_RevCompIndex, index[j - 1].used());
+				printf("%d: %u %d %d -> %llu %d\n", j, index[j].m_TabIndex, index[j].m_RevCompIndex, index[j].used(), start, maxLength);
+				printf("%d: %u %d %d\n", j + 1, index[j + 1].m_TabIndex, index[j + 1].m_RevCompIndex, index[j + 1].used());
+				printf("%d: %u %d %d\n", j + 2, index[j + 2].m_TabIndex, index[j + 2].m_RevCompIndex, index[j + 2].used());
+			}
+			fflush(stdout);
+		}
+
+		uint tableLen = unit->cRefTableLen;
+		Location * positions = unit->RefTable;
+		Log.Message("Table length: %u", tableLen);
+		for(uint j = 0; j < tableLen; ++j) {
+			uloc pos = positions[j].m_Location + unit->Offset;
+			if(!(pos >= 0 && pos < SequenceProvider.GetConcatRefLen())) {
+				printf("Error in table");
+				printf("%u: %u\n", j, positions[j].m_Location);
+			}
+		}
+
 	}
 }
 
@@ -234,7 +268,6 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 	Timer t;
 	t.ST();
 
-
 	CurrentUnit->RefTableIndex = new Index[length];
 
 	uint next = 0;
@@ -245,7 +278,7 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 	long sum = 0;
 
 	uint i = 0;
-	for (i = 0; i < length; i++) {
+	for (i = 0; i < length - 1; i++) {
 		//Add for each kmer ref to the reverse complement kmer
 		ulong compRevPrefix = revComp(i);
 
@@ -280,9 +313,8 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 }
 
 void CompactPrefixTable::CreateTable(uint const length) {
-	for( int i = 0; i < m_UnitCount; ++ i )
-	{
-		CurrentUnit = &m_Units[ i ];
+	for (int i = 0; i < m_UnitCount; ++i) {
+		CurrentUnit = &m_Units[i];
 		CurrentUnit->Offset = kmerCountMinLocation;
 
 		Log.Message("Building RefTable #%d (kmer length: %d, reference skip: %d)", i, m_PrefixLength, m_RefSkip);
@@ -329,7 +361,7 @@ void CompactPrefixTable::CreateTable(uint const length) {
 }
 
 void CompactPrefixTable::CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
-	if( pos < kmerCountMinLocation || pos > kmerCountMaxLocation )
+	if (pos < kmerCountMinLocation || pos > kmerCountMaxLocation)
 		return;
 
 	int * freq = (int *) data;
@@ -352,7 +384,7 @@ void CompactPrefixTable::CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulo
 }
 
 void CompactPrefixTable::CountKmerwoSkip(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
-	if( pos < kmerCountMinLocation || pos > kmerCountMaxLocation )
+	if (pos < kmerCountMinLocation || pos > kmerCountMaxLocation)
 		return;
 
 	int * freq = (int *) data;
@@ -361,7 +393,7 @@ void CompactPrefixTable::CountKmerwoSkip(ulong prefix, uloc pos, ulong mutateFro
 }
 
 void CompactPrefixTable::BuildPrefixTable(ulong prefix, uloc real_pos, ulong mutateFrom, ulong mutateTo, void* data) {
-	if( real_pos < kmerCountMinLocation || real_pos > kmerCountMaxLocation )
+	if (real_pos < kmerCountMinLocation || real_pos > kmerCountMaxLocation)
 		return;
 
 	//Rebase position using current hashtable unit offset
@@ -369,13 +401,13 @@ void CompactPrefixTable::BuildPrefixTable(ulong prefix, uloc real_pos, ulong mut
 	uint reduced_pos = temp_pos;
 
 	CompactPrefixTable * _this = (CompactPrefixTable*) data;
-	_this->m_BCalls++;
+//	_this->m_BCalls++;
 
 	if (prefix == lastPrefix) {
 		int currentBin = GetBin(real_pos);
 		if (currentBin != lastBin || lastBin == -1) {
 			if (CurrentUnit->RefTableIndex[prefix].used()) {
-				Location tmp = {reduced_pos};
+				Location tmp = { reduced_pos };
 				_this->SaveToRefTable(prefix, tmp);
 			}
 		} else {
@@ -388,7 +420,7 @@ void CompactPrefixTable::BuildPrefixTable(ulong prefix, uloc real_pos, ulong mut
 		lastBin = -1;
 		lastPos = -1;
 		if (CurrentUnit->RefTableIndex[prefix].used()) {
-			Location tmp = {reduced_pos};
+			Location tmp = { reduced_pos };
 			_this->SaveToRefTable(prefix, tmp);
 		}
 	}
@@ -396,7 +428,7 @@ void CompactPrefixTable::BuildPrefixTable(ulong prefix, uloc real_pos, ulong mut
 }
 
 void CompactPrefixTable::BuildPrefixTablewoSkip(ulong prefix, uloc real_pos, ulong mutateFrom, ulong mutateTo, void* data) {
-	if( real_pos < kmerCountMinLocation || real_pos > kmerCountMaxLocation )
+	if (real_pos < kmerCountMinLocation || real_pos > kmerCountMaxLocation)
 		return;
 
 	//Rebase position using current hashtable unit offset
@@ -404,10 +436,10 @@ void CompactPrefixTable::BuildPrefixTablewoSkip(ulong prefix, uloc real_pos, ulo
 	uint reduced_pos = temp_pos;
 
 	CompactPrefixTable * _this = (CompactPrefixTable*) data;
-	_this->m_BCalls++;
+//	_this->m_BCalls++;
 
 	if (CurrentUnit->RefTableIndex[prefix].used()) {
-		Location tmp = {reduced_pos};
+		Location tmp = { reduced_pos };
 		_this->SaveToRefTable(prefix, tmp);
 	}
 }
@@ -422,7 +454,7 @@ void CompactPrefixTable::SaveToRefTable(ulong prefix, Location loc) {
 	while (CurrentUnit->RefTable[start + i].used() && i < maxLength) {
 		i += 1;
 	}
- if (CurrentUnit->RefTable[start + i].used()) {
+	if (CurrentUnit->RefTable[start + i].used()) {
 		Log.Message(
 				"Tried to insert kmer %d starting at position %d, number of slots %d. Position: %d",
 				prefix, start, maxLength, i);
@@ -430,19 +462,16 @@ void CompactPrefixTable::SaveToRefTable(ulong prefix, Location loc) {
 	} else {
 		CurrentUnit->RefTable[start + i] = loc;
 	}
-
-	++m_TotalLocs;
 }
 
 RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * entries) const {
 
-	for( int i = 0; i < m_UnitCount; i ++ )
-	{
-		RefEntry* entry = &entries[ i * 2 ];
+	for (int i = 0; i < m_UnitCount; i++) {
+		RefEntry* entry = &entries[i * 2];
 
-		uint      cRefTableLen = m_Units[i].cRefTableLen;
+		uint cRefTableLen = m_Units[i].cRefTableLen;
 		Location* RefTable = m_Units[i].RefTable;
-		Index*    RefTableIndex = m_Units[i].RefTableIndex;
+		Index* RefTableIndex = m_Units[i].RefTableIndex;
 
 		uint start = 0;
 		uint maxLength = 0;
@@ -454,7 +483,7 @@ RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * entrie
 			entry->ref = RefTable + start;
 			entry->reverse = false;
 			entry->weight = RefTableIndex[prefix].m_RevCompIndex;
-	//		entry->weight = 1.0f;
+			//		entry->weight = 1.0f;
 			entry->refCount = maxLength;
 			entry->refTotal = maxLength;
 			entry->offset = m_Units[i].Offset;
@@ -466,7 +495,7 @@ RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * entrie
 		}
 
 		ulong compRevPrefix = revComp(prefix);
-		RefEntry * revEntry = &entries[ i * 2 + 1 ];
+		RefEntry * revEntry = &entries[i * 2 + 1];
 
 		if (RefTableIndex[compRevPrefix].used()) {
 			start = RefTableIndex[compRevPrefix].m_TabIndex - 1;
@@ -476,7 +505,7 @@ RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * entrie
 			revEntry->ref = RefTable + start;
 			revEntry->reverse = true;
 			revEntry->weight = RefTableIndex[compRevPrefix].m_RevCompIndex;
-	//		revEntry->weight = 1.0f;
+			//		revEntry->weight = 1.0f;
 			revEntry->refCount = maxLength;
 			entry->refTotal = revEntry->refTotal = entry->refTotal + maxLength;
 			revEntry->offset = m_Units[i].Offset;
@@ -502,17 +531,16 @@ void CompactPrefixTable::saveToFile(char const * fileName, uint const refIndexSi
 			fwrite(&refTabCookie, sizeof(uint), 1, fp);
 			fwrite(&m_PrefixLength, sizeof(uint), 1, fp);
 			fwrite(&m_RefSkip, sizeof(uint), 1, fp);
-			fwrite(&m_UnitCount, sizeof(int), 1, fp);
+			fwrite(&m_UnitCount, sizeof(uint), 1, fp);
 			fwrite(&refIndexSize, sizeof(uint), 1, fp);
 
-			for( int i = 0; i < m_UnitCount; ++ i )
-			{
-				TableUnit& curr = m_Units[ i ];
+			for (int i = 0; i < m_UnitCount; ++i) {
+				TableUnit& curr = m_Units[i];
 
 				fwrite(&curr.cRefTableLen, sizeof(uint), 1, fp);
 				fwrite(curr.RefTableIndex, sizeof(Index), refIndexSize, fp);
 				fwrite(curr.RefTable, sizeof(Location), curr.cRefTableLen, fp);
-				fwrite(&curr.Offset, sizeof(uint), 1, fp);
+				fwrite(&curr.Offset, sizeof(uloc), 1, fp);
 			}
 
 			fclose(fp);
@@ -552,7 +580,7 @@ void CompactPrefixTable::readFromFile(char const * fileName) {
 		Fatal();
 	}
 
-	read = fread(&m_UnitCount, sizeof(int), 1, fp );
+	read = fread(&m_UnitCount, sizeof(uint), 1, fp );
 	read = fread(&refIndexSize, sizeof(uint), 1, fp);
 
 	m_Units = new TableUnit[ m_UnitCount ];
@@ -566,7 +594,7 @@ void CompactPrefixTable::readFromFile(char const * fileName) {
 		read = fread(curr.RefTableIndex, sizeof(Index), refIndexSize, fp);
 		curr.RefTable = new Location[curr.cRefTableLen + 1];
 		read = fread(curr.RefTable, sizeof(Location), curr.cRefTableLen, fp);
-		read = fread(&curr.Offset, sizeof(uint), 1, fp);
+		read = fread(&curr.Offset, sizeof(uloc), 1, fp);
 	}
 
 	fclose(fp);
