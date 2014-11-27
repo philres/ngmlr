@@ -33,7 +33,7 @@ using NGMNames::ReadStatus;
 static IRefProvider const * m_RefProvider;
 static RefEntry * m_entry;
 static uint m_entryCount;
-static std::map<SequenceLocation, float> iTable; // fallback
+static std::map<uloc, float> iTable; // fallback
 
 //uint const estimateSize = 10000;
 uint const estimateSize = 10000000;
@@ -42,9 +42,6 @@ uint const estimateThreshold = 1000;
 uint const maxReadLength = 1000;
 
 float * maxHitTable;
-#ifdef _DEBUGRP
-float * maxHitTableDebug;
-#endif
 int maxHitTableIndex;
 int m_CurrentReadLength;
 
@@ -55,22 +52,11 @@ ReadProvider::ReadProvider() :
 
 }
 
-inline uloc GetBin(uloc pos) {
-	static int shift = CS::calc_binshift(20);
-	return pos >> shift;
-	//return pos;
-}
-
 int CollectResultsFallback(int const readLength) {
 	float maxCurrent = 0;
 
-	Log.Verbose("-maxHitTableIndex: %d", maxHitTableIndex);
-	for (std::map<SequenceLocation, float>::iterator itr = iTable.begin(); itr != iTable.end(); itr++) {
+	for (std::map<uloc, float>::iterator itr = iTable.begin(); itr != iTable.end(); itr++) {
 		maxCurrent = std::max(maxCurrent, itr->second);
-
-		//if(maxHitTableIndex == 8) {
-		Log.Verbose("---Key: %d %u %d, maxCurrent: %f, itr->second: %f", itr->first.getrefId(), itr->first.m_Location, (int)itr->first.isReverse(), maxCurrent, itr->second);
-		//}
 	}
 
 	static const int skip = (
@@ -80,15 +66,10 @@ int CollectResultsFallback(int const readLength) {
 	int max = ceil((readLength - CS::prefixBasecount + 1) / skip * 1.0);
 
 	if (max > 1.0f && maxCurrent <= max) {
-#ifdef _DEBUGRP
-	maxHitTableDebug[maxHitTableIndex] = maxCurrent;
-#endif
 		maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))); // * 0.85f + 0.05f;
-		//Log.Message("Result: %f, %f, %f, %f -> %f", maxCurrent, maxCurrent / seq->seq.l, max, max / seq->seq.l, maxHitTable[maxHitTableIndex-1]);
 	}
 
 	iTable.clear();
-
 	return 0;
 }
 
@@ -97,35 +78,37 @@ static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateT
 	RefEntry const * entries = m_RefProvider->GetRefEntry(prefix, m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
 	RefEntry const * cur = entries;
 
-	for( int i = 0; i < m_entryCount; i ++ ) {
+	for (int i = 0; i < m_entryCount; i++) {
 		//Get kmer-weight.
 //		float weight = cur->weight;
 		float weight = 1.0f;
 
 		int const n = cur->refCount;
 
-		Log.Verbose("------Prefix: %u, RefCount: %d", prefix, n);
-
 		if (cur->reverse) {
 			for (int i = 0; i < n; ++i) {
-				SequenceLocation curLoc( cur->ref[i], cur->offset );
-				curLoc.setRefId(1);
-				curLoc.setReverse(true);
-				curLoc.m_Location = GetBin(curLoc.m_Location - (m_CurrentReadLength - (pos + CS::prefixBasecount))); // position offset
-				iTable[curLoc] += weight;
+				uloc curLoc = cur->getRealLocation(cur->ref[i]) - (m_CurrentReadLength - (pos + CS::prefixBasecount));
+				curLoc = GetBin(curLoc); // position offset
+				if (iTable.count(curLoc) == 0) {
+					iTable[curLoc] = weight;
+				} else {
+					iTable[curLoc] += weight;
+				}
 			}
 
 		} else {
 			for (int i = 0; i < n; ++i) {
-				SequenceLocation curLoc( cur->ref[i], cur->offset );
-				curLoc.setRefId(0);
-				curLoc.setReverse(false);
-				curLoc.m_Location = GetBin(curLoc.m_Location - pos); // position offset
-				iTable[curLoc] += weight;
+				uloc curLoc = cur->getRealLocation(cur->ref[i]) - pos;
+				curLoc = GetBin(curLoc); // position offset
+				if (iTable.count(curLoc) == 0) {
+					iTable[curLoc] = weight;
+				} else {
+					iTable[curLoc] += weight;
+				}
 			}
 		}
 
-		cur ++;
+		cur++;
 	}
 }
 
@@ -195,9 +178,6 @@ uint ReadProvider::init() {
 		if (estimate) {
 			Log.Message("Estimating parameter from data");
 
-#ifdef _DEBUGRP
-			maxHitTableDebug = new float[estimateSize];
-#endif
 			maxHitTable = new float[estimateSize];
 			maxHitTableIndex = 0;
 
@@ -241,10 +221,7 @@ uint ReadProvider::init() {
 							mutateTo = 0x1;
 						}
 						m_CurrentReadLength = read->length;
-						Log.Verbose("-Iteration");
-						CS::PrefixIteration((char const *) read->Seq, read->length, fnc, mutateFrom, mutateTo, (void *) this,
-								(uint) 0, 0 );
-						Log.Verbose("-Collect: %s", parser1->read->name.s);
+						CS::PrefixIteration((char const *) read->Seq, read->length, fnc, mutateFrom, mutateTo, (void *) this, (uint) 0, 0);
 						CollectResultsFallback(m_CurrentReadLength);
 					} else if (readCount == (estimateSize + 1)) {
 						if ((maxLen - minLen) < 10 && !Config.Exists(ARGOS)) {
@@ -292,20 +269,9 @@ uint ReadProvider::init() {
 
 		if (estimate && readCount >= estimateThreshold) {
 			float sum = 0.0f;
-#ifdef _DEBUGRP
-			FILE* ofp;
-			ofp = fopen((std::string(Config.GetString("output")) + std::string(".b")).c_str(), "w");
-#endif
 			for (int i = 0; i < maxHitTableIndex; ++i) {
-				Log.Verbose("%f += %f", sum, maxHitTable[i]);
 				sum += maxHitTable[i];
-#ifdef _DEBUGRP
-				fprintf(ofp, "%f\n", maxHitTableDebug[i]);
-#endif
 			}
-#ifdef _DEBUGRP
-			fclose(ofp);
-#endif
 
 			float m_CsSensitivity = 0.0f;
 			if (!m_EnableBS) {
@@ -318,7 +284,6 @@ uint ReadProvider::init() {
 				float avg = sum / maxHitTableIndex * 1.0f;
 
 				float avgHit = max * avg;
-				Log.Verbose("max: %d, sum: %f, maxHitTableIndex: %d, avg: %f, avgHit: %f", max, sum, maxHitTableIndex, avg, avgHit);
 
 				Log.Message("Average kmer hits pro read: %f", avgHit);
 				Log.Message("Max possible kmer hit: %d", max);
@@ -335,26 +300,8 @@ uint ReadProvider::init() {
 					Log.Warning("Sensitivity threshold overwritten by user. Using %f", m_CsSensitivity);
 				}
 				((_Config*) _config)->Override("sensitivity", m_CsSensitivity);
-			} /*else {
-			 m_CsSensitivity = 0.5f;
-			 if (Config.Exists("sensitivity")) {
-			 m_CsSensitivity = Config.GetFloat("sensitivity", 0, 1);
-			 }
-			 }*/
-
-			//std::sort(lengthTable, lengthTable + lengthTableIndex);
-			//int size = lengthTable[(int) (0.5f * lengthTableIndex) - 1] * 32;
-			//int bits = (int) std::min(20.0, ceil(log2(size)));
-			//Log.Green("Optimale hash table size: %d (%d)", (int)pow(2.0, (double)bits), lengthTable[lengthTableIndex - 1]);
-			//if(Config.Exists("cs_tablen")) {
-			//	bits = Config.GetInt("cs_tablen", 0, 32);
-			//	Log.Warning("SearchTableLength overwritten by user. Using %d bits", (int)pow(2.0, (double)bits));
-			//}
-			//((_Config*) _config)->Override("cs_tablen", bits);
+			}
 			delete[] maxHitTable;
-#ifdef _DEBUGRP
-			delete[] maxHitTableDebug;
-#endif
 		} else {
 			Log.Warning("Not enough reads to estimate parameter");
 		}
@@ -535,8 +482,6 @@ void ReadProvider::DisposeRead(MappedRead * read) {
 		if (read->Paired->HasFlag(NGMNames::DeletionPending)) // Paired read was marked for deletion
 				{
 			// delete paired and read
-			Log.Verbose("Deleting read %d (%s)", read->ReadId, read->name);
-			Log.Verbose("Deleting read %d (%s)", read->Paired->ReadId, read->Paired->name);
 			delete read->Paired;
 			delete read;
 		} else {
@@ -545,7 +490,6 @@ void ReadProvider::DisposeRead(MappedRead * read) {
 		}
 	} else {
 		// Single mode or no existing pair
-		Log.Verbose("Deleting single read %d (%s)", read->ReadId, read->name);
 		delete read;
 	}
 }

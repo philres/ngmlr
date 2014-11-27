@@ -109,7 +109,7 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 
 		for (int i = 0; i < n; ++i) {
 			uloc loc = cur->getRealLocation(cur->ref[i]);
-			cs->AddLocationStd(cs->GetBin( loc - correction ), cur->reverse, weight);
+			cs->AddLocationStd(GetBin( loc - correction ), cur->reverse, weight);
 		}
 
 		cur ++;

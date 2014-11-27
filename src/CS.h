@@ -90,20 +90,7 @@ protected:
 		//static uint m = 2654435761;
 		static uloc m = 11400714819323199488u;
 
-		return uint( (n * m) >> c_BitShift );
-	}
-
-	inline uloc GetBin(uloc pos) {
-		//static int shift = calc_binshift(Config.GetInt("corridor"));
-		static int shift = calc_binshift(12);
-		return pos >> shift;
-	}
-
-	inline uloc ResolveBin(uloc bin) {
-//		static int shift = calc_binshift(Config.GetInt("corridor"));
-		static int shift = calc_binshift(12);
-		static uint offset = (shift > 0) ? 1 << (shift - 1) : 0;
-		return (bin << shift) + offset;
+		return uint((n * m) >> c_BitShift);
 	}
 
 private:
@@ -114,13 +101,7 @@ private:
 	int tmpSize;
 
 public:
-	inline static int calc_binshift(int corridor) {
-		corridor >>= 1;
-		int l = 0;
-		while ((corridor >>= 1) > 0)
-			++l;
-		return l;
-	}
+
 	//AddLocationFn AddLocation;
 	virtual void AddLocationStd(const uloc loc, const bool reverse, const double freq);
 	void AddLocationFallback(const SequenceLocation& loc, const double freq);
@@ -139,10 +120,9 @@ public:
 	static void Init();
 	static void Cleanup();
 	static void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
-	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip = 0,
-			uloc offset = 0 );
-	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uloc offset,
-			int prefixBaseCount);
+	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip =
+			0, uloc offset = 0);
+	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uloc offset, int prefixBaseCount);
 	CS(bool useBuffer = true);
 	~CS();
 	void DoRun();
@@ -156,6 +136,27 @@ public:
 	}
 };
 
-//#define CallMemberFn(obj,pFn)  ((obj).*(pFn))
+int const static csBitShift = 2;
+
+//inline static int calc_binshift() {
+//	int corridor = 4;
+//	int l = 0;
+//	while ((corridor >>= 1) > 0)
+//		++l;
+//	return l;
+//}
+
+inline uloc GetBin(uloc pos) {
+	//static int shift = calc_binshift(Config.GetInt("corridor"));
+//	static int shift = calc_binshift();
+	return pos >> csBitShift;
+}
+
+inline uloc ResolveBin(uloc bin) {
+//		static int shift = calc_binshift(Config.GetInt("corridor"));
+//	static int shift = calc_binshift();
+	static uint offset = (csBitShift > 0) ? 1 << (csBitShift - 1) : 0;
+	return (bin << csBitShift) + offset;
+}
 
 #endif

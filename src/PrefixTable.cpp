@@ -86,19 +86,6 @@ inline ulong revComp(ulong prefix) {
 	return compRevPrefix;
 }
 
-static inline int calc_binshift(int corridor) {
-	corridor >>= 1;
-	int l = 0;
-	while ((corridor >>= 1) > 0)
-		++l;
-	return l;
-}
-
-inline loc GetBin(uloc pos) {
-	static int shift = calc_binshift(12);
-	return pos >> shift;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -171,13 +158,39 @@ void CompactPrefixTable::test() {
 		uint tableLen = unit->cRefTableLen;
 		Location * positions = unit->RefTable;
 		Log.Message("Table length: %u", tableLen);
-		for(uint j = 0; j < tableLen; ++j) {
+		for (uint j = 0; j < tableLen; ++j) {
 			uloc pos = positions[j].m_Location + unit->Offset;
-			if(!(pos >= 0 && pos < SequenceProvider.GetConcatRefLen())) {
+			if (!(pos >= 0 && pos < SequenceProvider.GetConcatRefLen())) {
 				printf("Error in table");
 				printf("%u: %u\n", j, positions[j].m_Location);
 			}
 		}
+
+	}
+
+	RefEntry* m_entry;
+	int m_entryCount = GetRefEntryChainLength();
+
+	m_entry = new RefEntry[m_entryCount];
+	for (int i = 0; i < indexLength; ++i) {
+		printf("%d:", i);
+
+		RefEntry const * entries = GetRefEntry(i, m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
+		RefEntry const * cur = entries;
+
+		for (int i = 0; i < m_entryCount; i++) {
+			//Get kmer-weight.
+			float weight = cur->weight / 100.0f;
+			int const n = cur->refCount;
+
+			printf("\t%f\t%d", weight, n);
+			for (int i = 0; i < n; ++i) {
+				uloc loc = cur->getRealLocation(cur->ref[i]);
+				printf("\t%llu", loc);
+			}
+			cur++;
+		}
+		printf("\n");
 
 	}
 }
@@ -465,7 +478,10 @@ void CompactPrefixTable::SaveToRefTable(ulong prefix, Location loc) {
 }
 
 RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * entries) const {
-
+	if(prefix > (int) pow(4.0, (double) m_PrefixLength) + 1) {
+		Log.Error("Wrong prefix!!");
+		Fatal();
+	}
 	for (int i = 0; i < m_UnitCount; i++) {
 		RefEntry* entry = &entries[i * 2];
 
