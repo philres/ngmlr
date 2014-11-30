@@ -7,7 +7,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Building in debug mode!")
     set( NGM_VERSION_BUILD 13-debug )
 else()
-	set( NGM_VERSION_BUILD 13 )
+  set( NGM_VERSION_BUILD 13 )
 ENDIF()
 
 
@@ -34,27 +34,26 @@ file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 # Set a default build type for single-configuration
 # CMake generators if no build type is set.
 IF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-	message(STATUS "No build type specified. Using 'release'")
-	SET(CMAKE_BUILD_TYPE Release)
+  message(STATUS "No build type specified. Using 'release'")
+  SET(CMAKE_BUILD_TYPE Release)
 ENDIF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 
-#SET (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'\$ORIGIN/amd-app-sdk/'")
-#SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -Wall -L${EXECUTABLE_OUTPUT_PATH}/opencl/lib -Wl,-rpath,'\$ORIGIN/amd-app-sdk/'")
-
-SET (CMAKE_CXX_FLAGS_RELEASE "-L${EXECUTABLE_OUTPUT_PATH}/opencl/lib")
-SET (CMAKE_CXX_FLAGS_DEBUG "-L${EXECUTABLE_OUTPUT_PATH}/opencl/lib")
-
-FIND_PACKAGE(OpenMP REQUIRED)
-if(OPENMP_FOUND)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+IF(NOT APPLE)
+	SET (CMAKE_CXX_FLAGS_RELEASE "-L${EXECUTABLE_OUTPUT_PATH}/opencl/lib")
+	SET (CMAKE_CXX_FLAGS_DEBUG "-L${EXECUTABLE_OUTPUT_PATH}/opencl/lib")
 endif()
 
 
-add_subdirectory(opencl-sdk)
 
-set(OPENCL_LIBRARIES " -lOpenCL")
+IF(NOT APPLE)
+	add_subdirectory(opencl-sdk)
+endif()
+
+IF(APPLE) 
+  set(OPENCL_LIBRARIES "-framework OpenCL")
+ELSE()
+  set(OPENCL_LIBRARIES "-lOpenCL")
+ENDIF()
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/lib/zlib-1.2.7")
 include_directories("${PROJECT_SOURCE_DIR}/lib/zlib-1.2.7")
@@ -62,7 +61,9 @@ include_directories("${PROJECT_SOURCE_DIR}/lib/zlib-1.2.7")
 add_subdirectory(lib/zlib-1.2.7)
 add_subdirectory(lib/bamtools-2.3.0)
 
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/opencl-sdk/AMD-APP-SDK-v2.8.1.0-RC-lnx64/include")
+IF(NOT APPLE)
+	include_directories("${CMAKE_CURRENT_BINARY_DIR}/opencl-sdk/AMD-APP-SDK-v2.8.1.0-RC-lnx64/include")
+endif()
 
 add_subdirectory(lib/mason/opencl)
 add_subdirectory(src)

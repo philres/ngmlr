@@ -55,20 +55,4 @@ void NGMOnce(NGMOnceControl * once_control, void (*init_func)())
 	pthread_once(once_control, init_func);
 }
 
-void NGMSetThreadAffinity(NGMThread * thread, int cpu)
-{
-	if (cpu == -1)
-		return;
-
-	pthread_t self = 0;
-	if (thread == 0)
-	{
-		self = pthread_self();
-		thread = &self;
-	}
-	cpu_set_t * mask = new cpu_set_t();
-	CPU_SET(cpu, mask);
-	pthread_setaffinity_np(*thread, sizeof(cpu_set_t), mask);
-}
-
 #endif

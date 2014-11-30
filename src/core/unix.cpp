@@ -9,9 +9,6 @@
 #include <fcntl.h>
 #include <dlfcn.h>
 #include "Log.h"
-//#include "Config.h"
-
-//#include "NGM.h"
 
 #include <map>
 #include <termios.h>
@@ -97,7 +94,11 @@ int const CreateMapping(char const * const filename, char const * &pData) {
 	}
 	uloc len = FileSize(filename);
 
+#ifdef __APPLE__
+	pData = (const char*) mmap(0, len, PROT_READ, MAP_PRIVATE, fd, 0);
+#else
 	pData = (const char*) mmap64(0, len, PROT_READ, MAP_PRIVATE, fd, 0);
+#endif
 	if (pData == MAP_FAILED)
 	{
 		Log.Error("Error mapping file %s into memory (Error returned from mmap: %i)", filename, errno);
@@ -142,8 +143,11 @@ void Remap(int const mapping, char const * & pData)
 
 	if (ret != 0)
 		Log.Error("Remap error: Unmap returned %i (addr = 0x%x, len = %llu)", errno, addr, len);
-
+#ifdef __APPLE__
+	pData = (const char*)mmap(0, len, PROT_READ, MAP_PRIVATE, mapping, 0);
+#else
 	pData = (const char*)mmap64(0, len, PROT_READ, MAP_PRIVATE, mapping, 0);
+#endif
 	mappings()[mapping].first = pData;
 
 	if (pData == MAP_FAILED)

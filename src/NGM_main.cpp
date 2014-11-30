@@ -121,9 +121,6 @@ int main(int argc, char * argv[]) {
 
 	Log.setColor(Config.Exists("color"));
 
-	if (Config.Exists("master_cpu"))
-		NGMSetThreadAffinity(0, Config.GetInt("master_cpu"));
-
 	if (!Config.Exists("qry") || CheckOutput()) {
 		NGM; // Init Core
 
@@ -328,7 +325,12 @@ uloc const FileSize(char const * const filename) {
 	if (fseek(fp, 0, SEEK_END) != 0)
 		return 0;
 
+#ifdef __APPLE__
+	uloc end = ftello(fp);
+#else
 	uloc end = ftello64(fp);
+#endif
+
 	fclose(fp);
 	return end;
 }

@@ -204,14 +204,15 @@ SWOcl::SWOcl(char const * const oclSwScoreSourceCode, char const * const additio
 			<< " -D gap_read=" << Config.GetFloat(GAP_READ_PENALTY) * -1.0f << " -D gap_ref=" << Config.GetFloat(GAP_REF_PENALTY) * -1.0f << " -D matchBS="
 			<< Config.GetFloat(MATCH_BONUS_TT) << " -D mismatchBS=" << Config.GetFloat(MATCH_BONUS_TC) << " -D read_length="
 			<< Config.GetInt("qry_max_len") << " -D ref_length=" << config_ref_size << " -D corridor_length="
-			<< (Config.GetInt("corridor") + 1) << " -D alignment_length=" << alignment_length << " " << additional_defines;
+			<< (Config.GetInt("corridor") + 1) << " -D alignment_length=" << alignment_length;
+	buildCmd << additional_defines;
 	if (host->isGPU()) {
-		buildCmd << " -D __GPU__";
+		buildCmd << "-D __GPU__";
 	} else {
-		buildCmd << " -D __CPU__";
+		buildCmd << "-D __CPU__";
 	}
 	if (bsMapping) {
-		buildCmd << " -D __BS__";
+		buildCmd << "-D __BS__";
 	}
 
 ////#pragma omp critical

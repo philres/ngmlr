@@ -143,8 +143,6 @@ void _NGM::StartThread(NGMTask * task, int cpu) {
 	m_Tasks[m_NextThread] = task;
 	m_Threads[m_NextThread] = NGMCreateThread(&_NGM::ThreadFunc, task, false);
 
-	if (cpu != -1)
-	NGMSetThreadAffinity(&m_Threads[m_NextThread], cpu);
 	++m_StageThreadCount[task->GetStage()];
 	++m_NextThread;
 	++m_ActiveThreads;

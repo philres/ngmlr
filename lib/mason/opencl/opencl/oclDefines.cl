@@ -82,55 +82,29 @@ __cl_constant int trans[256] =
 
 									//Ref ->
 									//A			C		  G         T         X         N         \0
-__cl_constant float scores[7][7] = { match,    mismatch, mismatch, mismatch, mismatch, mismatch, 0,
-/*Read*/							 mismatch, match,    mismatch, mismatch, mismatch, mismatch, 0,
-/*|*/								 mismatch, mismatch, match,    mismatch, mismatch, mismatch, 0,
-/*v*/								 mismatch, mismatch, mismatch, match,    mismatch, mismatch, 0,
-									 mismatch, mismatch, mismatch, mismatch, mismatch, mismatch, 0,
-									 0,        0,        0,        0,        mismatch, mismatch, mismatch,
-									 0,        0,        0,        0,        0,        0       , 0 };
-
-//__cl_constant short scoresS[6][6] = { match, mismatch, mismatch, mismatch, mismatch, mismatch, mismatch, match, mismatch, mismatch, mismatch, mismatch, mismatch, mismatch, match, mismatch, mismatch, mismatch, mismatch, mismatch, mismatch, match, mismatch, mismatch, 0, 0, 0, 0, match, 0, 0, 0, 0, 0, 0, 0 };
-
-//#endif
-
-//#ifdef __BSCPU__
-
-//#define matchBS 4
-//#define mismatchBS 4
+__cl_constant float scores[7][7] = { {match,    mismatch, mismatch, mismatch, mismatch, mismatch, 0},
+/*Read*/							 {mismatch, match,    mismatch, mismatch, mismatch, mismatch, 0},
+/*|*/								 {mismatch, mismatch, match,    mismatch, mismatch, mismatch, 0},
+/*v*/								 {mismatch, mismatch, mismatch, match,    mismatch, mismatch, 0},
+									 {mismatch, mismatch, mismatch, mismatch, mismatch, mismatch, 0},
+									 {0,        0,        0,        0,        mismatch, mismatch, mismatch},
+									 {0,        0,        0,        0,        0,        0       , 0} };
 
 									   //Ref ->
 									   //A			C		  G         T         X         N         \0
-__cl_constant float scoresTC[7][7] = { match,    mismatch,   mismatch, mismatch, mismatch, mismatch, 0,
-/*Read*/							   mismatch, match,      mismatch, mismatch, mismatch, mismatch, 0,
-/*|*/								   mismatch, mismatch,   match,    mismatch, mismatch, mismatch, 0,
-/*v*/								   mismatch, mismatchBS, mismatch, matchBS,  mismatch, mismatch, 0,
- 	 	 	 	 	 	 	 	 	   mismatch, mismatch,   mismatch, mismatch, mismatch, mismatch, 0,
- 	 	 	 	 	 	 	 	 	   0,        0,          0,        0,        mismatch, mismatch, mismatch,
- 	 	 	 	 	 	 	 	 	   0,        0,          0,        0,        0,        0       , 0 };
-
-//__cl_constant float scoresTC[6][6] = { match, mismatch, mismatch, mismatch, 0, mismatch,
-//									 mismatch, match, mismatch, mismatch, 0, mismatch,
-//									 mismatch, mismatch, match, mismatch, 0, mismatch,
-//									 mismatch, mismatchBS, mismatch, matchBS, 0, mismatch,
-//									 0, 0, 0, 0, 0, 0,
-//									 0, 0, 0, 0, 0, match };
-
-__cl_constant float scoresAG[7][7] = { matchBS,  mismatch, mismatchBS, mismatch, mismatch, mismatch, 0,
-/*Read*/							   mismatch, match,    mismatch,   mismatch, mismatch, mismatch, 0,
-/*|*/								   mismatch, mismatch, match,      mismatch, mismatch, mismatch, 0,
-/*v*/								   mismatch, mismatch, mismatch,   match,    mismatch, mismatch, 0,
- 	 	 	 	 	 	 	 	 	   mismatch, mismatch, mismatch,   mismatch, mismatch, mismatch, 0,
- 	 	 	 	 	 	 	 	 	   0,        0,        0,          0,        0,        0       , 0       ,
- 	 	 	 	 	 	 	 	 	   0,        0,        0,          0,        0,        0       , 0 };
-
-//__cl_constant float scoresAG[6][6] = { matchBS, mismatch, mismatchBS, mismatch, 0, mismatch,
-//									 mismatch, match, mismatch, mismatch, 0, mismatch,
-//									 mismatch, mismatch, match, mismatch, 0, mismatch,
-//									 mismatch, mismatch, mismatch, match, 0, mismatch,
-//									 0, 0, 0, 0, 0, 0,
-//									 0, 0, 0, 0, 0, match };
-
-//#endif
+__cl_constant float scoresTC[7][7] = { {match,    mismatch,   mismatch, mismatch, mismatch, mismatch, 0},
+/*Read*/							   {mismatch, match,      mismatch, mismatch, mismatch, mismatch, 0},
+/*|*/								   {mismatch, mismatch,   match,    mismatch, mismatch, mismatch, 0},
+/*v*/								   {mismatch, mismatchBS, mismatch, matchBS,  mismatch, mismatch, 0},
+ 	 	 	 	 	 	 	 	 	   {mismatch, mismatch,   mismatch, mismatch, mismatch, mismatch, 0},
+ 	 	 	 	 	 	 	 	 	   {0,        0,          0,        0,        mismatch, mismatch, mismatch},
+ 	 	 	 	 	 	 	 	 	   {0,        0,          0,        0,        0,        0       , 0} };
 
 
+__cl_constant float scoresAG[7][7] = { {matchBS,  mismatch, mismatchBS, mismatch, mismatch, mismatch, 0},
+/*Read*/							   {mismatch, match,    mismatch,   mismatch, mismatch, mismatch, 0},
+/*|*/								   {mismatch, mismatch, match,      mismatch, mismatch, mismatch, 0},
+/*v*/								   {mismatch, mismatch, mismatch,   match,    mismatch, mismatch, 0},
+ 	 	 	 	 	 	 	 	 	   {mismatch, mismatch, mismatch,   mismatch, mismatch, mismatch, 0},
+ 	 	 	 	 	 	 	 	 	   {0,        0,        0,          0,        0,        0       , 0}       ,
+ 	 	 	 	 	 	 	 	 	   {0,        0,        0,          0,        0,        0       , 0} };
