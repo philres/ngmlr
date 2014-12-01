@@ -8,11 +8,11 @@
 #ifndef OCLHOST_H_
 #define OCLHOST_H_
 
-#ifdef MAC
-#include <OpenCL/opencl.h>
-#else
+//#ifdef __APPLE__
+//#include <OpenCL/opencl.h>
+//#else
 #include <CL/opencl.h>
-#endif
+#//endif
 
 #include <string>
 

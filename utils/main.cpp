@@ -44,7 +44,11 @@ uloc const FileSize(char const * const filename) {
 	if (fseek(fp, 0, SEEK_END) != 0)
 		return 0;
 
+#ifdef __APPLE__
+	uloc end = ftello(fp);
+#else
 	uloc end = ftello64(fp);
+#endif
 	fclose(fp);
 	return end;
 }

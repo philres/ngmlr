@@ -57,6 +57,9 @@ SET_TARGET_PROPERTIES(ngm-utils-debug PROPERTIES COMPILE_FLAGS "-g3 -O0")
 
 add_definitions(-D _BAM)
 
+TARGET_LINK_LIBRARIES(ngm-utils pthread)
+TARGET_LINK_LIBRARIES(ngm-utils-debug pthread)
+
 TARGET_LINK_LIBRARIES(ngm-utils BamTools-static)
 TARGET_LINK_LIBRARIES(ngm-utils-debug BamTools-static)
 
