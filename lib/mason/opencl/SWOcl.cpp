@@ -19,13 +19,14 @@
 #include "oclSwScore.h"
 #include "oclEndFreeScore.h"
 
+extern const char oclDefines[];
+extern const char oclSwScore[];
+extern const char oclEndFreeScore[];
+
 using std::stringstream;
 
 long seq_count = 0;
 long overall = 0;
-
-//cl_program SWOcl::clProgram = 0;
-//int SWOcl::programUserCount = 0;
 
 bool usedPinnedMemory = true;
 

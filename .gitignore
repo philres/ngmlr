@@ -7,5 +7,5 @@
 /.kdev4
 .pydevproject
 lib/libgff
-
 /docs/
+.DS_Store
