@@ -358,9 +358,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 				fallback = false;
 				try {
 
-					c_SrchTableBitLen = c_SrchTableBitLenBackup + x;
-					c_BitShift = 64 - c_SrchTableBitLen;
-					c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
+					SetSearchTableBitLen( c_SrchTableBitLenBackup + x );
 
 					rListLength = 0;
 					currentState = 2 * i + 1;
@@ -375,9 +373,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 					x += 1;
 				}
 			}
-			c_SrchTableBitLen = c_SrchTableBitLenBackup;
-			c_BitShift = 64 - c_SrchTableBitLen;
-			c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
+			SetSearchTableBitLen( c_SrchTableBitLenBackup );
 		}
 
 		SendToBuffer(m_CurrentBatch[i], sw, out);
@@ -456,14 +452,10 @@ void CS::DoRun() {
 
 		if (!Config.Exists("search_table_length")) {
 			if (m_Overflows <= 5 && !up && c_SrchTableBitLen > 8) {
-				c_SrchTableBitLen -= 1;
-				c_BitShift = 64 - c_SrchTableBitLen;
-				c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
+				SetSearchTableBitLen( c_SrchTableBitLen - 1 );
 				Log.Debug(LOG_CS_DETAILS, "Overflow: Switching to %d bits (%d, %d)", c_SrchTableBitLen, c_BitShift, c_SrchTableLen);
 			} else if (m_Overflows > m_BatchSize * 0.01f) {
-				c_SrchTableBitLen += 1;
-				c_BitShift = 64 - c_SrchTableBitLen;
-				c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
+				SetSearchTableBitLen( c_SrchTableBitLen + 1 );
 				up = true;
 				Log.Debug(LOG_CS_DETAILS, "Overflow: Switching to %d bits (%d, %d)", c_SrchTableBitLen, c_BitShift, c_SrchTableLen);
 			}
@@ -490,10 +482,10 @@ void CS::Init() {
 
 CS::CS(bool useBuffer) :
 		m_CSThreadID((useBuffer) ? (AtomicInc(&s_ThreadCount) - 1) : -1), m_BatchSize(cBatchSize / Config.GetInt("qry_avg_len")), m_ProcessedReads(
-				0), m_WrittenReads(0), m_DiscardedReads(0), m_EnableBS(false), m_Overflows(0), m_entry(0), c_SrchTableBitLen(
-				Config.Exists("search_table_length") ? Config.GetInt("search_table_length") : 16), c_BitShift(64 - c_SrchTableBitLen), c_SrchTableLen(
-				(int) pow(2, c_SrchTableBitLen)), m_PrefixBaseSkip(0), m_Fallback((c_SrchTableLen <= 0)) // cTableLen <= 0 means always use fallback
+				0), m_WrittenReads(0), m_DiscardedReads(0), m_EnableBS(false), m_Overflows(0), m_entry(0), m_PrefixBaseSkip(0), m_Fallback(false) // cTableLen <= 0 means always use fallback
 {
+
+	SetSearchTableBitLen( Config.Exists("search_table_length") ? Config.GetInt("search_table_length") : 16 );
 
 	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 

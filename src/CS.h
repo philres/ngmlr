@@ -106,6 +106,13 @@ protected:
 		return (bin << shift) + offset;
 	}
 
+	inline void SetSearchTableBitLen(int bitLen)
+	{
+		c_SrchTableBitLen = bitLen;
+		c_BitShift = 64 - c_SrchTableBitLen;
+		c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
+	}
+
 private:
 	static const int estimateCount = 40000;
 	void debugCS(MappedRead * read, int& n, float& mi_Threshhold);
