@@ -309,7 +309,8 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 
 		m_CurrentSeq = m_CurrentBatch[i]->ReadId;
 
-		currentState = 2 * i;
+		//currentState = 2 * i;
+		currentState++;
 		rListLength = 0;
 		maxHitNumber = 0.0f;
 		currentThresh = 0.0f;
@@ -361,7 +362,8 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 					SetSearchTableBitLen( c_SrchTableBitLenBackup + x );
 
 					rListLength = 0;
-					currentState = 2 * i + 1;
+					//currentState = 2 * i + 1;
+					currentState++;
 					maxHitNumber = 0.0f;
 					currentThresh = 0.0f;
 
