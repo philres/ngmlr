@@ -1,37 +1,32 @@
 /*
  * VcfParser.h
  *
- *  Created on: Sep 11, 2012
- *      Author: fritz
+ * Created originally on: Sep 11, 2012 by Fritz
+ * Rewrite: December 19, 2014
+ *      Author: moritz
  */
 
 #ifndef VCFPARSER_H_
 #define VCFPARSER_H_
-#include <map>
+#include "Types.h"
+#include <vector>
 
-struct SNP{
-	unsigned int pos;
+struct SNP
+{
+	uloc pos;
 	char alt;
 };
 
-int const buffer_size = 300;
-
-class VcfParser{
+class VcfParser {
 
 private:
-	char *buffer;
-	gzFile fp;
-	std::list <SNP> snp_list;
-	bool VcfParser::compare_SNP(SNP first, SNP second);
+	uint next_i;
+	std::vector<SNP> snps;
 
 public:
-	~VcfParser(){
-		gzclose(fp);
-		delete buffer;
-		snp_list.clear();
-	}
+	 VcfParser(const char* filename);
+	~VcfParser();
 
-	VcfParser(char const * fileName);
 	SNP getNextSnp();
 };
 

@@ -1,29 +1,29 @@
 /*
- * VcfParser.cpp
+ * VcfParser.h
  *
- *  Created on: Sep 11, 2012
- *      Author: fritz
+ * Created originally on: Sep 11, 2012 by Fritz
+ * Rewrite: December 19, 2014
+ *      Author: moritz
  */
 
 #include "VcfParser.h"
 #include "Config.h"
 #include "Log.h"
-#include "SequenceProvider.h"
-#include <list>
+#include <zlib.h>
 
+VcfParser::VcfParser(char const * fileName) {
+	next_i = 0;
 
+	static const uint buffer_size = 512;
+	char buffer[ buffer_size ];
 
-bool VcfParser::compare_SNP(SNP first, SNP second){
-	return first.pos< second.pos;
-}
-void VcfParser::VcfParser(char const * fileName) {
-	fp = gzopen(fileName, "r");
+	gzFile fp = gzopen(fileName, "r");
 	if (!fp) {
 		//File does not exist
 		Log.Error("File does not exist ",fileName);
 	}
 
-	buffer = new char[buffer_size];
+	
 	std::map<std::string, int> refmap;
 
 	int len = 0;
@@ -34,8 +34,6 @@ void VcfParser::VcfParser(char const * fileName) {
 	//run over header:
 	while (gzgets(fp, buffer, buffer_size) > 0 && buffer[0] == '#') {
 	}
-
-
 
 	while (gzgets(fp, buffer, buffer_size) != NULL) {
 
@@ -67,7 +65,5 @@ void VcfParser::VcfParser(char const * fileName) {
 }
 
 SNP VcfParser::getNextSnp() {
-	SNP tmp = snp_list.front();
-	snp_list.pop_front();
-	return tmp;
+	return snps[next_i ++];
 }
