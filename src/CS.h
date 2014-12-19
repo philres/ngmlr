@@ -83,6 +83,8 @@ protected:
 	float currentThresh;
 	float maxHitNumber;
 
+	uint hpoc;
+
 	inline uint Hash(uloc n) {
 		//Multiplication Method (Corment)
 		//static float A = 0.5f * (sqrt(5) - 1);

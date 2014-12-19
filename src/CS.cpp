@@ -118,18 +118,10 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 
 
 void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const freq) {
-	uint hpoc = c_SrchTableLen;
-	uint l = (uint) c_SrchTableLen;
 	bool newEntry = false;
 
 	CSTableEntry* entry = rTable + Hash(m_Location);	
 	CSTableEntry* const maxEntry = rTable + c_SrchTableLen;
-
-	/*if( m_Location > pow(2,32))
-		over++;
-	else
-		under++;
-	Log.Message("Over/Under: %f", over/under);*/
 
 	//uint hpo = Hash( m_Location );
 	while ((newEntry = (entry->state & 0x7FFFFFFF) == currentState) && !(entry->m_Location == m_Location)) {
@@ -346,6 +338,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 
 		if (!fallback) {
 			try {
+				hpoc = c_SrchTableLen * 0.7f;
 				PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
 				nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
 			} catch (int overflow) {
@@ -370,6 +363,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 					maxHitNumber = 0.0f;
 					currentThresh = 0.0f;
 
+					hpoc = c_SrchTableLen * 0.7f;
 					PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
 					nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
 
