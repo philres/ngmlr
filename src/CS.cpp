@@ -122,17 +122,20 @@ void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const 
 	uint l = (uint) c_SrchTableLen;
 	bool newEntry = false;
 
+	CSTableEntry* entry = rTable + Hash(m_Location);	
+	CSTableEntry* const maxEntry = rTable + c_SrchTableLen;
+
 	/*if( m_Location > pow(2,32))
 		over++;
 	else
 		under++;
 	Log.Message("Over/Under: %f", over/under);*/
 
-	uint hpo = Hash( m_Location );
-	while ((newEntry = (rTable[hpo].state & 0x7FFFFFFF) == currentState) && !(rTable[hpo].m_Location == m_Location)) {
-		++hpo;
-		if (hpo >= l)
-			hpo = 0;
+	//uint hpo = Hash( m_Location );
+	while ((newEntry = (entry->state & 0x7FFFFFFF) == currentState) && !(entry->m_Location == m_Location)) {
+		++entry;
+		if (entry >= maxEntry)
+			entry = rTable;
 		if (--hpoc == 0) {
 			throw 1;
 		}
@@ -140,21 +143,21 @@ void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const 
 
 	float score = freq;
 	if (!newEntry) {
-		rTable[hpo].m_Location = m_Location;
-		rTable[hpo].state = currentState & 0x7FFFFFFF;
+		entry->m_Location = m_Location;
+		entry->state = currentState & 0x7FFFFFFF;
 		if (reverse) {
-			rTable[hpo].fScore = 0.0f;
-			rTable[hpo].rScore = score;
+			entry->fScore = 0.0f;
+			entry->rScore = score;
 		} else {
-			rTable[hpo].fScore = score;
-			rTable[hpo].rScore = 0.0f;
+			entry->fScore = score;
+			entry->rScore = 0.0f;
 		}
 	} else {
 		//Add kmer-weight to position
 		if (reverse) {
-			score = (rTable[hpo].rScore += freq);
+			score = (entry->rScore += freq);
 		} else {
-			score = (rTable[hpo].fScore += freq);
+			score = (entry->fScore += freq);
 		}
 	}
 
@@ -166,9 +169,9 @@ void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const 
 	}
 
 	//If kmer-weight larger than threshold -> add to rList.
-	if (!(rTable[hpo].state & 0x80000000) && score >= currentThresh) {
-		rTable[hpo].state |= 0x80000000;
-		rList[rListLength++] = hpo;
+	if (!(entry->state & 0x80000000) && score >= currentThresh) {
+		entry->state |= 0x80000000;
+		rList[rListLength++] = entry - rTable;
 	}
 
 }
