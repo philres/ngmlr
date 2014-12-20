@@ -338,7 +338,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 
 		if (!fallback) {
 			try {
-				hpoc = c_SrchTableLen * 0.7f;
+				hpoc = c_SrchTableLen * 0.333f;
 				PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
 				nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
 			} catch (int overflow) {
@@ -363,7 +363,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 					maxHitNumber = 0.0f;
 					currentThresh = 0.0f;
 
-					hpoc = c_SrchTableLen * 0.7f;
+					hpoc = c_SrchTableLen * 0.777f;
 					PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
 					nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
 
