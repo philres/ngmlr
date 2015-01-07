@@ -10,6 +10,7 @@
 
 #include "IRefProvider.h"
 #include "Types.h"
+#include "VcfParser.h"
 
 #pragma pack(push)
 #pragma pack(1)
@@ -121,7 +122,10 @@ private:
 	uint m_PrefixLength;
 	bool DualStrand;
 	bool skipRep;
+	VcfParser vcf;
+
 	void Generate();
+	void AddSnps();
 	void CreateTable(const uint length);
 	int* CountKmerFreq(const uint length);
 	uint createRefTableIndex(const uint length);

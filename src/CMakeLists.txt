@@ -18,8 +18,8 @@ configure_file( Version.h.in ${CMAKE_SOURCE_DIR}/src/Version.h )
 
 add_executable(ngm-core 	
 					parser/BamParser.cpp
-					parser/VcfParser.cpp
-					writer/BAMWriter.cpp																	
+					writer/BAMWriter.cpp
+					parser/VcfParser.cpp																	
 					config/Config.cpp					
 					CS.cpp					
 					CSstatic.cpp
@@ -59,7 +59,8 @@ add_definitions(-D _BAM)
 
 add_executable(ngm-core-debug	
 					parser/BamParser.cpp
-					writer/BAMWriter.cpp																	
+					writer/BAMWriter.cpp
+					parser/VcfParser.cpp																		
 					config/Config.cpp					
 					CS.cpp					
 					CSstatic.cpp

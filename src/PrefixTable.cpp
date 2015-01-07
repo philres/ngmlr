@@ -134,6 +134,12 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		kmerCountMinLocation = 0;
 		kmerCountMaxLocation = c_tableLocMax;
 
+		if( Config.Exists("vcf") )
+		{
+			vcf.open(Config.GetString("vcf"));
+			Log.Message("Loaded VCF (%u SNPS will be added to RefTable)",vcf.length());	
+		}
+
 		uloc genomeSize = SequenceProvider.GetConcatRefLen();
 		m_UnitCount = 1 + genomeSize / c_tableLocMax;
 		m_Units = new TableUnit[ m_UnitCount ];
@@ -279,6 +285,11 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 	return next;
 }
 
+void CompactPrefixTable::AddSnps()
+{
+
+}
+
 void CompactPrefixTable::CreateTable(uint const length) {
 	for( int i = 0; i < m_UnitCount; ++ i )
 	{
@@ -303,6 +314,8 @@ void CompactPrefixTable::CreateTable(uint const length) {
 		Log.Message("\tSize of RefTable is %ld", (ulong)CurrentUnit->cRefTableLen * (ulong)sizeof(Location));
 
 		Generate();
+		AddSnps();
+
 		Log.Message("\tOverall time for creating RefTable: %.2fs", gtmr.ET());
 
 		kmerCountMinLocation += c_tableLocMax;

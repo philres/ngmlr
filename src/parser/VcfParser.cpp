@@ -7,20 +7,29 @@
  */
 
 #include "VcfParser.h"
+#include "SequenceProvider.h"
 #include "Config.h"
 #include "Log.h"
 #include <zlib.h>
 
-VcfParser::VcfParser(char const * fileName) {
-	next_i = 0;
+VcfParser::VcfParser() {
 
+}
+
+VcfParser::~VcfParser() {
+
+}
+
+void VcfParser::open(char const * fileName)
+{
 	static const uint buffer_size = 512;
 	char buffer[ buffer_size ];
 
 	gzFile fp = gzopen(fileName, "r");
 	if (!fp) {
 		//File does not exist
-		Log.Error("File does not exist ",fileName);
+		Log.Error("Failed to open VCF file ",fileName);
+		return;
 	}
 
 	
@@ -52,18 +61,12 @@ VcfParser::VcfParser(char const * fileName) {
 			}
 			if (count == 4 && buffer[i] != '\t') {
 				snp.alt = buffer[i];
-				snp_list.push_back(snp);
+				snps.push_back(snp);
 			}
 			if (buffer[i] == '\t') {
 				count++;
 			}
 		}
 	}
-	refmap.clear();
-	snp_list.sort(compare_SNP);
-
-}
-
-SNP VcfParser::getNextSnp() {
-	return snps[next_i ++];
+	refmap.clear();	
 }

@@ -18,16 +18,19 @@ struct SNP
 };
 
 class VcfParser {
-
+	
 private:
-	uint next_i;
 	std::vector<SNP> snps;
 
 public:
-	 VcfParser(const char* filename);
+	 VcfParser();
 	~VcfParser();
 
-	SNP getNextSnp();
+	void open(const char* filename);
+
+	const SNP& get( uint i ) const { return snps[i]; }
+	uint length() const { return snps.size(); }
+	bool empty() const { return snps.size() == 0; }
 };
 
 
