@@ -12,8 +12,30 @@
 #include "Types.h"
 #include "VcfParser.h"
 
+#include <map>
+#include <vector>
+
 #pragma pack(push)
 #pragma pack(1)
+
+class SNPTable //Holds SNPmer kmers as key, list of their locations as value
+{
+	std::map<ulong, std::vector<uloc> > table;
+
+	void add(ulong prefix, uloc pos)
+	{
+		table[prefix].push_back(pos);
+	}
+
+	void get(ulong prefix, std::vector<uloc>& out)
+	{
+		out.clear();
+		if( table.find(prefix) != table.end() )
+		{
+			out = table[prefix];
+		}
+	}
+};
 
 struct Index {
 
@@ -122,10 +144,13 @@ private:
 	uint m_PrefixLength;
 	bool DualStrand;
 	bool skipRep;
+
 	VcfParser vcf;
+	SNPTable snps;
+	void BuildSNPTable();
 
 	void Generate();
-	void AddSnps();
+	
 	void CreateTable(const uint length);
 	int* CountKmerFreq(const uint length);
 	uint createRefTableIndex(const uint length);
@@ -137,7 +162,6 @@ private:
 	void Clear();
 	void saveToFile(const char* fileName, const uint refIndexSize);
 	void readFromFile(const char* fileName);
-
 
 };
 

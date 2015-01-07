@@ -137,7 +137,9 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		if( Config.Exists("vcf") )
 		{
 			vcf.open(Config.GetString("vcf"));
-			Log.Message("Loaded VCF (%u SNPS will be added to RefTable)",vcf.length());	
+			Log.Message("Loaded VCF (%u SNPs will be added to RefTable)",vcf.length());
+
+			BuildSNPTable();
 		}
 
 		uloc genomeSize = SequenceProvider.GetConcatRefLen();
@@ -285,9 +287,29 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 	return next;
 }
 
-void CompactPrefixTable::AddSnps()
-{
 
+void CompactPrefixTable::BuildSNPTable()
+{
+	Log.Message("Building SNPTable");
+
+	//Iterate over all SNPs from the VCF
+	for(uint i = 0; i < vcf.length(); i ++ )
+	{
+		const VcfSNP& snp = vcf.get(i);
+
+		int region_len = 64;
+
+		char buffer[region_len+1];
+		memset(buffer,0,sizeof(buffer));
+		SequenceProvider.DecodeRefSequence(buffer,0, snp.pos - region_len/2, region_len);
+		buffer[region_len] = 0;
+
+		int buffer_snp_pos = region_len / 2 - 1;
+		if( buffer[ buffer_snp_pos ] == snp.alt ) //Reference equals SNP
+			continue;
+
+		if(!i)Log.Message("Pos %llu -> %c, corr. ref: %s",snp.pos,snp.alt,buffer);
+	}
 }
 
 void CompactPrefixTable::CreateTable(uint const length) {
@@ -314,7 +336,6 @@ void CompactPrefixTable::CreateTable(uint const length) {
 		Log.Message("\tSize of RefTable is %ld", (ulong)CurrentUnit->cRefTableLen * (ulong)sizeof(Location));
 
 		Generate();
-		AddSnps();
 
 		Log.Message("\tOverall time for creating RefTable: %.2fs", gtmr.ET());
 

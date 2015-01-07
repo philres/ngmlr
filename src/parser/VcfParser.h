@@ -10,8 +10,10 @@
 #define VCFPARSER_H_
 #include "Types.h"
 #include <vector>
+#include <string>
+#include <map>
 
-struct SNP
+struct VcfSNP
 {
 	uloc pos;
 	char alt;
@@ -20,7 +22,12 @@ struct SNP
 class VcfParser {
 	
 private:
-	std::vector<SNP> snps;
+	std::vector<VcfSNP> snps;
+	std::map<std::string, int> refmap;
+
+	uint getRefStart(std::string ref);
+	void parse_line(std::string line, uint line_num);
+	void add_line(std::string chrom, std::string pos, std::string ref, std::string alt, uint line_num);
 
 public:
 	 VcfParser();
@@ -28,7 +35,7 @@ public:
 
 	void open(const char* filename);
 
-	const SNP& get( uint i ) const { return snps[i]; }
+	const VcfSNP& get(uint i) const { return snps[i]; }
 	uint length() const { return snps.size(); }
 	bool empty() const { return snps.size() == 0; }
 };
