@@ -20,8 +20,10 @@
 
 class SNPTable //Holds SNPmer kmers as key, list of their locations as value
 {
+private:
 	std::map<ulong, std::vector<uloc> > table;
 
+public:
 	void add(ulong prefix, uloc pos)
 	{
 		table[prefix].push_back(pos);
@@ -34,6 +36,11 @@ class SNPTable //Holds SNPmer kmers as key, list of their locations as value
 		{
 			out = table[prefix];
 		}
+	}
+
+	bool empty()
+	{
+		return table.empty();
 	}
 };
 
@@ -148,6 +155,7 @@ private:
 	VcfParser vcf;
 	SNPTable snps;
 	void BuildSNPTable();
+	static void AddSNPmer(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
 
 	void Generate();
 	

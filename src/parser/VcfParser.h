@@ -16,6 +16,7 @@
 struct VcfSNP
 {
 	uloc pos;
+	char ref;
 	char alt;
 };
 

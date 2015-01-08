@@ -295,9 +295,11 @@ void CompactPrefixTable::BuildSNPTable()
 	//Iterate over all SNPs from the VCF
 	for(uint i = 0; i < vcf.length(); i ++ )
 	{
+		//Get SNP position and changed base
 		const VcfSNP& snp = vcf.get(i);
 
-		int region_len = 64;
+		//Extract from the reference the sequence surrounding the SNP 
+		int region_len = 2 * m_PrefixLength; //64;
 
 		char buffer[region_len+1];
 		memset(buffer,0,sizeof(buffer));
@@ -305,11 +307,27 @@ void CompactPrefixTable::BuildSNPTable()
 		buffer[region_len] = 0;
 
 		int buffer_snp_pos = region_len / 2 - 1;
-		if( buffer[ buffer_snp_pos ] == snp.alt ) //Reference equals SNP
+		if( buffer[ buffer_snp_pos ] == snp.alt ) //Reference already equals SNP
 			continue;
 
-		if(!i)Log.Message("Pos %llu -> %c, corr. ref: %s",snp.pos,snp.alt,buffer);
+		//Apply the SNP to the reference.
+		buffer[ buffer_snp_pos ] = snp.alt;
+
+		//Iterate over the region to form the new kmers containing the SNP, inserting them into the SNP-mer list 
+		CS::PrefixIteration(buffer, region_len, &CompactPrefixTable::AddSNPmer, 0, 0, this, 0, snp.pos - region_len / 2);
+	
+
+		/*if( buffer[ buffer_snp_pos ] != snp.ref )
+			Log.Message("Pos %llu neq! (snpref: %c, aref: %c)",snp.pos,snp.ref,buffer[ buffer_snp_pos ] );
+		else
+			Log.Message("Pos %llu eq (snpref: %c, aref: %c)",snp.pos,snp.ref,buffer[ buffer_snp_pos ] );*/
 	}
+}
+
+void CompactPrefixTable::AddSNPmer(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data)
+{
+	CompactPrefixTable* tab = (CompactPrefixTable*) data;
+	tab->snps.add(prefix,pos);
 }
 
 void CompactPrefixTable::CreateTable(uint const length) {
@@ -385,7 +403,7 @@ void CompactPrefixTable::CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulo
 	lastPrefix = prefix;
 }
 
-void CompactPrefixTable::CountKmerwoSkip(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
+void CompactPrefixTable::lwoSkip(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	if( pos < kmerCountMinLocation || pos > kmerCountMaxLocation )
 		return;
 
@@ -591,7 +609,7 @@ void CompactPrefixTable::readFromFile(char const * fileName) {
 	m_Units = new TableUnit[ m_UnitCount ];
 
 	for( int i = 0; i < m_UnitCount; ++ i )
-	{
+	{std::vecto
 		TableUnit& curr = m_Units[ i ];
 
 		fread(&curr.cRefTableLen, sizeof(uint), 1, fp);

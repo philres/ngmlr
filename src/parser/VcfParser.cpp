@@ -145,6 +145,7 @@ void VcfParser::add_line(std::string chrom, std::string pos, std::string ref, st
 
 	snp.pos = getRefStart(chrom) + atoi(pos.c_str());
 	snp.alt = alt[0];
+	snp.ref = ref[0];
 
 	snps.push_back(snp);
 
