@@ -193,6 +193,22 @@ int * CompactPrefixTable::CountKmerFreq(uint length) {
 			seq = 0;
 		}
 	}
+
+	//Add SNPmers to index
+	for(int i = 0; i < snps.size(); ++ i)
+	{
+		SNPRegion& reg = snps[i];
+		
+		lastPrefix = 111111;
+		lastBin = -1;
+
+		if(skipRep) {
+			CS::PrefixIteration(reg.buffer.c_str(), reg.buffer.size(), &CompactPrefixTable::CountKmer, 0, 0, freq, m_RefSkip, reg.ref_offset);
+		} else {
+			CS::PrefixIteration(reg.buffer.c_str(), reg.buffer.size(), &CompactPrefixTable::CountKmerwoSkip, 0, 0, freq, m_RefSkip, reg.ref_offset);
+		}
+	}
+
 	return freq;
 }
 
@@ -222,6 +238,17 @@ void CompactPrefixTable::Generate() {
 			Log.Verbose("Create table for chr %d. Start: %d, Length: %u (%.2fs)", m_CurGenSeq, 0, len, t.ET());
 			delete[] seq;
 			seq = 0;
+		}
+	}
+
+	//Add SNPmer locations
+	for(int i = 0; i < snps.size(); ++ i)
+	{
+		SNPRegion& reg = snps[i];
+		if(skipRep) {
+			CS::PrefixIteration(reg.buffer.c_str(), reg.buffer.size(), &CompactPrefixTable::BuildPrefixTable, 0, 0, this, m_RefSkip, reg.ref_offset);
+		} else {
+			CS::PrefixIteration(reg.buffer.c_str(), reg.buffer.size(), &CompactPrefixTable::BuildPrefixTablewoSkip, 0, 0, this, m_RefSkip, reg.ref_offset);
 		}
 	}
 
@@ -290,7 +317,7 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 
 void CompactPrefixTable::BuildSNPTable()
 {
-	Log.Message("Building SNPTable");
+	Log.Message("Building SNP region table");
 
 	//Iterate over all SNPs from the VCF
 	for(uint i = 0; i < vcf.length(); i ++ )
@@ -303,7 +330,7 @@ void CompactPrefixTable::BuildSNPTable()
 
 		char buffer[region_len+1];
 		memset(buffer,0,sizeof(buffer));
-		SequenceProvider.DecodeRefSequence(buffer,0, snp.pos - region_len/2, region_len);
+		SequenceProvider.DecodeRefSequence(buffer,0, snp.pos - region_len / 2, region_len);
 		buffer[region_len] = 0;
 
 		int buffer_snp_pos = region_len / 2 - 1;
@@ -313,21 +340,22 @@ void CompactPrefixTable::BuildSNPTable()
 		//Apply the SNP to the reference.
 		buffer[ buffer_snp_pos ] = snp.alt;
 
+		/*
 		//Iterate over the region to form the new kmers containing the SNP, inserting them into the SNP-mer list 
 		CS::PrefixIteration(buffer, region_len, &CompactPrefixTable::AddSNPmer, 0, 0, this, 0, snp.pos - region_len / 2);
-	
+		*/
+
+		SNPRegion reg;
+		reg.buffer = buffer;
+		reg.ref_offset = snp.pos - region_len / 2;
+		snps.push_back(reg);
+
 
 		/*if( buffer[ buffer_snp_pos ] != snp.ref )
 			Log.Message("Pos %llu neq! (snpref: %c, aref: %c)",snp.pos,snp.ref,buffer[ buffer_snp_pos ] );
 		else
 			Log.Message("Pos %llu eq (snpref: %c, aref: %c)",snp.pos,snp.ref,buffer[ buffer_snp_pos ] );*/
 	}
-}
-
-void CompactPrefixTable::AddSNPmer(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data)
-{
-	CompactPrefixTable* tab = (CompactPrefixTable*) data;
-	tab->snps.add(prefix,pos);
 }
 
 void CompactPrefixTable::CreateTable(uint const length) {
@@ -403,7 +431,7 @@ void CompactPrefixTable::CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulo
 	lastPrefix = prefix;
 }
 
-void CompactPrefixTable::lwoSkip(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
+void CompactPrefixTable::CountKmerwoSkip(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	if( pos < kmerCountMinLocation || pos > kmerCountMaxLocation )
 		return;
 
@@ -609,7 +637,7 @@ void CompactPrefixTable::readFromFile(char const * fileName) {
 	m_Units = new TableUnit[ m_UnitCount ];
 
 	for( int i = 0; i < m_UnitCount; ++ i )
-	{std::vecto
+	{
 		TableUnit& curr = m_Units[ i ];
 
 		fread(&curr.cRefTableLen, sizeof(uint), 1, fp);
