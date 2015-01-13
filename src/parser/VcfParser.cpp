@@ -137,6 +137,7 @@ void VcfParser::add_line(std::string chrom, std::string pos, std::string ref, st
 	//Currently only support 1->1
 	if(ref.size() != 1 || alt.size() != 1) return;
 
+
 	if(refmap.find(chrom) == refmap.end() )
 	{
 		Log.Message("Chromosome '%s' not found in reference but in VCF file, line %u", chrom.c_str(), line_num );
@@ -146,6 +147,9 @@ void VcfParser::add_line(std::string chrom, std::string pos, std::string ref, st
 	snp.pos = getRefStart(chrom) + atoi(pos.c_str());
 	snp.alt = alt[0];
 	snp.ref = ref[0];
+
+	if(snp.ref != 'A' && snp.ref != 'T' && snp.ref != 'G' && snp.ref != 'C') return;
+	if(snp.alt != 'A' && snp.alt != 'T' && snp.alt != 'G' && snp.alt != 'C') return;
 
 	snps.push_back(snp);
 

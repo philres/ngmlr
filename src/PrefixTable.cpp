@@ -326,7 +326,7 @@ void CompactPrefixTable::BuildSNPTable()
 		const VcfSNP& snp = vcf.get(i);
 
 		//Extract from the reference the sequence surrounding the SNP 
-		int region_len = 2 * m_PrefixLength; //64;
+		int region_len = 2 * m_PrefixLength;
 
 		char buffer[region_len+1];
 		memset(buffer,0,sizeof(buffer));
@@ -337,7 +337,7 @@ void CompactPrefixTable::BuildSNPTable()
 		if( buffer[ buffer_snp_pos ] == snp.alt ) //Reference already equals SNP
 			continue;
 
-		//Apply the SNP to the reference.
+		//Apply the SNP to the reference region
 		buffer[ buffer_snp_pos ] = snp.alt;
 
 		/*
