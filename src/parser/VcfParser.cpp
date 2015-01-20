@@ -126,17 +126,37 @@ void VcfParser::parse_line(std::string line, uint line_num)
 		return;
 	}
 
-	add_line(parts[0],parts[1],parts[3],parts[4], line_num);
+	std::string chrom = parts[0];
+	std::string pos = parts[1];
+	std::string ref = parts[3];
+	std::string alt = parts[4];
+	std::string current_alt = "";
 
+	if( ref == "." )
+	{
+		//TODO: Needed?
+		//return;
+	}
+
+	for( uint i = 0; i < parts[4].size(); ++ i )
+	{
+		if(alt[i]== ',')
+		{
+			if( current_alt != "" )
+				add_line(chrom,pos,ref,current_alt,line_num);
+			current_alt = "";
+		} else {
+			current_alt.push_back(alt[i]);
+		}
+	}
+
+	if( current_alt != "" )
+		add_line(chrom,pos,ref,current_alt,line_num);
 }
 
 void VcfParser::add_line(std::string chrom, std::string pos, std::string ref, std::string alt, uint line_num)
 {
 	VcfSNP snp;
-
-	//Currently only support 1->1
-	if(ref.size() != 1 || alt.size() != 1) return;
-
 
 	if(refmap.find(chrom) == refmap.end() )
 	{
@@ -144,21 +164,39 @@ void VcfParser::add_line(std::string chrom, std::string pos, std::string ref, st
 		return;
 	}
 
-	snp.pos = getRefStart(chrom) + atoi(pos.c_str());
-	snp.alt = alt[0];
-	snp.ref = ref[0];
-
-	if(snp.ref != 'A' && snp.ref != 'T' && snp.ref != 'G' && snp.ref != 'C') return;
-	if(snp.alt != 'A' && snp.alt != 'T' && snp.alt != 'G' && snp.alt != 'C') return;
-
-	snps.push_back(snp);
-
-	/*if(line_num < 100)
+	if( alt == "." )
 	{
-		Log.Message("========================");
-		Log.Message("line:%u",line_num);
-		Log.Message("snp.opos: %d",atoi(pos.c_str()));
-		Log.Message("snp.pos: %llu",snp.pos);
-		Log.Message("snp.alt: %c",snp.alt);
-	}*/
+		//Missing alternative
+		return;
+	}
+
+	if( ! isSequence( ref ) || ! isSequence( alt ) )
+	{
+		return;
+	}
+
+	snp.pos = getRefStart(chrom) + atoi(pos.c_str());
+	snp.alt = alt;
+	snp.ref = ref;
+	snps.push_back(snp);
+}
+
+bool VcfParser::isSequence(const std::string& what)
+{
+	for(uint i = 0; i < what.size(); ++ i )
+	{
+		switch(what[i])
+		{
+			case 'A':
+			case 'C':
+			case 'T':
+			case 'G':
+			case 'N':
+			break;
+
+			default: return false;
+		}
+	}
+
+	return true;
 }

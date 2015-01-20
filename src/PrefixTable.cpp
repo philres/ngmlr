@@ -137,7 +137,7 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		if( Config.Exists("vcf") )
 		{
 			vcf.open(Config.GetString("vcf"));
-			Log.Message("Loaded VCF (%u SNPs will be added to RefTable)",vcf.length());
+			Log.Message("Loaded VCF (%u variations)",vcf.length());
 
 			BuildSNPTable();
 		}
@@ -317,45 +317,84 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 
 void CompactPrefixTable::BuildSNPTable()
 {
-	Log.Message("Building SNP region table");
+	uint snp_c=0;
+	uint indel_c=0;
+	uint ign_c=0;
 
 	//Iterate over all SNPs from the VCF
-	for(uint i = 0; i < vcf.length(); i ++ )
-	{
+	for(uint i = 0; i < vcf.length(); i ++ ) {
 		//Get SNP position and changed base
 		const VcfSNP& snp = vcf.get(i);
 
-		//Extract from the reference the sequence surrounding the SNP 
-		int region_len = 2 * m_PrefixLength;
+		//Extract from the reference the sequence surrounding the SNP
+		int region_extension = (snp.ref.size()+snp.alt.size()) - 2;
+		int region_len = 2 * (m_PrefixLength + region_extension);
 
-		char buffer[region_len+1];
-		memset(buffer,0,sizeof(buffer));
-		SequenceProvider.DecodeRefSequence(buffer,0, snp.pos - region_len / 2, region_len);
-		buffer[region_len] = 0;
+		char buffer_tmp[region_len+1];
+		memset(buffer_tmp,0,sizeof(buffer_tmp));
+		SequenceProvider.DecodeRefSequence(buffer_tmp,0, snp.pos - region_len / 2, region_len);
+		buffer_tmp[region_len] = 0;
 
+		std::string buffer = buffer_tmp;
 		int buffer_snp_pos = region_len / 2 - 1;
-		if( buffer[ buffer_snp_pos ] == snp.alt ) //Reference already equals SNP
-			continue;
 
-		//Apply the SNP to the reference region
-		buffer[ buffer_snp_pos ] = snp.alt;
+		if( snp.ref.size() == 1 && snp.alt.size() == 1 )
+		{
+			if( buffer[ buffer_snp_pos ] == snp.alt[0] ) //Reference already equals SNP
+			{
+				ign_c ++;
+				continue;
+			}
 
-		/*
-		//Iterate over the region to form the new kmers containing the SNP, inserting them into the SNP-mer list 
-		CS::PrefixIteration(buffer, region_len, &CompactPrefixTable::AddSNPmer, 0, 0, this, 0, snp.pos - region_len / 2);
-		*/
+			//Simple SNP
+			//Apply the SNP to the reference region
+			buffer[ buffer_snp_pos ] = snp.alt[0];
+			snp_c ++;
+
+		} else {
+			std::string new_buffer;
+
+			for( int i = 0; i < buffer_snp_pos; ++ i )
+			{
+				new_buffer.push_back(buffer[i]);
+			}
+
+			bool ignore = false;
+			for( int i = 0; i < snp.ref.size(); ++ i )
+			{
+				if( snp.ref[ i ] != buffer[ buffer_snp_pos + i ] )
+				{
+					Log.Message("SNP ref does not match reference at SNP %llu",snp.pos);
+					ign_c ++;
+					ignore = true;
+					break;
+				}
+			}
+
+			if( ignore )
+				break;
+
+			new_buffer += snp.alt;
+
+			for( int i = buffer_snp_pos + snp.ref.size(); i < buffer.size(); ++ i )
+			{
+				new_buffer.push_back(buffer[i]);
+			}
+
+			//Log.Message("%s -> %s",buffer.c_str(),new_buffer.c_str());
+
+
+			indel_c ++;
+			buffer = new_buffer;
+		}
 
 		SNPRegion reg;
 		reg.buffer = buffer;
 		reg.ref_offset = snp.pos - region_len / 2;
 		snps.push_back(reg);
-
-
-		/*if( buffer[ buffer_snp_pos ] != snp.ref )
-			Log.Message("Pos %llu neq! (snpref: %c, aref: %c)",snp.pos,snp.ref,buffer[ buffer_snp_pos ] );
-		else
-			Log.Message("Pos %llu eq (snpref: %c, aref: %c)",snp.pos,snp.ref,buffer[ buffer_snp_pos ] );*/
 	}
+
+	Log.Message("Built SNP region table (%u SNPs, %u indels, %u ignored)",snp_c,indel_c,ign_c);
 }
 
 void CompactPrefixTable::CreateTable(uint const length) {

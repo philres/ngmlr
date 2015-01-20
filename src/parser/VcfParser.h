@@ -16,8 +16,8 @@
 struct VcfSNP
 {
 	uloc pos;
-	char ref;
-	char alt;
+	std::string ref;
+	std::string alt;
 };
 
 class VcfParser {
@@ -29,6 +29,8 @@ private:
 	uint getRefStart(std::string ref);
 	void parse_line(std::string line, uint line_num);
 	void add_line(std::string chrom, std::string pos, std::string ref, std::string alt, uint line_num);
+
+	bool isSequence(const std::string& what);
 
 public:
 	 VcfParser();
