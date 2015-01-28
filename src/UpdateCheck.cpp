@@ -336,7 +336,7 @@ void UpdateCheckInterface::reminder()
 		int months_now = tm_now.tm_year * 12 + tm_now.tm_mon;
 		int months_build = tm_build.tm_year * 12 + tm_build.tm_mon;
 
-		//if( months_now - months_build > UPDATE_REMIND_AFTER_MONTHS )
+		if( months_now - months_build > UPDATE_REMIND_AFTER_MONTHS )
 		{
 			Log.Message("[UPDATE_CHECK] Your version of NGM is more than %d months old - a newer version may be available. (For performing an automatic check use --update-check)",UPDATE_REMIND_AFTER_MONTHS);
 		}
