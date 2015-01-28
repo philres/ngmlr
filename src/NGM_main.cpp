@@ -20,6 +20,7 @@
 #include "Timing.h"
 
 #include "Debug.h"
+#include "UpdateCheck.h"
 
 #undef module_name
 #define module_name "MAIN"
@@ -119,6 +120,12 @@ int main(int argc, char * argv[]) {
 		Help();
 	}
 
+	if( Config.GetInt("update_check") )
+	{
+		UpdateCheckInterface::remoteCheck();
+		exit(0);
+	}
+
 	Log.setColor(Config.Exists("color"));
 
 	if (!Config.Exists("qry") || CheckOutput()) {
@@ -155,6 +162,10 @@ int main(int argc, char * argv[]) {
 			}
 		}
 	}
+
+	if( ! Config.Exists("update-check") )
+		UpdateCheckInterface::reminder();
+
 	CS::Cleanup();
 	_SequenceProvider::Cleanup();
 	delete _config;
@@ -308,6 +319,8 @@ Advanced settings:\n\
  --color                       Colored text output (default: off)\n\
  --no-progress                 Don't print progress info while mapping\n\
                                (default: off)\n\
+Other:\n\
+ --update-check                Perform an online check for a newer version of NGM\
 \n\
 \n";
 	fprintf(stderr, "%s", help_msg);

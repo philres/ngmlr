@@ -5,7 +5,6 @@
  *      Author: moritz
  */
 
-//Minimalistic API
 class UpdateCheckInterface
 {
 public:

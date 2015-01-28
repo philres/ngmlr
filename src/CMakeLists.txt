@@ -27,6 +27,7 @@ add_executable(ngm-core
 					MappedRead.cpp
 					NGM_main.cpp
 					NGM.cpp
+					UpdateCheck.cpp
 					core/NGMStats.cpp
 					core/NGMTask.cpp
 					AlignmentBuffer.cpp
@@ -67,6 +68,7 @@ add_executable(ngm-core-debug
 					MappedRead.cpp
 					NGM_main.cpp
 					NGM.cpp
+					UpdateCheck.cpp
 					core/NGMStats.cpp
 					core/NGMTask.cpp
 					AlignmentBuffer.cpp
