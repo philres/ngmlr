@@ -265,12 +265,16 @@ void _SequenceProvider::Init(bool dualstrand) {
 		uloc size = getSize(Config.GetString("ref"));
 		refFileLen = size;
 
-		Log.Message("Size of reference genome %llu (%llu)", size, ULLONG_MAX);
-		/* If size > INT64_MAX, then we literally got a big problem
-		if (size > ULLONG_MAX) {
-			Log.Error("Reference genome too long! NGM can't handle genomes larger than %ld bytes.", ULLONG_MAX );
+		static const uloc REF_LEN_MAX = ULLONG_MAX * 16; //uint64 used everywhere but in CS rTable, there GetBin division increases range
+
+		Log.Message("Size of reference genome %llu (%llu)", size, REF_LEN_MAX);
+
+		//Theoretical limit would be uloc max (INT64_MAX), but for speed reasons uint is used in CSTableEntry for bin
+		//positions
+		if (size > REF_LEN_MAX) {
+			Log.Error("Reference genome too long! NGM can't handle genomes larger than %llu GB.", REF_LEN_MAX/(1000*1000*1000) );
 			Fatal();
-		}*/
+		}
 
 		uloc const binRefSize = ((size / 2) | 1) + 1;
 		Log.Message("Allocating %llu (%llu) bytes for the reference.", binRefSize, FileSize(Config.GetString("ref")));

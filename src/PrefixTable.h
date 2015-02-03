@@ -10,9 +10,19 @@
 
 #include "IRefProvider.h"
 #include "Types.h"
+#include "VcfParser.h"
+
+#include <map>
+#include <vector>
 
 #pragma pack(push)
 #pragma pack(1)
+
+struct SNPRegion
+{
+	std::string buffer;
+	uloc ref_offset;
+};
 
 struct Index {
 
@@ -124,8 +134,12 @@ private:
 	bool DualStrand;
 	bool skipRep;
 
+	VcfParser vcf;
+	std::vector<SNPRegion> snps;
+	void BuildSNPTable();
 
 	void Generate();
+	
 	void CreateTable(const uint length);
 	int* CountKmerFreq(const uint length);
 	uint createRefTableIndex(const uint length);
@@ -139,7 +153,6 @@ private:
 	void readFromFile(const char* fileName);
 
 	void test();
-
 };
 
 #endif /* COMPACTPREFIXTABLE_H_ */

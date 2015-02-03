@@ -30,6 +30,7 @@ add_executable(ngm-utils main.cpp
 								../src/SequenceProvider.cpp
 								../src/config/Config.cpp
 								../src/PrefixTable.cpp
+								../src/parser/VcfParser.cpp
 								../src/CSstatic.cpp
  					)		
  
@@ -48,6 +49,7 @@ add_executable(ngm-utils main.cpp
 								../src/SequenceProvider.cpp
 								../src/config/Config.cpp
 								../src/PrefixTable.cpp
+								../src/parser/VcfParser.cpp
 								../src/CSstatic.cpp
  					)
 

@@ -118,6 +118,14 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		kmerCountMinLocation = 0;
 		kmerCountMaxLocation = c_tableLocMax;
 
+		if( Config.Exists("vcf") )
+		{
+			vcf.open(Config.GetString("vcf"));
+			Log.Message("Loaded VCF (%u variations)",vcf.length());
+
+			BuildSNPTable();
+		}
+
 		uloc genomeSize = SequenceProvider.GetConcatRefLen();
 		m_UnitCount = 1 + genomeSize / c_tableLocMax;
 		m_Units = new TableUnit[m_UnitCount];
@@ -232,6 +240,22 @@ int * CompactPrefixTable::CountKmerFreq(uint length) {
 			seq = 0;
 		}
 	}
+
+	//Add SNPmers to index
+	for(int i = 0; i < snps.size(); ++ i)
+	{
+		SNPRegion& reg = snps[i];
+		
+		lastPrefix = 111111;
+		lastBin = -1;
+
+		if(skipRep) {
+			CS::PrefixIteration(reg.buffer.c_str(), reg.buffer.size(), &CompactPrefixTable::CountKmer, 0, 0, freq, m_RefSkip, reg.ref_offset);
+		} else {
+			CS::PrefixIteration(reg.buffer.c_str(), reg.buffer.size(), &CompactPrefixTable::CountKmerwoSkip, 0, 0, freq, m_RefSkip, reg.ref_offset);
+		}
+	}
+
 	return freq;
 }
 
@@ -261,6 +285,17 @@ void CompactPrefixTable::Generate() {
 			Log.Verbose("Create table for chr %d. Start: %d, Length: %u (%.2fs)", m_CurGenSeq, 0, len, t.ET());
 			delete[] seq;
 			seq = 0;
+		}
+	}
+
+	//Add SNPmer locations
+	for(int i = 0; i < snps.size(); ++ i)
+	{
+		SNPRegion& reg = snps[i];
+		if(skipRep) {
+			CS::PrefixIteration(reg.buffer.c_str(), reg.buffer.size(), &CompactPrefixTable::BuildPrefixTable, 0, 0, this, m_RefSkip, reg.ref_offset);
+		} else {
+			CS::PrefixIteration(reg.buffer.c_str(), reg.buffer.size(), &CompactPrefixTable::BuildPrefixTablewoSkip, 0, 0, this, m_RefSkip, reg.ref_offset);
 		}
 	}
 
@@ -325,6 +360,89 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 	return next;
 }
 
+
+void CompactPrefixTable::BuildSNPTable()
+{
+	uint snp_c=0;
+	uint indel_c=0;
+	uint ign_c=0;
+
+	//Iterate over all SNPs from the VCF
+	for(uint i = 0; i < vcf.length(); i ++ ) {
+		//Get SNP position and changed base
+		const VcfSNP& snp = vcf.get(i);
+
+		//Extract from the reference the sequence surrounding the SNP
+		int region_extension = (snp.ref.size()+snp.alt.size()) - 2;
+		int region_len = 2 * (m_PrefixLength + region_extension);
+
+		char buffer_tmp[region_len+1];
+		memset(buffer_tmp,0,sizeof(buffer_tmp));
+		SequenceProvider.DecodeRefSequence(buffer_tmp,0, snp.pos - region_len / 2, region_len);
+		buffer_tmp[region_len] = 0;
+
+		std::string buffer = buffer_tmp;
+		int buffer_snp_pos = region_len / 2 - 1;
+
+		if( snp.ref.size() == 1 && snp.alt.size() == 1 )
+		{
+			if( buffer[ buffer_snp_pos ] == snp.alt[0] ) //Reference already equals SNP
+			{
+				ign_c ++;
+				continue;
+			}
+
+			//Simple SNP
+			//Apply the SNP to the reference region
+			buffer[ buffer_snp_pos ] = snp.alt[0];
+			snp_c ++;
+
+		} else {
+			std::string new_buffer;
+
+			for( int i = 0; i < buffer_snp_pos; ++ i )
+			{
+				new_buffer.push_back(buffer[i]);
+			}
+
+			bool ignore = false;
+			for( int i = 0; i < snp.ref.size(); ++ i )
+			{
+				if( snp.ref[ i ] != buffer[ buffer_snp_pos + i ] )
+				{
+					Log.Message("SNP ref does not match reference at SNP %llu",snp.pos);
+					ign_c ++;
+					ignore = true;
+					break;
+				}
+			}
+
+			if( ignore )
+				break;
+
+			new_buffer += snp.alt;
+
+			for( int i = buffer_snp_pos + snp.ref.size(); i < buffer.size(); ++ i )
+			{
+				new_buffer.push_back(buffer[i]);
+			}
+
+			//Log.Message("%s -> %s",buffer.c_str(),new_buffer.c_str());
+
+
+			indel_c ++;
+			buffer = new_buffer;
+		}
+
+		SNPRegion reg;
+		reg.buffer = buffer;
+		reg.ref_offset = snp.pos - region_len / 2;
+		snps.push_back(reg);
+	}
+
+	Log.Message("Built SNP region table (%u SNPs, %u indels, %u ignored)",snp_c,indel_c,ign_c);
+}
+
 void CompactPrefixTable::CreateTable(uint const length) {
 	for (int i = 0; i < m_UnitCount; ++i) {
 		CurrentUnit = &m_Units[i];
@@ -348,6 +466,7 @@ void CompactPrefixTable::CreateTable(uint const length) {
 		Log.Message("\tSize of RefTable is %ld", (ulong)CurrentUnit->cRefTableLen * (ulong)sizeof(Location));
 
 		Generate();
+
 		Log.Message("\tOverall time for creating RefTable: %.2fs", gtmr.ET());
 
 		kmerCountMinLocation += c_tableLocMax;
