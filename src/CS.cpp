@@ -118,21 +118,16 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, 
 
 
 void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const freq) {
-	uint hpoc = c_SrchTableLen;
-	uint l = (uint) c_SrchTableLen;
 	bool newEntry = false;
 
-	/*if( m_Location > pow(2,32))
-		over++;
-	else
-		under++;
-	Log.Message("Over/Under: %f", over/under);*/
+	CSTableEntry* entry = rTable + Hash(m_Location);	
+	CSTableEntry* const maxEntry = rTable + c_SrchTableLen;
 
-	uint hpo = Hash( m_Location );
-	while ((newEntry = (rTable[hpo].state & 0x7FFFFFFF) == currentState) && !(rTable[hpo].m_Location == m_Location)) {
-		++hpo;
-		if (hpo >= l)
-			hpo = 0;
+	//uint hpo = Hash( m_Location );
+	while ((newEntry = (entry->state & 0x7FFFFFFF) == currentState) && !(entry->m_Location == m_Location)) {
+		++entry;
+		if (entry >= maxEntry)
+			entry = rTable;
 		if (--hpoc == 0) {
 			throw 1;
 		}
@@ -140,21 +135,21 @@ void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const 
 
 	float score = freq;
 	if (!newEntry) {
-		rTable[hpo].m_Location = m_Location;
-		rTable[hpo].state = currentState & 0x7FFFFFFF;
+		entry->m_Location = m_Location;
+		entry->state = currentState & 0x7FFFFFFF;
 		if (reverse) {
-			rTable[hpo].fScore = 0.0f;
-			rTable[hpo].rScore = score;
+			entry->fScore = 0.0f;
+			entry->rScore = score;
 		} else {
-			rTable[hpo].fScore = score;
-			rTable[hpo].rScore = 0.0f;
+			entry->fScore = score;
+			entry->rScore = 0.0f;
 		}
 	} else {
 		//Add kmer-weight to position
 		if (reverse) {
-			score = (rTable[hpo].rScore += freq);
+			score = (entry->rScore += freq);
 		} else {
-			score = (rTable[hpo].fScore += freq);
+			score = (entry->fScore += freq);
 		}
 	}
 
@@ -166,9 +161,9 @@ void CS::AddLocationStd(uloc const m_Location, bool const reverse, double const 
 	}
 
 	//If kmer-weight larger than threshold -> add to rList.
-	if (!(rTable[hpo].state & 0x80000000) && score >= currentThresh) {
-		rTable[hpo].state |= 0x80000000;
-		rList[rListLength++] = hpo;
+	if (!(entry->state & 0x80000000) && score >= currentThresh) {
+		entry->state |= 0x80000000;
+		rList[rListLength++] = entry - rTable;
 	}
 
 }
@@ -309,7 +304,8 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 
 		m_CurrentSeq = m_CurrentBatch[i]->ReadId;
 
-		currentState = 2 * i;
+		//currentState = 2 * i;
+		currentState++;
 		rListLength = 0;
 		maxHitNumber = 0.0f;
 		currentThresh = 0.0f;
@@ -342,6 +338,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 
 		if (!fallback) {
 			try {
+				hpoc = c_SrchTableLen * 0.333f;
 				PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
 				nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
 			} catch (int overflow) {
@@ -358,15 +355,15 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 				fallback = false;
 				try {
 
-					c_SrchTableBitLen = c_SrchTableBitLenBackup + x;
-					c_BitShift = 64 - c_SrchTableBitLen;
-					c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
+					SetSearchTableBitLen( c_SrchTableBitLenBackup + x );
 
 					rListLength = 0;
-					currentState = 2 * i + 1;
+					//currentState = 2 * i + 1;
+					currentState++;
 					maxHitNumber = 0.0f;
 					currentThresh = 0.0f;
 
+					hpoc = c_SrchTableLen * 0.777f;
 					PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this, m_PrefixBaseSkip);
 					nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
 
@@ -375,9 +372,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 					x += 1;
 				}
 			}
-			c_SrchTableBitLen = c_SrchTableBitLenBackup;
-			c_BitShift = 64 - c_SrchTableBitLen;
-			c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
+			SetSearchTableBitLen( c_SrchTableBitLenBackup );
 		}
 
 		SendToBuffer(m_CurrentBatch[i], sw, out);
@@ -456,14 +451,10 @@ void CS::DoRun() {
 
 		if (!Config.Exists("search_table_length")) {
 			if (m_Overflows <= 5 && !up && c_SrchTableBitLen > 8) {
-				c_SrchTableBitLen -= 1;
-				c_BitShift = 64 - c_SrchTableBitLen;
-				c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
+				SetSearchTableBitLen( c_SrchTableBitLen - 1 );
 				Log.Debug(LOG_CS_DETAILS, "Overflow: Switching to %d bits (%d, %d)", c_SrchTableBitLen, c_BitShift, c_SrchTableLen);
 			} else if (m_Overflows > m_BatchSize * 0.01f) {
-				c_SrchTableBitLen += 1;
-				c_BitShift = 64 - c_SrchTableBitLen;
-				c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
+				SetSearchTableBitLen( c_SrchTableBitLen + 1 );
 				up = true;
 				Log.Debug(LOG_CS_DETAILS, "Overflow: Switching to %d bits (%d, %d)", c_SrchTableBitLen, c_BitShift, c_SrchTableLen);
 			}
@@ -490,10 +481,10 @@ void CS::Init() {
 
 CS::CS(bool useBuffer) :
 		m_CSThreadID((useBuffer) ? (AtomicInc(&s_ThreadCount) - 1) : -1), m_BatchSize(cBatchSize / Config.GetInt("qry_avg_len")), m_ProcessedReads(
-				0), m_WrittenReads(0), m_DiscardedReads(0), m_EnableBS(false), m_Overflows(0), m_entry(0), c_SrchTableBitLen(
-				Config.Exists("search_table_length") ? Config.GetInt("search_table_length") : 16), c_BitShift(64 - c_SrchTableBitLen), c_SrchTableLen(
-				(int) pow(2, c_SrchTableBitLen)), m_PrefixBaseSkip(0), m_Fallback((c_SrchTableLen <= 0)) // cTableLen <= 0 means always use fallback
+				0), m_WrittenReads(0), m_DiscardedReads(0), m_EnableBS(false), m_Overflows(0), m_entry(0), m_PrefixBaseSkip(0), m_Fallback(false) // cTableLen <= 0 means always use fallback
 {
+
+	SetSearchTableBitLen( Config.Exists("search_table_length") ? Config.GetInt("search_table_length") : 16 );
 
 	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 

@@ -83,6 +83,8 @@ protected:
 	float currentThresh;
 	float maxHitNumber;
 
+	uint hpoc;
+
 	inline uint Hash(uloc n) {
 		//Multiplication Method (Corment)
 		//static float A = 0.5f * (sqrt(5) - 1);
@@ -91,6 +93,13 @@ protected:
 		static uloc m = 11400714819323199488u;
 
 		return uint((n * m) >> c_BitShift);
+	}
+
+	inline void SetSearchTableBitLen(int bitLen)
+	{
+		c_SrchTableBitLen = bitLen;
+		c_BitShift = 64 - c_SrchTableBitLen;
+		c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
 	}
 
 private:
