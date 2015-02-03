@@ -266,7 +266,7 @@ struct tm GetBuildTime()
 	struct tm tm_build;
 	memset( (void*) &tm_build, 0, sizeof(tm_build) );
 
-	string build_stamp( "Mar  4 2014" ); //Apr  4 2014
+	string build_stamp( __DATE__ ); //Apr  4 2014
 
 
 	vector<string> parts;

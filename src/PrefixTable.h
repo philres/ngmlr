@@ -150,7 +150,7 @@ private:
 	void SaveToRefTable(ulong prefix, Location loc);
 	void Clear();
 	void saveToFile(const char* fileName, const uint refIndexSize);
-	void readFromFile(const char* fileName);
+	bool readFromFile(const char* fileName);
 
 	void test();
 };

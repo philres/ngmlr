@@ -493,6 +493,7 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		//Others
 		Default("no_progress", 0);
 		Default("pe_delimiter", "/");
+		Default("update_check", 0);
 
 		Default(ARGOS_MINSCORE, 0);
 

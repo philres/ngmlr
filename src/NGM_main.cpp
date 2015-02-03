@@ -163,7 +163,7 @@ int main(int argc, char * argv[]) {
 		}
 	}
 
-	if( ! Config.Exists("update-check") )
+	if( ! Config.GetInt("update_check") )
 		UpdateCheckInterface::reminder();
 
 	CS::Cleanup();
@@ -320,6 +320,7 @@ Advanced settings:\n\
  --no-progress                 Don't print progress info while mapping\n\
                                (default: off)\n\
 Other:\n\
+\n\
  --update-check                Perform an online check for a newer version of NGM\
 \n\
 \n";

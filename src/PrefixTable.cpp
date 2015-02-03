@@ -19,6 +19,7 @@
 extern int lastSeqTotal;
 
 static uint const refTabCookie = 0x1701E;
+static uint const refTabEndCookie = 0xC0FFEE;
 
 uloc CompactPrefixTable::c_tableLocMax = 4294967296 - 1;
 
@@ -114,7 +115,7 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 	char * cacheFile = new char[refFileName.str().size() + 1];
 	strcpy(cacheFile, refFileName.str().c_str());
 
-	if (!FileExists(cacheFile)) {
+	if (!readFromFile(cacheFile)) {
 		kmerCountMinLocation = 0;
 		kmerCountMaxLocation = c_tableLocMax;
 
@@ -135,8 +136,6 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		CreateTable(indexLength);
 
 		saveToFile(cacheFile, indexLength);
-	} else {
-		readFromFile(cacheFile);
 	}
 
 //	test();
@@ -678,6 +677,8 @@ void CompactPrefixTable::saveToFile(char const * fileName, uint const refIndexSi
 				fwrite(&curr.Offset, sizeof(uloc), 1, fp);
 			}
 
+			uint signature = refTabCookie+m_PrefixLength+m_RefSkip+m_UnitCount+refIndexSize;
+			fwrite(&signature, sizeof(uint), 1, fp);
 			fclose(fp);
 		} else {
 			Log.Error("Error while opening file %s for writing.", fileName);
@@ -689,7 +690,10 @@ void CompactPrefixTable::saveToFile(char const * fileName, uint const refIndexSi
 	}
 }
 
-void CompactPrefixTable::readFromFile(char const * fileName) {
+bool CompactPrefixTable::readFromFile(char const * fileName) {
+	if(!FileExists(fileName))
+		return false;
+
 	Log.Message("Reading RefTable from %s", fileName);
 	Timer wtmr;
 	wtmr.ST();
@@ -699,12 +703,14 @@ void CompactPrefixTable::readFromFile(char const * fileName) {
 	uint prefixBasecount = 0;
 	uint refskip = 0;
 	uint cookie = 0;
+	uint endCookie=0;
 	FILE *fp;
 	fp = fopen(fileName, "rb");
 	if (!fp) {
 		Log.Error("Couldn't open file %s for reading.", fileName);
 		Fatal();
 	}
+
 	read = fread(&cookie, sizeof(uint), 1, fp);
 	read = fread(&prefixBasecount, sizeof(uint), 1, fp);
 	read = fread(&refskip, sizeof(uint), 1, fp);
@@ -717,6 +723,17 @@ void CompactPrefixTable::readFromFile(char const * fileName) {
 
 	read = fread(&m_UnitCount, sizeof(uint), 1, fp );
 	read = fread(&refIndexSize, sizeof(uint), 1, fp);
+
+	uint readSignature=0;
+	uint signature=cookie+prefixBasecount+refskip+m_UnitCount+refIndexSize;
+
+	//Check signature at end of file
+	uloc pos = ftell(fp);
+	fseek(fp,-sizeof(uint),SEEK_END);
+	read = fread(&readSignature, sizeof(uint), 1, fp);
+	fseek(fp,pos,SEEK_SET);
+	if(readSignature != signature)
+		return false;
 
 	m_Units = new TableUnit[ m_UnitCount ];
 
@@ -734,4 +751,5 @@ void CompactPrefixTable::readFromFile(char const * fileName) {
 
 	fclose(fp);
 	Log.Message("Reading from disk took %.2fs", wtmr.ET());
+	return true;
 }
