@@ -375,12 +375,14 @@ void CompactPrefixTable::BuildSNPTable()
 		int region_extension = (snp.ref.size()+snp.alt.size()) - 2;
 		int region_len = 2 * (m_PrefixLength + region_extension);
 
-		char buffer_tmp[region_len+1];
+		char* buffer_tmp = new char[region_len+1];
 		memset(buffer_tmp,0,sizeof(buffer_tmp));
 		SequenceProvider.DecodeRefSequence(buffer_tmp,0, snp.pos - region_len / 2, region_len);
 		buffer_tmp[region_len] = 0;
 
 		std::string buffer = buffer_tmp;
+		delete[] buffer_tmp;
+
 		int buffer_snp_pos = region_len / 2 - 1;
 
 		if( snp.ref.size() == 1 && snp.alt.size() == 1 )
@@ -425,9 +427,6 @@ void CompactPrefixTable::BuildSNPTable()
 			{
 				new_buffer.push_back(buffer[i]);
 			}
-
-			//Log.Message("%s -> %s",buffer.c_str(),new_buffer.c_str());
-
 
 			indel_c ++;
 			buffer = new_buffer;
