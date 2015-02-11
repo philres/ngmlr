@@ -43,7 +43,7 @@ using std::string;
 #define OUT_OF_DATE         "OUT_OF_DATE"
 
 #define UPDATE_HOST_DEFAULT "www.cibiv.at"
-#define UPDATE_PATH_DEFAULT "/~moritz/ngmversion.php"
+#define UPDATE_PATH_DEFAULT "/software/ngm/version.php"
 
 #define UPDATE_REMIND_AFTER_MONTHS 6
 
