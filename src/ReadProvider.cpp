@@ -341,7 +341,6 @@ uint ReadProvider::init() {
 		parser2 = DetermineParser(fileName2, maxLen);
 	}
 
-	exit(0);
 	return 0;
 }
 
