@@ -193,6 +193,10 @@ Input:\n\
                                (default: 0)\n\
  -X/--max-insert-size          The max insert size for paired end alignments\n\
                                (default: 1000)\n\
+ --max-read-length <int>       Length of longest read in input.\n\
+                               (default: estimated from data)\n\
+ --force-rlength-check         Forces NextgenMap to run through all reads to\n\
+                               find the max. read length. (default: off)\n\
 \n\
 Output:\n\
 \n\

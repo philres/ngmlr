@@ -88,6 +88,8 @@ static const struct option long_options[] =
 		{ "argos",   	  		        no_argument,       0, 0 },
 		{ "argos-min-score",			required_argument, 0, 0 },
 		{ "gz",   	  		            no_argument,       0, 0 },
+		{ "max-read-length",            required_argument, 0, 0 },
+		{ "force-rlength-check",        no_argument,       0, 0 },
 	0 };
 
 #endif /* OPTIONS_H_ */

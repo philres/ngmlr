@@ -227,7 +227,16 @@ uint ReadProvider::init() {
 						if ((maxLen - minLen) < 10 && !Config.Exists(ARGOS)) {
 							finish = true;
 						} else {
-							Log.Warning("Reads don't have the same length. Determining max. read length now.");
+							if (Config.GetInt(RLENGTH_CHECK)) {
+								Log.Warning("Input reads don't have the same length!");
+								Log.Warning("Parameter 'force-rlength-check' found. Determining max. read length now. This might take some time!");
+							} else {
+								Log.Warning("Input reads don't have the same length!");
+								Log.Warning("Maximum read length found in the first %d reads is %d. For longer reads only the first %d will be mapped.", estimateSize, maxLen, (int) (maxLen * 1.1f));
+								maxLen = maxLen * 1.1f;
+								Log.Warning("The maximum read length can be overwritten with the '--max-read-length' parameter. With '--force-rlength-check', NextGenMap will run through all reads to find the max. read length. This might take some time.");
+								finish = true;
+							}
 						}
 					}
 				}
@@ -246,6 +255,10 @@ uint ReadProvider::init() {
 			Log.Error("No reads found in input file.");
 			Fatal();
 		}
+		if(Config.GetInt(MAX_READ_LENGTH) > 0) {
+			Log.Warning("Max. read length overwritten bei user: %d", Config.GetInt(MAX_READ_LENGTH));
+			maxLen = Config.GetInt(MAX_READ_LENGTH);
+		}
 		maxLen = (maxLen | 1) + 1;
 		int avgLen = sumLen / readCount;
 
@@ -253,6 +266,9 @@ uint ReadProvider::init() {
 			Log.Warning("Max. supported read length is 1000bp. All reads longer than 1000bp will be hard clipped in the output.");
 			maxLen = maxReadLength;
 		}
+
+
+
 		((_Config*) _config)->Override("qry_max_len", (int) maxLen);
 		((_Config*) _config)->Override("qry_avg_len", (int) avgLen);
 
@@ -325,6 +341,7 @@ uint ReadProvider::init() {
 		parser2 = DetermineParser(fileName2, maxLen);
 	}
 
+	exit(0);
 	return 0;
 }
 

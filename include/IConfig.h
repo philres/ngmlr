@@ -39,6 +39,9 @@ static char const * const ARGOS = "argos";
 static char const * const ARGOS_MINSCORE = "argos_min_score";
 static char const * const GZ = "gz";
 
+static char const * const MAX_READ_LENGTH = "max_read_length";
+static char const * const RLENGTH_CHECK = "force_rlength_check";
+
 #ifdef DEBUGLOG
 static char const * const LOG = "log";
 static char const * const LOG_LVL = "log_lvl";
