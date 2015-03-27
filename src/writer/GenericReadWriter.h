@@ -138,7 +138,10 @@ public:
 			//TODO: fix paired end!!! MULTI MAP!
 
 			static float const minIdentity = Config.GetFloat("min_identity", 0.0f, 1.0f);
-			static float minResidues = Config.GetFloat("min_residues", 0, 1000);
+			static float const minResiduesConfig = Config.GetFloat("min_residues", 0, 1000);
+			float minResidues = minResiduesConfig;
+			static int const min_mq = Config.GetInt(MIN_MQ);
+
 
 			float minResidues1 = 0.0f;
 			float minResidues2 = 0.0f;
@@ -150,9 +153,9 @@ public:
 				minResidues1 = minResidues2 = minResidues;
 			}
 
-			bool mapped1 = read1->hasCandidates() && (read1->Alignments[scoreId1].Identity >= minIdentity)
+			bool mapped1 = read1->hasCandidates() && read1->mappingQlty >= min_mq && (read1->Alignments[scoreId1].Identity >= minIdentity)
 			&& ((float)(read1->length - read1->Alignments[scoreId1].QStart - read1->Alignments[scoreId1].QEnd) >= minResidues1);
-			bool mapped2 = read2->hasCandidates() && (read2->Alignments[scoreId2].Identity >= minIdentity)
+			bool mapped2 = read2->hasCandidates() && read2->mappingQlty >= min_mq && (read2->Alignments[scoreId2].Identity >= minIdentity)
 			&& ((float)(read2->length - read2->Alignments[scoreId2].QStart - read2->Alignments[scoreId2].QEnd) >= minResidues2);
 
 			if (!mapped1) {
