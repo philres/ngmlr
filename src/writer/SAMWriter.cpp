@@ -214,16 +214,18 @@ void SAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 		if (!read1->HasFlag(NGMNames::PairedFail)) {
 			//TODO: Check if correct!
 			int distance = 0;
+
+
 			flags1 |= 0x2;
 			flags2 |= 0x2;
 			if (!read1->Scores[scoreId1].Location.isReverse()) {
-				distance = ( read2->Scores[scoreId2].Location.m_Location + read2->length ) - read1->Scores[scoreId1].Location.m_Location;
+				distance = ( read2->Scores[scoreId2].Location.m_Location + read2->length - read2->Alignments[scoreId2].QStart - read2->Alignments[scoreId2].QEnd) - read1->Scores[scoreId1].Location.m_Location;
 				DoWriteReadGeneric(read2, scoreId2, "=", read1->Scores[scoreId1].Location.m_Location, distance * -1, read2->mappingQlty,
 						flags2);
 				DoWriteReadGeneric(read1, scoreId1, "=", read2->Scores[scoreId2].Location.m_Location, distance, read1->mappingQlty,
 						flags1 | 0x20);
 			} else if (!read2->Scores[scoreId2].Location.isReverse()) {
-				distance = ( read1->Scores[scoreId1].Location.m_Location + read1->length) - read2->Scores[scoreId2].Location.m_Location;
+				distance = ( read1->Scores[scoreId1].Location.m_Location + read1->length - read1->Alignments[scoreId1].QStart - read1->Alignments[scoreId1].QEnd) - read2->Scores[scoreId2].Location.m_Location;
 
 				DoWriteReadGeneric(read2, scoreId2, "=", read1->Scores[scoreId1].Location.m_Location, distance, read2->mappingQlty,
 						flags2 | 0x20);
