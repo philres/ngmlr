@@ -42,6 +42,8 @@ static char const * const GZ = "gz";
 static char const * const MAX_READ_LENGTH = "max_read_length";
 static char const * const RLENGTH_CHECK = "force_rlength_check";
 
+static char const * const BIN_SIZE = "bin_size";
+
 #ifdef DEBUGLOG
 static char const * const LOG = "log";
 static char const * const LOG_LVL = "log_lvl";

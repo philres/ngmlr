@@ -265,7 +265,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 		uloc size = getSize(Config.GetString("ref"));
 		refFileLen = size;
 
-		static const uloc REF_LEN_MAX = ULLONG_MAX * 16; //uint64 used everywhere but in CS rTable, there GetBin division increases range
+		static const uloc REF_LEN_MAX = ULLONG_MAX * pow(2.0, Config.GetInt(BIN_SIZE)); //uint64 used everywhere but in CS rTable, there GetBin division increases range
 
 		Log.Message("Size of reference genome %llu (%llu)", size, REF_LEN_MAX);
 
