@@ -3,45 +3,9 @@
 
 #include "Types.h"
 
-struct CSThreadStats
-{
-	uint Status;
-	uint CurrentRead;
-	uint MappedReads;
-	uint UnmappedReads;
-	uint FinishedBatches;
-	uint TotalCandidates;
-
-	float TotalTime;
-};
-
 struct NGMStats
 {
-	static const int cMaxThreadStats = 32;
-
-	int Cookie;
-
-	int CurrentPartition;
-	int TotalPartitions;
-
-	int CSStage;
 	int TotalSeqs;
-	int TotalBases;
-	int CurrentSeq;
-	int CurrentSeqBases;
-	//int CurrentBase;
-	//int CurrentTotal;
-	int UniquePrefixCount;
-	int RefEntryCount;
-
-	int CachePageWriteCur;
-	int CachePageWriteMax;
-
-	int Buffer1;
-	int Buffer2;
-
-	int CSThreads;
-	int SWThreads;
 
 	float csTime;
 	float scoreTime;
@@ -54,12 +18,25 @@ struct NGMStats
 	float validPairs;
 	float insertSize;
 
-	CSThreadStats CS[cMaxThreadStats];
+public:
+	NGMStats() {
+		TotalSeqs = 0;
+		csTime = 0.0f;
+		scoreTime = 0.0f;
+		alignTime = 0.0f;
+		readsPerSecond = 0;
+		csLength = 0;
+		csOverflows = 0;
+		avgnCRMS = 0;
 
-	static NGMStats * InitStats(char const * const AppName);
-private:
-	NGMStats();
-	~NGMStats();
+		validPairs = 0.0f;
+		insertSize = 0.0f;
+	}
+
+	~NGMStats() {
+
+	}
+
 };
 
 #endif

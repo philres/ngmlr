@@ -116,6 +116,7 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 	strcpy(cacheFile, refFileName.str().c_str());
 
 	if (!readFromFile(cacheFile)) {
+		Log.Message("Building reference table");
 		kmerCountMinLocation = 0;
 		kmerCountMaxLocation = c_tableLocMax;
 
@@ -731,8 +732,10 @@ bool CompactPrefixTable::readFromFile(char const * fileName) {
 	fseek(fp,-sizeof(uint),SEEK_END);
 	read = fread(&readSignature, sizeof(uint), 1, fp);
 	fseek(fp,pos,SEEK_SET);
-	if(readSignature != signature)
+	if(readSignature != signature) {
+		Log.Warning("Reference table corrupted, rebuilding...");
 		return false;
+	}
 
 	m_Units = new TableUnit[ m_UnitCount ];
 

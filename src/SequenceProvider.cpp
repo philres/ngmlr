@@ -241,7 +241,7 @@ uloc getSize(char const * const file) {
 
 void _SequenceProvider::Init(bool dualstrand) {
 	DualStrand = dualstrand;
-	Log.Message("Init sequence provider.");
+	Log.Verbose("Init sequence provider.");
 	if (!Config.Exists("ref")) {
 		Log.Error("No reference file specified.");
 		Fatal();

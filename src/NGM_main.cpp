@@ -138,7 +138,7 @@ int main(int argc, char * argv[]) {
 			Log.Message("No qry file specified. If you want to map single-end data use -q/--qry. If you want to map paired-end data, either use -q/--qry and -p or --qry1 and --qry2.");
 		} else {
 			try {
-				Log.Message("Core initialization complete");
+				Log.Verbose("Core initialization complete");
 				NGM.StartThreads();
 
 				NGM.MainLoop();

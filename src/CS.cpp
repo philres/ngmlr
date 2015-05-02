@@ -330,9 +330,6 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 		++m_ProcessedReads;
 		bool fallback = m_Fallback;
 
-		if (m_CSThreadID < NGMStats::cMaxThreadStats)
-			NGM.Stats->CS[m_CSThreadID].CurrentRead = m_CurrentSeq;
-
 		char const * const qrySeq = m_CurrentBatch[i]->Seq;
 		uloc qryLen = m_CurrentBatch[i]->length;
 

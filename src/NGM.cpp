@@ -48,7 +48,7 @@ _NGM & _NGM::Instance() {
 }
 
 _NGM::_NGM() :
-		Stats(NGMStats::InitStats(AppName)), m_ActiveThreads(0), m_NextThread(0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(
+		Stats(new NGMStats()), m_ActiveThreads(0), m_NextThread(0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(
 		Config.GetInt("paired") != 0 || (Config.Exists("qry1") && Config.Exists("qry2"))),
 #ifdef _BAM
 				m_OutputFormat(Config.GetInt("format", 0, 2)),
@@ -79,7 +79,7 @@ _NGM::_NGM() :
 		m_Output = new FileWriterBam(output_name);
 	}
 
-	Log.Message("NGM Core initialization");
+	Log.Verbose("NGM Core initialization");
 	NGMInitMutex(&m_Mutex);
 	NGMInitMutex(&m_OutputMutex);
 	NGMInitMutex(&m_UMRMutex);

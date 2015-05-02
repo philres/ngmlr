@@ -29,7 +29,6 @@ add_executable(ngm-core
 					NGM_main.cpp
 					NGM.cpp
 					UpdateCheck.cpp
-					core/NGMStats.cpp
 					core/NGMTask.cpp
 					AlignmentBuffer.cpp
 					PrefixTable.cpp														
@@ -71,7 +70,6 @@ add_executable(ngm-core-debug
 					NGM_main.cpp
 					NGM.cpp
 					UpdateCheck.cpp
-					core/NGMStats.cpp
 					core/NGMTask.cpp
 					AlignmentBuffer.cpp
 					PrefixTable.cpp														
