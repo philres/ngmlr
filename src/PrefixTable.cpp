@@ -110,7 +110,7 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 	uint indexLength = (int) pow(4.0, (double) m_PrefixLength) + 1;
 
 	std::stringstream refFileName;
-	refFileName << std::string(Config.GetString("ref")) << "-ht-" << m_PrefixLength << "-" << m_RefSkip << ".ngm";
+	refFileName << std::string(Config.GetString("ref")) << "-ht-" << m_PrefixLength << "-" << m_RefSkip << ".2.ngm";
 
 	char * cacheFile = new char[refFileName.str().size() + 1];
 	strcpy(cacheFile, refFileName.str().c_str());

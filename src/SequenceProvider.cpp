@@ -253,7 +253,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 
 	CheckFile(refBaseFileName = Config.GetString("ref"), "RefBase");
 
-	refFileName = Config.GetString("ref") + std::string("-enc.ngm");
+	refFileName = Config.GetString("ref") + std::string("-enc.2.ngm");
 
 	if (FileExists(refFileName.c_str())) {
 		//Read
