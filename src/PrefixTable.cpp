@@ -315,7 +315,7 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 	Timer t;
 	t.ST();
 
-	CurrentUnit->RefTableIndex = new Index[length];
+	CurrentUnit->RefTableIndex = new Index[length + 1];
 
 	uint next = 0;
 	int ignoredPrefixes = 0;
@@ -741,7 +741,7 @@ bool CompactPrefixTable::readFromFile(char const * fileName) {
 		TableUnit& curr = m_Units[ i ];
 
 		read = fread(&curr.cRefTableLen, sizeof(uint), 1, fp);
-		curr.RefTableIndex = new Index[refIndexSize];
+		curr.RefTableIndex = new Index[refIndexSize + 1];
 		read = fread(curr.RefTableIndex, sizeof(Index), refIndexSize, fp);
 		curr.RefTable = new Location[curr.cRefTableLen + 1];
 		read = fread(curr.RefTable, sizeof(Location), curr.cRefTableLen, fp);

@@ -244,7 +244,6 @@ cl_context OclHost::partitionDevice(cl_platform_id platform,
 }
 
 cl_platform_id OclHost::getPlatform() {
-	//Get the first platform
 	cl_platform_id cpPlatform;
 #ifdef __APPLE__
 	cpPlatform = getPlatformID("APPLE");
@@ -253,6 +252,7 @@ cl_platform_id OclHost::getPlatform() {
 		exit(1);
 	}
 #else
+	//Get the first platform
 	if (isGPU()) {
 		cpPlatform = getPlatformID("NVIDIA");
 		platform = NVIDIA;
@@ -388,8 +388,11 @@ cl_program OclHost::setUpProgram(char const * const oclSwScore,
 	if (ciErrNum == CL_SUCCESS) {
 
 		// build the program
+		Log.Verbose("Build Options: %s", buildOptions.c_str());
 		ciErrNum = clBuildProgram(cpProgram, 0, NULL, buildOptions.c_str(),
 				NULL, NULL);
+		if (ciErrNum != CL_SUCCESS)
+				Log.Error("Build failed: %s", print_cl_errstring(ciErrNum));
 
 		//checkClError("Unable to build program (clBuildProgram).", ciErrNum);
 		//clUnloadCompiler();
@@ -403,8 +406,8 @@ cl_program OclHost::setUpProgram(char const * const oclSwScore,
 		clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_STATUS,
 				sizeof(status), &status, NULL);
 
-		if (status != CL_SUCCESS) {
-			Log.Message("Build status: %s", print_cl_errstring(status));
+		if (status != CL_BUILD_SUCCESS) {
+			Log.Message("Build status: %s", print_cl_buildstatus(status));
 			clGetProgramBuildInfo(cpProgram, oclDevice, CL_PROGRAM_BUILD_LOG,
 					sizeof(cBuildLog), cBuildLog, NULL);
 
@@ -426,6 +429,16 @@ cl_program OclHost::setUpProgram(char const * const oclSwScore,
 	}
 
 	return 0;
+}
+
+const char* OclHost::print_cl_buildstatus(cl_build_status s) {
+	switch (s) {
+		case CL_BUILD_NONE: return "build not started";
+		case CL_BUILD_ERROR: return "build failed";
+		case CL_BUILD_SUCCESS: return "build succeeded";
+		case CL_BUILD_IN_PROGRESS: return "build in progress";
+		default: return "unknown";
+	}
 }
 
 int OclHost::getThreadPerMulti() {

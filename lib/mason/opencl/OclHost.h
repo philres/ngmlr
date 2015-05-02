@@ -32,6 +32,7 @@ class OclHost {
 		void initOpenCL(unsigned int gpu_id);
 //		cl_device_id getDevice(unsigned int gpu_id);
 		char *print_cl_errstring(cl_int err);
+		const char *print_cl_buildstatus(cl_build_status s);
 		void checkClError(const char *msg, cl_int ciErrNum);
 		cl_program setUpProgram(const char * const oclSwScore, std::string buildOptions);
 		cl_kernel setupKernel(cl_program program, const char * const kernelName);
