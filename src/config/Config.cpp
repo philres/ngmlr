@@ -497,6 +497,10 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 
 		Default(ARGOS_MINSCORE, 0);
 
+		Default(RLENGTH_CHECK, 0);
+
+		Default(MAX_READ_LENGTH, 0);
+
 		if(Exists(ARGOS)) {
 			Default("sensitivity", 0.0f);
 			Override("cpu_threads", 1);
