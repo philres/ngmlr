@@ -232,7 +232,7 @@ uint ReadProvider::init() {
 								Log.Warning("Parameter 'force-rlength-check' found. Determining max. read length now. This might take some time!");
 							} else {
 								Log.Warning("Input reads don't have the same length!");
-								Log.Warning("Maximum read length found in the first %d reads is %d. For longer reads only the first %d will be mapped.", estimateSize, maxLen, (int) (maxLen * 1.1f));
+								Log.Warning("Maximum read length found in the first %d reads is %d. For longer reads only the first %d bp will be mapped.", estimateSize, maxLen, (int) (maxLen * 1.1f));
 								maxLen = maxLen * 1.1f;
 								Log.Warning("The maximum read length can be overwritten with the '--max-read-length' parameter. With '--force-rlength-check', NextGenMap will run through all reads to find the max. read length. This might take some time.");
 								finish = true;
