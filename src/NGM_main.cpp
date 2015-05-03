@@ -319,12 +319,15 @@ Advanced settings:\n\
                                (default: 20, affine: 3, bs-mapping: 10)\n\
  --match-bonus-tt <int>        Only for bs-mapping (default: 4)\n\
  --match-bonus-tc <int>        Only for bs-mapping (default: 4)\n\
- --color                       Colored text output (default: off)\n\
- --no-progress                 Don't print progress info while mapping\n\
-                               (default: off)\n\
+ --bin-size <n>                Sets the size of the grid NextgenMap uses\n\
+                               during CMR search to: 2^n (default: 2) \n\
+\n\
 Other:\n\
 \n\
  --update-check                Perform an online check for a newer version of NGM\
+ --color                       Colored text output (default: off)\n\
+ --no-progress                 Don't print progress info while mapping\n\
+                               (default: off)\n\
 \n\
 \n";
 	fprintf(stderr, "%s", help_msg);
