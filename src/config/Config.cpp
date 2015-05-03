@@ -508,6 +508,10 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 			Override("cpu_threads", 1);
 		}
 
+#ifdef __APPLE__
+		Default("gpu", 0);
+#endif
+
 #ifdef DEBUGLOG
 //	Default("log_lvl", "16383");
 	Default("log_lvl", "255");
