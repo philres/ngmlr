@@ -164,7 +164,7 @@ uint ReadProvider::init() {
 	if (m_EnableBS)
 		fnc = &PrefixMutateSearch;
 
-	Log.Message("Initializing ReadProvider");
+	Log.Verbose("Initializing ReadProvider");
 
 	uint readCount = 0;
 	Timer tmr;
@@ -334,7 +334,7 @@ uint ReadProvider::init() {
 			Log.Message("Sensitivity parameter set to 0.5");
 		}
 	}
-	Log.Message("Initializing took %.3fs", tmr.ET());
+	Log.Message("Estimating parameter took %.3fs", tmr.ET());
 
 	parser1 = DetermineParser(fileName1, maxLen);
 	if (fileName2 != 0) {
