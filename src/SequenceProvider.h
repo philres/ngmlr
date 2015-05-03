@@ -75,7 +75,7 @@ private:
 	static const int minRefSeqLen = 10;
 
 	void writeEncRefToFile(char const * fileName, uint const refCount, uloc const encRefSize);
-	int readEncRefFromFile(char const * fileName);
+	int readEncRefFromFile(char const * fileName, const uloc maxLen);
 
 };
 
