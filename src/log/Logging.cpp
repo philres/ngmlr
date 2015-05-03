@@ -67,7 +67,8 @@ void LogToFile(int lvl, char const * const title, char const * const s, va_list 
 		msgLog().push_back(std::string(preBuffer));
 
 	if (logToFile) {
-		gzprintf(fp, "%s\n", preBuffer);
+//		gzprintf(fp, "%s\n", preBuffer);
+		printf("%s\n", preBuffer);
 		//gzflush(fp);
 	}
 }
@@ -136,18 +137,19 @@ void _Log::Init(char const * logFile, int pLogLvl) {
 	try {
 		if (logFile != 0) {
 
-			fp = gzopen(logFile, "w");
-			if (fp != 0) {
+			//fp = gzopen(logFile, "w");
+			//if (fp != 0) {
 				for (uint i = 0; i < msgLog().size(); ++i) {
-					gzprintf(fp, "%s\n", msgLog()[i].c_str());
+					//gzprintf(fp, "%s\n", msgLog()[i].c_str());
+					printf("%s\n", msgLog()[i].c_str());
 				}
 				msgLog().clear();
 				logToFile = true;
-			} else {
+			//} else {
 				//LogToConsole(2, "LOG", "Unable to open logfile, logging to file disabled.", 0);
-				Log.Error("Unable to open logfile, logging to file disabled.");
-				logToFile = false;
-			}
+				//Log.Error("Unable to open logfile, logging to file disabled.");
+				//logToFile = false;
+			//}
 
 			preInit = false;
 

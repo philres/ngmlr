@@ -82,7 +82,7 @@ static const struct option long_options[] =
 		{ "rg-pu",      				required_argument, 0, 0 },
 		{ "rg-sm",      				required_argument, 0, 0 },
 #ifdef DEBUGLOG
-		{ "log",        				required_argument, 0, 0 },
+		{ "log",        				no_argument, 0, 0 },
 		{ "log-lvl",      				required_argument, 0, 0 },
 #endif
 		{ "argos",   	  		        no_argument,       0, 0 },

@@ -105,14 +105,13 @@ int main(int argc, char * argv[]) {
 	try {
 		_config = new _Config(argc, argv); // Parses command line & parameter file
 		_log = &Log;
-		char const * log = 0;
 
 #ifdef DEBUGLOG
 		if (Config.Exists(LOG)) {
-			log = Config.GetString(LOG);
-			Log.Message("Writing debug log to: %s (lvl %d)", log, Config.GetInt(LOG_LVL));
+			Log.Message("Writing debug log to stdout. Please use -o/--output for SAM/BAM output.");
+			//Init checks if first parameter is != 0. Thus "LOG" is passed as a dummy string.
+			_Log::Init("LOG", Config.GetInt(LOG_LVL)); // Inits logging to file
 		}
-		_Log::Init(log, Config.GetInt(LOG_LVL)); // Inits logging to file
 #else
 				_Log::Init(0, 0); // Inits logging to file
 #endif
