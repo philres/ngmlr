@@ -50,8 +50,10 @@ IF(NOT APPLE)
 endif()
 
 IF(APPLE) 
+  set(GDB "ggdb")
   set(OPENCL_LIBRARIES "-framework OpenCL")
 ELSE()
+  set(GDB "gdb")
   set(OPENCL_LIBRARIES "-lOpenCL")
 ENDIF()
 
@@ -69,3 +71,66 @@ add_subdirectory(lib/mason/opencl)
 add_subdirectory(src)
 
 add_subdirectory(utils)
+
+
+#Writing wrapper scripts for NextGenMape: ngm, ngm-debug, ngm-log
+
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ngm" "#!/bin/bash
+
+pushd . > /dev/null
+SCRIPT_PATH=\"\${BASH_SOURCE[0]}\";
+  while([ -h \"\${SCRIPT_PATH}\" ]) do 
+    cd \"`dirname \"\${SCRIPT_PATH}\"`\"
+    SCRIPT_PATH=\"$(readlink \"`basename \"\${SCRIPT_PATH}\"`\")\"; 
+  done
+cd \"`dirname \"\${SCRIPT_PATH}\"`\" > /dev/null
+SCRIPT_PATH=\"`pwd`\";
+popd  > /dev/null
+#echo \"srcipt=[\${SCRIPT_PATH}]\"
+#echo \"pwd   =[`pwd`]\"
+
+
+OPENCL_VENDOR_PATH=\"$SCRIPT_PATH/opencl/vendor\" LD_LIBRARY_PATH=\"$SCRIPT_PATH/opencl/lib\" exec $SCRIPT_PATH/ngm-core $@
+")
+
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ngm-log" "#!/bin/bash
+
+pushd . > /dev/null
+SCRIPT_PATH=\"\${BASH_SOURCE[0]}\";
+  while([ -h \"\${SCRIPT_PATH}\" ]) do 
+    cd \"`dirname \"\${SCRIPT_PATH}\"`\"
+    SCRIPT_PATH=\"$(readlink \"`basename \"\${SCRIPT_PATH}\"`\")\"; 
+  done
+cd \"`dirname \"\${SCRIPT_PATH}\"`\" > /dev/null
+SCRIPT_PATH=\"`pwd`\";
+popd  > /dev/null
+#echo \"srcipt=[\${SCRIPT_PATH}]\"
+#echo \"pwd   =[`pwd`]\"
+
+
+OPENCL_VENDOR_PATH=\"$SCRIPT_PATH/opencl/vendor\" LD_LIBRARY_PATH=\"$SCRIPT_PATH/opencl/lib\" exec $SCRIPT_PATH/ngm-core-debug $@
+")
+
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ngm-debug" "#!/bin/bash
+
+pushd . > /dev/null
+SCRIPT_PATH=\"\${BASH_SOURCE[0]}\";
+  while([ -h \"\${SCRIPT_PATH}\" ]) do 
+    cd \"`dirname \"\${SCRIPT_PATH}\"`\"
+    SCRIPT_PATH=\"$(readlink \"`basename \"\${SCRIPT_PATH}\"`\")\"; 
+  done
+cd \"`dirname \"\${SCRIPT_PATH}\"`\" > /dev/null
+SCRIPT_PATH=\"`pwd`\";
+popd  > /dev/null
+#echo \"srcipt=[\${SCRIPT_PATH}]\"
+#echo \"pwd   =[`pwd`]\"
+
+
+OPENCL_VENDOR_PATH=\"$SCRIPT_PATH/opencl/vendor\" LD_LIBRARY_PATH=\"$SCRIPT_PATH/opencl/lib\" exec ${GDB} --args $SCRIPT_PATH/ngm-core-debug $@
+")
+
+file(COPY "${CMAKE_CURRENT_BINARY_DIR}/ngm-debug" DESTINATION "${EXECUTABLE_OUTPUT_PATH}" FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ NO_SOURCE_PERMISSIONS)
+file(COPY "${CMAKE_CURRENT_BINARY_DIR}/ngm" DESTINATION "${EXECUTABLE_OUTPUT_PATH}" FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ NO_SOURCE_PERMISSIONS)
+file(COPY "${CMAKE_CURRENT_BINARY_DIR}/ngm-log" DESTINATION "${EXECUTABLE_OUTPUT_PATH}" FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ NO_SOURCE_PERMISSIONS)
+
+
