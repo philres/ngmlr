@@ -191,17 +191,24 @@ void ScoreBuffer::DoRun() {
 				}
 			} else {
 				if (++cur_read->Calculated == cur_read->numScores() && cur_read->Paired->Calculated == cur_read->Paired->numScores()) {
+#ifdef DEBUGLOG
+					debugScoresFinished(cur_read);
+					debugScoresFinished(cur_read->Paired);
+#endif
 					//all scores computed for both mates
 					if (maxTopScores == 1) {
 						if (!fastPairing) {
-							if (cur_read->Paired->hasCandidates())
-							top1PE(cur_read);
-							else
-							top1SE(cur_read);
+							if (cur_read->Paired->hasCandidates()) {
+								top1PE(cur_read);
+							}
+							else {
+								top1SE(cur_read);
+							}
 						} else {
 							top1SE(cur_read);
-							if (cur_read->Paired->hasCandidates())
-							top1SE(cur_read->Paired);
+							if (cur_read->Paired->hasCandidates()) {
+								top1SE(cur_read->Paired);
+							}
 						}
 					} else {
 						topNPE(cur_read);
@@ -454,7 +461,7 @@ bool ScoreBuffer::CheckPairs(LocationScore * ls1, int const readLength1,
 		int & insertSize, int & equalScore) {
 
 	//compute insert size
-	int currentInsertsize = 
+	int currentInsertsize =
 			(ls2->Location.m_Location > ls1->Location.m_Location) ?
 					ls2->Location.m_Location - ls1->Location.m_Location
 							+ readLength2 :
