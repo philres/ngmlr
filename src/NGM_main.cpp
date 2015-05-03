@@ -324,7 +324,7 @@ Advanced settings:\n\
 \n\
 Other:\n\
 \n\
- --update-check                Perform an online check for a newer version of NGM\
+ --update-check                Perform an online check for a newer version of NGM\n\
  --color                       Colored text output (default: off)\n\
  --no-progress                 Don't print progress info while mapping\n\
                                (default: off)\n\
