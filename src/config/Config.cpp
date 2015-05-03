@@ -525,7 +525,12 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 				Log.Warning("The parameter 'corridor' is depreciated. Please remove the 'corridor' entry from the config file and use 'max-consec-indels'.");
 			} else {
 				if (Exists("gpu") && (GetInt(MAX_C_INDELS) > 40 || GetInt(MAX_C_INDELS) < 5)) {
-					Log.Error("[CONFIG] Value %s : %d out of range [5, 40] - using default value", MAX_C_INDELS, GetInt(MAX_C_INDELS));
+					if(GetInt(MAX_C_INDELS) < 5) {
+						Log.Error("-C/--max-consec-indels must be >= 5");
+					} else {
+						Log.Error("-C/--max-consec-indels out of range. When using -g/--gpu, the Number of consecutive indels must be <= 40.");
+					}
+					Fatal();
 				} else {
 					std::stringstream ss;
 					ss << GetInt(MAX_C_INDELS) * 2;
