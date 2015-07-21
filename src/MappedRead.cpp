@@ -53,8 +53,8 @@ static inline char cpl(char c) {
 char const * MappedRead::computeReverseSeq() {
 	if (RevSeq == 0) {
 		//static int const qryMaxLen = Config.GetInt("qry_max_len");
-		RevSeq = new char[qryMaxLen];
-		memset(RevSeq, 0, qryMaxLen);
+		RevSeq = new char[length + 1];
+		memset(RevSeq, 0, length + 1);
 
 		char * fwd = Seq;
 		char * rev = RevSeq + length - 1;

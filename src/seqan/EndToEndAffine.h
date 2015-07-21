@@ -52,6 +52,10 @@ public:
 
 	virtual int BatchAlign(int const mode, int const batchSize, char const * const * const refSeqList, char const * const * const qrySeqList, Align * const results, void * extData);
 
+	virtual int SingleScore(int const mode, int const corridor, char const * const refSeq, char const * const qrySeq, float & result, void * extData);
+
+	virtual int SingleAlign(int const mode, int const corridor, char const * const refSeq, char const * const qrySeq, Align & result, void * extData);
+
 	void convertToCIGAR(TGaps gapsText, TGaps gapsPattern, Align & result, int const readLen);
 
 private:

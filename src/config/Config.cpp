@@ -26,7 +26,8 @@ extern int optind, opterr, optopt;
 
 typedef std::map<std::string, std::string> SwitchMap;
 
-const SwitchMap::value_type rawData[] = { SwitchMap::value_type("c", "config"), SwitchMap::value_type("o", "output"), };
+const SwitchMap::value_type rawData[] = { SwitchMap::value_type("c", "config"),
+		SwitchMap::value_type("o", "output"), };
 const int numElems = sizeof rawData / sizeof rawData[0];
 SwitchMap switchMap(rawData, rawData + numElems);
 
@@ -42,7 +43,8 @@ bool _Config::InternalExists(std::string name) const {
 	return config_map->count(name) == 1;
 }
 
-std::string _Config::InternalGet(std::string name, char const * * arr_data) const {
+std::string _Config::InternalGet(std::string name,
+		char const * * arr_data) const {
 	std::transform(name.begin(), name.end(), name.begin(), ::tolower);
 	if (!InternalExists(name)) {
 		Log.Warning("Tried to access unknown config value \"%s\"", name.c_str());
@@ -66,7 +68,8 @@ int replace(int i) {
 	return (i == '-') ? '_' : i;
 }
 
-void _Config::InternalAdd(std::string name, std::string value, std::string arr_data = std::string(), bool override) {
+void _Config::InternalAdd(std::string name, std::string value,
+		std::string arr_data = std::string(), bool override) {
 	std::transform(name.begin(), name.end(), name.begin(), ::tolower);
 	std::transform(name.begin(), name.end(), name.begin(), replace);
 
@@ -225,7 +228,8 @@ inline void SkipWhitespace(char const * & str) {
 		++str;
 }
 inline void SkipLine(char const * & str, bool stopForArray) {
-	while (*str != 0 && *str != '\n' && *str != '\r' && !(stopForArray && *str == '{')) {
+	while (*str != 0 && *str != '\n' && *str != '\r'
+			&& !(stopForArray && *str == '{')) {
 		++str;
 	}
 	if (*str != '{')
@@ -234,7 +238,8 @@ inline void SkipLine(char const * & str, bool stopForArray) {
 
 // Converts the stored matrix into actual numbers by the given conversion function
 // and writes them into the data array
-template<typename T> int ParseMatrix(_Config const * config, char const * const name, T * data, int len, T f(char const * const)) {
+template<typename T> int ParseMatrix(_Config const * config,
+		char const * const name, T * data, int len, T f(char const * const)) {
 	char const * matrix_str = 0;
 
 	char const * arr_size_str = config->InternalGet(name, &matrix_str).c_str();
@@ -260,7 +265,8 @@ template<typename T> int ParseMatrix(_Config const * config, char const * const 
 	return i;
 }
 
-int _Config::GetIntArray(char const * const name, int * pData, int const len) const {
+int _Config::GetIntArray(char const * const name, int * pData,
+		int const len) const {
 	return ParseMatrix<int>(this, name, pData, len, atoi);
 }
 
@@ -269,11 +275,13 @@ float _atof(char const * const str) {
 	return (float) atof(str);
 }
 
-int _Config::GetFloatArray(char const * const name, float * pData, int const len) const {
+int _Config::GetFloatArray(char const * const name, float * pData,
+		int const len) const {
 	return ParseMatrix<float>(this, name, pData, len, _atof);
 }
 
-int _Config::GetDoubleArray(char const * const name, double * pData, int len) const {
+int _Config::GetDoubleArray(char const * const name, double * pData,
+		int len) const {
 	return ParseMatrix<double>(this, name, pData, len, atof);
 }
 
@@ -381,7 +389,7 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("cpu_threads", 1);
 
 		Default("kmer", 13);
-		if(Exists(ARGOS)) {
+		if (Exists(ARGOS)) {
 			Default("kmer_min", 2);
 		} else {
 			Default("kmer_min", 0);
@@ -431,11 +439,16 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 
 		if (GetInt("bs_mapping") != 1) {
 			if (GetInt("affine")) {
-				Default(MATCH_BONUS, 10);
-				Default(MISMATCH_PENALTY, 15);
-				Default(GAP_READ_PENALTY, 33);
-				Default(GAP_REF_PENALTY, 33);
-				Default(GAP_EXTEND_PENALTY, 3);
+//				Default(MATCH_BONUS, 10);
+//				Default(MISMATCH_PENALTY, 15);
+//				Default(GAP_READ_PENALTY, 33);
+//				Default(GAP_REF_PENALTY, 33);
+//				Default(GAP_EXTEND_PENALTY, 3);
+				Default(MATCH_BONUS, 1);
+				Default(MISMATCH_PENALTY, 4);
+				Default(GAP_READ_PENALTY, 2);
+				Default(GAP_REF_PENALTY, 2);
+				Default(GAP_EXTEND_PENALTY, 1);
 			} else {
 				Default(MATCH_BONUS, 10);
 				Default(MISMATCH_PENALTY, 15);
@@ -503,19 +516,19 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 
 		Default(BIN_SIZE, 3);
 
-		if(Exists(ARGOS)) {
+		if (Exists(ARGOS)) {
 			Default("sensitivity", 0.0f);
 			Override("cpu_threads", 1);
 		}
 
-#ifdef __APPLE__
-		Default("gpu", 0);
-#endif
+//#ifdef __APPLE__
+//		Default("gpu", 0);
+//#endif
 
 #ifdef DEBUGLOG
 //	Default("log_lvl", "16383");
-	Default("log_lvl", "255");
-	//Default(LOG_LVL, "0");
+		Default("log_lvl", "255");
+		//Default(LOG_LVL, "0");
 #endif
 
 		initialized = true;
@@ -547,7 +560,8 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 
 		//Add full command line for CIGARWriter
 		std::stringstream cmdLine;
-		for (TConfigMap::iterator it = config_map->begin(); it != config_map->end(); ++it) {
+		for (TConfigMap::iterator it = config_map->begin();
+				it != config_map->end(); ++it) {
 			cmdLine << " --" << it->first + " " << it->second;
 			if (config_arrays->count(it->first) != 0) {
 				cmdLine << " {" << (*config_arrays)[it->first];
@@ -578,7 +592,8 @@ void _Config::ParseArguments(int argc, char * argv[]) {
 	while (1) {
 		int index = -1;
 		struct option * opt = 0;
-		int result = getopt_long(argc, argv, getopt_short, long_options, &index);
+		int result = getopt_long(argc, argv, getopt_short, long_options,
+				&index);
 		if (result == '?') {
 //			Log.Message("Unkown parameter %c", optopt);
 			showHelp();

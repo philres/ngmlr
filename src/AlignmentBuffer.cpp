@@ -96,8 +96,15 @@ void AlignmentBuffer::DoRun() {
 			}
 
 			//decode reference sequence
-			SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), 0,
-					cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), refMaxLen);
+			if (!SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), 0,
+							cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor)) {
+				Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
+				//Log.Warning("Read sequence: %s", cur_read->Seq);
+				memset(const_cast<char *>(refBuffer[i]), 'N', refMaxLen);
+			}
+//			//decode reference sequence
+//			SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), 0,
+//					cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), refMaxLen);
 
 			//initialize arrays for CIGAR and MD string
 			static int const qryMaxLen = Config.GetInt("qry_max_len");
@@ -105,6 +112,8 @@ void AlignmentBuffer::DoRun() {
 			alignBuffer[i].pBuffer2 = new char[std::max(1, qryMaxLen) * 4];
 			*(int*) alignBuffer[i].pBuffer1 = 0x212121;
 			*(int*) alignBuffer[i].pBuffer2 = 0x212121;
+
+			Log.Message("Ref:  %s\nRead: %s", refBuffer[i], qryBuffer[i]);
 
 		}
 
@@ -146,7 +155,7 @@ void AlignmentBuffer::DoRun() {
 
 void AlignmentBuffer::SaveRead(MappedRead * read, bool mapped) {
 	//if (!argos) {
-		WriteRead(read, mapped);
+	WriteRead(read, mapped);
 //	} else {
 //		if (mapped) {
 //			//Convert mapping position to RefId and position
@@ -179,14 +188,21 @@ void AlignmentBuffer::WriteRead(MappedRead* read, bool mapped) {
 					LocationScore * ls2 = &read->Paired->Scores[0];
 					int distance =
 							(ls2->Location.m_Location > ls1->Location.m_Location) ?
-									ls2->Location.m_Location - ls1->Location.m_Location + read->length :
-									ls1->Location.m_Location - ls2->Location.m_Location + read->Paired->length;
+									ls2->Location.m_Location
+											- ls1->Location.m_Location
+											+ read->length :
+									ls1->Location.m_Location
+											- ls2->Location.m_Location
+											+ read->Paired->length;
 
 					//int distance = abs(read->TLS()->Location.m_Location - read->Paired->TLS()->Location.m_Location);
 
 					pairInsertCount += 1;
-					if (ls1->Location.getrefId() != ls2->Location.getrefId() || distance < _NGM::sPairMinDistance
-							|| distance > _NGM::sPairMaxDistance || ls1->Location.isReverse() == ls2->Location.isReverse()) {
+					if (ls1->Location.getrefId() != ls2->Location.getrefId()
+							|| distance < _NGM::sPairMinDistance
+							|| distance > _NGM::sPairMaxDistance
+							|| ls1->Location.isReverse()
+									== ls2->Location.isReverse()) {
 						//						Log.Message("%d != %d || %d < _%d || %d > %d || %d == %d", ls1->Location.getrefId() , ls2->Location.getrefId(), distance, _NGM::sPairMinDistance, distance, _NGM::sPairMaxDistance, ls1->Location.isReverse(), ls2->Location.isReverse());
 						read->SetFlag(NGMNames::PairedFail);
 						read->Paired->SetFlag(NGMNames::PairedFail);

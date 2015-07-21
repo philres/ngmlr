@@ -108,12 +108,13 @@ void ScoreBuffer::DoRun() {
 
 			//decode reference sequence
 			if (!SequenceProvider.DecodeRefSequence(const_cast<char *>(m_RefBuffer[i]), 0,
-							loc.m_Location - (corridor >> 1), refMaxLen)) {
-				Log.Warning("Could not decode reference for alignment (read: %s)", cur_read->name);
-				Log.Warning("Read sequence: %s", cur_read->Seq);
+							loc.m_Location - (corridor >> 1), cur_read->length + corridor)) {
+				Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", loc.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
+				//Log.Warning("Read sequence: %s", cur_read->Seq);
 				memset(const_cast<char *>(m_RefBuffer[i]), 'N', refMaxLen);
 			}
 
+			//Log.Message("Ref: %s\nSeq: %s\n", m_RefBuffer[i], m_QryBuffer[i]);
 			m_ScoreBuffer[i] = -1;
 
 		}

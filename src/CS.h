@@ -10,6 +10,7 @@
 #include <map>
 #include <stdlib.h>
 #include <string>
+#include <vector>
 
 #include <cmath>
 
@@ -60,18 +61,29 @@ protected:
 	int c_SrchTableLen;
 	uint m_PrefixBaseSkip;
 	bool m_Fallback;
-	typedef void (*PrefixIterationFn)(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
-	typedef void (CS::*AddLocationFn)(const SequenceLocation& loc, const double freq);
+	typedef void (*PrefixIterationFn)(ulong prefix, uloc pos, ulong mutateFrom,
+			ulong mutateTo, void* data);
+	typedef void (CS::*AddLocationFn)(const SequenceLocation& loc,
+			const double freq);
 	static void BuildPrefixTable(ulong prefix, uloc pos, void* data);
-	static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
+	static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom,
+			ulong mutateTo, void* data);
 
-	static void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos = 0);
+	static void AddLocationRead(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
+			void* data);
+
+	static void BuildReducedRef(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
+			void* data);
+
+	static void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom,
+			ulong mutateTo, void* data, int mpos = 0);
 	virtual int CollectResultsStd(MappedRead* read);
 	int CollectResultsFallback(MappedRead* read);
 	void FilterScore(LocationScore* score);
 	void CheckFallback();
 	virtual int RunBatch(ScoreBuffer * sw, AlignmentBuffer * out);
-	void SendToBuffer(MappedRead* read, ScoreBuffer * sw, AlignmentBuffer * out);
+	void SendToBuffer(MappedRead* read, ScoreBuffer * sw,
+			AlignmentBuffer * out);
 
 	void AllocRefEntryChain();
 
@@ -82,6 +94,7 @@ protected:
 	float m_CsSensitivity;
 	float currentThresh;
 	float maxHitNumber;
+	int reducedBinSize;
 
 	uint hpoc;
 
@@ -95,24 +108,55 @@ protected:
 		return uint((n * m) >> c_BitShift);
 	}
 
-	inline void SetSearchTableBitLen(int bitLen)
-	{
+	inline void SetSearchTableBitLen(int bitLen) {
 		c_SrchTableBitLen = bitLen;
 		c_BitShift = 64 - c_SrchTableBitLen;
 		c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);
 	}
 
 private:
+
 	static const int estimateCount = 40000;
 	void debugCS(MappedRead * read, int& n, float& mi_Threshhold);
+	Align computeAlignment(MappedRead* read, int const scoreId,
+			int const corridor);
+
+	float scoreReadPart(char const * const readSeq, int const qryLen, int const bin,
+			long const refBin);
 
 	LocationScore * tmp;
 	int tmpSize;
+	IAlignment * oclAligner;
+	AlignmentBuffer * alignmentBuffer;
+
+	struct AvgPos {
+		int count;
+		long sum;
+	};
+
+	struct ReadBin {
+		int n;
+		int max;
+		long sum;
+//		uloc * slots;
+		std::map<long, AvgPos> iTable;
+	};
+
+	ReadBin * readBins;
+
+	struct RefTabEntry {
+		int * positions;
+		int n;
+	};
+
+	RefTabEntry * reducedRefTab ;
+	uloc currentReducedRefOffset;
 
 public:
 
 	//AddLocationFn AddLocation;
-	virtual void AddLocationStd(const uloc loc, const bool reverse, const double freq);
+	virtual void AddLocationStd(const uloc loc, const bool reverse,
+			const double freq);
 	void AddLocationFallback(const SequenceLocation& loc, const double freq);
 	static uint prefixBasecount;
 	static uint prefixBits;
@@ -128,10 +172,14 @@ public:
 
 	static void Init();
 	static void Cleanup();
-	static void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
-	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip =
-			0, uloc offset = 0);
-	static void PrefixIteration(const char* sequence, uloc length, PrefixIterationFn func, ulong mutateFrom, ulong mutateTo, void* data, uint prefixskip, uloc offset, int prefixBaseCount);
+	static void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom,
+			ulong mutateTo, void* data);
+	static void PrefixIteration(const char* sequence, uloc length,
+			PrefixIterationFn func, ulong mutateFrom, ulong mutateTo,
+			void* data, uint prefixskip = 0, uloc offset = 0);
+	static void PrefixIteration(const char* sequence, uloc length,
+			PrefixIterationFn func, ulong mutateFrom, ulong mutateTo,
+			void* data, uint prefixskip, uloc offset, int prefixBaseCount);
 	CS(bool useBuffer = true);
 	~CS();
 	void DoRun();

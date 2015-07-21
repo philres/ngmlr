@@ -18,7 +18,7 @@ struct SequenceLocation {
 	}
 
 	void setRefId(int const id) {
-		assert(id >= 0);
+		//assert(id >= 0);
 		m_RefId = id | (m_RefId & 0x80000000);
 	}
 

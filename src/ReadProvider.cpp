@@ -35,8 +35,8 @@ static RefEntry * m_entry;
 static uint m_entryCount;
 static std::map<uloc, float> iTable; // fallback
 
-//uint const estimateSize = 10000;
-uint const estimateSize = 10000000;
+uint const estimateSize = 100;
+//uint const estimateSize = 10000000;
 uint const estimateStepSize = 1000;
 uint const estimateThreshold = 1000;
 uint const maxReadLength = 1000;
@@ -48,14 +48,16 @@ int m_CurrentReadLength;
 ReadProvider::ReadProvider() :
 		parser1(0), parser2(0), peDelimiter(
 		Config.GetString("pe_delimiter")[0]), isPaired(
-		Config.GetInt("paired") > 0), skipMateCheck(Config.GetInt(SKIP_MATE_CHECK) == 1) {
+		Config.GetInt("paired") > 0), skipMateCheck(
+				Config.GetInt(SKIP_MATE_CHECK) == 1) {
 
 }
 
 int CollectResultsFallback(int const readLength) {
 	float maxCurrent = 0;
 
-	for (std::map<uloc, float>::iterator itr = iTable.begin(); itr != iTable.end(); itr++) {
+	for (std::map<uloc, float>::iterator itr = iTable.begin();
+			itr != iTable.end(); itr++) {
 		maxCurrent = std::max(maxCurrent, itr->second);
 	}
 
@@ -73,7 +75,8 @@ int CollectResultsFallback(int const readLength) {
 	return 0;
 }
 
-static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
+static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom,
+		ulong mutateTo, void* data) {
 
 	RefEntry const * entries = m_RefProvider->GetRefEntry(prefix, m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
 	RefEntry const * cur = entries;
@@ -87,7 +90,8 @@ static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateT
 
 		if (cur->reverse) {
 			for (int i = 0; i < n; ++i) {
-				uloc curLoc = cur->getRealLocation(cur->ref[i]) - (m_CurrentReadLength - (pos + CS::prefixBasecount));
+				uloc curLoc = cur->getRealLocation(cur->ref[i])
+						- (m_CurrentReadLength - (pos + CS::prefixBasecount));
 				curLoc = GetBin(curLoc); // position offset
 				if (iTable.count(curLoc) == 0) {
 					iTable[curLoc] = weight;
@@ -112,9 +116,11 @@ static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateT
 	}
 }
 
-void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos = 0);
+void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom,
+		ulong mutateTo, void* data, int mpos = 0);
 
-void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
+void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom,
+		ulong mutateTo, void* data) {
 	static int const cMutationLocLimit =
 	Config.Exists("bs_cutoff") ? Config.GetInt("bs_cutoff") : 6;
 	ulong const mask = 0x3;
@@ -130,7 +136,8 @@ void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo
 		PrefixMutateSearchEx(prefix, pos, mutateFrom, mutateTo, data);
 }
 
-void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data, int mpos) {
+void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom,
+		ulong mutateTo, void* data, int mpos) {
 	PrefixSearch(prefix, pos, mutateFrom, mutateTo, data);
 
 	ulong const mask = 0x3;
@@ -140,13 +147,15 @@ void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom, ulong mutate
 		if (cur == mutateFrom) {
 			ulong p1 = (prefix & ~(mask << (i * 2)));
 			ulong p2 = (mutateTo << (i * 2));
-			PrefixMutateSearchEx(p1 | p2, pos, mutateFrom, mutateTo, data, i + 1);
+			PrefixMutateSearchEx(p1 | p2, pos, mutateFrom, mutateTo, data,
+					i + 1);
 		}
 	}
 }
 
 uint ReadProvider::init() {
-	typedef void (*PrefixIterationFn)(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data);
+	typedef void (*PrefixIterationFn)(ulong prefix, uloc pos, ulong mutateFrom,
+			ulong mutateTo, void* data);
 	PrefixIterationFn fnc = &PrefixSearch;
 
 	bool const isPaired = Config.GetInt("paired") > 1;
@@ -170,7 +179,8 @@ uint ReadProvider::init() {
 	Timer tmr;
 	tmr.ST();
 	size_t maxLen = 0;
-	bool estimate = !(Config.Exists("skip_estimate") && Config.GetInt("skip_estimate"));
+	bool estimate = !(Config.Exists("skip_estimate")
+			&& Config.GetInt("skip_estimate"));
 	if (!Config.Exists("qry_max_len") || estimate) {
 		//default value for estimation
 		static int const qryMaxLen = 10000;
@@ -203,12 +213,13 @@ uint ReadProvider::init() {
 					minLen = std::min(minLen, (size_t) read->length);
 					sumLen += read->length;
 
-//				Log.Message("Name: %s", read->name);
-//				Log.Message("Read: %s", read->Seq);
-//				Log.Message("Qlty: %s", read->qlty);
+//					Log.Message("Name: %s", read->name);
+//					Log.Message("Read: %s", read->Seq);
+//					Log.Message("Qlty: %s", read->qlty);
 
 					readCount += 1;
-					if (estimate && (readCount % estimateStepSize) == 0 && readCount < estimateSize) {
+					if (estimate && (readCount % estimateStepSize) == 0
+							&& readCount < estimateSize) {
 						ulong mutateFrom;
 						ulong mutateTo;
 						if (isPaired && (readCount & 1)) {
@@ -255,19 +266,17 @@ uint ReadProvider::init() {
 			Log.Error("No reads found in input file.");
 			Fatal();
 		}
-		if(Config.GetInt(MAX_READ_LENGTH) > 0) {
-			Log.Warning("Max. read length overwritten bei user: %d", Config.GetInt(MAX_READ_LENGTH));
-			maxLen = Config.GetInt(MAX_READ_LENGTH);
-		}
+//		if (Config.GetInt(MAX_READ_LENGTH) > 0) {
+//			Log.Warning("Max. read length overwritten bei user: %d", Config.GetInt(MAX_READ_LENGTH));
+//			maxLen = Config.GetInt(MAX_READ_LENGTH);
+//		}
 		maxLen = (maxLen | 1) + 1;
 		int avgLen = sumLen / readCount;
 
-		if (maxLen > maxReadLength) {
-			Log.Warning("Max. supported read length is 1000bp. All reads longer than 1000bp will be hard clipped in the output.");
-			maxLen = maxReadLength;
-		}
-
-
+//		if (maxLen > maxReadLength) {
+//			Log.Warning("Max. supported read length is 1000bp. All reads longer than 1000bp will be hard clipped in the output.");
+//			maxLen = maxReadLength;
+//		}
 
 		((_Config*) _config)->Override("qry_max_len", (int) maxLen);
 		((_Config*) _config)->Override("qry_avg_len", (int) avgLen);
@@ -398,7 +407,8 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 	return read;
 }
 
-IParser * ReadProvider::DetermineParser(char const * fileName, int const qryMaxLen) {
+IParser * ReadProvider::DetermineParser(char const * fileName,
+		int const qryMaxLen) {
 
 	gzFile fp = gzopen(fileName, "r");
 	if (!fp) {
@@ -412,7 +422,8 @@ IParser * ReadProvider::DetermineParser(char const * fileName, int const qryMaxL
 	}
 
 	int count = 0;
-	for (size_t i = 0; i < 1000 && buffer[i] != '\0' && buffer[i] != '\n'; i++) {
+	for (size_t i = 0; i < 1000 && buffer[i] != '\0' && buffer[i] != '\n';
+			i++) {
 		if (buffer[i] == '\t') {
 			count++;
 		}
@@ -453,7 +464,8 @@ MappedRead * ReadProvider::GenerateSingleRead(int const readid) {
 }
 
 // Sequential (important for pairs!) read generation
-bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1, int const readid2, MappedRead * & read2) {
+bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1,
+		int const readid2, MappedRead * & read2) {
 
 	if (isPaired) {
 		static bool const isInterleaved = Config.Exists("qry");

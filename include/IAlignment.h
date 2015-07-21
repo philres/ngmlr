@@ -45,6 +45,10 @@ public:
 			char const * const * const qrySeqList, float * const results,
 			void * extData) = 0;
 
+	virtual int SingleAlign(int const mode, int const corridor, char const * const refSeq, char const * const qrySeq, Align & result, void * extData) { return 0; }
+
+	virtual int SingleScore(int const mode, int const corridor, char const * const refSeq, char const * const qrySeq, float & result, void * extData) { return 0; }
+
 	virtual int BatchAlign(int const mode, int const batchSize,
 			char const * const * const refSeqList,
 			char const * const * const qrySeqList, Align * const results,
