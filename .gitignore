@@ -11,3 +11,4 @@ lib/libgff
 .DS_Store
 /test/
 /cibiv.sh
+/cshl.sh

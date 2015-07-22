@@ -359,9 +359,11 @@ Align CS::computeAlignment(MappedRead* read, int const scoreId,
 	if (score.Location.isReverse()) {
 		oclAligner->SingleAlign(mode, corridor, (char const * const ) refBuffer,
 				(char const * const ) read->RevSeq, align, 0);
+		printf(">Ref_%s\n%s\n>%s_rev\n%s", read->name, refBuffer, read->name, read->RevSeq);
 	} else {
 		oclAligner->SingleAlign(mode, corridor, (char const * const ) refBuffer,
 				(char const * const ) read->Seq, align, 0);
+		printf(">Ref_%s\n%s\n>%s\n%s", read->name, refBuffer, read->name, read->Seq);
 	}
 
 	score.Location.m_Location += align.PositionOffset - (corridor >> 1);
@@ -553,179 +555,179 @@ void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 		}
 	}
 
-	reducedBinSize = 16;
-	int maxKmerPos = 10000;
-	double kmerSize = 6;
-	int reducedRefTabLen = pow(4.0, kmerSize);
-	reducedRefTab = new RefTabEntry[reducedRefTabLen + 1];
-	currentReducedRefOffset = reducedRefStart;
-
-	//Init reduced ref tab
-	for (int k = 0; k < reducedRefTabLen; ++k) {
-		reducedRefTab[k].positions = new int[maxKmerPos];
-		reducedRefTab[k].n = 0;
-	}
-
-	Timer t;
-	t.ST();
-	Log.Message("Start timing");
-	int reducedRefTabSeqLen = reducedRefStop - reducedRefStart + 1;
-	char * reducedRefTabSeq = new char[reducedRefTabSeqLen];
-
-	SequenceProvider.DecodeRefSequence(reducedRefTabSeq,0, reducedRefStart, reducedRefTabSeqLen);
-	//Log.Message("%s", reducedRefTabSeq);
-
-	//Building hash table
-	CS::prefixBasecount = kmerSize;
-	CS::prefixBits = prefixBasecount * 2;
-	CS::prefixMask = ((ulong) 1 << prefixBits) - 1;
-
-	Timer t1;
-	t1.ST();
-	PrefixIteration(reducedRefTabSeq, reducedRefTabSeqLen, BuildReducedRef, 0,
-			0, this, 0, 0);
-	Log.Message("Build reduced ref table took: %f", t1.ET());
-
-//	long sum = 0;
-//	for (int i = 0; i < reducedRefTabLen; ++i) {
-//		sum += reducedRefTab[i].n;
+//	reducedBinSize = 16;
+//	int maxKmerPos = 10000;
+//	double kmerSize = 6;
+//	int reducedRefTabLen = pow(4.0, kmerSize);
+//	reducedRefTab = new RefTabEntry[reducedRefTabLen + 1];
+//	currentReducedRefOffset = reducedRefStart;
+//
+//	//Init reduced ref tab
+//	for (int k = 0; k < reducedRefTabLen; ++k) {
+//		reducedRefTab[k].positions = new int[maxKmerPos];
+//		reducedRefTab[k].n = 0;
 //	}
-//	Log.Message("Mean: %f", sum / reducedRefTabLen * 1.0f);
-
-	Timer t2;
-	t2.ST();
-	PrefixIteration(read->Seq, read->length, AddLocationRead, 0, 0, this, 0, 0);
-	Log.Message("Adding locations took %f seconds", t2.ET());
-
-	CS::prefixBasecount = 13;
-	CS::prefixBits = prefixBasecount * 2;
-	CS::prefixMask = ((ulong) 1 << prefixBits) - 1;
-
-	Log.Message("Hash loop up finished");
-
-	//Finding positions
-	Timer t3;
-	t3.ST();
-	int binCount = read->length / 256 + 1;
-	LocationScore * scores = new LocationScore[100];
-	int scoreIndex = 0;
-
-	uloc lastBinPos = 0;
-
-	for (int j = 0; j < binCount; ++j) {
-		scoreIndex = 0;
-		ReadBin & bin = readBins[j];
-		//Log.Message("Bin %d: %d, %d (elements in hash: %d)", j, bin.n, bin.max, bin.iTable.size());
-		if (bin.n == -1) {
-			Log.Message("Overflow");
-		} else {
-			if(bin.n > 0) {
-				int k = 0;
-
-				//Find highest scoring positions
-				typedef std::map<long, AvgPos>::iterator it_type;
-				for(it_type iterator = bin.iTable.begin(); iterator != bin.iTable.end(); iterator++) {
-					int count = iterator->second.count;
-					uloc avgPos = iterator->second.sum / count;
-					//If the position has at least half as many k-mer hits as the best position
-					if(count > bin.max * 0.5f) {
-
-						scores[scoreIndex].Score.i = count;
-						scores[scoreIndex].Location.m_Location = iterator->first * reducedBinSize;
-
-						//float alnScore = scoreReadPart(read->Seq, read->length, j, iterator->first * reducedBinSize);
-						float alnScore = 0;
-
-						SequenceLocation loc;
-						loc.m_Location = abs(avgPos);
-						if(avgPos < 0) {
-							loc.setReverse(true);
-						}
-						//loc.m_Location = abs(iterator->first * reducedBinSize);
-						//SequenceProvider.convert(loc);
-						//int refNameLength = 0;
-
-//						if(count == bin.max) {
-//							Log.Message("BIN %d - %d: from %d to %d (blocknr: %d) x %d (max: %d) - score: %f - %s:%llu", j, k++, iterator->first * reducedBinSize, iterator->first * reducedBinSize + 256, iterator->first * reducedBinSize / 256, count, bin.max, alnScore, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), loc.m_Location);
-//							Log.Message("Start: %llu", avgPos);
-//						} else {
-//							Log.Message("BIN %d - %d: \tfrom %d to %d (blocknr: %d) x %d (max: %d) - score: %f - %s:%llu", j, k++, iterator->first * reducedBinSize, iterator->first * reducedBinSize + 256, iterator->first * reducedBinSize / 256, count, bin.max, alnScore, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), loc.m_Location);
-//							Log.Message("Start: %llu", avgPos);
+//
+//	Timer t;
+//	t.ST();
+//	Log.Message("Start timing");
+//	int reducedRefTabSeqLen = reducedRefStop - reducedRefStart + 1;
+//	char * reducedRefTabSeq = new char[reducedRefTabSeqLen];
+//
+//	SequenceProvider.DecodeRefSequence(reducedRefTabSeq,0, reducedRefStart, reducedRefTabSeqLen);
+//	//Log.Message("%s", reducedRefTabSeq);
+//
+//	//Building hash table
+//	CS::prefixBasecount = kmerSize;
+//	CS::prefixBits = prefixBasecount * 2;
+//	CS::prefixMask = ((ulong) 1 << prefixBits) - 1;
+//
+//	Timer t1;
+//	t1.ST();
+//	PrefixIteration(reducedRefTabSeq, reducedRefTabSeqLen, BuildReducedRef, 0,
+//			0, this, 0, 0);
+//	Log.Message("Build reduced ref table took: %f", t1.ET());
+//
+////	long sum = 0;
+////	for (int i = 0; i < reducedRefTabLen; ++i) {
+////		sum += reducedRefTab[i].n;
+////	}
+////	Log.Message("Mean: %f", sum / reducedRefTabLen * 1.0f);
+//
+//	Timer t2;
+//	t2.ST();
+//	PrefixIteration(read->Seq, read->length, AddLocationRead, 0, 0, this, 0, 0);
+//	Log.Message("Adding locations took %f seconds", t2.ET());
+//
+//	CS::prefixBasecount = 13;
+//	CS::prefixBits = prefixBasecount * 2;
+//	CS::prefixMask = ((ulong) 1 << prefixBits) - 1;
+//
+//	Log.Message("Hash loop up finished");
+//
+//	//Finding positions
+//	Timer t3;
+//	t3.ST();
+//	int binCount = read->length / 256 + 1;
+//	LocationScore * scores = new LocationScore[100];
+//	int scoreIndex = 0;
+//
+//	uloc lastBinPos = 0;
+//
+//	for (int j = 0; j < binCount; ++j) {
+//		scoreIndex = 0;
+//		ReadBin & bin = readBins[j];
+//		//Log.Message("Bin %d: %d, %d (elements in hash: %d)", j, bin.n, bin.max, bin.iTable.size());
+//		if (bin.n == -1) {
+//			Log.Message("Overflow");
+//		} else {
+//			if(bin.n > 0) {
+//				int k = 0;
+//
+//				//Find highest scoring positions
+//				typedef std::map<long, AvgPos>::iterator it_type;
+//				for(it_type iterator = bin.iTable.begin(); iterator != bin.iTable.end(); iterator++) {
+//					int count = iterator->second.count;
+//					uloc avgPos = iterator->second.sum / count;
+//					//If the position has at least half as many k-mer hits as the best position
+//					if(count > bin.max * 0.5f) {
+//
+//						scores[scoreIndex].Score.i = count;
+//						scores[scoreIndex].Location.m_Location = iterator->first * reducedBinSize;
+//
+//						//float alnScore = scoreReadPart(read->Seq, read->length, j, iterator->first * reducedBinSize);
+//						float alnScore = 0;
+//
+//						SequenceLocation loc;
+//						loc.m_Location = abs(avgPos);
+//						if(avgPos < 0) {
+//							loc.setReverse(true);
 //						}
-
-						scoreIndex += 1;
-					} else {
-						//Log.Message("BIN %d - %d: \t\t\t%llu x %d (max: %d)", j, k++, iterator->first, count, bin.max);
-					}
-				}
-
-				k = 0;
-				int bestIndex = -1;
-				if(scoreIndex == 1) {
-					bestIndex = 0;
-					k += 1;
-				} else {
-					float bestScore = -1;
-					for(int l = 0; l < scoreIndex; l++) {
-						float alnScore = scoreReadPart(read->Seq, read->length, j, scores[l].Location.m_Location);
-						Log.Message("\tSCORE: %llu %d -> %f", scores[l].Location.m_Location, scores[l].Score.i, alnScore);
-						k += 1;
-						if(alnScore > bestScore) {
-							bestIndex = l;
-							bestScore = alnScore;
-						}
-					}
-
-				}
-				if(k == 0) {
-					Log.Message("BIN %d - iTable was empty", j);
-				}
-
-				Log.Message("BIN %d - %d: %d, %d (blocknr: %d) x %d (max: %d)", j, k++, scores[bestIndex].Location.m_Location, scores[bestIndex].Location.isReverse(), scores[bestIndex].Location.m_Location / 256, scores[bestIndex].Score.i, bin.max);
-
-				if(j == 0) {
-					//First BIN
-					Log.Message("Starting at %llu", scores[bestIndex].Location.m_Location);
-				} else {
-					uloc offset = scores[bestIndex].Location.m_Location - lastBinPos;
-					Log.Message("offset %d", offset);
-					if(offset > 300 || offset < 200) {
-						SequenceLocation conv;
-						conv.m_Location = lastBinPos;
-						SequenceProvider.convert(conv);
-						int length = 0;
-						Log.Message("Offset ist off at position %s-%llu", SequenceProvider.GetRefName(conv.getrefId(), length), conv.m_Location);
-						getchar();
-					}
-
-				}
-
-				lastBinPos = scores[bestIndex].Location.m_Location;
-			} else {
-				Log.Message("Bin.n == 0");
-			}
-		}
-		Log.Message("----------------------------------------------------");
-	}
-	delete[] scores;
-	scores = 0;
-	Log.Message("Assigning bins to reference took %f", t3.ET());
-
-	Log.Message("Took %f secdons", t.ET());
-
-	//Delete reduced ref tab
-	for (int k = 0; k < reducedRefTabLen; ++k) {
-		delete[] reducedRefTab[k].positions;
-		reducedRefTab[k].positions = 0;
-	}
-	delete[] reducedRefTab;
-	reducedRefTab = 0;
-
-	delete[] reducedRefTabSeq;
-	reducedRefTabSeq = 0;
-
-	Log.Message("Waiting");
-	getchar();
+//						//loc.m_Location = abs(iterator->first * reducedBinSize);
+//						//SequenceProvider.convert(loc);
+//						//int refNameLength = 0;
+//
+////						if(count == bin.max) {
+////							Log.Message("BIN %d - %d: from %d to %d (blocknr: %d) x %d (max: %d) - score: %f - %s:%llu", j, k++, iterator->first * reducedBinSize, iterator->first * reducedBinSize + 256, iterator->first * reducedBinSize / 256, count, bin.max, alnScore, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), loc.m_Location);
+////							Log.Message("Start: %llu", avgPos);
+////						} else {
+////							Log.Message("BIN %d - %d: \tfrom %d to %d (blocknr: %d) x %d (max: %d) - score: %f - %s:%llu", j, k++, iterator->first * reducedBinSize, iterator->first * reducedBinSize + 256, iterator->first * reducedBinSize / 256, count, bin.max, alnScore, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), loc.m_Location);
+////							Log.Message("Start: %llu", avgPos);
+////						}
+//
+//						scoreIndex += 1;
+//					} else {
+//						//Log.Message("BIN %d - %d: \t\t\t%llu x %d (max: %d)", j, k++, iterator->first, count, bin.max);
+//					}
+//				}
+//
+//				k = 0;
+//				int bestIndex = -1;
+//				if(scoreIndex == 1) {
+//					bestIndex = 0;
+//					k += 1;
+//				} else {
+//					float bestScore = -1;
+//					for(int l = 0; l < scoreIndex; l++) {
+//						float alnScore = scoreReadPart(read->Seq, read->length, j, scores[l].Location.m_Location);
+//						Log.Message("\tSCORE: %llu %d -> %f", scores[l].Location.m_Location, scores[l].Score.i, alnScore);
+//						k += 1;
+//						if(alnScore > bestScore) {
+//							bestIndex = l;
+//							bestScore = alnScore;
+//						}
+//					}
+//
+//				}
+//				if(k == 0) {
+//					Log.Message("BIN %d - iTable was empty", j);
+//				}
+//
+//				Log.Message("BIN %d - %d: %d, %d (blocknr: %d) x %d (max: %d)", j, k++, scores[bestIndex].Location.m_Location, scores[bestIndex].Location.isReverse(), scores[bestIndex].Location.m_Location / 256, scores[bestIndex].Score.i, bin.max);
+//
+//				if(j == 0) {
+//					//First BIN
+//					Log.Message("Starting at %llu", scores[bestIndex].Location.m_Location);
+//				} else {
+//					uloc offset = scores[bestIndex].Location.m_Location - lastBinPos;
+//					Log.Message("offset %d", offset);
+//					if(offset > 300 || offset < 200) {
+//						SequenceLocation conv;
+//						conv.m_Location = lastBinPos;
+//						SequenceProvider.convert(conv);
+//						int length = 0;
+//						Log.Message("Offset ist off at position %s-%llu", SequenceProvider.GetRefName(conv.getrefId(), length), conv.m_Location);
+//						getchar();
+//					}
+//
+//				}
+//
+//				lastBinPos = scores[bestIndex].Location.m_Location;
+//			} else {
+//				Log.Message("Bin.n == 0");
+//			}
+//		}
+//		Log.Message("----------------------------------------------------");
+//	}
+//	delete[] scores;
+//	scores = 0;
+//	Log.Message("Assigning bins to reference took %f", t3.ET());
+//
+//	Log.Message("Took %f secdons", t.ET());
+//
+//	//Delete reduced ref tab
+//	for (int k = 0; k < reducedRefTabLen; ++k) {
+//		delete[] reducedRefTab[k].positions;
+//		reducedRefTab[k].positions = 0;
+//	}
+//	delete[] reducedRefTab;
+//	reducedRefTab = 0;
+//
+//	delete[] reducedRefTabSeq;
+//	reducedRefTabSeq = 0;
+//
+//	Log.Message("Waiting");
+//	getchar();
 
 	if (sumScoreIndex < 1) {
 		Log.Message("Read %s has no candidate", read->name);
