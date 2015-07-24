@@ -69,11 +69,11 @@ protected:
 	static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom,
 			ulong mutateTo, void* data);
 
-	static void AddLocationRead(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
-			void* data);
-
-	static void BuildReducedRef(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
-			void* data);
+//	static void AddLocationRead(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
+//			void* data);
+//
+//	static void BuildReducedRef(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
+//			void* data);
 
 	static void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom,
 			ulong mutateTo, void* data, int mpos = 0);
@@ -129,28 +129,6 @@ private:
 	IAlignment * oclAligner;
 	AlignmentBuffer * alignmentBuffer;
 
-	struct AvgPos {
-		int count;
-		long sum;
-	};
-
-	struct ReadBin {
-		int n;
-		int max;
-		long sum;
-//		uloc * slots;
-		std::map<long, AvgPos> iTable;
-	};
-
-	ReadBin * readBins;
-
-	struct RefTabEntry {
-		int * positions;
-		int n;
-	};
-
-	RefTabEntry * reducedRefTab ;
-	uloc currentReducedRefOffset;
 
 public:
 

@@ -81,104 +81,160 @@ bool cDebug = true;
 ILog const * _log = 0;
 IConfig * _config = 0;
 
+#include <seqan/graph_algorithms.h>
+#include <iostream>
+using namespace seqan;
+
+void testMe() {
+	String<unsigned int> seq;
+	appendValue(seq, 5);
+	appendValue(seq, 3);
+	appendValue(seq, 4);
+	appendValue(seq, 9);
+	appendValue(seq, 6);
+	appendValue(seq, 2);
+	appendValue(seq, 1);
+	appendValue(seq, 8);
+	appendValue(seq, 7);
+	appendValue(seq, 10);
+	String<unsigned int, Block<> > pos;
+	longestIncreasingSubsequence(seq, pos);
+
+	for (int i = 0; i < (int) length(seq); ++i) {
+		std::cout << seq[i] << ',';
+	}
+	std::cout << std::endl;
+	std::cout << "Lis: " << std::endl;
+	for (int i = length(pos) - 1; i >= 0; --i) {
+		std::cout << seq[pos[i]] << ',';
+	}
+	std::cout << std::endl;
+
+}
+
+void testMe2() {
+	String<char> seq("zeitgeist");
+	String<unsigned int> weights;
+	resize(weights, length(seq), 1);
+	assignProperty(weights, 2, 10);
+
+	typedef Position<String<unsigned int> >::Type TPosition;
+	String<TPosition> pos;
+
+	unsigned int w = heaviestIncreasingSubsequence(seq, weights, pos);
+
+	for (int i = 0; i < (int) length(seq); ++i) {
+		::std::cout << seq[i] << "(Weight=" << getProperty(weights, i) << "),";
+	}
+	::std::cout << ::std::endl;
+	::std::cout << "His: " << ::std::endl;
+	for (int i = length(pos) - 1; i >= 0; --i) {
+		::std::cout << seq[pos[i]] << ',';
+	}
+	::std::cout << "(Weight=" << w << ')' << ::std::endl;
+
+}
+
 int main(int argc, char * argv[]) {
 
-	std::stringstream version;
-	version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
+//testMe();
+//testMe2();
 
-	char const * arch[] = { "x86", "x64" };
-	char const * build = (cDebug) ? " (DEBUG)" : "";
-	Log.Message("NextGenMap %s", version.str().c_str());
-	Log.Message("Startup : %s%s (build %s %s)", arch[sizeof(void*) / 4 - 1], build, __DATE__, __TIME__);
+std::stringstream version;
+version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
 
-	Log.Message("Starting time: %s", currentDateTime().c_str());
+char const * arch[] = { "x86", "x64" };
+char const * build = (cDebug) ? " (DEBUG)" : "";
+Log.Message("NextGenMap %s", version.str().c_str());
+Log.Message("Startup : %s%s (build %s %s)", arch[sizeof(void*) / 4 - 1], build, __DATE__, __TIME__);
 
-	//try {
-	Timer tmr;
-	tmr.ST();
+Log.Message("Starting time: %s", currentDateTime().c_str());
 
-	_NGM::AppName = argv[0];
+//try {
+Timer tmr;
+tmr.ST();
 
-	InitPlatform();
+_NGM::AppName = argv[0];
 
-	// Initialization:
-	try {
-		_config = new _Config(argc, argv); // Parses command line & parameter file
-		_log = &Log;
+InitPlatform();
+
+// Initialization:
+try {
+	_config = new _Config(argc, argv); // Parses command line & parameter file
+	_log = &Log;
 
 #ifdef DEBUGLOG
-		if (Config.Exists(LOG)) {
-			Log.Message("Writing debug log to stdout. Please use -o/--output for SAM/BAM output.");
-			//Init checks if first parameter is != 0. Thus "LOG" is passed as a dummy string.
-			_Log::Init("LOG", Config.GetInt(LOG_LVL)); // Inits logging to file
-		}
+	if (Config.Exists(LOG)) {
+		Log.Message("Writing debug log to stdout. Please use -o/--output for SAM/BAM output.");
+		//Init checks if first parameter is != 0. Thus "LOG" is passed as a dummy string.
+		_Log::Init("LOG", Config.GetInt(LOG_LVL));// Inits logging to file
+	}
 #else
-				_Log::Init(0, 0); // Inits logging to file
+	_Log::Init(0, 0); // Inits logging to file
 #endif
-	} catch (...) {
-		Help();
-	}
+} catch (...) {
+	Help();
+}
 
-	if( Config.GetInt("update_check") )
-	{
-		UpdateCheckInterface::remoteCheck();
-		exit(0);
-	}
+if ( Config.GetInt("update_check")) {
+	UpdateCheckInterface::remoteCheck();
+	exit(0);
+}
 
-	Log.setColor(Config.Exists("color"));
+Log.setColor(Config.Exists("color"));
 
-	if (!Config.Exists("qry") || CheckOutput()) {
-		NGM; // Init Core
+if (!Config.Exists("qry") || CheckOutput()) {
+	NGM; // Init Core
 
-		NGM.InitProviders();
+	NGM.InitProviders();
 
-		if (!Config.Exists("qry") && !(Config.Exists("qry1") && Config.Exists("qry2"))) {
-			Log.Message("Finished building hash table.");
-			Log.Message("No qry file specified. If you want to map single-end data use -q/--qry. If you want to map paired-end data, either use -q/--qry and -p or --qry1 and --qry2.");
-		} else {
-			try {
-				Log.Verbose("Core initialization complete");
-				NGM.StartThreads();
+	if (!Config.Exists("qry") && !(Config.Exists("qry1") && Config.Exists("qry2"))) {
+		Log.Message("Finished building hash table.");
+		Log.Message("No qry file specified. If you want to map single-end data use -q/--qry. If you want to map paired-end data, either use -q/--qry and -p or --qry1 and --qry2.");
+	} else {
+		try {
+			Log.Verbose("Core initialization complete");
+			NGM.StartThreads();
 
-				NGM.MainLoop();
+			NGM.MainLoop();
 
-				bool const isPaired = Config.GetInt("paired") > 0;
-				if (isPaired) {
-					Log.Message("Valid pairs found: %.2f%%", NGM.Stats->validPairs);
-					Log.Message("Estimated insert size: %d bp", (int)NGM.Stats->insertSize);
-				}
-				Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
-				int discarded = NGM.GetReadReadCount() - (NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount());
-				if (discarded != 0) {
-//					Log.Warning("Reads discarded: %d", discarded);
-					Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped (%i discarded), %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount() + discarded)),NGM.GetUnmappedReadCount() + discarded, discarded, NGM.GetWrittenReadCount(), tmr.ET());
-				} else {
-					Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped, %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount())),NGM.GetUnmappedReadCount(),NGM.GetWrittenReadCount(), tmr.ET());
-				}
-
-			} catch (...) {
-				Log.Error("Unhandled exception in control thread");
+			bool const isPaired = Config.GetInt("paired") > 0;
+			if (isPaired) {
+				Log.Message("Valid pairs found: %.2f%%", NGM.Stats->validPairs);
+				Log.Message("Estimated insert size: %d bp", (int)NGM.Stats->insertSize);
 			}
+			Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
+			int discarded = NGM.GetReadReadCount() - (NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount());
+			if (discarded != 0) {
+//					Log.Warning("Reads discarded: %d", discarded);
+				Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped (%i discarded), %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount() + discarded)),NGM.GetUnmappedReadCount() + discarded, discarded, NGM.GetWrittenReadCount(), tmr.ET());
+			} else {
+				Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped, %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount())),NGM.GetUnmappedReadCount(),NGM.GetWrittenReadCount(), tmr.ET());
+			}
+
+		} catch (...) {
+			Log.Error("Unhandled exception in control thread");
 		}
 	}
+}
 
-	if( ! Config.GetInt("update_check") )
-		UpdateCheckInterface::reminder();
+if (! Config.GetInt("update_check"))
+	UpdateCheckInterface::reminder();
 
-	CS::Cleanup();
-	_SequenceProvider::Cleanup();
-	delete _config;
-	delete _NGM::pInstance;
-	_Log::Cleanup();
+CS::Cleanup();
+_SequenceProvider::Cleanup();
+delete _config;
+delete _NGM::pInstance;
+_Log::Cleanup();
 
-	CleanupPlatform();
+CleanupPlatform();
 
-	return 0;
+return 0;
 }
 
 void Help() {
-	char const * const help_msg =
-			"\
+char const * const help_msg =
+		"\
 \
 Usage:\
   ngm [-c <path>] {-q <reads> [-p] | -1 <mates 1> -2 <mates 2>} -r <reference> -o <output> [parameter]\n\
@@ -330,27 +386,27 @@ Other:\n\
                                (default: off)\n\
 \n\
 \n";
-	fprintf(stderr, "%s", help_msg);
-	exit(1);
+fprintf(stderr, "%s", help_msg);
+exit(1);
 }
 
 // actually platform specific.../care
 uloc const FileSize(char const * const filename) {
-	FILE * fp = fopen(filename, "rb");
-	if (fp == 0) {
-		Log.Warning("Tried to get size of nonexistent file %s", filename);
-		return 0;
-	}
+FILE * fp = fopen(filename, "rb");
+if (fp == 0) {
+	Log.Warning("Tried to get size of nonexistent file %s", filename);
+	return 0;
+}
 
-	if (fseek(fp, 0, SEEK_END) != 0)
-		return 0;
+if (fseek(fp, 0, SEEK_END) != 0)
+	return 0;
 
 #ifdef __APPLE__
-	uloc end = ftello(fp);
+uloc end = ftello(fp);
 #else
-	uloc end = ftello64(fp);
+uloc end = ftello64(fp);
 #endif
 
-	fclose(fp);
-	return end;
+fclose(fp);
+return end;
 }

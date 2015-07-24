@@ -13,6 +13,20 @@
 //#include "ILog.h"
 //#include "SequenceProvider.h"
 
+struct MappedRead;
+
+typedef struct {
+	MappedRead * fullRead;
+	MappedRead * * reads;
+	size_t readNumber;
+	size_t readsFinished;
+	size_t fwdMapped;
+	size_t reverseMapped;
+	int bestScoreSum;
+	int readId;
+} ReadGroup;
+
+
 using NGMNames::ReadStatus;
 // A read with a list of scores fitting the initial predicate
 // (i.e., each score is greater than cs_threshhold)
@@ -50,6 +64,8 @@ public:
 	char * name;
 
 	char * AdditionalInfo;
+
+	ReadGroup * group;
 
 #ifdef INSTANCE_COUNTING
 	static volatile int sInstanceCount;

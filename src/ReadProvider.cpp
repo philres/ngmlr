@@ -46,10 +46,13 @@ int maxHitTableIndex;
 int m_CurrentReadLength;
 
 ReadProvider::ReadProvider() :
-		parser1(0), parser2(0), peDelimiter(
+		//bufferLength based on max read length of 1MB and read part length of 512
+		readPartLength(512), bufferLength(2000), readBuffer(
+				new MappedRead *[bufferLength]), readsInBuffer(0), parser1(0), parser2(
+				0), peDelimiter(
 		Config.GetString("pe_delimiter")[0]), isPaired(
 		Config.GetInt("paired") > 0), skipMateCheck(
-				Config.GetInt(SKIP_MATE_CHECK) == 1) {
+		Config.GetInt(SKIP_MATE_CHECK) == 1) {
 
 }
 
@@ -178,100 +181,12 @@ uint ReadProvider::init() {
 	uint readCount = 0;
 	Timer tmr;
 	tmr.ST();
-	size_t maxLen = 0;
+	size_t maxLen = 512;
 	bool estimate = !(Config.Exists("skip_estimate")
 			&& Config.GetInt("skip_estimate"));
 	if (!Config.Exists("qry_max_len") || estimate) {
-		//default value for estimation
-		static int const qryMaxLen = 10000;
-		parser1 = DetermineParser(fileName1, qryMaxLen);
-		if (estimate) {
-			Log.Message("Estimating parameter from data");
 
-			maxHitTable = new float[estimateSize];
-			maxHitTableIndex = 0;
-
-			m_RefProvider = NGM.GetRefProvider(0);
-
-			m_entryCount = m_RefProvider->GetRefEntryChainLength();
-			m_entry = new RefEntry[ m_entryCount ];
-		}
-
-		int l = 0;
-
-		size_t minLen = 9999999;
-		size_t sumLen = 0;
-
-		bool finish = false;
-
-		MappedRead * read = new MappedRead(0, qryMaxLen);
-
-		try {
-			while ((l = parser1->parseRead(read)) >= 0 && !finish) {
-				if (l > 0) {
-					maxLen = std::max(maxLen, (size_t) read->length);
-					minLen = std::min(minLen, (size_t) read->length);
-					sumLen += read->length;
-
-//					Log.Message("Name: %s", read->name);
-//					Log.Message("Read: %s", read->Seq);
-//					Log.Message("Qlty: %s", read->qlty);
-
-					readCount += 1;
-					if (estimate && (readCount % estimateStepSize) == 0
-							&& readCount < estimateSize) {
-						ulong mutateFrom;
-						ulong mutateTo;
-						if (isPaired && (readCount & 1)) {
-							//Second mate
-							mutateFrom = 0x0;
-							mutateTo = 0x3;
-						} else {
-							//First mate
-							mutateFrom = 0x2;
-							mutateTo = 0x1;
-						}
-						m_CurrentReadLength = read->length;
-						CS::PrefixIteration((char const *) read->Seq, read->length, fnc, mutateFrom, mutateTo, (void *) this, (uint) 0, 0);
-						CollectResultsFallback(m_CurrentReadLength);
-					} else if (readCount == (estimateSize + 1)) {
-						if ((maxLen - minLen) < 10 && !Config.Exists(ARGOS)) {
-							finish = true;
-						} else {
-							if (Config.GetInt(RLENGTH_CHECK)) {
-								Log.Warning("Input reads don't have the same length!");
-								Log.Warning("Parameter 'force-rlength-check' found. Determining max. read length now. This might take some time!");
-							} else {
-								Log.Warning("Input reads don't have the same length!");
-								Log.Warning("Maximum read length found in the first %d reads is %d. For longer reads only the first %d bp will be mapped.", estimateSize, maxLen, (int) (maxLen * 1.1f));
-								maxLen = maxLen * 1.1f;
-								Log.Warning("The maximum read length can be overwritten with the '--max-read-length' parameter. With '--force-rlength-check', NextGenMap will run through all reads to find the max. read length. This might take some time.");
-								finish = true;
-							}
-						}
-					}
-				}
-			}
-		} catch(char * ex) {
-			Log.Error("%s", ex);
-			Fatal();
-		}
-		delete read;
-		read = 0;
-		if (!finish) {
-			Log.Message("Reads found in files: %d", readCount);
-			NGM.Stats->TotalSeqs = readCount;
-		}
-		if (readCount == 0) {
-			Log.Error("No reads found in input file.");
-			Fatal();
-		}
-//		if (Config.GetInt(MAX_READ_LENGTH) > 0) {
-//			Log.Warning("Max. read length overwritten bei user: %d", Config.GetInt(MAX_READ_LENGTH));
-//			maxLen = Config.GetInt(MAX_READ_LENGTH);
-//		}
-		maxLen = (maxLen | 1) + 1;
-		int avgLen = sumLen / readCount;
+		int avgLen = 512;
 
 //		if (maxLen > maxReadLength) {
 //			Log.Warning("Max. supported read length is 1000bp. All reads longer than 1000bp will be hard clipped in the output.");
@@ -281,7 +196,7 @@ uint ReadProvider::init() {
 		((_Config*) _config)->Override("qry_max_len", (int) maxLen);
 		((_Config*) _config)->Override("qry_avg_len", (int) avgLen);
 
-		Log.Message("Average read length: %d (min: %d, max: %d)", avgLen, minLen, maxLen);
+		Log.Message("Average read length: %d (min: %d, max: %d)", avgLen, 512, maxLen);
 
 		if (Config.Exists("corridor")) {
 			Log.Warning("Corridor witdh overwritten!");
@@ -289,47 +204,6 @@ uint ReadProvider::init() {
 			((_Config*) _config)->Default("corridor", (int) (5 + avgLen * 0.15));
 		}
 		Log.Message("Corridor width: %d", Config.GetInt("corridor"));
-
-		delete parser1;
-
-		if (estimate && readCount >= estimateThreshold) {
-			float sum = 0.0f;
-			for (int i = 0; i < maxHitTableIndex; ++i) {
-				sum += maxHitTable[i];
-			}
-
-			float m_CsSensitivity = 0.0f;
-			if (!m_EnableBS) {
-				static const int skip = (
-				Config.Exists("kmer_skip") ?
-				Config.GetInt("kmer_skip", 0, -1) :
-												0) + 1;
-				//float max = (avgLen - CS::prefixBasecount + 1) / skip;
-				int max = ceil((avgLen - CS::prefixBasecount + 1) / skip * 1.0);
-				float avg = sum / maxHitTableIndex * 1.0f;
-
-				float avgHit = max * avg;
-
-				Log.Message("Average kmer hits pro read: %f", avgHit);
-				Log.Message("Max possible kmer hit: %d", max);
-				//Log.Message("Max possible kmer hit (old): %f", (avgLen - CS::prefixBasecount + 1) / skip);
-
-				//m_CsSensitivity = (avg / ((max / avgLen))) * 0.90f + 0.05f;
-				m_CsSensitivity = std::min(std::max(0.3f, avg), 0.9f);
-				Log.Green("Estimated sensitivity: %f", m_CsSensitivity);
-
-				if (Config.Exists("sensitivity")) {
-					//float x = Config.GetFloat("sensitivity", 0, 100);
-					//m_CsSensitivity = (100 - x) / 100.0f;
-					m_CsSensitivity = Config.GetFloat("sensitivity", 0, 1);
-					Log.Warning("Sensitivity threshold overwritten by user. Using %f", m_CsSensitivity);
-				}
-				((_Config*) _config)->Override("sensitivity", m_CsSensitivity);
-			}
-			delete[] maxHitTable;
-		} else {
-			Log.Warning("Not enough reads to estimate parameter");
-		}
 
 	} else {
 		Log.Warning("qry_max_len was found in config file. Please make sure that this number is correct: %d", Config.GetInt("qry_max_len"));
@@ -364,47 +238,120 @@ ReadProvider::~ReadProvider() {
 	}
 }
 
+void ReadProvider::splitRead(MappedRead * read) {
+
+//	Log.Message("New read with length: %d", read->length);
+
+	int splitNumber = read->length / readPartLength;
+
+	int nameLength = strlen(read->name);
+
+//	printf("Name: %s\n", read->name);
+//	printf("ID: %d\n", read->ReadId);
+//	printf("Length: %d\n", read->length);
+//	printf("Parts: %d\n", splitNumber);
+//	printf("Seq: %s\n", read->Seq);
+
+	ReadGroup * group = new ReadGroup();
+	group->fullRead = read;
+	group->readId = read->ReadId;
+	group->bestScoreSum = 0;
+	group->fwdMapped = 0;
+	group->reverseMapped = 0;
+	group->readsFinished = 0;
+
+	if (splitNumber == 0) {
+		splitNumber = 1;
+		group->readNumber = splitNumber;
+		group->reads = new MappedRead *[splitNumber];
+		group->reads[0] = read;
+
+		read->group = group;
+
+		readBuffer[readsInBuffer++] = read;
+	} else {
+		group->readNumber = splitNumber;
+		group->reads = new MappedRead *[splitNumber];
+
+		for (int i = splitNumber - 1; i >= 0; --i) {
+			MappedRead * readPart = new MappedRead(read->ReadId + i,
+					readPartLength);
+
+			readPart->name = new char[nameLength + 1];
+			strcpy(readPart->name, read->name);
+
+			int length = std::min(readPartLength,
+					read->length - i * readPartLength);
+			readPart->length = length;
+
+			readPart->Seq = new char[readPartLength + 1];
+			memset(readPart->Seq, '\0', readPartLength + 1);
+			strncpy(readPart->Seq, read->Seq + i * readPartLength, length);
+
+			//readPart->qlty = new char[readPartLength + 1];
+			//memset(readPart->qlty, '\0', readPartLength + 1);
+			//strncpy(readPart->qlty, read->qlty + i * readPartLength, length);
+			readPart->qlty = 0;
+
+			readPart->group = group;
+
+			readPart->group->reads[i] = readPart;
+
+//		printf("Name: %s\n", readPart->name);
+//		printf("ID: %d\n", readPart->ReadId);
+//		printf("Length: %d\n", readPart->length);
+//		printf("Seq: %s\n", readPart->Seq);
+
+			readBuffer[readsInBuffer++] = readPart;
+		}
+	}
+}
+
 MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
-	static int const qryMaxLen = Config.GetInt("qry_max_len");
-	MappedRead * read = new MappedRead(id, qryMaxLen);
 
 	int l = 0;
 
-	try {
-		l = parser->parseRead(read);
+	if (readsInBuffer == 0) {
+		try {
+			static int const qryMaxLen = Config.GetInt("qry_max_len");
+			MappedRead * read = new MappedRead(id, qryMaxLen);
+			l = parser->parseRead(read);
+//			Log.Message("Parsing next read: %s (%d)", read->name, read->ReadId);
+			if (l >= 0) {
 
-		if (l >= 0) {
-			int nameLength = strlen(read->name);
+				Log.Debug(2, "READ_%d\tINPUT\t%s", id, read->name);
+				Log.Debug(16384, "READ_%d\tINPUT_DETAILS\t%s\t%s\t%s\t%s", id, read->Seq, read->qlty, read->AdditionalInfo);
 
-			if (isPaired && read->name[nameLength - 2] == peDelimiter) {
-				nameLength -= 2;
-				read->name[nameLength] = '\0';
+				splitRead(read);
+
+//			NGM.AddReadRead(read->ReadId);
+			} else {
+
+				Log.Debug(2, "READ_%d\tINPUT\t%s error while reading", id, read->name);
+
+				if(l == -2) {
+					Log.Error("Read %s: Length of read not equal length of quality values.", read->name);
+					Fatal();
+				} else if (l != -1) {
+					//TODO correct number when paired
+					Log.Error("Unknown error while parsing read number %d (error code: %d)", id + 1, l);
+					Fatal();
+				}
 			}
-
-			Log.Debug(2, "READ_%d\tINPUT\t%s", id, read->name);
-			Log.Debug(16384, "READ_%d\tINPUT_DETAILS\t%s\t%s\t%s\t%s", id, read->Seq, read->qlty, read->AdditionalInfo);
-
-			NGM.AddReadRead(read->ReadId);
-		} else {
-
-			Log.Debug(2, "READ_%d\tINPUT\t%s error while reading", id, read->name);
-
-			if(l == -2) {
-				Log.Error("Read %s: Length of read not equal length of quality values.", read->name);
-				Fatal();
-			} else if (l != -1) {
-				//TODO correct number when paired
-				Log.Error("Unknown error while parsing read number %d (error code: %d)", id + 1, l);
-				Fatal();
-			}
-			delete read;
-			read = 0;
+			//delete read;
+			//read = 0;
+		} catch (char * ex) {
+			Log.Error("%s", ex);
+			Fatal();
 		}
-	} catch (char * ex) {
-		Log.Error("%s", ex);
-		Fatal();
 	}
-	return read;
+
+	if (readsInBuffer == 0) {
+		return 0;
+	} else {
+//		Log.Message("Sending already paresed read %d", readBuffer[readsInBuffer - 1]->ReadId);
+		return readBuffer[readsInBuffer-- - 1];
+	}
 }
 
 IParser * ReadProvider::DetermineParser(char const * fileName,
@@ -467,40 +414,8 @@ MappedRead * ReadProvider::GenerateSingleRead(int const readid) {
 bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1,
 		int const readid2, MappedRead * & read2) {
 
-	if (isPaired) {
-		static bool const isInterleaved = Config.Exists("qry");
-		if (isInterleaved) {
-			read1 = GenerateSingleRead(readid1);
-			read2 = GenerateSingleRead(readid2);
-		} else {
-			read1 = NextRead(parser1, readid1);
-			read2 = NextRead(parser2, readid2);
-		}
-
-		if (read1 != 0 && read2 != 0) {
-			if (!skipMateCheck && strcmp(read1->name, read2->name) != 0) {
-				Log.Error("Error while reading paired end reads.");
-				Log.Error("Names of mates don't match: %s and %s.", read1->name, read2->name);
-				Log.Error("NextGenMap expects paired end read names with the format: <read name>/<mate nunber> (e.g. @HWI-ST1176_0172:8:1101:1234:1934/1)");
-				Log.Error("Use -d/--pe-delimiter to specify a different delimiter than '/'");
-				Log.Error("If the format of the read names is correct this error might be caused by missing mates in the input file. Please check your input files or use ngm-utils interleave to match mate pairs.");
-				Log.Error("If you are sure that your input files are valid use --skip-mate-check");
-				Fatal();
-			}
-			read1->Paired = read2;
-			read2->Paired = read1;
-			return true;
-		} else if (read1 == 0 && read2 == 0) {
-			return false;
-		} else {
-			Log.Error("Error in input file. Number of reads in input not even. Please check the input or mapped in single-end mode.");
-			Fatal();
-		}
-	} else {
-		read1 = GenerateSingleRead(readid1);
-		read2 = GenerateSingleRead(readid2);
-		return read1 != 0 && read2 != 0;
-	}
+	read1 = GenerateSingleRead(readid1);
+	return read1 != 0;
 }
 
 void ReadProvider::DisposeRead(MappedRead * read) {

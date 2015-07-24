@@ -113,28 +113,12 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
 //#endif
 
 		int const n = cur->refCount;
-//
-//		int binNr = pos / 256;
-//		int posInBin = pos % 256;
+
 		for (int i = 0; i < n; ++i) {
 			uloc loc = cur->getRealLocation(cur->ref[i]);
-			//cs->AddLocationStd(GetBin(loc - correction), cur->reverse, weight);
-			cs->AddLocationStd(GetBin(loc - (int) (correction * 0.95f)),
-					cur->reverse, weight);
-
-//			//Add read pos hashtable
-//			uloc key = GetBin(loc - posInBin);
-//			if (cur->reverse) {
-//				key = key * -1;
-//			}
-//			if (cs->readBins[binNr].iTable.find(key)
-//					== cs->readBins[binNr].iTable.end()) {
-//				cs->readBins[binNr].iTable[key] = 0;
-//			}
-//			cs->readBins[binNr].iTable[key] += 1;
-//			cs->readBins[binNr].n += 1;
-//			cs->readBins[binNr].max = std::max(cs->readBins[binNr].max,
-//					cs->readBins[binNr].iTable[key]);
+			cs->AddLocationStd(GetBin(loc - correction), cur->reverse, weight);
+			//cs->AddLocationStd(GetBin(loc - (int) (correction * 0.95f)),
+			//		cur->reverse, weight);
 		}
 
 		cur++;
@@ -297,15 +281,13 @@ int CS::CollectResultsStd(MappedRead * read) {
 		if (temp.fScore >= mi_Threshhold) {
 			LocationScore * toInsert = &tmp[index++];
 			toInsert->Score.f = temp.fScore;
-//			toInsert->Location.m_Location = ResolveBin(temp.m_Location);
-			toInsert->Location.m_Location = temp.m_Location;
+			toInsert->Location.m_Location = ResolveBin(temp.m_Location);
 			toInsert->Location.setReverse(false);
 		}
 		if (temp.rScore >= mi_Threshhold) {
 			LocationScore * toInsert = &tmp[index++];
-			toInsert->Score.f = temp.rScore * -1.0f;
-//			toInsert->Location.m_Location = ResolveBin(temp.m_Location);
-			toInsert->Location.m_Location = temp.m_Location;
+			toInsert->Score.f = temp.rScore;
+			toInsert->Location.m_Location = ResolveBin(temp.m_Location);
 			toInsert->Location.setReverse(true);
 		}
 	}
@@ -321,513 +303,27 @@ int CS::CollectResultsFallback(MappedRead * read) {
 	return 0;
 }
 
-bool sortLocationScore2(LocationScore a, LocationScore b) {
-	return a.Location.m_Location < b.Location.m_Location;
-}
-
-bool sortLocationScoreByScore(LocationScore a, LocationScore b) {
-	return fabs(a.Score.f) > fabs(b.Score.f);
-}
-
-template<typename T> int sgn(T val) {
-	return (T(0) < val) - (val < T(0));
-}
-
-Align CS::computeAlignment(MappedRead* read, int const scoreId,
-		int const corridor) {
-
-	Align align;
-	LocationScore & score = read->Scores[scoreId];
-
-	Log.Message("Computing alignment (%d) for position: %llu", scoreId, score.Location.m_Location);
-	char * refBuffer = new char[read->length + corridor + 1];
-
-	//decode reference sequence
-	if (!SequenceProvider.DecodeRefSequence(refBuffer, 0,
-			score.Location.m_Location - (corridor >> 1), read->length + corridor)) {
-		//Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
-		Log.Warning("Could not decode reference for alignment (read: %s)", read->name);
-		memset(refBuffer, 'N', read->length * 1.2f);
-	}
-	//initialize arrays for CIGAR and MD string
-	align.pBuffer1 = new char[read->length * 4];
-	align.pBuffer2 = new char[read->length * 4];
-	*(int*) align.pBuffer1 = 0x212121;
-	*(int*) align.pBuffer2 = 0x212121;
-
-	int const mode = 0;
-	if (score.Location.isReverse()) {
-		oclAligner->SingleAlign(mode, corridor, (char const * const ) refBuffer,
-				(char const * const ) read->RevSeq, align, 0);
-		printf(">Ref_%s\n%s\n>%s_rev\n%s", read->name, refBuffer, read->name, read->RevSeq);
-	} else {
-		oclAligner->SingleAlign(mode, corridor, (char const * const ) refBuffer,
-				(char const * const ) read->Seq, align, 0);
-		printf(">Ref_%s\n%s\n>%s\n%s", read->name, refBuffer, read->name, read->Seq);
-	}
-
-	score.Location.m_Location += align.PositionOffset - (corridor >> 1);
-
-	delete[] refBuffer;
-
-	return align;
-}
-
-struct interval {
-	int start;
-	int end;
-};
-
-void CS::BuildReducedRef(ulong prefix, uloc pos, ulong mutateFrom,
-		ulong mutateTo, void* data) {
-
-	CS * cs = (CS*) data;
-
-	if (cs->reducedRefTab[prefix].n != 10000) {
-		cs->reducedRefTab[prefix].positions[cs->reducedRefTab[prefix].n++] = pos
-				+ cs->currentReducedRefOffset;
-		//reducedRefTab[0].positions[0] = pos;
-	}
-	//Log.Message("%llu at %llu", prefix, uloc);
-
-}
-
-static const unsigned char ReverseTable16rt[] = { 0x00, 0x04, 0x08, 0x0C, 0x01,
-		0x05, 0x09, 0x0D, 0x02, 0x06, 0x0A, 0x0E, 0x03, 0x07, 0x0B, 0x0F };
-
-//Works only for 4 byte
-inline ulong revCompRt(ulong prefix) {
-	static const int shift = 32 - CS::prefixBits;
-
-	//Compute complement
-	ulong compPrefix = (prefix ^ 0xAAAAAAAA) & CS::prefixMask;
-	//Reverse
-	compPrefix = compPrefix << shift;
-	ulong compRevPrefix = (ReverseTable16rt[compPrefix & 0x0f] << 28)
-			| (ReverseTable16rt[(compPrefix >> 4) & 0x0f] << 24)
-			| (ReverseTable16rt[(compPrefix >> 8) & 0x0f] << 20)
-			| (ReverseTable16rt[(compPrefix >> 12) & 0x0f] << 16)
-			| (ReverseTable16rt[(compPrefix >> 16) & 0x0f] << 12)
-			| (ReverseTable16rt[(compPrefix >> 20) & 0x0f] << 8)
-			| (ReverseTable16rt[(compPrefix >> 24) & 0x0f] << 4)
-			| (ReverseTable16rt[(compPrefix >> 28) & 0x0f]);
-
-//	ulong compRevPrefix = (ReverseTable256[compPrefix & 0xff] << 24)
-//			| (ReverseTable256[(compPrefix >> 8) & 0xff] << 16)
-//			| (ReverseTable256[(compPrefix >> 16) & 0xff] << 8)
-//			| (ReverseTable256[(compPrefix >> 24) & 0xff]);
-
-	return compRevPrefix;
-}
-
-void CS::AddLocationRead(ulong prefix, uloc pos, ulong mutateFrom,
-		ulong mutateTo, void* data) {
-	CS * cs = (CS*) data;
-
-	int binNr = pos / 256;
-	int posInBin = pos % 256;
-
-	posInBin = posInBin * 0.95f;
-
-	int kmerCount = cs->reducedRefTab[prefix].n;
-
-	for (int i = 0; i < kmerCount; ++i) {
-		uloc loc = cs->reducedRefTab[prefix].positions[i];
-		uloc key = (loc - posInBin) / cs->reducedBinSize;
-		if (cs->readBins[binNr].iTable.find(key)
-				== cs->readBins[binNr].iTable.end()) {
-			cs->readBins[binNr].iTable[key].count = 0;
-			cs->readBins[binNr].iTable[key].sum = 0;
-		}
-		cs->readBins[binNr].iTable[key].count += 1;
-		cs->readBins[binNr].iTable[key].sum += (loc - posInBin);
-		cs->readBins[binNr].n += 1;
-		cs->readBins[binNr].max = std::max(cs->readBins[binNr].max,
-				cs->readBins[binNr].iTable[key].count);
-	}
-
-	ulong revPrefix = revCompRt(prefix);
-	char * seq = cs->m_CurrentBatch[cs->m_CurrentSeq]->Seq;
-
-//	Log.Message("Seq: %.6s, Fwd: %llu, Rev: %llu", seq + pos, prefix, revPrefix);
-	kmerCount = cs->reducedRefTab[revPrefix].n;
-
-	for (int i = 0; i < kmerCount; ++i) {
-		uloc loc = cs->reducedRefTab[revPrefix].positions[i];
-//		uloc key = (loc - posInBin) / cs->reducedBinSize;
-
-//		Log.Message("%d-%d - correction : %d", binNr, posInBin, (256 - (posInBin + CS::prefixBasecount)));
-		uloc key = (loc - (256 - (posInBin + CS::prefixBasecount)))
-				/ cs->reducedBinSize;
-		key = key * -1;
-//		Log.Message("%llu -> %llu", loc, key);
-		if (cs->readBins[binNr].iTable.find(key)
-				== cs->readBins[binNr].iTable.end()) {
-			cs->readBins[binNr].iTable[key].count = 0;
-			cs->readBins[binNr].iTable[key].sum = 0;
-		}
-		cs->readBins[binNr].iTable[key].count += 1;
-		cs->readBins[binNr].iTable[key].sum += (loc - (256 - (posInBin + CS::prefixBasecount)));
-		cs->readBins[binNr].n += 1;
-		cs->readBins[binNr].max = std::max(cs->readBins[binNr].max,
-				cs->readBins[binNr].iTable[key].count);
-	}
-}
-
 void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 		AlignmentBuffer * out) {
 
-	float maxScore = 0.0f;
+	if (read == 0)
+		return;
 
-	int sumScoreIndex = 0;
+	int count = read->numScores();
 
-	if (read->numScores() > 0) {
-		LocationScore * tmpScores = new LocationScore[read->numScores()];
-		memcpy(tmpScores, read->Scores,
-				sizeof(LocationScore) * read->numScores());
-
-		//TODO: sort by location
-		std::sort(tmpScores, tmpScores + read->numScores(), sortLocationScore2);
-
-		for (int i = 0; i < read->numScores(); ++i) {
-
-			LocationScore score = tmpScores[i];
-
-			SequenceLocation loc = score.Location;
-			//SequenceProvider.convert(loc);
-
-			int refNameLength = 0;
-			Log.Message("READ_%d\tSCORES_RESULTS\tCMR_%d\t%f\t%llu\t%s", read->ReadId, i, score.Score.f, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength));
-		}
-
-		//Merge peaks
-		for (int i = 0; i < read->numScores(); ++i) {
-
-			uloc position = tmpScores[i].Location.m_Location;
-			LocationScore score = tmpScores[i];
-			float scoresum = tmpScores[i].Score.f;
-
-			int j = i + 1;
-			while (j < read->numScores()
-					&& abs(
-							tmpScores[i].Location.m_Location
-									- tmpScores[j].Location.m_Location) < 3
-					&& sgn(tmpScores[i].Score.f) == sgn(tmpScores[j].Score.f)) {
-				scoresum += tmpScores[j].Score.f;
-				j += 1;
-				i += 1;
-			}
-
-			SequenceLocation loc = score.Location;
-			loc.m_Location = ResolveBin(loc.m_Location);
-//			SequenceProvider.convert(loc);
-
-			read->Scores[sumScoreIndex].Location = loc;
-			read->Scores[sumScoreIndex].Score.f = scoresum;
-
-			maxScore = std::max(maxScore, (float) fabs(scoresum));
-
-			Log.Message("%llu: %f", read->Scores[sumScoreIndex].Location.m_Location, read->Scores[sumScoreIndex].Score.f);
-
-			sumScoreIndex += 1;
-
-		}
-//		printf("%s\t%d\t%f\t%d\t%f\n", read->name, count, maxScore,
-//				read->length, maxScore / read->length);
-	}
-
-	Log.Message("Waiting");
-	getchar();
-
-	uloc reducedRefStart = 0;
-	uloc reducedRefStop = 0;
-	Log.Message("Sum score index: %d", sumScoreIndex);
-	//CMR serach on reduced reference with smaller k-mers
-	for (int i = 0; i < sumScoreIndex; ++i) {
-		Log.Message("%f > %f", read->Scores[i].Score.f, maxScore * 0.99f);
-		if (abs(read->Scores[i].Score.f) > maxScore * 0.99f) {
-			Log.Message("Candidate %llu: %f", read->Scores[i].Location.m_Location, read->Scores[i].Score.f);
-//			reducedRefStart = read->Scores[i].Location.m_Location - read->length / 2;
-//			reducedRefStop = reducedRefStart + 2 * read->length;
-			reducedRefStart = read->Scores[i].Location.m_Location - 50000;
-			reducedRefStop = reducedRefStart + 2 * 50000;
-			Log.Message("Reduced reference from %llu to %llu", reducedRefStart, reducedRefStop);
-		}
-	}
-
-//	reducedBinSize = 16;
-//	int maxKmerPos = 10000;
-//	double kmerSize = 6;
-//	int reducedRefTabLen = pow(4.0, kmerSize);
-//	reducedRefTab = new RefTabEntry[reducedRefTabLen + 1];
-//	currentReducedRefOffset = reducedRefStart;
-//
-//	//Init reduced ref tab
-//	for (int k = 0; k < reducedRefTabLen; ++k) {
-//		reducedRefTab[k].positions = new int[maxKmerPos];
-//		reducedRefTab[k].n = 0;
-//	}
-//
-//	Timer t;
-//	t.ST();
-//	Log.Message("Start timing");
-//	int reducedRefTabSeqLen = reducedRefStop - reducedRefStart + 1;
-//	char * reducedRefTabSeq = new char[reducedRefTabSeqLen];
-//
-//	SequenceProvider.DecodeRefSequence(reducedRefTabSeq,0, reducedRefStart, reducedRefTabSeqLen);
-//	//Log.Message("%s", reducedRefTabSeq);
-//
-//	//Building hash table
-//	CS::prefixBasecount = kmerSize;
-//	CS::prefixBits = prefixBasecount * 2;
-//	CS::prefixMask = ((ulong) 1 << prefixBits) - 1;
-//
-//	Timer t1;
-//	t1.ST();
-//	PrefixIteration(reducedRefTabSeq, reducedRefTabSeqLen, BuildReducedRef, 0,
-//			0, this, 0, 0);
-//	Log.Message("Build reduced ref table took: %f", t1.ET());
-//
-////	long sum = 0;
-////	for (int i = 0; i < reducedRefTabLen; ++i) {
-////		sum += reducedRefTab[i].n;
-////	}
-////	Log.Message("Mean: %f", sum / reducedRefTabLen * 1.0f);
-//
-//	Timer t2;
-//	t2.ST();
-//	PrefixIteration(read->Seq, read->length, AddLocationRead, 0, 0, this, 0, 0);
-//	Log.Message("Adding locations took %f seconds", t2.ET());
-//
-//	CS::prefixBasecount = 13;
-//	CS::prefixBits = prefixBasecount * 2;
-//	CS::prefixMask = ((ulong) 1 << prefixBits) - 1;
-//
-//	Log.Message("Hash loop up finished");
-//
-//	//Finding positions
-//	Timer t3;
-//	t3.ST();
-//	int binCount = read->length / 256 + 1;
-//	LocationScore * scores = new LocationScore[100];
-//	int scoreIndex = 0;
-//
-//	uloc lastBinPos = 0;
-//
-//	for (int j = 0; j < binCount; ++j) {
-//		scoreIndex = 0;
-//		ReadBin & bin = readBins[j];
-//		//Log.Message("Bin %d: %d, %d (elements in hash: %d)", j, bin.n, bin.max, bin.iTable.size());
-//		if (bin.n == -1) {
-//			Log.Message("Overflow");
-//		} else {
-//			if(bin.n > 0) {
-//				int k = 0;
-//
-//				//Find highest scoring positions
-//				typedef std::map<long, AvgPos>::iterator it_type;
-//				for(it_type iterator = bin.iTable.begin(); iterator != bin.iTable.end(); iterator++) {
-//					int count = iterator->second.count;
-//					uloc avgPos = iterator->second.sum / count;
-//					//If the position has at least half as many k-mer hits as the best position
-//					if(count > bin.max * 0.5f) {
-//
-//						scores[scoreIndex].Score.i = count;
-//						scores[scoreIndex].Location.m_Location = iterator->first * reducedBinSize;
-//
-//						//float alnScore = scoreReadPart(read->Seq, read->length, j, iterator->first * reducedBinSize);
-//						float alnScore = 0;
-//
-//						SequenceLocation loc;
-//						loc.m_Location = abs(avgPos);
-//						if(avgPos < 0) {
-//							loc.setReverse(true);
-//						}
-//						//loc.m_Location = abs(iterator->first * reducedBinSize);
-//						//SequenceProvider.convert(loc);
-//						//int refNameLength = 0;
-//
-////						if(count == bin.max) {
-////							Log.Message("BIN %d - %d: from %d to %d (blocknr: %d) x %d (max: %d) - score: %f - %s:%llu", j, k++, iterator->first * reducedBinSize, iterator->first * reducedBinSize + 256, iterator->first * reducedBinSize / 256, count, bin.max, alnScore, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), loc.m_Location);
-////							Log.Message("Start: %llu", avgPos);
-////						} else {
-////							Log.Message("BIN %d - %d: \tfrom %d to %d (blocknr: %d) x %d (max: %d) - score: %f - %s:%llu", j, k++, iterator->first * reducedBinSize, iterator->first * reducedBinSize + 256, iterator->first * reducedBinSize / 256, count, bin.max, alnScore, SequenceProvider.GetRefName(loc.getrefId(), refNameLength), loc.m_Location);
-////							Log.Message("Start: %llu", avgPos);
-////						}
-//
-//						scoreIndex += 1;
-//					} else {
-//						//Log.Message("BIN %d - %d: \t\t\t%llu x %d (max: %d)", j, k++, iterator->first, count, bin.max);
-//					}
-//				}
-//
-//				k = 0;
-//				int bestIndex = -1;
-//				if(scoreIndex == 1) {
-//					bestIndex = 0;
-//					k += 1;
-//				} else {
-//					float bestScore = -1;
-//					for(int l = 0; l < scoreIndex; l++) {
-//						float alnScore = scoreReadPart(read->Seq, read->length, j, scores[l].Location.m_Location);
-//						Log.Message("\tSCORE: %llu %d -> %f", scores[l].Location.m_Location, scores[l].Score.i, alnScore);
-//						k += 1;
-//						if(alnScore > bestScore) {
-//							bestIndex = l;
-//							bestScore = alnScore;
-//						}
-//					}
-//
-//				}
-//				if(k == 0) {
-//					Log.Message("BIN %d - iTable was empty", j);
-//				}
-//
-//				Log.Message("BIN %d - %d: %d, %d (blocknr: %d) x %d (max: %d)", j, k++, scores[bestIndex].Location.m_Location, scores[bestIndex].Location.isReverse(), scores[bestIndex].Location.m_Location / 256, scores[bestIndex].Score.i, bin.max);
-//
-//				if(j == 0) {
-//					//First BIN
-//					Log.Message("Starting at %llu", scores[bestIndex].Location.m_Location);
-//				} else {
-//					uloc offset = scores[bestIndex].Location.m_Location - lastBinPos;
-//					Log.Message("offset %d", offset);
-//					if(offset > 300 || offset < 200) {
-//						SequenceLocation conv;
-//						conv.m_Location = lastBinPos;
-//						SequenceProvider.convert(conv);
-//						int length = 0;
-//						Log.Message("Offset ist off at position %s-%llu", SequenceProvider.GetRefName(conv.getrefId(), length), conv.m_Location);
-//						getchar();
-//					}
-//
-//				}
-//
-//				lastBinPos = scores[bestIndex].Location.m_Location;
-//			} else {
-//				Log.Message("Bin.n == 0");
-//			}
-//		}
-//		Log.Message("----------------------------------------------------");
-//	}
-//	delete[] scores;
-//	scores = 0;
-//	Log.Message("Assigning bins to reference took %f", t3.ET());
-//
-//	Log.Message("Took %f secdons", t.ET());
-//
-//	//Delete reduced ref tab
-//	for (int k = 0; k < reducedRefTabLen; ++k) {
-//		delete[] reducedRefTab[k].positions;
-//		reducedRefTab[k].positions = 0;
-//	}
-//	delete[] reducedRefTab;
-//	reducedRefTab = 0;
-//
-//	delete[] reducedRefTabSeq;
-//	reducedRefTabSeq = 0;
-//
-//	Log.Message("Waiting");
-//	getchar();
-
-	if (sumScoreIndex < 1) {
-		Log.Message("Read %s has no candidate", read->name);
-		alignmentBuffer->WriteRead(read, false);
-	} else if (sumScoreIndex < 100) {
-		Log.Message("Read %s has %d candidates", read->name, sumScoreIndex);
-		std::sort(read->Scores, read->Scores + sumScoreIndex,
-				sortLocationScoreByScore);
-
-		read->Calculated = sumScoreIndex;
-		read->Alignments = new Align[read->Calculated];
-		read->numTopScores = 1;
-
-		read->computeReverseSeq();
-
-		int corridor = (int) (read->length * 0.2f + 0.5f) / 2 * 2;
-
-		bool finished = false;
-		for (int i = 0; i < sumScoreIndex && !finished; ++i) {
-			int refNameLength = 0;
-//			printf("%s\t%d\t%s\t%llu\t%f\n", read->name, read->length,
-//					SequenceProvider.GetRefName(read->Scores[i].Location.getrefId(), refNameLength), read->Scores[i].Location.m_Location, read->Scores[i].Score.f);
-
-			float kmerPer100Bp = read->Scores[i].Score.f * 100.0f / read->length;
-			Log.Message("Found candidate (%d) with k-mer score %f (%f) on position %llu", i, read->Scores[i].Score.f, kmerPer100Bp, read->Scores[i].Location.m_Location);
-
-			Align align = computeAlignment(read, i, corridor);
-			read->Alignments[i] = align;
-
-//			SequenceProvider.convert(read->Scores[i].Location);
-
-			int clipped = align.QStart + align.QEnd;
-			float covered = (read->length - clipped) * 100.0f / read->length;
-
-			float scorePer100Bp = read->Alignments[i].Score * 100.0f / (read->length - clipped);
-			Log.Message("Alignment with score %f (%f) to position %llu (%d) covered %f%% of the read (%d: %d - %d)", align.Score, scorePer100Bp, read->Scores[i].Location.m_Location, !read->Scores[i].Location.isReverse(), covered, read->length - clipped, align.QStart, read->length - align.QEnd);
-			//finished = true;
-			if(covered > 90.0) {
-				finished = true;
-			}
-		}
-
-		alignmentBuffer->WriteRead(read, true);
-//		NGM.AddMappedRead(read->ReadId);
+	if (count == 0) {
+		read->Calculated = 0;
+		read->group->readsFinished += 1;
+		out->addRead(read, -1);
 	} else {
-
-		Log.Message("Read %s has to many candidates (%d)", read->name, sumScoreIndex);
-		alignmentBuffer->WriteRead(read, false);
-		//NGM.AddUnmappedRead(read, 0);
-		//delete read;
-		//read = 0;
-
+		read->Calculated = 0;
+		sw->addRead(read, count);
+		++m_WrittenReads;
 	}
-
-	return;
-
-//	if (read == 0)
-//		return;
-
-//	int count = read->numScores();
-//
-//	if (count == 0) {
-//		read->Calculated = 0;
-//		out->addRead(read, -1);
-//	} else {
-//		read->Calculated = 0;
-//		sw->addRead(read, count);
-//		++m_WrittenReads;
-//	}
 }
 
 void CS::Cleanup() {
 	NGM.ReleaseWriter();
-}
-
-float CS::scoreReadPart(char const * const readSeq, int const qryLen,
-		int const bin, long const refBin) {
-
-	char * readPart = new char[256 + 1];
-	//Log.Message("Copy %d bytes starting from +%d", 256, bin * 256);
-	strncpy(readPart, readSeq + bin * 256, 256);
-	char * refPart = new char[256 + 16 + 1];
-	SequenceProvider.DecodeRefSequence(refPart, 0, refBin - 8, 256 + 16);
-
-//	SequenceLocation loc;
-//	loc.m_Location = refBin - 8;
-//	SequenceProvider.convert(loc);
-
-	//Log.Message("Ref from: %d to %d", loc.m_Location, loc.m_Location + 256 + 16);
-
-	//Log.Message("ReadBin: %d, RefBin: %d", bin, refBin);
-	//Log.Message("Ref:  %s\nRead: %s", refPart, readPart);
-
-	float score = 0;
-	oclAligner->SingleScore(0, reducedBinSize, refPart, readPart, score, 0);
-
-	delete[] readPart;
-	delete[] refPart;
-
-	return score;
 }
 
 int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
@@ -838,20 +334,9 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 	int nScoresSum = 0;
 
 	for (size_t i = 0; i < m_CurrentBatch.size(); ++i) {
-		Log.Message("Processing read %s", m_CurrentBatch[i]->name);
-		int binCount = m_CurrentBatch[i]->length / 256 + 1;
-		//readBins = new std::vector<int>[binCount + 1];
-		readBins = new ReadBin[binCount + 1];
-		for (int j = 0; j < binCount; ++j) {
-			ReadBin * bin = readBins + j;
-			//bin->slots = new uloc[100000];
-			bin->max = 0;
-			bin->n = 0;
-		}
-		Log.Message("BinCount: %d (read length: %d)", binCount, m_CurrentBatch[i]->length);
 
-//		m_CurrentSeq = m_CurrentBatch[i]->ReadId;
-		m_CurrentSeq = i;
+		m_CurrentSeq = m_CurrentBatch[i]->ReadId;
+		//m_CurrentSeq = i;
 
 		//currentState = 2 * i;
 		currentState++;
@@ -882,7 +367,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 		char const * const qrySeq = m_CurrentBatch[i]->Seq;
 		uloc qryLen = m_CurrentBatch[i]->length;
 
-		SetSearchTableBitLen(24);
+//		SetSearchTableBitLen(24);
 
 		if (!fallback) {
 			try {
@@ -893,7 +378,6 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 			} catch (int overflow) {
 				++m_Overflows;
 
-				Log.Message("Overflow in CS!");
 				// Initiate fallback
 				fallback = true;
 			}
@@ -901,7 +385,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 		if (fallback) {
 			int c_SrchTableBitLenBackup = c_SrchTableBitLen;
 			int x = 2;
-			while (fallback && (c_SrchTableBitLenBackup + x) <= 24) {
+			while (fallback && (c_SrchTableBitLenBackup + x) <= 20) {
 				fallback = false;
 				try {
 
@@ -927,41 +411,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 			SetSearchTableBitLen(c_SrchTableBitLenBackup);
 		}
 
-//		for (int j = 0; j < binCount; ++j) {
-//
-//			ReadBin & bin = readBins[j];
-//			if(bin.n == -1) {
-//				Log.Message("Overflow");
-//			} else {
-//				if(bin.n > 0) {
-//					std::sort(bin.slots, bin.slots + bin.n);
-//					int count = 1;
-//					int last = -1;
-//					for(int k = 0; k < bin.n; ++k) {
-//						if(last == bin.slots[k]) {
-//							count += 1;
-//						} else {
-//							if(count > 5) {
-//								Log.Message("%d: %llu x %d", j, last, count);
-//							}
-//							last = bin.slots[k];
-//							count = 1;
-//						}
-//					}
-//					Log.Message("%d: %llu x %d", j, last, count);
-//
-//					delete readBins[j].slots;
-//					readBins[j].slots = 0;
-//				}
-//			}
-//		}
-
 		SendToBuffer(m_CurrentBatch[i], sw, out);
-
-		delete[] readBins;
-		readBins = 0;
-		Log.Message("Waiting");
-		getchar();
 
 	}
 

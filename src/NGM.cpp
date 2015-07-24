@@ -244,18 +244,16 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 	list.reserve(desBatchSize);
 	int count = 0;
 
+	//Long PacBio reads are split into smaller parts.
+	//Each part should have own id.
+	int idJump = 2000;
+
 	for (int i = 0; i < desBatchSize && !eof; i = i + 2) {
 		MappedRead * read1 = 0;
-		MappedRead * read2 = 0;
-		eof = !NGM.GetReadProvider()->GenerateRead(m_CurStart + i, read1, m_CurStart + i + 1, read2);
-
+		eof = !NGM.GetReadProvider()->GenerateRead(m_CurStart + i * idJump, read1, 0, read1);
 		if (read1 != 0) {
 			count += 1;
 			list.push_back(read1);
-			if (read2 != 0) {
-				count += 1;
-				list.push_back(read2);
-			}
 		}
 	}
 

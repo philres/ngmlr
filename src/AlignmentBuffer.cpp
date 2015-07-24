@@ -97,7 +97,8 @@ void AlignmentBuffer::DoRun() {
 
 			//decode reference sequence
 			if (!SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), 0,
-							cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor)) {
+							cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), refMaxLen)) {
+//							cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor)) {
 				Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
 				//Log.Warning("Read sequence: %s", cur_read->Seq);
 				memset(const_cast<char *>(refBuffer[i]), 'N', refMaxLen);
@@ -113,7 +114,7 @@ void AlignmentBuffer::DoRun() {
 			*(int*) alignBuffer[i].pBuffer1 = 0x212121;
 			*(int*) alignBuffer[i].pBuffer2 = 0x212121;
 
-			Log.Message("Ref:  %s\nRead: %s", refBuffer[i], qryBuffer[i]);
+			//Log.Message("Ref:  %s\nRead: %s", refBuffer[i], qryBuffer[i]);
 
 		}
 

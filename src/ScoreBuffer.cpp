@@ -108,7 +108,8 @@ void ScoreBuffer::DoRun() {
 
 			//decode reference sequence
 			if (!SequenceProvider.DecodeRefSequence(const_cast<char *>(m_RefBuffer[i]), 0,
-							loc.m_Location - (corridor >> 1), cur_read->length + corridor)) {
+							loc.m_Location - (corridor >> 1), refMaxLen)) {
+//							loc.m_Location - (corridor >> 1), cur_read->length + corridor)) {
 				Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", loc.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
 				//Log.Warning("Read sequence: %s", cur_read->Seq);
 				memset(const_cast<char *>(m_RefBuffer[i]), 'N', refMaxLen);
@@ -140,81 +141,109 @@ void ScoreBuffer::DoRun() {
 			//TODO_GENOMESIZE: Re-enable me
 			//Log.Debug(1024, "READ_%d\tSCORES_DETAILS\tCMR_%d\t%f\t%.*s\t%s", cur_read->ReadId, scoreId, m_ScoreBuffer[i], refMaxLen, m_RefBuffer[i], m_QryBuffer[i]);
 
-			if (!isPaired) {
-				if (++cur_read->Calculated == cur_read->numScores()) {
-					//all scores computed for single end read
-					assert(cur_read->hasCandidates());
+			if (++cur_read->Calculated == cur_read->numScores()) {
+				//all scores computed for single end read
+				assert(cur_read->hasCandidates());
 
-					if (argos) {
-						if(argosMinScore > 0.0f) {
-							//Filter min score
-							LocationScore * tmp = new LocationScore[cur_read->numScores()];
-							int tmpIndex = 0;
-							for(int j = 0; j < cur_read->numScores(); ++j) {
-								float min = argosMinScore;
-								static float match = (float)Config.GetInt(MATCH_BONUS);
-								if(argosMinScore <= 1.0f) {
-									min = (cur_read->length * match) * argosMinScore;
-								}
-								//Log.Message("%f >= %f", cur_read->Scores[j].Score.f, min);
-								if(cur_read->Scores[j].Score.f >= min) {
-									tmp[tmpIndex++] = cur_read->Scores[j];
-								}
-							}
-
-							cur_read->clearScores();
-
-							if(tmpIndex > 0) {
-								cur_read->AllocScores(tmp, tmpIndex);
-								std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
-								cur_read->Calculated = cur_read->numScores();
-								computeMQ(cur_read);
-							} else {
-								Log.Verbose("%s no candidates!!", cur_read->name);
-							}
-							delete[] tmp; tmp = 0;
-						} else {
-							std::sort(cur_read->Scores, cur_read->Scores + cur_read->numScores(), sortLocationScore);
-							computeMQ(cur_read);
-						}
-
-						out->addRead(cur_read, -1);
-					} else {
 #ifdef DEBUGLOG
-						debugScoresFinished(cur_read);
+				debugScoresFinished(cur_read);
 #endif
-						if (maxTopScores == 1) {
-							top1SE(cur_read);
-						} else {
-							topNSE(cur_read);
+
+				topNSE(cur_read);
+
+				ReadGroup * group = cur_read->group;
+
+				//TODO: make atomic, parts from a group can end up in different threads!
+				group->readsFinished += 1;
+
+//				Log.Message("Scorecount for %s (%d): %d - %d", cur_read->name, cur_read->ReadId, cur_read->numScores(), cur_read->Calculated);
+				if(cur_read->Scores[0].Location.isReverse()) {
+					group->reverseMapped += 1;
+				} else {
+					group->fwdMapped += 1;
+				}
+				group->bestScoreSum += (int)cur_read->Scores[0].Score.f;
+
+				if(group->readsFinished == group->readNumber) {
+//					Log.Message("Read group with id %d finished", group->readId);
+//					Log.Message("Name: %s", cur_read->name);
+//					Log.Message("Reads in group: %d", group->readNumber);
+//					Log.Message("Reads finished: %d", group->readsFinished);
+//					Log.Message("Fwd: %d, Rev: %d", group->fwdMapped, group->reverseMapped);
+//					Log.Message("Avg best score %f", group->bestScoreSum * 1.0f / group->readsFinished);
+
+					float avgGroupScore = group->bestScoreSum * 1.0f / group->readsFinished;
+					float minGroupScore = avgGroupScore * 0.8f;
+
+					for(int j = 0; j < group->readNumber; ++j) {
+						MappedRead * part = group->reads[j];
+						//Log.Message("ID: %d (has %d scores)", part->ReadId, part->numScores());
+						float minScore = part->Scores[0].Score.f * 0.8;
+						for(int k = 0; k < part->numScores(); ++k) {
+							if(part->Scores[k].Score.f > minScore) {
+								//Log.Message("\t%f at %llu", part->Scores[k].Score.f, part->Scores[k].Location.m_Location);
+							}
 						}
 					}
-				}
-			} else {
-				if (++cur_read->Calculated == cur_read->numScores() && cur_read->Paired->Calculated == cur_read->Paired->numScores()) {
-#ifdef DEBUGLOG
-					debugScoresFinished(cur_read);
-					debugScoresFinished(cur_read->Paired);
-#endif
-					//all scores computed for both mates
-					if (maxTopScores == 1) {
-						if (!fastPairing) {
-							if (cur_read->Paired->hasCandidates()) {
-								top1PE(cur_read);
-							}
-							else {
-								top1SE(cur_read);
-							}
-						} else {
-							top1SE(cur_read);
-							if (cur_read->Paired->hasCandidates()) {
-								top1SE(cur_read->Paired);
-							}
-						}
-					} else {
-						topNPE(cur_read);
+
+					int first = 0;
+					while((group->reads[first]->numScores() == 0 || group->reads[first]->Scores[0].Score.f < minGroupScore) && first < group->readNumber) {
+						first += 1;
 					}
+
+					int last = group->readNumber - 1;
+					while((group->reads[last]->numScores() == 0 || group->reads[last]->Scores[0].Score.f < minGroupScore) && last >= 0) {
+						last -= 1;
+					}
+
+					if(first == group->readNumber || last < 0) {
+						Log.Message("Could not map read.");
+					} else {
+						int distOnRead = (last - first) * 512;
+
+						uloc firstPos = group->reads[last]->Scores[0].Location.m_Location;
+						uloc secondPos = group->reads[first]->Scores[0].Location.m_Location;
+
+						int distOnRef = 0;
+						if(secondPos > firstPos) {
+							distOnRef = secondPos - firstPos;
+						} else {
+							distOnRef = firstPos - secondPos;
+						}
+						//Log.Message("Start: %llu, End: %llu", first, last);
+						//Log.Message("Read length: %d", group->fullRead->length);
+						float coveredOnRead = (distOnRead + 256) * 100.0f / group->fullRead->length;
+						//Log.Message("Covered on read: %f", coveredOnRead);
+						//Log.Message("On read: %d, On ref: %llu", distOnRead, distOnRef);
+						int difference = distOnRead - distOnRef;
+						float diffPerc = (distOnRead - distOnRef) * 1.0f / group->fullRead->length;
+						//Log.Message("Difference: %d (%f)", difference, diffPerc);
+
+						printf("%s\t%d\t%d\%d\t%d\t%d\t%d\t%d\t%f\t%d\t%f\n", group->fullRead->name,
+								group->fullRead->ReadId,
+								group->fullRead->length,
+								group->readNumber,
+								first, last,
+								distOnRead, distOnRef,
+								coveredOnRead,
+								difference, diffPerc);
+
+						if(diffPerc < 0.1) {
+							//Normal read. No event.
+
+						} else {
+							ReadGroup * group = cur_read->group;
+
+							for(int j = 0; j < group->readNumber; ++j) {
+								delete group->reads[j];
+							}
+							delete group->fullRead;
+							delete group;
+						}
+					}
+					//getchar();
 				}
+
 			}
 		}
 		scoreTime += tmr.ET();
@@ -305,21 +334,21 @@ void ScoreBuffer::topNSE(MappedRead* read) {
 		read->Calculated = numScores;
 		read->Alignments = new Align[read->Calculated];
 
-		//Submit reads to alignment computation
-		out->addRead(read, 0);
-		for (int j = 1; j < numScores; ++j) {
-			if (topScoresOnly
-					&& read->Scores[0].Score.f != read->Scores[j].Score.f) {
-				Log.Error("Internal error while processing alignment scores for read %s", read->name);
-				Fatal();
-			}
-			out->addRead(read, j);
-		}
+//		//Submit reads to alignment computation
+//		out->addRead(read, 0);
+//		for (int j = 1; j < numScores; ++j) {
+//			if (topScoresOnly
+//					&& read->Scores[0].Score.f != read->Scores[j].Score.f) {
+//				Log.Error("Internal error while processing alignment scores for read %s", read->name);
+//				Fatal();
+//			}
+//			out->addRead(read, j);
+//		}
 	} else {
-		//To many equal scoring positions, report as unmapped
-		read->mappingQlty = 0;
-		read->clearScores();
-		out->addRead(read, -1);
+//		//To many equal scoring positions, report as unmapped
+//		read->mappingQlty = 0;
+//		read->clearScores();
+//		out->addRead(read, -1);
 	}
 }
 
