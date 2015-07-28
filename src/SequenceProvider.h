@@ -19,6 +19,14 @@ public:
 	static void Cleanup();
 
 	virtual void Init(bool dualstrand = true);
+
+	struct Chromosome {
+		uloc start;
+		uloc end;
+	};
+
+	bool DecodeRefSequenceExact(char * const buffer, uloc offset,
+			uloc bufferLength, int corridor);
 	bool DecodeRefSequence(char* const buffer, int n, uloc offset, uloc len);
 	// Gets the length of read/reference string n
 	virtual uloc GetRefLen(int n) const;
@@ -31,6 +39,8 @@ public:
 	static const int maxRefNameLength = 100;
 
 	bool convert(SequenceLocation & m_Location);
+
+	Chromosome getChrStart(uloc const position);
 
 private:
 
@@ -74,9 +84,10 @@ private:
 
 	static const int minRefSeqLen = 10;
 
-	void writeEncRefToFile(char const * fileName, uint const refCount, uloc const encRefSize);
+	void writeEncRefToFile(char const * fileName, uint const refCount,
+			uloc const encRefSize);
 	int readEncRefFromFile(char const * fileName, const uloc maxLen);
-
+	void decode(uloc startPosition, uloc endPosition, char* const sequence);
 };
 
 #define SequenceProvider _SequenceProvider::Instance()

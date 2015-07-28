@@ -57,27 +57,35 @@ public:
 
 	static ulong alignmentCount;
 
+	Align computeAlignment(MappedRead* read, int const scoreId,
+			int const corridor);
+
+	Align computeAlignment(uloc const position, int const corridor,
+			char * const readSeq, size_t const readLength);
+
+	void processLongRead(ReadGroup * group);
+
 	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
 			batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(
-					NGM.GetOutputFormat()),
-					alignmode(Config.GetInt(MODE, 0, 1)),
-					corridor(Config.GetInt("corridor")),
-					refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
-					min_mq(Config.GetInt(MIN_MQ)),
-					aligner(mAligner), argos(Config.Exists(ARGOS)) {
-						pairInsertSum = 0;
-						pairInsertCount = 0;
-						brokenPairs = 0;
-						m_Writer = 0;
-						nReads = 0;
+			NGM.GetOutputFormat()),
+			alignmode(Config.GetInt(MODE, 0, 1)),
+			corridor(Config.GetInt("corridor")),
+			refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
+			min_mq(Config.GetInt(MIN_MQ)),
+			aligner(mAligner), argos(Config.Exists(ARGOS)) {
+				pairInsertSum = 0;
+				pairInsertCount = 0;
+				brokenPairs = 0;
+				m_Writer = 0;
+				nReads = 0;
 
-						m_EnableBS = false;
-						m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
+				m_EnableBS = false;
+				m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 
-						int const outputformat = NGM.GetOutputFormat();
+				int const outputformat = NGM.GetOutputFormat();
 
-						if(Config.Exists(ARGOS)) {
-							m_Writer = (GenericReadWriter*) new ScoreWriter((FileWriter*)NGM.getWriter());
+				if(Config.Exists(ARGOS)) {
+					m_Writer = (GenericReadWriter*) new ScoreWriter((FileWriter*)NGM.getWriter());
 						} else {
 							switch (outputformat) {
 								case 0:

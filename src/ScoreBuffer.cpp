@@ -74,6 +74,20 @@ void ScoreBuffer::debugScoresFinished(MappedRead * read) {
 #endif
 }
 
+ReadGroup* ScoreBuffer::updateGroupInfo(MappedRead* cur_read) {
+	ReadGroup* group = cur_read->group;
+	//TODO: make atomic, parts from a group can end up in different threads!
+	group->readsFinished += 1;
+	//				Log.Message("Scorecount for %s (%d): %d - %d", cur_read->name, cur_read->ReadId, cur_read->numScores(), cur_read->Calculated);
+	if (cur_read->Scores[0].Location.isReverse()) {
+		group->reverseMapped += 1;
+	} else {
+		group->fwdMapped += 1;
+	}
+	group->bestScoreSum += (int) (cur_read->Scores[0].Score.f);
+	return group;
+}
+
 void ScoreBuffer::DoRun() {
 
 	if (iScores != 0) {
@@ -151,97 +165,12 @@ void ScoreBuffer::DoRun() {
 
 				topNSE(cur_read);
 
-				ReadGroup * group = cur_read->group;
 
-				//TODO: make atomic, parts from a group can end up in different threads!
-				group->readsFinished += 1;
+				ReadGroup* group = updateGroupInfo(cur_read);
 
-//				Log.Message("Scorecount for %s (%d): %d - %d", cur_read->name, cur_read->ReadId, cur_read->numScores(), cur_read->Calculated);
-				if(cur_read->Scores[0].Location.isReverse()) {
-					group->reverseMapped += 1;
-				} else {
-					group->fwdMapped += 1;
-				}
-				group->bestScoreSum += (int)cur_read->Scores[0].Score.f;
-
+				//If all reads from group are finished
 				if(group->readsFinished == group->readNumber) {
-//					Log.Message("Read group with id %d finished", group->readId);
-//					Log.Message("Name: %s", cur_read->name);
-//					Log.Message("Reads in group: %d", group->readNumber);
-//					Log.Message("Reads finished: %d", group->readsFinished);
-//					Log.Message("Fwd: %d, Rev: %d", group->fwdMapped, group->reverseMapped);
-//					Log.Message("Avg best score %f", group->bestScoreSum * 1.0f / group->readsFinished);
-
-					float avgGroupScore = group->bestScoreSum * 1.0f / group->readsFinished;
-					float minGroupScore = avgGroupScore * 0.8f;
-
-					for(int j = 0; j < group->readNumber; ++j) {
-						MappedRead * part = group->reads[j];
-						//Log.Message("ID: %d (has %d scores)", part->ReadId, part->numScores());
-						float minScore = part->Scores[0].Score.f * 0.8;
-						for(int k = 0; k < part->numScores(); ++k) {
-							if(part->Scores[k].Score.f > minScore) {
-								//Log.Message("\t%f at %llu", part->Scores[k].Score.f, part->Scores[k].Location.m_Location);
-							}
-						}
-					}
-
-					int first = 0;
-					while((group->reads[first]->numScores() == 0 || group->reads[first]->Scores[0].Score.f < minGroupScore) && first < group->readNumber) {
-						first += 1;
-					}
-
-					int last = group->readNumber - 1;
-					while((group->reads[last]->numScores() == 0 || group->reads[last]->Scores[0].Score.f < minGroupScore) && last >= 0) {
-						last -= 1;
-					}
-
-					if(first == group->readNumber || last < 0) {
-						Log.Message("Could not map read.");
-					} else {
-						int distOnRead = (last - first) * 512;
-
-						uloc firstPos = group->reads[last]->Scores[0].Location.m_Location;
-						uloc secondPos = group->reads[first]->Scores[0].Location.m_Location;
-
-						int distOnRef = 0;
-						if(secondPos > firstPos) {
-							distOnRef = secondPos - firstPos;
-						} else {
-							distOnRef = firstPos - secondPos;
-						}
-						//Log.Message("Start: %llu, End: %llu", first, last);
-						//Log.Message("Read length: %d", group->fullRead->length);
-						float coveredOnRead = (distOnRead + 256) * 100.0f / group->fullRead->length;
-						//Log.Message("Covered on read: %f", coveredOnRead);
-						//Log.Message("On read: %d, On ref: %llu", distOnRead, distOnRef);
-						int difference = distOnRead - distOnRef;
-						float diffPerc = (distOnRead - distOnRef) * 1.0f / group->fullRead->length;
-						//Log.Message("Difference: %d (%f)", difference, diffPerc);
-
-						printf("%s\t%d\t%d\%d\t%d\t%d\t%d\t%d\t%f\t%d\t%f\n", group->fullRead->name,
-								group->fullRead->ReadId,
-								group->fullRead->length,
-								group->readNumber,
-								first, last,
-								distOnRead, distOnRef,
-								coveredOnRead,
-								difference, diffPerc);
-
-						if(diffPerc < 0.1) {
-							//Normal read. No event.
-
-						} else {
-							ReadGroup * group = cur_read->group;
-
-							for(int j = 0; j < group->readNumber; ++j) {
-								delete group->reads[j];
-							}
-							delete group->fullRead;
-							delete group;
-						}
-					}
-					//getchar();
+					out->processLongRead(group);
 				}
 
 			}

@@ -57,6 +57,7 @@ private:
 	int computeMQ(float bestScore, float secondBestScore);
 
 	void debugScoresFinished(MappedRead * read);
+	ReadGroup* updateGroupInfo(MappedRead* cur_read);
 
 	const char** m_QryBuffer;
 	const char** m_RefBuffer;

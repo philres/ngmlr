@@ -133,6 +133,27 @@ static inline char dec4Low(unsigned char c) {
 	return dec4(c & 0xF);
 }
 
+_SequenceProvider::Chromosome _SequenceProvider::getChrStart(
+		uloc const position) {
+	if(position < 1000) {
+		Log.Message("Can't get starting position of chromosome.");
+				Fatal();
+	}
+	//Find the next larger chromosome start position in the concatenated reference for the mapping location
+	uloc * upper = std::upper_bound(refStartPos,
+			refStartPos + (refCount / 2) + 1, position);
+	//Check whether the mapping position is in one of the spacer regions between the chromosomes
+	if ((*upper - position) < 1000) {
+		Log.Message("Can't get starting position of chromosome.");
+		Fatal();
+	}
+
+	Chromosome chr;
+	chr.start = *(upper - 1);
+	chr.end = *(upper) - 1000;
+	return chr;
+}
+
 bool _SequenceProvider::convert(SequenceLocation & m_Location) {
 	//Convert position back to Chromosome+Position
 	SequenceLocation loc = m_Location;
@@ -399,65 +420,181 @@ void _SequenceProvider::Init(bool dualstrand) {
 	//Add artificial start position as upper bound for all all reads that map to the last chromosome
 	refStartPos[j] = refStartPos[j - 1] + SequenceProvider.GetRefLen(refCount - 1) + 1000;
 
+//	//Test decode
+//	char * sequence = new char[10000];
+//	int corridor = 12;
+//	int decodeLenght = 100;
+//
+//	DecodeRefSequenceExact(sequence, 2000, decodeLenght + corridor + 1,
+//			corridor);
+//	Log.Message("Decoded sequence: %s", sequence);
+//
+//	DecodeRefSequenceExact(sequence, 2001, decodeLenght + corridor + 1,
+//			corridor);
+//	Log.Message("Decoded sequence: %s", sequence);
+//
+//	decodeLenght = 101;
+//	DecodeRefSequenceExact(sequence, 2000, decodeLenght + corridor + 1,
+//			corridor);
+//	Log.Message("Decoded sequence: %s", sequence);
+//
+//	DecodeRefSequenceExact(sequence, 2001, decodeLenght + corridor + 1,
+//			corridor);
+//	Log.Message("Decoded sequence: %s", sequence);
+//
+//	DecodeRefSequenceExact(sequence, 1000, decodeLenght + corridor + 1,
+//			corridor);
+//	Log.Message("Decoded sequence: %s", sequence);
+//
+//	corridor = 24;
+//	DecodeRefSequenceExact(sequence, 1000, decodeLenght + corridor + 1,
+//			corridor);
+//	Log.Message("Decoded sequence: %s", sequence);
+//
+//	corridor = 10000;
+//	DecodeRefSequenceExact(sequence, 4642603, decodeLenght + corridor + 1,
+//			corridor);
+//	Log.Message("Decoded sequence: %s", sequence);
+//
+//	corridor = 10000;
+//	DecodeRefSequenceExact(sequence, 1000, decodeLenght + corridor + 1,
+//			corridor);
+//	Log.Message("Decoded sequence: %s", sequence);
+//
+//	corridor = 10000;
+//	DecodeRefSequenceExact(sequence, 1502, decodeLenght + corridor + 1,
+//			corridor);
+//	Log.Message("Decoded sequence: %s", sequence);
+//
+//	exit(0);
 }
 
-bool _SequenceProvider::DecodeRefSequence(char * const buffer, int n,
-		uloc offset, uloc bufferLength) {
+void _SequenceProvider::decode(uloc startPosition, uloc endPosition,
+		char * const sequence) {
+	Log.Message("DEBUG - Start: %llu, End: %llu", startPosition, endPosition);
+	uint codedIndex = 0;
+	//Position in encoded ref sequence (2 bases per byte)
+	uloc start = (startPosition + 1) / 2;//TODO: Check if equiv to ceil(offset / 2.0);
+	size_t decodeLength = (endPosition - startPosition + 1) / 2;
+	if (startPosition & 1) {
+		sequence[codedIndex++] = dec4Low(binRef[start - 1]);
+	}
+	for (uloc i = 0; i < decodeLength; ++i) {
+		sequence[codedIndex++] = dec4High(binRef[start + i]);
+		sequence[codedIndex++] = dec4Low(binRef[start + i]);
+	}
+}
+
+//TODO: remove unnecessary variables
+bool _SequenceProvider::DecodeRefSequenceExact(char * const sequence,
+		uloc startPosition, uloc sequenceLength, int corridor) {
+
+	if (startPosition >= GetConcatRefLen() || startPosition < 0) {
+		Log.Verbose("Invalid reference location. Offset: %d", startPosition);
+		return false;
+	}
+
+	memset(sequence, 'x', sequenceLength);
+
+	int halfCorridor = corridor / 2;
+	Chromosome chr = getChrStart(startPosition);
+	//Log.Message("DEBUG - Chr: %llu - %llu", chr.start, chr.end);
+
+	//First position of the requested sequence (incl corridor)
+	uloc decodeStartPosition = startPosition - halfCorridor;
+
+	//Last position of the requested sequence (incl corridor)
+	uloc endPosition = startPosition + sequenceLength - halfCorridor;
+
+	uloc decodeEndPosition = endPosition;
+	//Requested sequence is longer than the chromosome
+	if(endPosition > chr.end) {
+		//Log.Message("Correcting end position");
+		uloc diff = endPosition - chr.end;
+		//Set end position to last bp of chromosome
+		decodeEndPosition -= diff;
+	}
+
+	if(halfCorridor > startPosition) {
+		//DecodeStartPosition < 0
+		decodeStartPosition = chr.start;
+		uloc diff = halfCorridor - decodeStartPosition + 1000 - (startPosition - chr.start);
+		//Log.Message("Start diff: %llu", diff);
+		decode(decodeStartPosition, decodeEndPosition, sequence + diff);
+	} else if(decodeStartPosition < chr.start) {
+		//Decoding startposition is in one of the spacer regions
+		//Start decoding at chrStartPos, everything before stays N
+		uloc diff = chr.start - decodeStartPosition;
+		//Log.Message("Start diff: %llu", diff);
+		decodeStartPosition += diff;
+		decode(decodeStartPosition, decodeEndPosition, sequence + diff);
+	} else {
+		//Decode full sequence
+		decode(decodeStartPosition, decodeEndPosition, sequence);
+	}
+
+	sequence[sequenceLength - 1] = '\0';
+
+	return true;
+}
+
+bool _SequenceProvider::DecodeRefSequence(char * const sequence, int refId,
+		uloc position, uloc bufferLength) {
 	uloc len = bufferLength - 2;
 	if (DualStrand) {
-		n >>= 1;
+		refId >>= 1;
 	}
-//	Log.Message("%u %u %u", offset, bufferLength, binRefIdx[n].SeqLen);
-	//if (offset >= binRefIdx[n].SeqLen || offset < 0) {
-	if (offset >= GetConcatRefLen()) {
-		Log.Verbose("Invalid reference location. Offset: %d", offset);
+//	Log.Message("%u %u %u", position, bufferLength, binRefIdx[refId].SeqLen);
+	//if (position >= binRefIdx[refId].SeqLen || position < 0) {
+	if (position >= GetConcatRefLen()) {
+		Log.Verbose("Invalid reference location. Offset: %d", position);
 		return false;
 	}
 //	int nCount = 0;
-//	if (offset < 0) {
-//		nCount = abs(offset);
+//	if (position < 0) {
+//		nCount = abs(position);
 //		len -= nCount;
-//		offset = 0;
+//		position = 0;
 //	}
 	uloc end = 0;
-	if ((offset + len) > GetConcatRefLen()) {
-		end = (offset + len) - GetConcatRefLen();
+	if ((position + len) > GetConcatRefLen()) {
+		end = (position + len) - GetConcatRefLen();
 		len -= end;
 	}
-//	uint end = std::min((uint)0, binRefIdx[n].SeqLen - (offset + len));
+//	uint end = std::min((uint)0, binRefIdx[refId].SeqLen - (position + len));
 //	if (end < 0) {
 //		end = abs(end);
 //		len -= end;
 //	}
-//	int start = binRefIdx[n].SeqStart + ceil(offset / 2.0);
-	uloc start = (offset + 1) / 2; //TODO: Check if equiv to ceil(offset / 2.0);
+//	int start = binRefIdx[n].SeqStart + ceil(position / 2.0);
+	uloc start = (position + 1) / 2; //TODO: Check if equiv to ceil(position / 2.0);
 
 	uint codedIndex = 0;
 //	for (int i = 0; i < nCount; ++i) {
-//		buffer[codedIndex++] = 'x';
+//		sequence[codedIndex++] = 'x';
 //	}
-	if (offset & 1) {
-		buffer[codedIndex++] = dec4Low(binRef[start - 1]);
+	if (position & 1) {
+		sequence[codedIndex++] = dec4Low(binRef[start - 1]);
 	}
 	for (uloc i = 0; i < (len + 1) / 2; ++i) {
-		buffer[codedIndex++] = dec4High(binRef[start + i]);
-		buffer[codedIndex++] = dec4Low(binRef[start + i]);
+		sequence[codedIndex++] = dec4High(binRef[start + i]);
+		sequence[codedIndex++] = dec4Low(binRef[start + i]);
 	}
 	if (len & 1) {
-		buffer[codedIndex - 1] = 'x';
+		sequence[codedIndex - 1] = 'x';
 	}
 	for (uloc i = 0; i < end; ++i) {
-		buffer[codedIndex++] = 'x';
+		sequence[codedIndex++] = 'x';
 	}
 
 	if (codedIndex > bufferLength) {
-		Log.Error("nCount: %d, offset: %d, len: %d (%d), seqlen: %d, end: %d, start: %d, index: %d", 0, offset, bufferLength, (len+1)/2, binRefIdx[n].SeqLen, end, start, codedIndex);
-		Log.Error("%.*s", bufferLength, buffer);
+		Log.Error("nCount: %d, position: %d, len: %d (%d), seqlen: %d, end: %d, start: %d, index: %d", 0, position, bufferLength, (len+1)/2, binRefIdx[refId].SeqLen, end, start, codedIndex);
+		Log.Error("%.*s", bufferLength, sequence);
 		Fatal();
 	}
 
 	for (uint i = codedIndex; i < bufferLength; ++i) {
-		buffer[i] = '\0';
+		sequence[i] = '\0';
 	}
 	return true;
 }

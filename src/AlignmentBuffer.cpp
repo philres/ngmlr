@@ -154,6 +154,232 @@ void AlignmentBuffer::DoRun() {
 	}
 }
 
+Align AlignmentBuffer::computeAlignment(uloc const position, int const corridor,
+		char * const readSeq, size_t const readLength) {
+
+	Align align;
+
+	size_t const refSeqLen = readLength + corridor + 1;
+	char * refSeq = new char[refSeqLen];
+
+	//decode reference sequence
+	if (!SequenceProvider.DecodeRefSequenceExact(refSeq, position, refSeqLen, corridor)) {
+		//Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
+		Log.Warning("Could not decode reference for alignment");
+		memset(refSeq, 'N', refSeqLen);
+	}
+	//initialize arrays for CIGAR and MD string
+	align.pBuffer1 = new char[readLength * 4];
+	align.pBuffer2 = new char[readLength * 4];
+	*(int*) align.pBuffer1 = 0x212121;
+	*(int*) align.pBuffer2 = 0x212121;
+
+	//Local alignment
+	int mode = 0;
+	Log.Message("Aligning %d bp to %d bp (corridor %d)", readLength, refSeqLen, corridor);
+	printf("%llu\t%d\t%s\t%s", position, corridor, refSeq, readSeq);
+	aligner->SingleAlign(mode, corridor, (char const * const ) refSeq,
+			(char const * const ) readSeq, align, 0);
+//	Log.Message(">Ref\n%s\n>Read\n%s", refSeq, readSeq);
+
+	delete[] refSeq;
+	refSeq = 0;
+
+	return align;
+}
+
+Align AlignmentBuffer::computeAlignment(MappedRead* read, int const scoreId,
+		int const corridor) {
+
+	Align align;
+	LocationScore & score = read->Scores[scoreId];
+
+	Log.Message("Computing alignment (%d) for position: %llu", scoreId, score.Location.m_Location);
+	Log.Message("Corridor: %d", corridor);
+	char * refBuffer = new char[read->length + corridor + 1];
+
+	//decode reference sequence
+	if (!SequenceProvider.DecodeRefSequence(refBuffer, 0,
+			score.Location.m_Location - (corridor >> 1), read->length + corridor)) {
+		//Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
+		Log.Warning("Could not decode reference for alignment (read: %s)", read->name);
+		memset(refBuffer, 'N', read->length * 1.2f);
+	}
+	//initialize arrays for CIGAR and MD string
+	align.pBuffer1 = new char[read->length * 4];
+	align.pBuffer2 = new char[read->length * 4];
+	*(int*) align.pBuffer1 = 0x212121;
+	*(int*) align.pBuffer2 = 0x212121;
+
+	int const mode = 0;
+	if (score.Location.isReverse()) {
+		aligner->SingleAlign(mode, corridor, (char const * const ) refBuffer,
+				(char const * const ) read->RevSeq, align, 0);
+//		printf(">Ref_%s\n%s\n>%s_rev\n%s", read->name, refBuffer, read->name,
+//				read->RevSeq);
+	} else {
+		aligner->SingleAlign(mode, corridor, (char const * const ) refBuffer,
+				(char const * const ) read->Seq, align, 0);
+//		printf(">Ref_%s\n%s\n>%s\n%s", read->name, refBuffer, read->name,
+//				read->Seq);
+	}
+
+	score.Location.m_Location += align.PositionOffset - (corridor >> 1);
+
+	delete[] refBuffer;
+
+	return align;
+}
+
+void AlignmentBuffer::processLongRead(ReadGroup * group) {
+	//					Log.Message("Read group with id %d finished", group->readId);
+	//					Log.Message("Name: %s", cur_read->name);
+	//					Log.Message("Reads in group: %d", group->readNumber);
+	//					Log.Message("Reads finished: %d", group->readsFinished);
+	//					Log.Message("Fwd: %d, Rev: %d", group->fwdMapped, group->reverseMapped);
+	//					Log.Message("Avg best score %f", group->bestScoreSum * 1.0f / group->readsFinished);
+
+	float avgGroupScore = group->bestScoreSum * 1.0f / group->readsFinished;
+	float minGroupScore = avgGroupScore * 0.8f;
+
+//	for (int j = 0; j < group->readNumber; ++j) {
+//		MappedRead * part = group->reads[j];
+//		//Log.Message("ID: %d (has %d scores)", part->ReadId, part->numScores());
+//		float minScore = part->Scores[0].Score.f * 0.8;
+//		for (int k = 0; k < part->numScores(); ++k) {
+//			if (part->Scores[k].Score.f > minScore) {
+//				//Log.Message("\t%f at %llu", part->Scores[k].Score.f, part->Scores[k].Location.m_Location);
+//			}
+//		}
+//	}
+
+	//Find first read part that maps with a min score
+	int first = 0;
+	while ((group->reads[first]->numScores() == 0
+			|| group->reads[first]->Scores[0].Score.f < minGroupScore)
+			&& first < group->readNumber) {
+		first += 1;
+	}
+
+	//Find last read part that maps with a min score
+	int last = group->readNumber - 1;
+	while ((group->reads[last]->numScores() == 0
+			|| group->reads[last]->Scores[0].Score.f < minGroupScore)
+			&& last >= 0) {
+		last -= 1;
+	}
+
+	if (first == group->readNumber || last < 0) {
+		Log.Message("Could not map read.");
+	} else {
+		//Distance on read between start of first and last mapped read part
+		//+1 to take the full last read part into account
+		int distOnRead = (last - first + 1) * 512;
+
+		//If not the whole read is aligned add half of the read part size to alignment
+		size_t startPosOnRead = std::max(0, first * 512 - 256);
+		size_t endPosOnRead = std::min(group->fullRead->length, (last + 1) * 512 + 256);
+
+		Log.Message("Name: %s", group->fullRead->name);
+		Log.Message("On read (length %d): %d to %d (dist %d)", group->fullRead->length, startPosOnRead, endPosOnRead, distOnRead);
+
+		bool isReverse = false;
+		//Compute distance between mapped location of first and last mapped read part on reference
+		uloc endPos = group->reads[last]->Scores[0].Location.m_Location;
+		uloc startPos = group->reads[first]->Scores[0].Location.m_Location;
+		int distOnRef = 0;
+		if(startPos > endPos) {
+			distOnRef = startPos - endPos;
+			isReverse = true;
+		} else {
+			distOnRef = endPos - startPos;
+		}
+		//+512 to take full length of last read part into account
+		distOnRef += 512;
+		Log.Message("Start pos on ref: %llu to %llu (dist %llu)", startPos, endPos, distOnRef);
+
+		//Log.Message("Start: %llu, End: %llu", first, last);
+		//Log.Message("Read length: %d", group->fullRead->length);
+
+		float coveredOnRead = (distOnRead) * 100.0f / group->fullRead->length;
+		//Log.Message("Covered on read: %f", coveredOnRead);
+		//Log.Message("On read: %d, On ref: %llu", distOnRead, distOnRef);
+
+		//Difference between distance in read cooridnates and distance in ref coordinates
+		//If read doesn't span larger structural variations, difference should only be
+		//caused by PacBio sequence error model
+		int difference = distOnRead - distOnRef;
+		float diffPerc = (distOnRead - distOnRef) * 1.0f / group->fullRead->length;
+		//Log.Message("Difference: %d (%f)", difference, diffPerc);
+
+//		printf("%s\t%d\t%d\%d\t%d\t%d\t%d\t%d\t%f\t%d\t%f\n", group->fullRead->name,
+//				group->fullRead->ReadId,
+//				group->fullRead->length,
+//				group->readNumber,
+//				first, last,
+//				distOnRead, distOnRef,
+//				coveredOnRead,
+//				difference, diffPerc);
+
+		//If difference < 0.1. assume that read doesn't span larger SVs and map
+		//using alignment
+		if(abs(diffPerc) < 0.1) {
+			//Normal read. No event.
+
+			MappedRead * read = group->fullRead;
+
+			LocationScore * tmp = new LocationScore();
+
+			if(startPos > endPos) {
+				tmp->Location.m_Location = endPos;
+				tmp->Location.setReverse(true);
+			} else {
+				tmp->Location.m_Location = startPos;
+				tmp->Location.setReverse(false);
+			}
+
+			read->AllocScores(tmp, 1);
+			read->Alignments = new Align[1];
+
+			Timer tmr;
+			tmr.ST();
+			int corridor = std::max(abs(difference) * 2, (int)(read->length * 0.05));
+
+			if(isReverse) {
+				Log.Message("Read mapped reverse");
+
+				read->computeReverseSeq();
+				char * const readSeq = read->RevSeq + (read->length - endPosOnRead);
+				size_t const readSeqLen = endPosOnRead - startPosOnRead;
+				Log.Message("ReadSeqLen: %d", readSeqLen);
+
+				printf("%s\t", read->name);
+				read->Alignments[0] = computeAlignment(read->Scores[0].Location.m_Location, corridor, readSeq, readSeqLen);
+			} else {
+				char * const readSeq = read->Seq + startPosOnRead;
+				size_t const readSeqLen = endPosOnRead - startPosOnRead;
+
+				printf("%s\t", read->name);
+				read->Alignments[0] = computeAlignment(read->Scores[0].Location.m_Location, corridor, readSeq, readSeqLen);
+			}
+			Log.Message("CIGAR: %s", read->Alignments[0].pBuffer1);
+
+			printf("\t%d\n", read->Alignments[0].PositionOffset);
+			read->Scores[0].Location.m_Location += read->Alignments[0].PositionOffset - (corridor >> 1);
+
+			Log.Message("Alignment took %fs", tmr.ET());
+
+			read->Calculated = 1;
+
+			WriteRead(read, true);
+
+		} else {
+			WriteRead(group->fullRead, false);
+		}
+	}
+//	getchar();
+}
+
 void AlignmentBuffer::SaveRead(MappedRead * read, bool mapped) {
 	//if (!argos) {
 	WriteRead(read, mapped);

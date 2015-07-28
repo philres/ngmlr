@@ -260,18 +260,19 @@ void ReadProvider::splitRead(MappedRead * read) {
 	group->reverseMapped = 0;
 	group->readsFinished = 0;
 
+	read->group = group;
+
 	if (splitNumber == 0) {
 		splitNumber = 1;
 		group->readNumber = splitNumber;
 		group->reads = new MappedRead *[splitNumber];
 		group->reads[0] = read;
 
-		read->group = group;
-
 		readBuffer[readsInBuffer++] = read;
 	} else {
 		group->readNumber = splitNumber;
 		group->reads = new MappedRead *[splitNumber];
+		memset(group->reads, 0, sizeof(MappedRead * ) * splitNumber);
 
 		for (int i = splitNumber - 1; i >= 0; --i) {
 			MappedRead * readPart = new MappedRead(read->ReadId + i,
@@ -432,6 +433,19 @@ void ReadProvider::DisposeRead(MappedRead * read) {
 			read->SetFlag(NGMNames::DeletionPending);
 		}
 	} else {
+		Log.Message("Disposing read %s", read->name);
+		if (read->group != 0) {
+			for (int j = 0; j < read->group->readNumber; ++j) {
+				if (read->group->reads[j] != 0) {
+					delete read->group->reads[j];
+					read->group->reads[j] = 0;
+				}
+			}
+			Log.Message("Deleting group");
+			delete read->group;
+			read->group = 0;
+		}
+
 		// Single mode or no existing pair
 		delete read;
 	}
