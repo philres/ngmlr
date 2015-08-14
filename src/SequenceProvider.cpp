@@ -469,7 +469,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 //	exit(0);
 }
 
-void _SequenceProvider::decode(uloc startPosition, uloc endPosition,
+uloc _SequenceProvider::decode(uloc startPosition, uloc endPosition,
 		char * const sequence) {
 	Log.Message("DEBUG - Start: %llu, End: %llu", startPosition, endPosition);
 	uint codedIndex = 0;
@@ -483,6 +483,7 @@ void _SequenceProvider::decode(uloc startPosition, uloc endPosition,
 		sequence[codedIndex++] = dec4High(binRef[start + i]);
 		sequence[codedIndex++] = dec4Low(binRef[start + i]);
 	}
+	return codedIndex;
 }
 
 //TODO: remove unnecessary variables
@@ -509,19 +510,21 @@ bool _SequenceProvider::DecodeRefSequenceExact(char * const sequence,
 	uloc decodeEndPosition = endPosition;
 	//Requested sequence is longer than the chromosome
 	if(endPosition > chr.end) {
-		//Log.Message("Correcting end position");
+		Log.Message("Correcting end position");
 		uloc diff = endPosition - chr.end;
 		//Set end position to last bp of chromosome
 		decodeEndPosition -= diff;
 	}
 
 	if(halfCorridor > startPosition) {
+		Log.Message("DecodeStartPosition < 0");
 		//DecodeStartPosition < 0
 		decodeStartPosition = chr.start;
 		uloc diff = halfCorridor - decodeStartPosition + 1000 - (startPosition - chr.start);
 		//Log.Message("Start diff: %llu", diff);
 		decode(decodeStartPosition, decodeEndPosition, sequence + diff);
 	} else if(decodeStartPosition < chr.start) {
+		Log.Message("Decoding startposition is in one of the spacer regions");
 		//Decoding startposition is in one of the spacer regions
 		//Start decoding at chrStartPos, everything before stays N
 		uloc diff = chr.start - decodeStartPosition;
@@ -529,8 +532,10 @@ bool _SequenceProvider::DecodeRefSequenceExact(char * const sequence,
 		decodeStartPosition += diff;
 		decode(decodeStartPosition, decodeEndPosition, sequence + diff);
 	} else {
+		Log.Message("Full decode!");
 		//Decode full sequence
-		decode(decodeStartPosition, decodeEndPosition, sequence);
+		uloc decodedBp = decode(decodeStartPosition, decodeEndPosition, sequence);
+		Log.Message("copied %llu to %llu", decodedBp, sequenceLength);
 	}
 
 	sequence[sequenceLength - 1] = '\0';

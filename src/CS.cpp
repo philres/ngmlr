@@ -9,6 +9,8 @@
 #include "Debug.h"
 #include "AlignmentBuffer.h"
 
+#include "SWCPU.h"
+
 #undef module_name
 #define module_name "CS"
 
@@ -314,7 +316,7 @@ void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 	if (count == 0) {
 		read->Calculated = 0;
 		read->group->readsFinished += 1;
-		out->addRead(read, -1);
+		//out->addRead(read, -1);
 	} else {
 		read->Calculated = 0;
 		sw->addRead(read, count);
@@ -436,8 +438,30 @@ void CS::DoRun() {
 
 	NGM.AquireOutputLock();
 	oclAligner = NGM.CreateAlignment(gpu | (std::min(Config.GetInt("format", 0, 2), 1) << 8));
+
+
+//	IAlignment * aligner = new SWCPUCor(0);
+//	Align align;
+//	align.pBuffer1 = new char[10000];
+//	align.pBuffer2 = new char[10000];
+//	//TODO: alloc align.pBuffer1
+//	char const * const ref = "TTTTGAATCGGGGGTAGGTGAGCCAGGTCAAAGGTCTGTGTTAGCGCACCCCCTTTT";
+//	char const * const read = "GAATCGGGGGTAGGTGCAGGTCAATTTAGGTCTGTGTTAGCGCACCCCC";
+//	aligner->SingleAlign(0, 8, ref, read, align, 0);
+//
+//	Log.Message("CIGAR: %s", align.pBuffer1);
+//	Log.Message("MD: %s", align.pBuffer2);
+//	Log.Message("Scores: %f", align.Score);
+//	Log.Message("ID: %f, NM: %d", align.Identity, align.NM);
+//	Log.Message("Offset: %d, QStart: %d, QEnd: %d", align.PositionOffset, align.QStart, align.QEnd);
+	//exit(0);
+
+//	IAlignment * sswAligner = new StrippedSW();
+//	IAlignment * sswAligner = oclAligner;
+	IAlignment * sswAligner = new SWCPUCor(0);
+
 	alignmentBuffer = new AlignmentBuffer(
-	Config.Exists("output") ? Config.GetString("output") : 0, oclAligner);
+	Config.Exists("output") ? Config.GetString("output") : 0, sswAligner);
 	ScoreBuffer * scoreBuffer = new ScoreBuffer(oclAligner, alignmentBuffer);
 	NGM.ReleaseOutputLock();
 

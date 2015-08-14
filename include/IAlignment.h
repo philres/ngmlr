@@ -53,6 +53,8 @@ public:
 			char const * const * const refSeqList,
 			char const * const * const qrySeqList, Align * const results,
 			void * extData) = 0;
+
+	virtual ~IAlignment() {}
 };
 
 typedef IAlignment * (*pfCreateAlignment)(int const gpu_id);

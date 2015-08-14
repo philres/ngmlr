@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 include_directories (../include)
 include_directories (../src)
 include_directories (../lib/bamtools-2.3.0/src)
+include_directories (../lib/Complete-Striped-Smith-Waterman-Library/src)
 include_directories (../src/parser)
 include_directories (../src/writer)
 include_directories (../src/misc)
@@ -16,6 +17,7 @@ include_directories (paired)
 include_directories (.)
 
 add_executable(ngm-utils main.cpp
+                                ../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
 								reformat_fasta/reformat_fasta.cpp
 								cout_reads/cout-reads.cpp
 								kmers/kmer-distribution.cpp
@@ -32,9 +34,11 @@ add_executable(ngm-utils main.cpp
 								../src/PrefixTable.cpp
 								../src/parser/VcfParser.cpp
 								../src/CSstatic.cpp
+								../src/StrippedSW.cpp
  					)		
  
  add_executable(ngm-utils-debug main.cpp
+                                ../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
 								reformat_fasta/reformat_fasta.cpp
 								cout_reads/cout-reads.cpp
 								kmers/kmer-distribution.cpp
@@ -51,6 +55,7 @@ add_executable(ngm-utils main.cpp
 								../src/PrefixTable.cpp
 								../src/parser/VcfParser.cpp
 								../src/CSstatic.cpp
+								../src/StrippedSW.cpp
  					)
 
 SET_TARGET_PROPERTIES(ngm-utils PROPERTIES COMPILE_FLAGS "-g -O3 -DNDEBUG")

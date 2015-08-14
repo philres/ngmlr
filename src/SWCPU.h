@@ -52,9 +52,11 @@ using std::max;
 #define CIGAR_X 8
 
 
+typedef float Score;
+
 struct MatrixElement {
-	short score;
-	short indelRun;
+	Score score;
+	int indelRun;
 	char direction;
 };
 
@@ -91,24 +93,31 @@ public:
 			Align & result, void * extData);
 private:
 
-	bool cigar;
-	short scores[6][6];
-	short mat;
-	short mis;
-	short gap_read;
-	short gap_ref;
+	//bool cigar;
+	//short scores[6][6];
+	Score mat;
+	Score mis;
+	Score gap_open_read;
+	Score gap_open_ref;
+	Score gap_ext;
+	Score gap_ext_min;
+	Score gap_decay;
+
+	MatrixElement * alignMatrix;
+	int * binaryCigar;
+
 	//meta info
 	unsigned int batch_size; //effictive thread number that is started per call
 
-	int printCigarElement(char const op, short const length, char * cigar);
+	int printCigarElement(char const op, int const length, char * cigar);
 
-	void computeCigarMD(Align & result, int const gpuCigarOffset,
-			short const * const gpuCigar, char const * const refSeq, int corr_length, int read_length);
+	int computeCigarMD(Align & result, int const gpuCigarOffset,
+			int const * const gpuCigar, char const * const refSeq, int corr_length, int read_length, int const QStart, int const QEnd);
 
-	float SW_Score(char const * const scaff, char const * const read, short * result, int corr_length, MatrixElement * mat_pointer, short * local_mat_line);
+	Score SW_Score(char const * const scaff, char const * const read, int * result, int corr_length, MatrixElement * mat_pointer);
 
-	void Backtracking_CIGAR(char const * const scaff, char const * const read,
-			short *& result, short *& alignments, int corr_length, int read_length, int alignment_length, MatrixElement * mat_pointer);
+	bool Backtracking_CIGAR(char const * const scaff, char const * const read,
+			int *& result, int *& alignments, int corr_length, int read_length, int alignment_length, MatrixElement * mat_pointer);
 
 	void print_matrix(int alignment_length, const char* const refSeq,
 			int read_length, const char* const qrySeq, int corr_length,

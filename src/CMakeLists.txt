@@ -4,7 +4,9 @@ project(NextGenMap)
 include_directories (../lib/seqan-library-1.4.1/include)
 #include_directories (../lib/bamtools-2.3.0/src/api)
 include_directories (../lib/bamtools-2.3.0/src)
+include_directories (../lib/mason/cpu)
 include_directories (../lib/mason/opencl)
+include_directories (../lib/Complete-Striped-Smith-Waterman-Library/src)
 include_directories (../include)
 include_directories (parser)
 include_directories (writer)
@@ -15,8 +17,9 @@ include_directories (config)
 include_directories (.)
 
 configure_file( Version.h.in ${CMAKE_SOURCE_DIR}/src/Version.h )
-
-add_executable(ngm-core 	
+ 	
+add_executable(ngm-core
+					../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
 					parser/BamParser.cpp
 					writer/BAMWriter.cpp
 					parser/VcfParser.cpp																	
@@ -40,12 +43,14 @@ add_executable(ngm-core
 					SequenceProvider.cpp	
 					OutputReadBuffer.cpp	
 					ScoreBuffer.cpp
+					StrippedSW.cpp
+					SWCPU.cpp
 					core/unix.cpp
 					core/unix_threads.cpp
 					core/windows_threads.cpp
 					core/windows.cpp)										
 					
-ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/NGM_main.cpp")
+#ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/NGM_main.cpp")
 
 SET_TARGET_PROPERTIES(ngm-core PROPERTIES COMPILE_FLAGS "-g -O3 -DNDEBUG")
 
@@ -57,7 +62,8 @@ TARGET_LINK_LIBRARIES(ngm-core zlibstatic)
 add_definitions(-D _BAM) 
 
 
-add_executable(ngm-core-debug	
+add_executable(ngm-core-debug
+					../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
 					parser/BamParser.cpp
 					writer/BAMWriter.cpp
 					parser/VcfParser.cpp																		
@@ -81,6 +87,8 @@ add_executable(ngm-core-debug
 					SequenceProvider.cpp	
 					OutputReadBuffer.cpp				
 					ScoreBuffer.cpp
+					StrippedSW.cpp
+					SWCPU.cpp
 					core/unix.cpp
 					core/unix_threads.cpp
 					core/windows_threads.cpp

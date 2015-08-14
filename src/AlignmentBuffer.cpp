@@ -2,12 +2,22 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <cmath>
 
 #include "OutputReadBuffer.h"
 #include "Timing.h"
 
 ulong AlignmentBuffer::alignmentCount = 0;
 bool AlignmentBuffer::first = true;
+
+int TYPE_UNFILTERED = 0;
+int TYPE_LIS_SEQAN = 1;
+int TYPE_CLIS = 200;
+
+int STATUS_OK = 0;
+int STATUS_REPETITIVE = 1;
+int STATUS_NOHIT = 2;
+int STATUS_LOWSCORE = 3;
 
 void AlignmentBuffer::flush() {
 	DoRun();
@@ -154,37 +164,82 @@ void AlignmentBuffer::DoRun() {
 	}
 }
 
-Align AlignmentBuffer::computeAlignment(uloc const position, int const corridor,
-		char * const readSeq, size_t const readLength) {
+Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
+		char * const readSeq, size_t const readLength, int const QStart,
+		int const QEnd, int fullReadLength, MappedRead * read, bool isReverse) {
 
 	Align align;
 
-	size_t const refSeqLen = readLength + corridor + 1;
-	char * refSeq = new char[refSeqLen];
+	//TODO: hack to pass data for debugin
+	align.ExtendedData = read->name;
+	align.NM = isReverse;
 
-	//decode reference sequence
-	if (!SequenceProvider.DecodeRefSequenceExact(refSeq, position, refSeqLen, corridor)) {
-		//Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
-		Log.Warning("Could not decode reference for alignment");
-		memset(refSeq, 'N', refSeqLen);
-	}
 	//initialize arrays for CIGAR and MD string
 	align.pBuffer1 = new char[readLength * 4];
 	align.pBuffer2 = new char[readLength * 4];
 	*(int*) align.pBuffer1 = 0x212121;
 	*(int*) align.pBuffer2 = 0x212121;
 
-	//Local alignment
-	int mode = 0;
-	Log.Message("Aligning %d bp to %d bp (corridor %d)", readLength, refSeqLen, corridor);
-	printf("%llu\t%d\t%s\t%s", position, corridor, refSeq, readSeq);
-	aligner->SingleAlign(mode, corridor, (char const * const ) refSeq,
-			(char const * const ) readSeq, align, 0);
-//	Log.Message(">Ref\n%s\n>Read\n%s", refSeq, readSeq);
+	int * clipping = new int[2];
+	clipping[0] = QStart;
+	clipping[1] = QEnd;
 
-	delete[] refSeq;
-	refSeq = 0;
+	int cigarLength = -1;
+	//Required if corridor is increased!
+	int correctOffset = (corridor >> 1);
 
+	while (cigarLength == -1) {
+
+		size_t const refSeqLen = readLength + corridor + 1;
+		//TODO: check why decoded/SequenceProvider writes outised of refSeqLen
+		//This makes + 100 necessary
+		char * refSeq = new char[refSeqLen + 100];
+
+		//decode reference sequence
+		if (!SequenceProvider.DecodeRefSequenceExact(refSeq, position, refSeqLen, corridor)) {
+			//Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
+			Log.Warning("Could not decode reference for alignment");
+			memset(refSeq, 'N', refSeqLen);
+			exit(0);
+		}
+
+		//Local alignment
+		int mode = 0;
+		Log.Message("Aligning %d bp to %d bp (corridor %d)", readLength, refSeqLen, corridor);
+		Log.Message("Additional QStart: %d, QEnd: %d", clipping[0], clipping[1]);
+
+		//test-align python (ngila)
+//		SequenceLocation loc;
+//		loc.m_Location = position;
+//		SequenceProvider.convert(loc);
+//		int len = 0;
+//		printf("%llu\t%s\t%d\t%s\t%s", loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), len), corridor, refSeq, readSeq);
+
+		cigarLength = aligner->SingleAlign(mode, corridor,
+				(char const * const ) refSeq, (char const * const ) readSeq,
+				align, clipping);
+
+		if (cigarLength == -1) {
+			corridor = corridor * 2;
+			correctOffset = (corridor >> 1);
+
+			Log.Message("Invalid alignment found. Running again with corridor %d", corridor);
+		}
+
+		delete[] refSeq;
+		refSeq = 0;
+	}
+
+	if (cigarLength != fullReadLength) {
+		Log.Error("CIGAR string invalid: seq len: %d, cigar len: %d", fullReadLength,
+				cigarLength);
+//		exit(1);
+	}
+
+	delete[] clipping;
+	clipping = 0;
+
+	align.PositionOffset -= correctOffset;
 	return align;
 }
 
@@ -201,10 +256,11 @@ Align AlignmentBuffer::computeAlignment(MappedRead* read, int const scoreId,
 	//decode reference sequence
 	if (!SequenceProvider.DecodeRefSequence(refBuffer, 0,
 			score.Location.m_Location - (corridor >> 1), read->length + corridor)) {
-		//Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
+//Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
 		Log.Warning("Could not decode reference for alignment (read: %s)", read->name);
 		memset(refBuffer, 'N', read->length * 1.2f);
 	}
+
 	//initialize arrays for CIGAR and MD string
 	align.pBuffer1 = new char[read->length * 4];
 	align.pBuffer2 = new char[read->length * 4];
@@ -215,13 +271,13 @@ Align AlignmentBuffer::computeAlignment(MappedRead* read, int const scoreId,
 	if (score.Location.isReverse()) {
 		aligner->SingleAlign(mode, corridor, (char const * const ) refBuffer,
 				(char const * const ) read->RevSeq, align, 0);
-//		printf(">Ref_%s\n%s\n>%s_rev\n%s", read->name, refBuffer, read->name,
-//				read->RevSeq);
+		printf(">Ref_%s\n%s\n>%s_rev\n%s", read->name, refBuffer, read->name,
+				read->RevSeq);
 	} else {
 		aligner->SingleAlign(mode, corridor, (char const * const ) refBuffer,
 				(char const * const ) read->Seq, align, 0);
-//		printf(">Ref_%s\n%s\n>%s\n%s", read->name, refBuffer, read->name,
-//				read->Seq);
+		printf(">Ref_%s\n%s\n>%s\n%s", read->name, refBuffer, read->name,
+				read->Seq);
 	}
 
 	score.Location.m_Location += align.PositionOffset - (corridor >> 1);
@@ -231,13 +287,490 @@ Align AlignmentBuffer::computeAlignment(MappedRead* read, int const scoreId,
 	return align;
 }
 
+#include <seqan/graph_algorithms.h>
+#include <iostream>
+//using namespace seqan;
+
+using seqan::appendValue;
+using seqan::String;
+using seqan::Block;
+using seqan::longestIncreasingSubsequence;
+using seqan::length;
+
+typedef long long loc;
+
+struct Anchor {
+	int onRead;
+	loc onRef;
+	float score;
+	bool isReverse;
+	int type; //0: normal, 1: repetitive, 2: nothing found, 3: socre too low
+};
+
+bool sortAnchorOnRead(Anchor a, Anchor b) {
+	return a.onRead < b.onRead;
+}
+
+bool sortAnchorOnReadRev(Anchor a, Anchor b) {
+	return a.onRead > b.onRead;
+}
+
+bool sortAnchorOnRef(Anchor a, Anchor b) {
+	return a.onRef < b.onRef;
+}
+
+void printDotPlotLine(int const id, char const * const name, int const onRead,
+		loc const onRef, float const score, bool const isReverse,
+		int const type, int const status) {
+	printf("%d\t%s\t%d\t%llu\t%f\t%d\t%d\t%d\n", id, name, onRead * 512, onRef,
+			score, isReverse, type, status);
+}
+
+//Type: 0 unfiltered, 1 filtered
+void printDotPlot(char * name, int id, Anchor * anchors, int anchorsLength,
+		int filtered) {
+	for (int i = 0; i < anchorsLength; ++i) {
+		printf("%d\t%s\t%d\t%llu\t%f\t%d\t%d\t%d\n", id, name,
+				anchors[i].onRead * 512, anchors[i].onRef, anchors[i].score,
+				anchors[i].isReverse, filtered, anchors[i].type);
+	}
+}
+
+int * cLIS(Anchor * anchors, int const anchorsLenght, int & lisLength) {
+
+	int * DP = new int[anchorsLenght];
+	int * trace = new int[anchorsLenght];
+
+	int * lis = new int[anchorsLenght];
+	lisLength = 0;
+
+	if (anchorsLenght > 0) {
+		int maxLength = 1;
+		int bestEnd = 0;
+		DP[0] = 1;
+		trace[0] = -1;
+
+		for (int i = 0; i < anchorsLenght; i++) {
+			DP[i] = 1;
+			trace[i] = -1;
+
+			for (int j = i - 1; j >= 0; j--) {
+				uloc iRef =
+						(anchors[i].isReverse) ?
+								-1 * anchors[i].onRef : anchors[i].onRef;
+				uloc jRef =
+						(anchors[j].isReverse) ?
+								-1 * anchors[j].onRef : anchors[j].onRef;
+				uloc diff = iRef - jRef;
+
+				if (DP[j] + 1 > DP[i] && /*jRef < iRef && */diff < 512 * 1.2f
+						&& (diff > 512 * 0.8f
+								|| anchors[i].onRead == anchors[j].onRead)
+						&& anchors[j].isReverse == anchors[i].isReverse) {
+					DP[i] = DP[j] + 1;
+					trace[i] = j;
+				}
+			}
+
+			if (DP[i] > maxLength) {
+				bestEnd = i;
+				maxLength = DP[i];
+			}
+		}
+
+		while (trace[bestEnd] != -1) {
+			lis[lisLength++] = bestEnd;
+			bestEnd = trace[bestEnd];
+		}
+		lis[lisLength++] = bestEnd;
+
+		delete[] DP;
+		DP = 0;
+		delete[] trace;
+		trace = 0;
+	}
+
+	return lis;
+}
+
+String<loc, Block<> > getSeqAnLIS(int allFwdAnchorsLength, int id,
+		Anchor* allFwdAnchors, char* name) {
+
+	//TODO: try longest common subsequence with 1 specific symbol per read part.
+	//Second sequence consists of all matching positions on the reference (orderd)
+	//Positions get the same symbol as a read part if they got a alignment score
+	String<loc> seqFwd;
+	String<loc> seqRev;
+	String<float> weightsFwd;
+	String<float> weightsRev;
+	String<loc, Block<> > posFwd;
+	String<loc, Block<> > posRev;
+	for (int i = 0; i < allFwdAnchorsLength; ++i) {
+		if (allFwdAnchors[i].isReverse) {
+			appendValue(seqFwd, allFwdAnchors[i].onRef * -1);
+		} else {
+			appendValue(seqFwd, allFwdAnchors[i].onRef);
+		}
+		appendValue(weightsFwd, allFwdAnchors[i].score);
+	}
+	//	for (int i = 0; i < allRevAnchorsLength; ++i) {
+	//		appendValue(seqRev, allRevAnchors[i].onRef);
+	//		appendValue(weightsRev, allRevAnchors[i].score);
+	//
+	//	}
+	longestIncreasingSubsequence(seqFwd, posFwd);
+//	float w = heaviestIncreasingSubsequence(seqFwd, weightsFwd, posFwd);
+
+	std::cerr << "SeqAN LIS: ";
+	for (int i = length(posFwd) - 1; i >= 0; --i) {
+		std::cerr << posFwd[i] << ", ";
+		printDotPlotLine(id, name, allFwdAnchors[posFwd[i]].onRead,
+				allFwdAnchors[posFwd[i]].onRef, allFwdAnchors[posFwd[i]].score,
+				allFwdAnchors[posFwd[i]].isReverse, TYPE_LIS_SEQAN, STATUS_OK);
+	}
+	std::cerr << std::endl;
+	return posFwd;
+}
+
+struct Interval {
+	int onReadStart;
+	int onReadStop;
+	loc onRefStart;
+	loc onRefStop;
+	bool isReverse;
+
+	void print() {
+		Log.Message("Interval on read: %d - %d (diff: %d)", onReadStart, onReadStop, (onReadStop - onReadStart));
+		Log.Message("Anchor on ref: %d - %d (diff: %d)", onRefStart, onRefStop, onRefStop - onRefStart);
+
+	}
+};
+
+bool isCompatible(Interval a, Interval b) {
+
+	if(a.isReverse != b.isReverse) {
+		return false;
+	}
+
+	bool overlapsOnRead = false;
+	bool overlapsOnRef = false;
+
+	bool isInCorridor = false;
+
+	float k1 = (float)(a.onReadStop - a.onReadStart)  / (a.onRefStop - a.onRefStart) * 1.0f;
+	float d1 = (float)(a.onRefStart * 1.0f * a.onReadStop - a.onReadStart * 1.0f * a.onRefStop) / (a.onRefStart - a.onRefStop) * 1.0f;
+
+	float k2 = (float)(b.onReadStop - b.onReadStart)  / (float)(b.onRefStop - b.onRefStart)  * 1.0f;
+	float d2 = (float)(b.onRefStart * 1.0f * b.onReadStop - b.onReadStart * 1.0f * b.onRefStop) / (float)(b.onRefStart - b.onRefStop) * 1.0f;
+
+//	Log.Message("a: %d, b: %d, diff: %d", d1, d2, d2 - d1);
+
+	loc a_y0 = -(d1/k1);
+	loc b_y0 = -(d2/k2);
+
+	Log.Message("k1: %f, d1: %f", k1, d1);
+	Log.Message("k2: %f, d2: %f", k2, d2);
+
+	Log.Message("Read start - a: %llu, b: %llu, diff: %llu", a_y0, b_y0, abs(b_y0 - a_y0));
+
+	isInCorridor = abs(b_y0 - a_y0) < 512;
+
+	return !overlapsOnRead && !overlapsOnRef && isInCorridor;
+}
+
+bool isContained(Interval a, Interval b) {
+	return a.onReadStart >= b.onReadStart && a.onReadStop <= b.onReadStop
+			&& a.onRefStart >= b.onRefStart && a.onRefStop <= b.onRefStop && a.isReverse == b.isReverse;
+}
+
+Interval mergeIntervals(Interval a, Interval b) {
+	a.onReadStart = std::min(a.onReadStart, b.onReadStart);
+	a.onReadStop = std::max(a.onReadStop, b.onReadStop);
+	a.onRefStart = std::min(a.onRefStart, b.onRefStart);
+	a.onRefStop = std::max(a.onRefStop, b.onRefStop);
+	return a;
+}
+
+Interval * findSubsequences(char * name, int id, Anchor * allFwdAnchors,
+		int allFwdAnchorsLength, Anchor * allRevAnchors,
+		int allRevAnchorsLength, bool isReverse, int readParts, int readLenth) {
+
+	Log.Message("Finding LIS for read %d", id);
+
+	Interval * intervals = new Interval[1000];
+	int intervalsIndex = 0;
+
+	//Sort by position on read. Prpbably not necessary!!
+	std::sort(allFwdAnchors, allFwdAnchors + allFwdAnchorsLength,
+			sortAnchorOnRead);
+
+	//Get standard LIS with Seqan
+	String<loc, Block<> > posFwd = getSeqAnLIS(allFwdAnchorsLength, id,
+			allFwdAnchors, name);
+
+	int run = 0;
+	bool finished = false;
+	while (!finished) {
+		if (allFwdAnchorsLength > 0) {
+
+			//Print remaining elements
+			std::cerr << "Elements: ";
+			for (int i = 0; i < allFwdAnchorsLength; ++i) {
+				std::cerr << i << ":" << allFwdAnchors[i].onRead << ":"
+				<< allFwdAnchors[i].onRef << ":"
+				<< allFwdAnchors[i].isReverse << ", ";
+			}
+			std::cerr << std::endl;
+
+			//Find constrained LIS
+			int lisLength = 0;
+			int * lis = cLIS(allFwdAnchors, allFwdAnchorsLength, lisLength);
+
+			int minOnRead = 999999;
+			int maxOnRead = 0;
+
+			loc minOnRef = 999999999999;
+			loc maxOnRef = 0;
+
+			bool isReverse = false;
+
+			std::cerr << "cLIS" << run << ":     ";
+			//Remove LIS from candidates
+			int posInLIS = lisLength - 1;
+			allRevAnchorsLength = 0;
+			for (int i = 0; i < allFwdAnchorsLength; ++i) {
+				if (posInLIS >= 0 && i == lis[posInLIS]) {
+					//Print current LIS
+					std::cerr << lis[posInLIS] << ", ";
+					printDotPlotLine(id, name,
+							allFwdAnchors[lis[posInLIS]].onRead,
+							allFwdAnchors[lis[posInLIS]].onRef,
+							allFwdAnchors[lis[posInLIS]].score,
+							allFwdAnchors[lis[posInLIS]].isReverse,
+							TYPE_CLIS + run, STATUS_OK);
+
+					minOnRead = std::min(minOnRead,
+							allFwdAnchors[lis[posInLIS]].onRead);
+					maxOnRead = std::max(maxOnRead,
+							allFwdAnchors[lis[posInLIS]].onRead);
+
+					minOnRef = std::min(minOnRef,
+							allFwdAnchors[lis[posInLIS]].onRef);
+					maxOnRef = std::max(maxOnRef,
+							allFwdAnchors[lis[posInLIS]].onRef);
+
+					isReverse = allFwdAnchors[lis[posInLIS]].isReverse;
+
+					//Remove from remaining elements
+					posInLIS -= 1;
+				} else {
+					//Add to second array
+					allRevAnchors[allRevAnchorsLength++] = allFwdAnchors[i];
+					//			printDotPlotLine(id, name, allFwdAnchors[i].onRead,
+					//					allFwdAnchors[i].onRef, allFwdAnchors[i].score,
+					//					allFwdAnchors[i].isReverse, TYPE_CLIS_2, STATUS_OK);
+				}
+			}
+
+			std::cerr << std::endl;
+
+			Interval interval;				// = intervals[intervalsIndex++];
+
+			interval.onReadStart = minOnRead * 512;
+			interval.onReadStop = std::min(readLenth, (maxOnRead + 1) * 512);
+			interval.onRefStart = minOnRef;
+			interval.onRefStop = maxOnRef + 512;
+			interval.isReverse = isReverse;
+
+			interval.print();
+
+			bool addInterval = true;
+			bool done = false;
+			for(int j = 0; j < intervalsIndex && !done; ++j) {
+				if(isContained(interval, intervals[j])) {
+					Log.Message("Interval is contained in %d", j);
+					addInterval = false;
+					done = true;
+					//Do not add
+				} else {
+					Log.Message("Interval not contained in %d", j);
+
+					if(isCompatible(interval, intervals[j])) {
+						Log.Message("Is compatible");
+						addInterval = false;
+						//Merge
+						intervals[j] = mergeIntervals(interval, intervals[j]);
+						done = true;
+					} else {
+						addInterval = addInterval && true;
+						//Add
+					}
+				}
+			}
+
+			if(addInterval || intervalsIndex == 0) {
+				intervals[intervalsIndex++] = interval;
+				Log.Message("Adding interval");
+			}
+
+			//Switch first with second list
+			Anchor * tmp = allFwdAnchors;
+			allFwdAnchors = allRevAnchors;
+			allFwdAnchorsLength = allRevAnchorsLength;
+			allRevAnchors = tmp;
+			allRevAnchorsLength = 0;
+
+			lisLength = 0;
+			delete[] lis;
+
+			run += 1;
+			if (run == 4) {
+				finished = true;
+			}
+		} else {
+			finished = true;
+		}
+	}
+
+	Log.Message("========================");
+	for(int i = 0; i < intervalsIndex; ++i) {
+		intervals[i].print();
+	}
+	Log.Message("========================");
+	getchar();
+
+	//delete intervals;
+	//intervals = 0;
+	return intervals;
+}
+
+void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
+	float avgGroupScore = group->bestScoreSum * 1.0f / group->readsFinished;
+	float minGroupScore = avgGroupScore * 0.8f;
+
+	bool isReverse = false;
+	if (group->fwdMapped < group->reverseMapped) {
+//Read most probably maps on reverse strand
+		Log.Message("Read is reverse!");
+		isReverse = true;
+	}
+
+	Anchor * anchorsFwd = new Anchor[100000];
+	int anchorFwdIndex = 0;
+
+	Anchor * anchorsRev = new Anchor[100000];
+	int anchorRevIndex = 0;
+
+	for (int j = 0; j < group->readNumber; ++j) {
+		MappedRead * part = group->reads[j];
+
+		float minScore =
+				(part->numScores() > 0) ? part->Scores[0].Score.f * 0.8 : 0.0f;
+		bool print = false;
+
+		int maxCandidatesPerReadPart = 20;
+		for (int k = 0; k < part->numScores(); ++k) {
+			if (part->numScores() < maxCandidatesPerReadPart) {
+				if (part->Scores[k].Score.f > minScore) {
+//					Anchor & anchor =
+//							(part->Scores[k].Location.isReverse()) ?
+//									anchorsRev[anchorRevIndex++] :
+//									anchorsFwd[anchorFwdIndex++];
+					Anchor & anchor = anchorsFwd[anchorFwdIndex++];
+					anchor.onRead = j;
+					anchor.onRef = part->Scores[k].Location.m_Location;
+					anchor.score = part->Scores[k].Score.f;
+					anchor.isReverse = part->Scores[k].Location.isReverse();
+					anchor.type = STATUS_OK;
+					//Log.Message("%s\t%d\t%llu\t%f", group->fullRead->name, j, part->Scores[k].Location.m_Location, part->Scores[k].Score.f);
+					Log.Message("\t%f at %llu", part->Scores[k].Score.f, part->Scores[k].Location.m_Location);
+
+					printDotPlotLine(group->fullRead->ReadId,
+							group->fullRead->name, j,
+							part->Scores[k].Location.m_Location,
+							part->Scores[k].Score.f,
+							part->Scores[k].Location.isReverse(),
+							TYPE_UNFILTERED, STATUS_OK);
+					print = true;
+
+				} else {
+					//Score too low
+					printDotPlotLine(group->fullRead->ReadId,
+							group->fullRead->name, j,
+							part->Scores[k].Location.m_Location,
+							part->Scores[k].Score.f,
+							part->Scores[k].Location.isReverse(),
+							TYPE_UNFILTERED, STATUS_LOWSCORE);
+					print = true;
+				}
+			} else {
+				//Repetitive
+				printDotPlotLine(group->fullRead->ReadId, group->fullRead->name,
+						j, part->Scores[k].Location.m_Location,
+						part->Scores[k].Score.f,
+						part->Scores[k].Location.isReverse(), TYPE_UNFILTERED,
+						STATUS_REPETITIVE);
+				print = true;
+			}
+		}
+
+		if (!print) {
+			//No hits found
+			Log.Message("No hits found for part %d", j);
+			printDotPlotLine(group->fullRead->ReadId, group->fullRead->name,
+					j, 0, 0.0f, 0, TYPE_UNFILTERED, STATUS_NOHIT);
+		}
+	}
+	Interval * intervals = findSubsequences(group->fullRead->name,
+			group->fullRead->ReadId, anchorsFwd, anchorFwdIndex, anchorsRev,
+			anchorRevIndex, isReverse, group->readNumber,
+			group->fullRead->length);
+//
+//	Log.Message("Read ID: %d", group->fullRead->ReadId);
+//	loc last = 0;
+//	int lastOnRead = 0;
+//	bool first = true;
+//	for (int i = 0; i < group->readNumber; ++i) {
+//		Anchor & a = readAnchors[i];
+//
+//		if (a.onRead != -1) {
+//			if (a.score > avgGroupScore * 0.5f) {
+//				int foundDiff = a.onRef - last;
+//				int expectedDiff = (a.onRead - lastOnRead) * 512;
+//				int maxDiff = expectedDiff * 0.2f;
+//
+//				int diff = abs(abs(foundDiff) - abs(expectedDiff));
+//				if (diff > maxDiff && !first) {
+//					Log.Message("======================= Split =======================");
+//				}
+//				Log.Message("%d: %llu, %d, %f, %d - %d (%d - %d)", a.onRead, a.onRef, a.isReverse, a.score, foundDiff, expectedDiff, abs(foundDiff) - abs(expectedDiff), maxDiff);
+//				first = false;
+//				last = a.onRef;
+//				lastOnRead = a.onRead;
+//			} else {
+//				Log.Message("%d: score too low %f vs %f", i, a.score, avgGroupScore * 0.5f);
+//			}
+//		} else {
+//			Log.Message("%d: no candidates found", i);
+//		}
+//	}
+
+//	getchar();
+	WriteRead(group->fullRead, false);
+
+	delete[] anchorsFwd;
+	anchorsFwd = 0;
+	delete[] anchorsRev;
+	anchorsRev = 0;
+}
+
 void AlignmentBuffer::processLongRead(ReadGroup * group) {
-	//					Log.Message("Read group with id %d finished", group->readId);
-	//					Log.Message("Name: %s", cur_read->name);
-	//					Log.Message("Reads in group: %d", group->readNumber);
-	//					Log.Message("Reads finished: %d", group->readsFinished);
-	//					Log.Message("Fwd: %d, Rev: %d", group->fwdMapped, group->reverseMapped);
-	//					Log.Message("Avg best score %f", group->bestScoreSum * 1.0f / group->readsFinished);
+//					Log.Message("Read group with id %d finished", group->readId);
+//					Log.Message("Name: %s", cur_read->name);
+//					Log.Message("Reads in group: %d", group->readNumber);
+//					Log.Message("Reads finished: %d", group->readsFinished);
+//					Log.Message("Fwd: %d, Rev: %d", group->fwdMapped, group->reverseMapped);
+//					Log.Message("Avg best score %f", group->bestScoreSum * 1.0f / group->readsFinished);
 
 	float avgGroupScore = group->bestScoreSum * 1.0f / group->readsFinished;
 	float minGroupScore = avgGroupScore * 0.8f;
@@ -253,30 +786,30 @@ void AlignmentBuffer::processLongRead(ReadGroup * group) {
 //		}
 //	}
 
-	//Find first read part that maps with a min score
+//Find first read part that maps with a min score
 	int first = 0;
-	while ((group->reads[first]->numScores() == 0
-			|| group->reads[first]->Scores[0].Score.f < minGroupScore)
-			&& first < group->readNumber) {
+	while (first < group->readNumber
+			&& (group->reads[first]->numScores() == 0
+					|| group->reads[first]->Scores[0].Score.f < minGroupScore)) {
 		first += 1;
 	}
 
-	//Find last read part that maps with a min score
+//Find last read part that maps with a min score
 	int last = group->readNumber - 1;
-	while ((group->reads[last]->numScores() == 0
-			|| group->reads[last]->Scores[0].Score.f < minGroupScore)
-			&& last >= 0) {
+	while (last >= 0
+			&& (group->reads[last]->numScores() == 0
+					|| group->reads[last]->Scores[0].Score.f < minGroupScore)) {
 		last -= 1;
 	}
 
-	if (first == group->readNumber || last < 0) {
-		Log.Message("Could not map read.");
+	if (first == group->readNumber || last < 0 || group->readNumber < 3) {
+		Log.Verbose("Could not map read.");
 	} else {
-		//Distance on read between start of first and last mapped read part
-		//+1 to take the full last read part into account
+//Distance on read between start of first and last mapped read part
+//+1 to take the full last read part into account
 		int distOnRead = (last - first + 1) * 512;
 
-		//If not the whole read is aligned add half of the read part size to alignment
+//If not the whole read is aligned add half of the read part size to alignment
 		size_t startPosOnRead = std::max(0, first * 512 - 256);
 		size_t endPosOnRead = std::min(group->fullRead->length, (last + 1) * 512 + 256);
 
@@ -284,7 +817,7 @@ void AlignmentBuffer::processLongRead(ReadGroup * group) {
 		Log.Message("On read (length %d): %d to %d (dist %d)", group->fullRead->length, startPosOnRead, endPosOnRead, distOnRead);
 
 		bool isReverse = false;
-		//Compute distance between mapped location of first and last mapped read part on reference
+//Compute distance between mapped location of first and last mapped read part on reference
 		uloc endPos = group->reads[last]->Scores[0].Location.m_Location;
 		uloc startPos = group->reads[first]->Scores[0].Location.m_Location;
 		int distOnRef = 0;
@@ -294,23 +827,23 @@ void AlignmentBuffer::processLongRead(ReadGroup * group) {
 		} else {
 			distOnRef = endPos - startPos;
 		}
-		//+512 to take full length of last read part into account
+//+512 to take full length of last read part into account
 		distOnRef += 512;
 		Log.Message("Start pos on ref: %llu to %llu (dist %llu)", startPos, endPos, distOnRef);
 
-		//Log.Message("Start: %llu, End: %llu", first, last);
-		//Log.Message("Read length: %d", group->fullRead->length);
+//Log.Message("Start: %llu, End: %llu", first, last);
+//Log.Message("Read length: %d", group->fullRead->length);
 
 		float coveredOnRead = (distOnRead) * 100.0f / group->fullRead->length;
-		//Log.Message("Covered on read: %f", coveredOnRead);
-		//Log.Message("On read: %d, On ref: %llu", distOnRead, distOnRef);
+		Log.Message("Covered on read: %f", coveredOnRead);
+//Log.Message("On read: %d, On ref: %llu", distOnRead, distOnRef);
 
-		//Difference between distance in read cooridnates and distance in ref coordinates
-		//If read doesn't span larger structural variations, difference should only be
-		//caused by PacBio sequence error model
+//Difference between distance in read cooridnates and distance in ref coordinates
+//If read doesn't span larger structural variations, difference should only be
+//caused by PacBio sequence error model
 		int difference = distOnRead - distOnRef;
 		float diffPerc = (distOnRead - distOnRef) * 1.0f / group->fullRead->length;
-		//Log.Message("Difference: %d (%f)", difference, diffPerc);
+		Log.Message("Difference: %d (%f)", difference, diffPerc);
 
 //		printf("%s\t%d\t%d\%d\t%d\t%d\t%d\t%d\t%f\t%d\t%f\n", group->fullRead->name,
 //				group->fullRead->ReadId,
@@ -321,11 +854,11 @@ void AlignmentBuffer::processLongRead(ReadGroup * group) {
 //				coveredOnRead,
 //				difference, diffPerc);
 
-		//If difference < 0.1. assume that read doesn't span larger SVs and map
-		//using alignment
-		if(abs(diffPerc) < 0.1) {
+//If difference < 0.1. assume that read doesn't span larger SVs and map
+//using alignment
+		Log.Message("%f < %f", fabs(diffPerc), 0.1f);
+		if(fabs(diffPerc) < 0.1) {
 			//Normal read. No event.
-
 			MappedRead * read = group->fullRead;
 
 			LocationScore * tmp = new LocationScore();
@@ -343,29 +876,50 @@ void AlignmentBuffer::processLongRead(ReadGroup * group) {
 
 			Timer tmr;
 			tmr.ST();
-			int corridor = std::max(abs(difference) * 2, (int)(read->length * 0.05));
+			int corridor = std::max(abs(difference) * 2, (int)(read->length * 0.2));
+			//corridor = corridor / 2 * 2;
 
 			if(isReverse) {
 				Log.Message("Read mapped reverse");
 
 				read->computeReverseSeq();
-				char * const readSeq = read->RevSeq + (read->length - endPosOnRead);
+
 				size_t const readSeqLen = endPosOnRead - startPosOnRead;
+//				char * const readSeq = read->RevSeq + (read->length - endPosOnRead);
+				char * const readSeq = new char[readSeqLen + 1];
+				strncpy(readSeq, read->RevSeq + (read->length - endPosOnRead), readSeqLen);
+				readSeq[readSeqLen] = '\0';
 				Log.Message("ReadSeqLen: %d", readSeqLen);
 
-				printf("%s\t", read->name);
-				read->Alignments[0] = computeAlignment(read->Scores[0].Location.m_Location, corridor, readSeq, readSeqLen);
+				int const QEnd = startPosOnRead;
+				int const QStart = read->length - endPosOnRead;
+
+				//test-align python (ngila)
+//				printf("%s\t%d\t", read->name, 1);
+				read->Alignments[0] = computeAlignment(read->Scores[0].Location.m_Location, corridor, readSeq, readSeqLen, QStart, QEnd, read->length, read, true);
 			} else {
-				char * const readSeq = read->Seq + startPosOnRead;
+//				char * const readSeq = read->Seq + startPosOnRead;
 				size_t const readSeqLen = endPosOnRead - startPosOnRead;
 
-				printf("%s\t", read->name);
-				read->Alignments[0] = computeAlignment(read->Scores[0].Location.m_Location, corridor, readSeq, readSeqLen);
+				char * const readSeq = new char[readSeqLen + 1];
+				strncpy(readSeq, read->Seq + startPosOnRead, readSeqLen);
+				readSeq[readSeqLen] = '\0';
+				Log.Message("ReadSeqLen: %d", readSeqLen);
+
+				Log.Message("Start pos: %d, Length: %d", startPosOnRead, readSeqLen);
+
+				int const QStart = startPosOnRead;
+				int const QEnd = read->length - endPosOnRead;
+
+				//test-align python (ngila)
+//				printf("%s\t%d\t", read->name, 0);
+				read->Alignments[0] = computeAlignment(read->Scores[0].Location.m_Location, corridor, readSeq, readSeqLen, QStart, QEnd, read->length, read, false);
 			}
 			Log.Message("CIGAR: %s", read->Alignments[0].pBuffer1);
 
-			printf("\t%d\n", read->Alignments[0].PositionOffset);
-			read->Scores[0].Location.m_Location += read->Alignments[0].PositionOffset - (corridor >> 1);
+			//test-align python (ngila)
+//			printf("\t%d\n", read->Alignments[0].PositionOffset);
+			read->Scores[0].Location.m_Location += read->Alignments[0].PositionOffset;//- (corridor >> 1); handled in computeAlingment
 
 			Log.Message("Alignment took %fs", tmr.ET());
 

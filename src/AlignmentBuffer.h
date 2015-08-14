@@ -6,6 +6,7 @@
 #include "SAMWriter.h"
 #include "BAMWriter.h"
 #include "ScoreWriter.h"
+#include "StrippedSW.h"
 
 #undef module_name
 #define module_name "OUTPUT"
@@ -61,9 +62,10 @@ public:
 			int const corridor);
 
 	Align computeAlignment(uloc const position, int const corridor,
-			char * const readSeq, size_t const readLength);
+			char * const readSeq, size_t const readLength, int const QStart, int const QEnd, int fullReadLength, MappedRead * read, bool isReverse);
 
 	void processLongRead(ReadGroup * group);
+	void processLongReadLIS(ReadGroup * group);
 
 	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
 			batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(

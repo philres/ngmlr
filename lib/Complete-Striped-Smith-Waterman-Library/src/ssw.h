@@ -121,6 +121,16 @@ s_align* ssw_align (const s_profile* prof,
 					const int32_t filterd,
 					const int32_t maskLen);
 
+s_align* banded_sw_standalone (const int8_t* ref,
+				 const int8_t* read,
+				 int32_t refLen,
+				 int32_t readLen,
+				 const uint32_t weight_gapO,  /* will be used as - */
+				 const uint32_t weight_gapE,  /* will be used as - */
+				 int32_t band_width,
+				 const int8_t* mat,	/* pointer to the weight matrix */
+				 int32_t n);
+
 /*!	@function	Release the memory allocated by function ssw_align.
 	@param	a	pointer to the alignment result structure
 */

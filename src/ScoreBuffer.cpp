@@ -170,7 +170,7 @@ void ScoreBuffer::DoRun() {
 
 				//If all reads from group are finished
 				if(group->readsFinished == group->readNumber) {
-					out->processLongRead(group);
+					out->processLongReadLIS(group);
 				}
 
 			}

@@ -87,7 +87,7 @@ private:
 	void writeEncRefToFile(char const * fileName, uint const refCount,
 			uloc const encRefSize);
 	int readEncRefFromFile(char const * fileName, const uloc maxLen);
-	void decode(uloc startPosition, uloc endPosition, char* const sequence);
+	uloc decode(uloc startPosition, uloc endPosition, char* const sequence);
 };
 
 #define SequenceProvider _SequenceProvider::Instance()

@@ -135,106 +135,111 @@ void testMe2() {
 
 }
 
+//#include "SWCPU.h"
+//#include "IAlignment.h"
+
 int main(int argc, char * argv[]) {
 
 //testMe();
 //testMe2();
 
-std::stringstream version;
-version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
+//	IAlignment * aligner = new SWCPUCor(0);
 
-char const * arch[] = { "x86", "x64" };
-char const * build = (cDebug) ? " (DEBUG)" : "";
-Log.Message("NextGenMap %s", version.str().c_str());
-Log.Message("Startup : %s%s (build %s %s)", arch[sizeof(void*) / 4 - 1], build, __DATE__, __TIME__);
+	std::stringstream version;
+	version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
 
-Log.Message("Starting time: %s", currentDateTime().c_str());
+	char const * arch[] = { "x86", "x64" };
+	char const * build = (cDebug) ? " (DEBUG)" : "";
+	Log.Message("NextGenMap %s", version.str().c_str());
+	Log.Message("Startup : %s%s (build %s %s)", arch[sizeof(void*) / 4 - 1], build, __DATE__, __TIME__);
+
+	Log.Message("Starting time: %s", currentDateTime().c_str());
 
 //try {
-Timer tmr;
-tmr.ST();
+	Timer tmr;
+	tmr.ST();
 
-_NGM::AppName = argv[0];
+	_NGM::AppName = argv[0];
 
-InitPlatform();
+	InitPlatform();
 
 // Initialization:
-try {
-	_config = new _Config(argc, argv); // Parses command line & parameter file
-	_log = &Log;
+	try {
+		_config = new _Config(argc, argv); // Parses command line & parameter file
+		_log = &Log;
 
 #ifdef DEBUGLOG
-	if (Config.Exists(LOG)) {
-		Log.Message("Writing debug log to stdout. Please use -o/--output for SAM/BAM output.");
-		//Init checks if first parameter is != 0. Thus "LOG" is passed as a dummy string.
-		_Log::Init("LOG", Config.GetInt(LOG_LVL));// Inits logging to file
-	}
+		if (Config.Exists(LOG)) {
+			Log.Message("Writing debug log to stdout. Please use -o/--output for SAM/BAM output.");
+			//Init checks if first parameter is != 0. Thus "LOG" is passed as a dummy string.
+			_Log::Init("LOG", Config.GetInt(LOG_LVL));// Inits logging to file
+		}
 #else
-	_Log::Init(0, 0); // Inits logging to file
+		_Log::Init(0, 0); // Inits logging to file
 #endif
-} catch (...) {
-	Help();
-}
+	} catch (...) {
+		Help();
+	}
 
-if ( Config.GetInt("update_check")) {
-	UpdateCheckInterface::remoteCheck();
-	exit(0);
-}
+	if ( Config.GetInt("update_check")) {
+		UpdateCheckInterface::remoteCheck();
+		exit(0);
+	}
 
-Log.setColor(Config.Exists("color"));
+	Log.setColor(Config.Exists("color"));
 
-if (!Config.Exists("qry") || CheckOutput()) {
-	NGM; // Init Core
+	if (!Config.Exists("qry") || CheckOutput()) {
+		NGM; // Init Core
 
-	NGM.InitProviders();
+		NGM.InitProviders();
 
-	if (!Config.Exists("qry") && !(Config.Exists("qry1") && Config.Exists("qry2"))) {
-		Log.Message("Finished building hash table.");
-		Log.Message("No qry file specified. If you want to map single-end data use -q/--qry. If you want to map paired-end data, either use -q/--qry and -p or --qry1 and --qry2.");
-	} else {
-		try {
-			Log.Verbose("Core initialization complete");
-			NGM.StartThreads();
+		if (!Config.Exists("qry") && !(Config.Exists("qry1") && Config.Exists("qry2"))) {
+			Log.Message("Finished building hash table.");
+			Log.Message("No qry file specified. If you want to map single-end data use -q/--qry. If you want to map paired-end data, either use -q/--qry and -p or --qry1 and --qry2.");
+		} else {
+			try {
+				Log.Verbose("Core initialization complete");
+				NGM.StartThreads();
 
-			NGM.MainLoop();
+				NGM.MainLoop();
 
-			bool const isPaired = Config.GetInt("paired") > 0;
-			if (isPaired) {
-				Log.Message("Valid pairs found: %.2f%%", NGM.Stats->validPairs);
-				Log.Message("Estimated insert size: %d bp", (int)NGM.Stats->insertSize);
-			}
-			Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
-			int discarded = NGM.GetReadReadCount() - (NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount());
-			if (discarded != 0) {
+				bool const isPaired = Config.GetInt("paired") > 0;
+				if (isPaired) {
+					Log.Message("Valid pairs found: %.2f%%", NGM.Stats->validPairs);
+					Log.Message("Estimated insert size: %d bp", (int)NGM.Stats->insertSize);
+				}
+				Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
+				int discarded = NGM.GetReadReadCount() - (NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount());
+				if (discarded != 0) {
 //					Log.Warning("Reads discarded: %d", discarded);
-				Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped (%i discarded), %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount() + discarded)),NGM.GetUnmappedReadCount() + discarded, discarded, NGM.GetWrittenReadCount(), tmr.ET());
-			} else {
-				Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped, %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount())),NGM.GetUnmappedReadCount(),NGM.GetWrittenReadCount(), tmr.ET());
-			}
+					Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped (%i discarded), %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount() + discarded)),NGM.GetUnmappedReadCount() + discarded, discarded, NGM.GetWrittenReadCount(), tmr.ET());
+				} else {
+					Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped, %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount())),NGM.GetUnmappedReadCount(),NGM.GetWrittenReadCount(), tmr.ET());
+				}
 
-		} catch (...) {
-			Log.Error("Unhandled exception in control thread");
+			} catch (...) {
+				Log.Error("Unhandled exception in control thread");
+			}
 		}
 	}
-}
 
-if (! Config.GetInt("update_check"))
-	UpdateCheckInterface::reminder();
+	if (! Config.GetInt("update_check"))
+		UpdateCheckInterface::reminder();
 
-CS::Cleanup();
-_SequenceProvider::Cleanup();
-delete _config;
-delete _NGM::pInstance;
-_Log::Cleanup();
+	CS::Cleanup();
+	_SequenceProvider::Cleanup();
+	delete _config;
+	delete _NGM::pInstance;
+	_Log::Cleanup();
 
-CleanupPlatform();
+	CleanupPlatform();
 
-return 0;
+	return 0;
 }
 
 void Help() {
-char const * const help_msg =
-		"\
+	char const * const help_msg =
+			"\
 \
 Usage:\
   ngm [-c <path>] {-q <reads> [-p] | -1 <mates 1> -2 <mates 2>} -r <reference> -o <output> [parameter]\n\
@@ -386,27 +391,27 @@ Other:\n\
                                (default: off)\n\
 \n\
 \n";
-fprintf(stderr, "%s", help_msg);
-exit(1);
+	fprintf(stderr, "%s", help_msg);
+	exit(1);
 }
 
 // actually platform specific.../care
 uloc const FileSize(char const * const filename) {
-FILE * fp = fopen(filename, "rb");
-if (fp == 0) {
-	Log.Warning("Tried to get size of nonexistent file %s", filename);
-	return 0;
-}
+	FILE * fp = fopen(filename, "rb");
+	if (fp == 0) {
+		Log.Warning("Tried to get size of nonexistent file %s", filename);
+		return 0;
+	}
 
-if (fseek(fp, 0, SEEK_END) != 0)
-	return 0;
+	if (fseek(fp, 0, SEEK_END) != 0)
+		return 0;
 
 #ifdef __APPLE__
-uloc end = ftello(fp);
+	uloc end = ftello(fp);
 #else
-uloc end = ftello64(fp);
+	uloc end = ftello64(fp);
 #endif
 
-fclose(fp);
-return end;
+	fclose(fp);
+	return end;
 }

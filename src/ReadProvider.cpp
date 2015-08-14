@@ -266,13 +266,32 @@ void ReadProvider::splitRead(MappedRead * read) {
 		splitNumber = 1;
 		group->readNumber = splitNumber;
 		group->reads = new MappedRead *[splitNumber];
-		group->reads[0] = read;
+		MappedRead * readPart = new MappedRead(read->ReadId + 1,
+				readPartLength);
 
-		readBuffer[readsInBuffer++] = read;
+		readPart->name = new char[nameLength + 1];
+		strcpy(readPart->name, read->name);
+
+		int length = read->length;
+		readPart->length = length;
+
+		readPart->Seq = new char[length + 1];
+		memset(readPart->Seq, '\0', length + 1);
+		strncpy(readPart->Seq, read->Seq, length);
+
+		//readPart->qlty = new char[readPartLength + 1];
+		//memset(readPart->qlty, '\0', readPartLength + 1);
+		//strncpy(readPart->qlty, read->qlty + i * readPartLength, length);
+		readPart->qlty = 0;
+
+		readPart->group = group;
+		group->reads[0] = readPart;
+
+		readBuffer[readsInBuffer++] = readPart;
 	} else {
 		group->readNumber = splitNumber;
 		group->reads = new MappedRead *[splitNumber];
-		memset(group->reads, 0, sizeof(MappedRead * ) * splitNumber);
+		memset(group->reads, 0, sizeof(MappedRead *) * splitNumber);
 
 		for (int i = splitNumber - 1; i >= 0; --i) {
 			MappedRead * readPart = new MappedRead(read->ReadId + i,
@@ -324,8 +343,7 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 				Log.Debug(16384, "READ_%d\tINPUT_DETAILS\t%s\t%s\t%s\t%s", id, read->Seq, read->qlty, read->AdditionalInfo);
 
 				splitRead(read);
-
-//			NGM.AddReadRead(read->ReadId);
+				NGM.AddReadRead(read->ReadId);
 			} else {
 
 				Log.Debug(2, "READ_%d\tINPUT\t%s error while reading", id, read->name);
@@ -420,6 +438,8 @@ bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1,
 }
 
 void ReadProvider::DisposeRead(MappedRead * read) {
+	Timer tmr;
+	tmr.ST();
 	static bool const isPaired = Config.GetInt("paired") > 0;
 	if (isPaired) // Program runs in paired mode and pair exists
 	{
@@ -449,4 +469,5 @@ void ReadProvider::DisposeRead(MappedRead * read) {
 		// Single mode or no existing pair
 		delete read;
 	}
+	Log.Message("Deleting read took %fs", tmr.ET());
 }
