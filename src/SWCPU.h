@@ -7,19 +7,11 @@
 
 #ifndef SWCPU_H_
 #define SWCPU_H_
-/*
- * SWCuda.h
- *
- *  Created on: Jan 10, 2011
- *      Author: fritz
- */
 
 #define pRef pBuffer1
 #define pQry pBuffer2
 
 #include "IAlignment.h"
-#include "ILog.h"
-#include "IConfig.h"
 
 #include <iostream>
 #include <stdio.h>

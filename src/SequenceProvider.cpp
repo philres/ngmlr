@@ -135,9 +135,9 @@ static inline char dec4Low(unsigned char c) {
 
 _SequenceProvider::Chromosome _SequenceProvider::getChrStart(
 		uloc const position) {
-	if(position < 1000) {
+	if (position < 1000) {
 		Log.Message("Can't get starting position of chromosome.");
-				Fatal();
+		Fatal();
 	}
 	//Find the next larger chromosome start position in the concatenated reference for the mapping location
 	uloc * upper = std::upper_bound(refStartPos,
@@ -533,6 +533,20 @@ bool _SequenceProvider::DecodeRefSequenceExact(char * const sequence,
 		decode(decodeStartPosition, decodeEndPosition, sequence + diff);
 	} else {
 		Log.Message("Full decode!");
+
+		SequenceLocation start;
+		start.m_Location = decodeStartPosition;
+
+		SequenceLocation end;
+		end.m_Location = decodeEndPosition;
+
+		convert(start);
+		convert(end);
+
+		int len = 0;
+
+		Log.Message("Decoding: %s:%llu-%llu", GetRefName(start.getrefId(), len), start.m_Location, end.m_Location);
+
 		//Decode full sequence
 		uloc decodedBp = decode(decodeStartPosition, decodeEndPosition, sequence);
 		Log.Message("copied %llu to %llu", decodedBp, sequenceLength);
