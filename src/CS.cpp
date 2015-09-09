@@ -422,6 +422,8 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 
 void CS::DoRun() {
 
+	Log.Message("DoRun");
+
 	int gpu = m_TID;
 	if (Config.Exists("gpu")) {
 		int threadcount = 1;
@@ -466,7 +468,7 @@ void CS::DoRun() {
 	NGM.ReleaseOutputLock();
 
 	int x_SrchTableLen = (int) pow(2, x_SrchTableBitLen);
-
+	Log.Message("%d", x_SrchTableLen);
 	rTable = new CSTableEntry[x_SrchTableLen];
 	Log.Debug(LOG_CS_DETAILS, "Sizeof CSTableEntry %d (%d)", sizeof(CSTableEntry), sizeof(SequenceLocation));
 	Log.Debug(LOG_CS_DETAILS, "rTable: %d (%d x (%d + %d))", (sizeof(CSTableEntry) + sizeof(int)) * x_SrchTableLen, x_SrchTableLen, sizeof(CSTableEntry), sizeof(int));

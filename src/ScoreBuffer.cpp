@@ -171,6 +171,7 @@ void ScoreBuffer::DoRun() {
 				//If all reads from group are finished
 				if(group->readsFinished == group->readNumber) {
 					out->processLongReadLIS(group);
+//					out->WriteRead(group->fullRead, false);
 				}
 
 			}

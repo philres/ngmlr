@@ -24,7 +24,7 @@ SWCPUCor::SWCPUCor(int gpu_id) {
 	gap_decay = 0.05f;
 	gap_ext_min = -1.0f;
 
-	long maxLen = (long) 100000 * (long) 20000;
+	long maxLen = (long) 50000 * (long) 20000;
 	alignMatrix = new MatrixElement[maxLen];
 
 	fprintf(stderr, "Allocationg: %llu\n", maxLen * sizeof(MatrixElement));
