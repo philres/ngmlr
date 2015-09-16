@@ -40,7 +40,7 @@ void SAMWriter::DoWriteProlog() {
 	std::stringstream version;
 	version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
 	Print("@PG\tID:ngm\tPN:ngm\tVN:%s\tCL:\"%s\"\n", version.str().c_str(),
-			Config.GetString("cmdline"));
+	Config.GetString("cmdline"));
 
 	if (RG != 0) {
 		Print("@RG\tID:%s", RG);
@@ -101,7 +101,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 	char * qltystr = read->qlty;
 
 	if (scoreID != 0) {
-		flags |= 0x100;
+		flags |= 0x800;
 	}
 
 	if (read->Scores[scoreID].Location.isReverse()) {
@@ -174,13 +174,32 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 
 	float identity = round(read->Alignments[scoreID].Identity * 10000.0f) / 10000.0f;
 	Print("XI:f:%g\t", identity);
+	Print("XS:d:%d\t", (int) 0.0f);
 	Print("X0:i:%d\t", read->numTopScores);
 	//TODO: fix. Calculated used to be the number of score computed. Now it is the number of computed alignments.
 	//Thus it can't be used for X1 anymore.
 	//Print("X1:i:%d\t", read->Calculated - read->EqualScoringCount);
 	Print("XE:i:%d\t", (int) read->Scores[scoreID].Score.f);
 	Print("XR:i:%d\t", read->length - read->Alignments[scoreID].QStart - read->Alignments[scoreID].QEnd);
-//	Print("MD:Z:%s", read->Alignments[scoreID].pBuffer2);
+	Print("MD:Z:%s", read->Alignments[scoreID].pBuffer2);
+
+	if(read->Calculated > 1) {
+		Print("SA:z:");
+		for(int i = 0; i < read->Calculated; ++i) {
+			if(i != scoreID) {
+				int refnamelen = 0;
+				char const * refname = SequenceProvider.GetRefName(read->Scores[i].Location.getrefId(), refnamelen);
+
+				char strand = '+';
+				if (read->Scores[i].Location.isReverse()) {
+					strand = '-';
+				}
+
+				Print("%.*s,%d,%c,%s,%d,%d;", refnamelen, refname, read->Scores[i].Location.m_Location + report_offset, strand, read->Alignments[i].pBuffer1, mappingQlty, read->Alignments[i].NM);
+			}
+		}
+		Print("\t");
+	}
 
 	Print("QS:i:%d\t", read->Alignments[scoreID].QStart);
 	Print("QE:i:%d\t", read->length - read->Alignments[scoreID].QEnd);

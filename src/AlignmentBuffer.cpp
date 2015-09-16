@@ -849,6 +849,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 				tmp[alignIndex].Location.m_Location = intervals[i].onRefStart + align.PositionOffset;//- (corridor >> 1); handled in computeAlingment
 				tmp[alignIndex].Location.setReverse(intervals[i].isReverse);
+				tmp[alignIndex].Score.f = align.Score;
 
 				tmpAling[alignIndex] = align;
 

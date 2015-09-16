@@ -194,7 +194,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	int finalCigarLength = 0;
 
 	int cigar_offset = 0;
-//	int md_offset = 0;
+	int md_offset = 0;
 
 	if (((gpuCigar[gpuCigarOffset] >> 4) + QStart) > 0) {
 		fprintf(stderr, "Adding %d to QSTart\n", QStart);
@@ -205,7 +205,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	}
 
 	int cigar_m_length = 0;
-//	int md_eq_length = 0;
+	int md_eq_length = 0;
 	int ref_index = 0;
 	for (int j = gpuCigarOffset + 1; j < (alignment_length - 1); ++j) {
 		int op = gpuCigar[j] & 15;
@@ -219,17 +219,17 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 
 			//Produces: 	[0-9]+(([A-Z]+|\^[A-Z]+)[0-9]+)*
 			//instead of: 	[0-9]+(([A-Z]|\^[A-Z]+)[0-9]+)*
-//			md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
-//			for (int k = 0; k < length; ++k) {
-//				md_offset += sprintf(result.pQry + md_offset, "%c",
-//						refSeq[ref_index++]);
-//			}
-//			md_eq_length = 0;
+			md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
+			for (int k = 0; k < length; ++k) {
+				md_offset += sprintf(result.pQry + md_offset, "%c",
+						refSeq[ref_index++]);
+			}
+			md_eq_length = 0;
 
 			break;
 		case CIGAR_EQ:
 			cigar_m_length += length;
-//			md_eq_length += length;
+			md_eq_length += length;
 			ref_index += length;
 			break;
 		case CIGAR_D:
@@ -242,12 +242,12 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 			cigar_offset += printCigarElement('D', length,
 					result.pRef + cigar_offset);
 
-//			md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
-//			md_eq_length = 0;
-//			result.pQry[md_offset++] = '^';
-//			for (int k = 0; k < length; ++k) {
-//				result.pQry[md_offset++] = refSeq[ref_index++];
-//			}
+			md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
+			md_eq_length = 0;
+			result.pQry[md_offset++] = '^';
+			for (int k = 0; k < length; ++k) {
+				result.pQry[md_offset++] = refSeq[ref_index++];
+			}
 
 			break;
 		case CIGAR_I:
@@ -272,7 +272,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 			exit(1);
 		}
 	}
-//	md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
+	md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
 	if (cigar_m_length > 0) {
 		cigar_offset += printCigarElement('M', cigar_m_length,
 				result.pRef + cigar_offset);
@@ -291,7 +291,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	//TODO: fix
 	result.Identity = 1.0f;
 	result.pRef[cigar_offset] = '\0';
-//	result.pQry[md_offset] = '\0';
+	result.pQry[md_offset] = '\0';
 
 	return finalCigarLength;
 }
@@ -508,8 +508,8 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 	int read_length = strlen(qrySeq);
 	fprintf(stderr, "Read length (single align) is %d\n", read_length);
 	align.pBuffer1 = new char[read_length * 4];
-	//	align.pBuffer2 = new char[read_length * 4];
-	align.pBuffer2 = new char[1];
+	align.pBuffer2 = new char[read_length * 4];
+	//align.pBuffer2 = new char[1];
 	align.pBuffer2[0] = '\0';
 
 	int finalCigarLength = 0;
