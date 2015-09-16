@@ -144,7 +144,7 @@ _SequenceProvider::Chromosome _SequenceProvider::getChrStart(
 			refStartPos + (refCount / 2) + 1, position);
 	//Check whether the mapping position is in one of the spacer regions between the chromosomes
 	if ((*upper - position) < 1000) {
-		Log.Message("Can't get starting position of chromosome.");
+		Log.Message("Can't get starting position of chromosome (%llu - %llu = %llu).", *upper, position, *upper - position);
 		Fatal();
 	}
 

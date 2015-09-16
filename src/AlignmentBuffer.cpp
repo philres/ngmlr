@@ -544,9 +544,8 @@ AlignmentBuffer::Interval * AlignmentBuffer::findSubsequences(char * name,
 
 			std::cerr << std::endl;
 
-			Interval interval;				// = intervals[intervalsIndex++];
+			Interval interval;
 
-//			if(isReverse) {
 
 			int addStart = std::min(512, minOnRead);
 			int addEnd = std::min(512, readLenth - maxOnRead);
@@ -560,17 +559,9 @@ AlignmentBuffer::Interval * AlignmentBuffer::findSubsequences(char * name,
 			interval.isReverse = isReverse;
 			interval.score = intervalScore;
 
-//			} else {
-//				interval.onReadStart = minOnRead;
-//				interval.onReadStop = maxOnRead;
-//
-//				//TODO: check chromosome borders
-//				interval.onRefStart = minOnRef;
-//				interval.onRefStop = maxOnRef;
-//				interval.isReverse = isReverse;
-//				interval.score = intervalScore;
-//
-//			}
+			//TODO: check chromosome borders
+
+
 
 			interval.print();
 

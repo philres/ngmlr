@@ -189,6 +189,12 @@ int SWCPUCor::printCigarElement(char const op, int const length, char * cigar) {
 int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 		int const * const gpuCigar, char const * const refSeq, int corr_length,
 		int read_length, int const QStart, int const QEnd) {
+
+	//Inversion detection
+	int binSize = 100;
+	int binCount = (read_length / binSize) + 1;
+	int * binnedNM = new int[binCount];
+
 	int alignment_length = corr_length + read_length + 1;
 
 	int finalCigarLength = 0;
@@ -292,6 +298,9 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	result.Identity = 1.0f;
 	result.pRef[cigar_offset] = '\0';
 	result.pQry[md_offset] = '\0';
+
+	delete[] binnedNM;
+	binnedNM = 0;
 
 	return finalCigarLength;
 }
