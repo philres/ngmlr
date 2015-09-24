@@ -8,7 +8,6 @@
 #ifndef BAMPARSER_H_
 #define BAMPARSER_H_
 
-#ifdef _BAM
 
 #include "IParser.h"
 
@@ -51,10 +50,14 @@ public:
 		delete al;
 	}
 
+	void parseSnifflesFile(char const * fileName);
+	void parseBed(char const * fileName);
+
+	int doParseSingleRead(MappedRead * read, BamAlignment * al);
+
 	virtual void init(char const * fileName, bool const keepTags);
 	virtual int doParseRead(MappedRead * read);
 	virtual int doParseRead(SAMRecord * read);
 };
-#endif
 
 #endif /* BAMPARSER_H_ */

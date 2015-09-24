@@ -93,6 +93,7 @@ static const struct option long_options[] =
 		{ "max-read-length",            required_argument, 0, 0 },
 		{ "force-rlength-check",        no_argument,       0, 0 },
 		{ "bin-size",                       required_argument,       0, 0 },
+		{ SNIFFLES,                       required_argument,       0, 0 },
 	0 };
 
 #endif /* OPTIONS_H_ */

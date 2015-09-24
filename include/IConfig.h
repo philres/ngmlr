@@ -44,6 +44,8 @@ static char const * const RLENGTH_CHECK = "force_rlength_check";
 
 static char const * const BIN_SIZE = "bin_size";
 
+static char const * const SNIFFLES = "sniffles";
+
 #ifdef DEBUGLOG
 static char const * const LOG = "log";
 static char const * const LOG_LVL = "log_lvl";
