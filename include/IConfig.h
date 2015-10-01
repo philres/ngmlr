@@ -45,6 +45,8 @@ static char const * const RLENGTH_CHECK = "force_rlength_check";
 static char const * const BIN_SIZE = "bin_size";
 
 static char const * const SNIFFLES = "sniffles";
+static char const * const BED = "bed";
+static char const * const REALIGN = "realign";
 
 #ifdef DEBUGLOG
 static char const * const LOG = "log";

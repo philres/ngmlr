@@ -29,6 +29,10 @@ private:
 
 	char additionalInfo[100000];
 
+	std::vector<BamRegion> regions;
+
+	std::map<std::string, int> readNames;
+
 public:
 
 	BamParser(int const p_qryMaxlen) : IParser(p_qryMaxlen) {
@@ -51,7 +55,8 @@ public:
 	}
 
 	void parseSnifflesFile(char const * fileName);
-	void parseBed(char const * fileName);
+	void parseBedFile(char const * fileName);
+	void parseRealignFile(char const * fileName);
 
 	int doParseSingleRead(MappedRead * read, BamAlignment * al);
 

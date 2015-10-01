@@ -10,7 +10,8 @@
 //TODO: hack to pass data for debug output
 Align cur_align;
 
-SWCPUCor::SWCPUCor(int gpu_id) {
+SWCPUCor::SWCPUCor(int gpu_id) :
+		pacbioDebug(false) {
 
 //	cigar = bool(((gpu_id >> 8) & 0xFF) == 1);
 
@@ -203,7 +204,8 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	int md_offset = 0;
 
 	if (((gpuCigar[gpuCigarOffset] >> 4) + QStart) > 0) {
-		fprintf(stderr, "Adding %d to QSTart\n", QStart);
+		if (pacbioDebug)
+			fprintf(stderr, "Adding %d to QSTart\n", QStart);
 		result.QStart = (gpuCigar[gpuCigarOffset] >> 4) + QStart;
 		cigar_offset += printCigarElement('S', result.QStart,
 				result.pRef + cigar_offset);
@@ -287,7 +289,8 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	}
 
 	if (((gpuCigar[alignment_length - 1] >> 4) + QEnd) > 0) {
-		fprintf(stderr, "Adding %d to QEnd\n", QEnd);
+		if (pacbioDebug)
+			fprintf(stderr, "Adding %d to QEnd\n", QEnd);
 		result.QEnd = (gpuCigar[alignment_length - 1] >> 4) + QEnd;
 		cigar_offset += printCigarElement('S', result.QEnd,
 				result.pRef + cigar_offset);
@@ -343,7 +346,8 @@ bool SWCPUCor::Backtracking_CIGAR(char const * const scaff,
 //					corr_length + 1);
 			if (best_ref_index <= minCorridor
 					|| best_ref_index >= maxCorridor) {
-				fprintf(stderr, "Corridor probably too small\n");
+				if (pacbioDebug)
+					fprintf(stderr, "Corridor probably too small\n");
 				valid = false;
 //				getchar();
 			}
@@ -365,7 +369,8 @@ bool SWCPUCor::Backtracking_CIGAR(char const * const scaff,
 				abs_ref_index -= 1;
 
 			} else {
-				fprintf(stderr, "Error in backtracking. Invalid CIGAR operation found\n");
+				fprintf(stderr,
+						"Error in backtracking. Invalid CIGAR operation found\n");
 				exit(1);
 
 			}
@@ -397,14 +402,18 @@ bool SWCPUCor::Backtracking_CIGAR(char const * const scaff,
 		fwdResults[alignment_offset] = alignment_index;
 
 		if (cigarLenth != cigarLengthCheck) {
-			fprintf(stderr, "Error in CIGAR length: %d vs %d\n", cigarLenth, cigarLengthCheck);
+			fprintf(stderr, "Error in CIGAR length: %d vs %d\n", cigarLenth,
+					cigarLengthCheck);
 		} else {
 			if (read_length != cigarLenth) {
-				fprintf(stderr, "Error read length != cigar length: %d vs %d\n", read_length, cigarLenth);
+				fprintf(stderr, "Error read length != cigar length: %d vs %d\n",
+						read_length, cigarLenth);
 				exit(1);
 			}
 		}
-		fprintf(stderr, "Read length: %d, CIGAR length: %d\n", read_length, cigarLenth);
+		if (pacbioDebug)
+			fprintf(stderr, "Read length: %d, CIGAR length: %d\n", read_length,
+					cigarLenth);
 	}
 	return valid;
 }
@@ -515,7 +524,8 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 	}
 
 	int read_length = strlen(qrySeq);
-	fprintf(stderr, "Read length (single align) is %d\n", read_length);
+	if (pacbioDebug)
+		fprintf(stderr, "Read length (single align) is %d\n", read_length);
 	align.pBuffer1 = new char[read_length * 4];
 	align.pBuffer2 = new char[read_length * 4];
 	//align.pBuffer2 = new char[1];

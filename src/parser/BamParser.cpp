@@ -16,10 +16,141 @@
 #include <iostream>
 #include <fstream>
 
-std::vector<BamRegion> regions;
+void BamParser::parseBedFile(char const * fileName) {
+	Log.Message("Parsing BED file: %s", fileName);
 
-void BamParser::parseBed(char const * fileName) {
+	std::ifstream input(fileName);
+	std::string line;
 
+	while (std::getline(input, line)) {
+		if(line.length() > 5) {
+			std::cerr << line << '\n';
+
+			BamRegion region;
+
+			std::string delimiter = "\t";
+			int pos = line.find(delimiter);
+			std::string token = line.substr(0, pos); // token is "scott"
+
+			if(reader.GetReferenceID(token) < 0) {
+				Log.Error("Invalid chromosome name!");
+				Fatal();
+			}
+			region.LeftRefID = reader.GetReferenceID(token);
+			region.RightRefID = reader.GetReferenceID(token);
+
+			std::cerr << "1: " << token << std::endl;
+
+			int lastPos = pos + 1;
+			pos = line.find(delimiter, lastPos);
+			token = line.substr(lastPos, pos - lastPos); // token is "scott"
+
+			region.LeftPosition = atoi(token.c_str());
+
+			std::cerr << "2: " << token << std::endl;
+
+			lastPos = pos + 1;
+			pos = line.find(delimiter, lastPos);
+			token = line.substr(lastPos, pos - lastPos);// token is "scott"
+
+			region.RightPosition = atoi(token.c_str());
+
+			std::cerr << "3: " << token << std::endl;
+
+			regions.push_back(region);
+
+			while(pos != std::string::npos) {
+				lastPos = pos + 1;
+				pos = line.find(delimiter, lastPos);
+
+				token = line.substr(lastPos, pos - lastPos); // token is "scott"
+				readNames[token] = 1;
+				Log.Message("Adding name: %s", token.c_str());
+			}
+
+		}
+	}
+}
+
+void BamParser::parseRealignFile(char const * fileName) {
+	Log.Message("Parsing Realign file: %s", fileName);
+
+	std::ifstream input(fileName);
+	std::string line;
+
+	while (std::getline(input, line)) {
+		if(line.length() > 5) {
+			std::cerr << line << '\n';
+
+			int pos = 0;
+			int lastPos = 0;
+
+			BamRegion region;
+
+			std::string delimiter = "\t";
+
+			pos = line.find(delimiter);
+			std::string token = line.substr(0, pos); // token is "scott"
+
+			std::cerr << "0: " << token << std::endl;
+
+			lastPos = pos + 1;
+			pos = line.find(delimiter, lastPos);
+			token = line.substr(lastPos, pos - lastPos);// token is "scott"
+
+			if(reader.GetReferenceID(token) < 0) {
+				Log.Error("Invalid chromosome name!");
+				Fatal();
+			}
+			region.LeftRefID = reader.GetReferenceID(token);
+			region.RightRefID = region.LeftRefID;
+
+			std::cerr << "1: " << token << std::endl;
+
+			lastPos = pos + 1;
+			pos = line.find(delimiter, lastPos);
+			token = line.substr(lastPos, pos - lastPos); // token is "scott"
+
+			region.LeftPosition = atoi(token.c_str());
+			region.RightPosition = region.LeftPosition + 1;
+
+			regions.push_back(region);
+
+			BamRegion region2;
+
+			std::cerr << "2: " << token << std::endl;
+
+			lastPos = pos + 1;
+			pos = line.find(delimiter, lastPos);
+			token = line.substr(lastPos, pos - lastPos);
+
+			region2.LeftRefID = reader.GetReferenceID(token);
+			region2.RightRefID = region.LeftRefID;
+
+			std::cerr << "3: " << token << std::endl;
+
+			lastPos = pos + 1;
+			pos = line.find(delimiter, lastPos);
+			token = line.substr(lastPos, pos - lastPos);// token is "scott"
+
+			region2.LeftPosition = atoi(token.c_str());
+			region2.RightPosition = region.LeftPosition + 1;
+
+			std::cerr << "4: " << token << std::endl;
+
+			regions.push_back(region2);
+
+			while(pos != std::string::npos) {
+				lastPos = pos + 1;
+				pos = line.find(delimiter, lastPos);
+
+				token = line.substr(lastPos, pos - lastPos); // token is "scott"
+				readNames[token] = 1;
+				Log.Message("Adding name: %s", token.c_str());
+			}
+
+		}
+	}
 }
 
 void BamParser::parseSnifflesFile(char const * fileName) {
@@ -39,6 +170,10 @@ void BamParser::parseSnifflesFile(char const * fileName) {
 			int pos = line.find(delimiter);
 			std::string token = line.substr(0, pos); // token is "scott"
 
+			if(reader.GetReferenceID(token) < 0) {
+				Log.Error("Invalid chromosome name!");
+				Fatal();
+			}
 			region.LeftRefID = reader.GetReferenceID(token);
 			region.RightRefID = reader.GetReferenceID(token);
 
@@ -46,7 +181,7 @@ void BamParser::parseSnifflesFile(char const * fileName) {
 
 			int lastPos = pos + 1;
 			pos = line.find(delimiter, lastPos);
-			token = line.substr(lastPos, pos - lastPos);// token is "scott"
+			token = line.substr(lastPos, pos - lastPos); // token is "scott"
 
 			region.LeftPosition = atoi(token.c_str());
 
@@ -91,6 +226,15 @@ void BamParser::parseSnifflesFile(char const * fileName) {
 
 			regions.push_back(region2);
 
+			while(pos != std::string::npos) {
+				lastPos = pos + 1;
+				pos = line.find(delimiter, lastPos);
+
+				token = line.substr(lastPos, pos - lastPos); // token is "scott"
+				readNames[token] = 1;
+				Log.Message("Adding name: %s", token.c_str());
+			}
+
 		}
 	}
 
@@ -115,6 +259,26 @@ void BamParser::init(char const * fileName, bool const keepTags) {
 
 		parseSnifflesFile(sniffles);
 
+	} else {
+		Log.Message("No sniffles file found");
+
+		char const * realign = 0;
+		if(Config.Exists(REALIGN)) {
+			realign = Config.GetString(REALIGN);
+			parseRealignFile(realign);
+		} else {
+			Log.Message("No realign file found.");
+			char const * bed = 0;
+			if(Config.Exists(BED)) {
+				bed = Config.GetString(BED);
+				parseBedFile(bed);
+			} else {
+				Log.Message("No bed file found. Mapping all reads from BAM file");
+			}
+		}
+	}
+
+	if (Config.Exists(SNIFFLES) || Config.Exists(BED) || Config.Exists(REALIGN)) {
 		if (regions.size() > 0) {
 			BamRegion region = regions.back();
 
@@ -122,13 +286,12 @@ void BamParser::init(char const * fileName, bool const keepTags) {
 			reader.SetRegion(region);
 			regions.pop_back();
 		}
-
-	} else {
-		Log.Message("No sniffles file found");
 	}
 
 	tmp = kseq_init(fp);
 	parseAdditionalInfo = keepTags;
+
+	Log.Message("BAM parser initialized");
 }
 
 static inline char cpl(char c) {
@@ -165,7 +328,7 @@ int BamParser::doParseSingleRead(MappedRead * read, BamAlignment * al) {
 	tmp->name.l = al->Name.size();
 	memcpy(tmp->name.s, al->Name.c_str(), tmp->name.l * sizeof(char));
 	tmp->name.s[tmp->name.l] = '\0';
-	Log.Message("Read %s mapping to %d:%d parsed (flags: %d)", tmp->name.s, al->RefID, al->Position, al->AlignmentFlag);
+	Log.Verbose("Read %s mapping to %d:%d parsed (flags: %d)", tmp->name.s, al->RefID, al->Position, al->AlignmentFlag);
 	if (al->QueryBases.size() > tmp->seq.m) { //adjust the sequence size
 		//m is size of read
 		tmp->seq.m = al->QueryBases.size();
@@ -275,29 +438,27 @@ bool isPrimary(BamAlignment * al) {
  */
 int BamParser::doParseRead(MappedRead * read) {
 
-	if (reader.GetNextAlignmentCore(al[0])) {
-
-		do {
-			if (isPrimary(al)) {
-				return doParseSingleRead(read, al);
-			}
-		} while (reader.GetNextAlignmentCore(al[0]));
-
-	} else {
-		if (regions.size() > 0) {
+//	Log.Message("Do parse");
+	bool found = false;
+	while ((found = reader.GetNextAlignmentCore(al[0])) || regions.size() > 0) {
+//		Log.Message("Do parse loop. %d", regions.size());
+		if (!found) {
 			BamRegion region = regions.back();
 			Log.Message("Setting region to %d:%d-%d", region.LeftRefID, region.LeftPosition, region.RightPosition);
 			reader.SetRegion(region);
 			regions.pop_back();
-			if (reader.GetNextAlignmentCore(al[0])) {
-				do {
-					if (isPrimary(al)) {
-						return doParseSingleRead(read, al);
-					}
-				} while (reader.GetNextAlignmentCore(al[0]));
+		} else {
+			if (isPrimary(al)) { // && readNames.find(al->Name) != readNames.end()) {
+				al->BuildCharData();
+				//					Log.Message("%d Looking for %s", x++, al->Name.c_str());
+				if (readNames.size() == 0
+						|| readNames.find(al->Name) != readNames.end()) {
+					return doParseSingleRead(read, al);
+				}
 			}
 		}
 	}
+
 	return -1;
 }
 

@@ -52,6 +52,8 @@ private:
 
 	bool const argos;
 
+	bool const pacbioDebug;
+
 	void debugAlgnFinished(MappedRead * read);
 
 public:
@@ -76,7 +78,7 @@ public:
 
 		void print() {
 			Log.Message("Interval on read: %d - %d (diff: %d)", onReadStart, onReadStop, (onReadStop - onReadStart));
-			Log.Message("\tAnchor on ref: %d - %d (diff: %d)", onRefStart, onRefStop, onRefStop - onRefStart);
+			Log.Message("\tAnchor on ref: %lu - %lu (diff: %d)", onRefStart, onRefStop, onRefStop - onRefStart);
 			Log.Message("\tReverse: %d, Score: %f", isReverse, score);
 		}
 
@@ -153,7 +155,7 @@ public:
 	corridor(Config.GetInt("corridor")),
 	refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
 	min_mq(Config.GetInt(MIN_MQ)),
-	aligner(mAligner), argos(Config.Exists(ARGOS)) {
+	aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(true) {
 		pairInsertSum = 0;
 		pairInsertCount = 0;
 		brokenPairs = 0;

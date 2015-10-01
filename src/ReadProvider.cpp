@@ -453,7 +453,7 @@ void ReadProvider::DisposeRead(MappedRead * read) {
 			read->SetFlag(NGMNames::DeletionPending);
 		}
 	} else {
-		Log.Message("Disposing read %s", read->name);
+		Log.Verbose("Disposing read %s", read->name);
 		if (read->group != 0) {
 			for (int j = 0; j < read->group->readNumber; ++j) {
 				if (read->group->reads[j] != 0) {
@@ -461,7 +461,7 @@ void ReadProvider::DisposeRead(MappedRead * read) {
 					read->group->reads[j] = 0;
 				}
 			}
-			Log.Message("Deleting group");
+			Log.Verbose("Deleting group");
 			delete read->group;
 			read->group = 0;
 		}
@@ -469,5 +469,5 @@ void ReadProvider::DisposeRead(MappedRead * read) {
 		// Single mode or no existing pair
 		delete read;
 	}
-	Log.Message("Deleting read took %fs", tmr.ET());
+	Log.Verbose("Deleting read took %fs", tmr.ET());
 }
