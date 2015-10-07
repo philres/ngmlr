@@ -443,7 +443,7 @@ bool AlignmentBuffer::isCompatible(Interval a, Interval b) {
 	if (pacbioDebug)
 		Log.Message("Read start - a: %llu, b: %llu, diff: %llu", a_y0, b_y0, abs(b_y0 - a_y0));
 
-	isInCorridor = abs(b_y0 - a_y0) < 1024;
+	isInCorridor = abs(b_y0 - a_y0) < 20000;
 
 	return !overlapsOnRead && !overlapsOnRef && isInCorridor;
 }
