@@ -136,7 +136,7 @@ static inline char dec4Low(unsigned char c) {
 _SequenceProvider::Chromosome _SequenceProvider::getChrStart(
 		uloc const position) {
 	if (position < 1000) {
-		Log.Message("Can't get starting position of chromosome.");
+		Log.Message("Can't get starting position of chromosome (%llu).", position);
 		Fatal();
 	}
 	//Find the next larger chromosome start position in the concatenated reference for the mapping location

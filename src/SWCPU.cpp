@@ -18,7 +18,7 @@ SWCPUCor::SWCPUCor(int gpu_id) :
 	batch_size = 1;
 
 	mat = 2.0f;
-	mis = -5.0f;
+	mis = -10.0f;
 	gap_open_read = -5.0f;
 	gap_open_ref = -5.0f;
 	gap_ext = -5.0f;

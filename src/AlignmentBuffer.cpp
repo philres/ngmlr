@@ -676,7 +676,7 @@ Align AlignmentBuffer::alignInterval(MappedRead * read_, Interval interval,
 	int onRef = interval.onRefStop - interval.onRefStart;
 	int diff = onRead - onRef;
 
-	int corridor = 2048;
+	int corridor = 8000;
 //	int corridor = std::max(1024, (int)(abs(diff) * 1.5f));
 	if (pacbioDebug)
 		Log.Message("Corridor estimation - onRead: %d, onRef: %d, diff: %d, corridor: %d", onRead, onRef, diff, corridor);
@@ -720,6 +720,24 @@ Align AlignmentBuffer::alignInterval(MappedRead * read_, Interval interval,
 		Log.Message("Computing alignment");
 	align = computeAlignment(interval.onRefStart, corridor, readSeq, readSeqLen,
 			QStart, QEnd, read_->length, read_, false);
+
+//	int const QStart = align.QStart - intervals[i].onReadStart;
+//					int const QEnd = align.QEnd - (read->length - intervals[i].onReadStop);
+
+	if ((align.QEnd - QEnd) > readSeqLen * 0.1f) {
+		Log.Message("Realign: %d, %d, %d", align.QEnd, QEnd, readSeqLen);
+		char * realignReadSeq = readSeq + (readSeqLen - (align.QEnd - QEnd));
+		Log.Message("Sequence: %s", realignReadSeq);
+
+		if (pacbioDebug)
+		Log.Message("Computing realignment");
+		Align align2 = computeAlignment(interval.onRefStart + (readSeqLen - (align.QEnd - QEnd)), corridor, realignReadSeq, strlen(realignReadSeq),
+				QStart + (readSeqLen - (align.QEnd - QEnd)), QEnd, read_->length, read_, false);
+
+		Log.Message("Realign CIGAR: %s", align2.pBuffer1);
+
+//		getchar();
+	}
 
 	return align;
 }
