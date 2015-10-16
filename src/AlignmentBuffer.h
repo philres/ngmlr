@@ -76,6 +76,12 @@ public:
 		float score;
 		bool isReverse;
 
+		void printOneLine() {
+			Log.Message("Interval: %d - %d on read, %lu - %lu on ref, Reverse: %d, Score: %f", onReadStart, onReadStop, onRefStart, onRefStop, isReverse, score);
+//			Log.Message("\tAnchor on ref: %lu - %lu (diff: %d)", onRefStart, onRefStop, onRefStop - onRefStart);
+//			Log.Message("\tReverse: %d, Score: %f", isReverse, score);
+		}
+
 		void print() {
 			Log.Message("Interval on read: %d - %d (diff: %d)", onReadStart, onReadStop, (onReadStop - onReadStart));
 			Log.Message("\tAnchor on ref: %lu - %lu (diff: %d)", onRefStart, onRefStop, onRefStop - onRefStart);
@@ -155,7 +161,7 @@ public:
 	corridor(Config.GetInt("corridor")),
 	refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
 	min_mq(Config.GetInt(MIN_MQ)),
-	aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(true) {
+	aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(false) {
 		pairInsertSum = 0;
 		pairInsertCount = 0;
 		brokenPairs = 0;

@@ -16,6 +16,10 @@
 #include <iostream>
 #include <fstream>
 
+bool isPrimary(BamAlignment * al) {
+	return !(al->AlignmentFlag & 0x100) && !(al->AlignmentFlag & 0x800);
+}
+
 void BamParser::parseBedFile(char const * fileName) {
 	Log.Message("Parsing BED file: %s", fileName);
 
@@ -278,7 +282,8 @@ void BamParser::init(char const * fileName, bool const keepTags) {
 		}
 	}
 
-	if (Config.Exists(SNIFFLES) || Config.Exists(BED) || Config.Exists(REALIGN)) {
+	if (Config.Exists(SNIFFLES) || Config.Exists(BED)
+			|| Config.Exists(REALIGN)) {
 		if (regions.size() > 0) {
 			BamRegion region = regions.back();
 
@@ -292,6 +297,19 @@ void BamParser::init(char const * fileName, bool const keepTags) {
 	parseAdditionalInfo = keepTags;
 
 	Log.Message("BAM parser initialized");
+
+	startRead = 1000000;
+	if (startRead > 0) {
+
+		Log.Message("Skipping first %d reads", startRead);
+		int count = 0;
+		while ((reader.GetNextAlignmentCore(al[0])) && count < startRead) {
+			if (isPrimary(al)) { // && readNames.find(al->Name) != readNames.end()) {
+				count += 1;
+			}
+		}
+		Log.Message("%d reads skipped", count);
+	}
 }
 
 static inline char cpl(char c) {
@@ -317,6 +335,7 @@ static inline char cpl(char c) {
 
 int BamParser::doParseSingleRead(MappedRead * read, BamAlignment * al) {
 
+	parsedReads += 1;
 	al->BuildCharData();
 	if (al->Name.size() > tmp->name.l) { //parse the name
 		tmp->name.m = al->Name.size();
@@ -324,7 +343,7 @@ int BamParser::doParseSingleRead(MappedRead * read, BamAlignment * al) {
 		// round to the next k^2
 		tmp->name.s = (char*) realloc(tmp->name.s, tmp->name.m);
 	}
-	//copy the name
+//copy the name
 	tmp->name.l = al->Name.size();
 	memcpy(tmp->name.s, al->Name.c_str(), tmp->name.l * sizeof(char));
 	tmp->name.s[tmp->name.l] = '\0';
@@ -342,7 +361,7 @@ int BamParser::doParseSingleRead(MappedRead * read, BamAlignment * al) {
 			tmp->qual.s = (char*) realloc(tmp->qual.s, tmp->qual.m);
 		}
 	}
-	//copy the sequence
+//copy the sequence
 	tmp->seq.l = al->QueryBases.size();
 	if (al->IsReverseStrand()) {
 		char const * fwd = al->QueryBases.c_str();
@@ -427,10 +446,6 @@ int BamParser::doParseSingleRead(MappedRead * read, BamAlignment * al) {
 	}
 }
 
-bool isPrimary(BamAlignment * al) {
-	return !(al->AlignmentFlag & 0x100) && !(al->AlignmentFlag & 0x800);
-}
-
 /* Return value:
  >=0  length of the sequence (normal)
  -1   end-of-file
@@ -440,7 +455,8 @@ int BamParser::doParseRead(MappedRead * read) {
 
 //	Log.Message("Do parse");
 	bool found = false;
-	while ((found = reader.GetNextAlignmentCore(al[0])) || regions.size() > 0) {
+	while (((found = reader.GetNextAlignmentCore(al[0])) || regions.size() > 0)
+			&& parsedReads < 1000000) {
 //		Log.Message("Do parse loop. %d", regions.size());
 		if (!found) {
 			BamRegion region = regions.back();

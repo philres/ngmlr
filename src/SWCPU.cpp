@@ -25,10 +25,13 @@ SWCPUCor::SWCPUCor(int gpu_id) :
 	gap_decay = 0.05f;
 	gap_ext_min = -1.0f;
 
-	long maxLen = (long) 50000 * (long) 20000;
-	alignMatrix = new MatrixElement[maxLen];
 
-	fprintf(stderr, "Allocationg: %llu\n", maxLen * sizeof(MatrixElement));
+	maxAlignMatrixLen = (long) 50000 * (long) 20000;
+	fprintf(stderr, "Allocationg: %llu\n", maxAlignMatrixLen * sizeof(MatrixElement));
+	alignMatrix = new MatrixElement[maxAlignMatrixLen];
+	fprintf(stderr, "Allocationg finished\n");
+
+
 
 	binaryCigar = new int[200000];
 
@@ -212,6 +215,9 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 		finalCigarLength += result.QStart;
 	}
 
+	int matches = 0;
+	int total = 0;
+
 	int cigar_m_length = 0;
 	int md_eq_length = 0;
 	int ref_index = 0;
@@ -220,6 +226,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 		int length = gpuCigar[j] >> 4;
 
 		//debugCigar(op, length);
+		total += length;
 
 		switch (op) {
 		case CIGAR_X:
@@ -239,6 +246,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 			cigar_m_length += length;
 			md_eq_length += length;
 			ref_index += length;
+			matches += length;
 			break;
 		case CIGAR_D:
 			if (cigar_m_length > 0) {
@@ -297,8 +305,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 		finalCigarLength += result.QEnd;
 
 	}
-	//TODO: fix
-	result.Identity = 1.0f;
+	result.Identity = matches * 1.0f / total;
 	result.pRef[cigar_offset] = '\0';
 	result.pQry[md_offset] = '\0';
 
@@ -557,6 +564,7 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 	}
 
 	delete[] fwdResults;
+	fwdResults = 0;
 
 	if (extData == 0) {
 		delete[] clipping;

@@ -46,9 +46,10 @@ using std::max;
 
 typedef float Score;
 
+
 struct MatrixElement {
 	Score score;
-	int indelRun;
+	short indelRun;
 	char direction;
 };
 
@@ -95,6 +96,7 @@ private:
 	Score gap_ext_min;
 	Score gap_decay;
 
+	long long maxAlignMatrixLen;
 	MatrixElement * alignMatrix;
 	int * binaryCigar;
 
