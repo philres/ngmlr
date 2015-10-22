@@ -62,12 +62,10 @@ protected:
 				read->name[nameLength] = '\0';
 
 				//Sequence
-				memset(read->Seq, '\0', qryMaxLen);
 				if (kseq->seq.l != 0) {
 //					read->length = std::min(kseq->seq.l,
 //							(size_t) qryMaxLen - 1);
 					read->length = kseq->seq.l;
-					delete[] read->Seq;
 					read->Seq = new char[std::max(qryMaxLen, read->length + 1)];
 					int nCount = 0;
 					for (int i = 0; i < read->length; ++i) {
@@ -90,7 +88,6 @@ protected:
 
 				//Quality
 				if (kseq->qual.l > 0) {
-					delete[] read->qlty;
 					read->qlty = new char[read->length + 1];
 					memcpy(read->qlty, kseq->qual.s, read->length);
 					read->qlty[read->length] = '\0';

@@ -139,6 +139,8 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		saveToFile(cacheFile, indexLength);
 	}
 
+	delete[] cacheFile;
+	cacheFile = 0;
 //	test();
 }
 

@@ -679,6 +679,11 @@ _SequenceProvider::~_SequenceProvider() {
 	binRef = 0;
 	delete[] refStartPos;
 	refStartPos = 0;
+
+	if (binRefIdx != 0) {
+		delete[] binRefIdx;
+		binRefIdx = 0;
+	}
 }
 
 void _SequenceProvider::Cleanup() {

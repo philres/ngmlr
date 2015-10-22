@@ -316,7 +316,7 @@ void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 	if (count == 0) {
 		read->Calculated = 0;
 		read->group->readsFinished += 1;
-		//out->addRead(read, -1);
+//		out->addRead(read, -1);
 	} else {
 		read->Calculated = 0;
 		sw->addRead(read, count);
@@ -422,9 +422,8 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 
 void CS::DoRun() {
 
-	Log.Message("DoRun");
-
 	int gpu = m_TID;
+	//TODO: remove
 	if (Config.Exists("gpu")) {
 		int threadcount = 1;
 		static const int cMaxAligner = 32;
@@ -436,6 +435,8 @@ void CS::DoRun() {
 			gpus[0] = 0;
 		}
 		gpu = gpus[m_TID % threadcount];
+		delete[] gpus;
+		gpus = 0;
 	}
 
 	NGM.AquireOutputLock();
@@ -468,7 +469,6 @@ void CS::DoRun() {
 	NGM.ReleaseOutputLock();
 
 	int x_SrchTableLen = (int) pow(2, x_SrchTableBitLen);
-	Log.Message("%d", x_SrchTableLen);
 	rTable = new CSTableEntry[x_SrchTableLen];
 	Log.Debug(LOG_CS_DETAILS, "Sizeof CSTableEntry %d (%d)", sizeof(CSTableEntry), sizeof(SequenceLocation));
 	Log.Debug(LOG_CS_DETAILS, "rTable: %d (%d x (%d + %d))", (sizeof(CSTableEntry) + sizeof(int)) * x_SrchTableLen, x_SrchTableLen, sizeof(CSTableEntry), sizeof(int));
@@ -529,6 +529,10 @@ void CS::DoRun() {
 	scoreBuffer = 0;
 	delete alignmentBuffer;
 	alignmentBuffer = 0;
+
+	delete sswAligner;
+	sswAligner = 0;
+
 	NGM.DeleteAlignment(oclAligner);
 	Log.Debug(LOG_CS_DETAILS, "CS Thread %i finished (%i reads processed, %i reads written, %i reads discarded)", m_TID, m_ProcessedReads, m_WrittenReads, m_DiscardedReads);
 }

@@ -516,6 +516,9 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 
 		Default(BIN_SIZE, 3);
 
+		Default(READ_OFFSET, 0);
+		Default(READ_NUMBER, -1);
+
 		if (Exists(ARGOS)) {
 			Default("sensitivity", 0.0f);
 			Override("cpu_threads", 1);

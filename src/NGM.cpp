@@ -112,6 +112,9 @@ void _NGM::InitProviders() {
 
 _NGM::~_NGM() {
 
+	delete Stats;
+	Stats = 0;
+
 	if (m_RefProvider != 0)
 		delete m_RefProvider;
 
@@ -443,7 +446,7 @@ void _NGM::MainLoop() {
 			if(!argos || (lastProcessd + 1000000) < processed) {
 				lastProcessd = processed;
 				if (!isPaired) {
-					Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
+					Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Reads: %d (%d)", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->readsInProcess, MappedRead::sInstanceCount);
 				} else {
 					Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Pairs: %.2f %.2f", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, NGM.Stats->readsPerSecond * threadcount, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->validPairs, NGM.Stats->insertSize);
 				}

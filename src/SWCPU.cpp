@@ -25,13 +25,11 @@ SWCPUCor::SWCPUCor(int gpu_id) :
 	gap_decay = 0.05f;
 	gap_ext_min = -1.0f;
 
-
-	maxAlignMatrixLen = (long) 50000 * (long) 20000;
-	fprintf(stderr, "Allocationg: %llu\n", maxAlignMatrixLen * sizeof(MatrixElement));
+	maxAlignMatrixLen = (long) 30000 * (long) 9000;
+//	fprintf(stderr, "Allocationg: %llu\n",
+//			maxAlignMatrixLen * sizeof(MatrixElement));
 	alignMatrix = new MatrixElement[maxAlignMatrixLen];
-	fprintf(stderr, "Allocationg finished\n");
-
-
+//	fprintf(stderr, "Allocationg finished\n");
 
 	binaryCigar = new int[200000];
 
@@ -40,7 +38,7 @@ SWCPUCor::SWCPUCor(int gpu_id) :
 //			0, 0, 0, 0, 0, 0, 0, mat };
 //	memcpy(scores, temp, 6 * 6 * sizeof(short));
 
-	fprintf(stderr, "SWCPU initialized\n");
+//	fprintf(stderr, "SWCPU initialized\n");
 }
 
 SWCPUCor::~SWCPUCor() {
@@ -519,6 +517,18 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 //	Log.Message("%s", refSeq);
 //	Log.Message("%s", qrySeq);
 
+	bool realoc = false;
+	int read_length = strlen(qrySeq);
+	if ((long) (read_length * 1.1f) * (long) corridor > maxAlignMatrixLen) {
+		delete[] alignMatrix;
+		fprintf(stderr, "Reallocationg: %llu\n",
+				((long) (read_length * 1.1f) * (long) corridor)
+						* sizeof(MatrixElement));
+		alignMatrix = new MatrixElement[(long) (read_length * 1.1f)
+				* (long) corridor];
+		realoc = true;
+	}
+
 	cur_align = align;
 
 	int * clipping = 0;
@@ -530,11 +540,10 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 		clipping = (int *) extData;
 	}
 
-	int read_length = strlen(qrySeq);
 	if (pacbioDebug)
 		fprintf(stderr, "Read length (single align) is %d\n", read_length);
-	align.pBuffer1 = new char[read_length * 4];
-	align.pBuffer2 = new char[read_length * 4];
+//	align.pBuffer1 = new char[read_length * 4];
+//	align.pBuffer2 = new char[read_length * 4];
 	//align.pBuffer2 = new char[1];
 	align.pBuffer2[0] = '\0';
 
@@ -573,6 +582,11 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 
 	if (!valid) {
 		finalCigarLength = -1;
+	}
+
+	if (realoc) {
+		delete[] alignMatrix;
+		alignMatrix = new MatrixElement[maxAlignMatrixLen];
 	}
 
 	return finalCigarLength;

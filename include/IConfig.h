@@ -48,6 +48,9 @@ static char const * const SNIFFLES = "sniffles";
 static char const * const BED = "bed";
 static char const * const REALIGN = "realign";
 
+static char const * const READ_OFFSET = "read_offset";
+static char const * const READ_NUMBER = "read_number";
+
 #ifdef DEBUGLOG
 static char const * const LOG = "log";
 static char const * const LOG_LVL = "log_lvl";

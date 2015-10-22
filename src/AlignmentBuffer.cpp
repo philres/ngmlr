@@ -221,7 +221,9 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 
 		int aligned = readLength - (align.QStart - clipping[0])
 				- (align.QEnd - clipping[1]);
-		Log.Message("%d of %d bp successfully aligned", aligned, readLength);
+		if (pacbioDebug) {
+			Log.Message("%d of %d bp successfully aligned", aligned, readLength);
+		}
 //		getchar();
 
 		if (cigarLength == -1) {
@@ -306,9 +308,9 @@ void printDotPlotLine(int const id, char const * const name,
 		int const onReadStart, int const onReadStop, loc const onRefStart,
 		loc const onRefStop, float const score, bool const isReverse,
 		int const type, int const status) {
-	printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name,
-			onReadStart, onReadStop, onRefStart, onRefStop, score, isReverse,
-			type, status);
+//	printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name,
+//			onReadStart, onReadStop, onRefStart, onRefStop, score, isReverse,
+//			type, status);
 }
 
 int * AlignmentBuffer::cLIS(Anchor * anchors, int const anchorsLenght,
@@ -699,6 +701,7 @@ Align AlignmentBuffer::alignInterval(MappedRead * read_, Interval interval,
 	int corridorFromLength = (int) (abs(onRead) * 0.20f);
 	corridor = std::min(corridor,
 			std::max(corridorFromDiff, corridorFromLength));
+
 	if (pacbioDebug)
 		Log.Message("Corridor estimation - onRead: %d, onRef: %d, diff: %d, corridor: %d", onRead, onRef, diff, corridor);
 
@@ -777,9 +780,10 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	Timer tmr;
 	tmr.ST();
 
-	Log.Message("Processing LongReadLIS: %d - %s (lenght %d)", group->fullRead->ReadId, group->fullRead->name, group->fullRead->length);
-	if (pacbioDebug)
+	if (pacbioDebug) {
+		Log.Message("Processing LongReadLIS: %d - %s (lenght %d)", group->fullRead->ReadId, group->fullRead->name, group->fullRead->length);
 		Log.Message("Read length: %d", group->fullRead->length);
+	}
 
 	float avgGroupScore = group->bestScoreSum * 1.0f / group->readsFinished;
 	float minGroupScore = avgGroupScore * 0.5f;
@@ -874,12 +878,13 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 		if (!print) {
 			//No hits found
-			if (pacbioDebug)
+			if (pacbioDebug) {
 				Log.Message("No hits found for part %d", onRead);
 				printDotPlotLine(group->fullRead->ReadId, group->fullRead->name,
 						onRead * 512, onRead * 512 + 512, 0, 0, 0.0f, 0, TYPE_UNFILTERED, STATUS_NOHIT);
 			}
 		}
+	}
 
 	int intervalsIndex = 0;
 	Interval * intervals = findSubsequences(group->fullRead->name,
@@ -889,14 +894,14 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 	if (intervalsIndex != 0) {
 
-//		if (pacbioDebug) {
-		Log.Message("================Intervalls found================");
-		for (int i = 0; i < intervalsIndex; ++i) {
-			Interval interval = intervals[i];
-			interval.printOneLine();
+		if (pacbioDebug) {
+			Log.Message("================Intervalls found================");
+			for (int i = 0; i < intervalsIndex; ++i) {
+				Interval interval = intervals[i];
+				interval.printOneLine();
+			}
+			Log.Message("================++++++++++++++++================");
 		}
-		Log.Message("================++++++++++++++++================");
-//		}
 
 		//Prepare alignment list in read object
 		MappedRead * read = group->fullRead;
@@ -968,19 +973,24 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 		}
 
-		Log.Message("================Intervalls aligned================");
-		int bpAligned = 0;
+		if (pacbioDebug) {
+			Log.Message("================Intervalls aligned================");
+			int bpAligned = 0;
 
-		for(int i = 0; i < read->Calculated; ++i) {
-			Align align = tmpAling[i];
-			Log.Message("%d - %d", align.QStart, read->length - align.QEnd);
-			bpAligned += (read->length - align.QStart - align.QEnd);
+			for(int i = 0; i < read->Calculated; ++i) {
+				Align align = tmpAling[i];
+				Log.Message("%d - %d", align.QStart, read->length - align.QEnd);
+				bpAligned += (read->length - align.QStart - align.QEnd);
+			}
+			Log.Message("Aligned %d bp of %d bp", bpAligned, read->length);
+			Log.Message("================++++++++++++++++++================");
 		}
-		Log.Message("Aligned %d bp of %d bp", bpAligned, read->length);
-		Log.Message("================++++++++++++++++++================");
 
 		read->AllocScores(tmp, alignIndex);
 		read->Alignments = tmpAling;
+
+		delete[] tmp;
+		tmp = 0;
 
 		if (pacbioDebug)
 		Log.Message("========================");

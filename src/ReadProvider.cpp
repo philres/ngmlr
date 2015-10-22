@@ -236,6 +236,11 @@ ReadProvider::~ReadProvider() {
 		delete parser2;
 		parser2 = 0;
 	}
+
+	if (readBuffer != 0) {
+		delete[] readBuffer;
+		readBuffer = 0;
+	}
 }
 
 void ReadProvider::splitRead(MappedRead * read) {
@@ -269,7 +274,7 @@ void ReadProvider::splitRead(MappedRead * read) {
 		MappedRead * readPart = new MappedRead(read->ReadId + 1,
 				readPartLength);
 
-		readPart->name = new char[nameLength + 1];
+//		readPart->name = new char[nameLength + 1];
 		strcpy(readPart->name, read->name);
 
 		int length = read->length;
@@ -297,7 +302,7 @@ void ReadProvider::splitRead(MappedRead * read) {
 			MappedRead * readPart = new MappedRead(read->ReadId + i,
 					readPartLength);
 
-			readPart->name = new char[nameLength + 1];
+//			readPart->name = new char[nameLength + 1];
 			strcpy(readPart->name, read->name);
 
 			int length = std::min(readPartLength,
@@ -344,6 +349,9 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 
 				splitRead(read);
 				NGM.AddReadRead(read->ReadId);
+
+				NGM.Stats->readsInProcess += 1;
+
 			} else {
 
 				Log.Debug(2, "READ_%d\tINPUT\t%s error while reading", id, read->name);
@@ -434,6 +442,7 @@ bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1,
 		int const readid2, MappedRead * & read2) {
 
 	read1 = GenerateSingleRead(readid1);
+
 	return read1 != 0;
 }
 
@@ -461,6 +470,8 @@ void ReadProvider::DisposeRead(MappedRead * read) {
 					read->group->reads[j] = 0;
 				}
 			}
+			delete[] read->group->reads;
+			read->group->reads = 0;
 			Log.Verbose("Deleting group");
 			delete read->group;
 			read->group = 0;
@@ -469,5 +480,6 @@ void ReadProvider::DisposeRead(MappedRead * read) {
 		// Single mode or no existing pair
 		delete read;
 	}
+	NGM.Stats->readsInProcess -= 1;
 	Log.Verbose("Deleting read took %fs", tmr.ET());
 }

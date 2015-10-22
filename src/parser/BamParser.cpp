@@ -16,6 +16,9 @@
 #include <iostream>
 #include <fstream>
 
+#undef module_name
+#define module_name "BAM"
+
 bool isPrimary(BamAlignment * al) {
 	return !(al->AlignmentFlag & 0x100) && !(al->AlignmentFlag & 0x800);
 }
@@ -264,20 +267,20 @@ void BamParser::init(char const * fileName, bool const keepTags) {
 		parseSnifflesFile(sniffles);
 
 	} else {
-		Log.Message("No sniffles file found");
+		Log.Verbose("No sniffles file found");
 
 		char const * realign = 0;
 		if(Config.Exists(REALIGN)) {
 			realign = Config.GetString(REALIGN);
 			parseRealignFile(realign);
 		} else {
-			Log.Message("No realign file found.");
+			Log.Verbose("No realign file found.");
 			char const * bed = 0;
 			if(Config.Exists(BED)) {
 				bed = Config.GetString(BED);
 				parseBedFile(bed);
 			} else {
-				Log.Message("No bed file found. Mapping all reads from BAM file");
+				Log.Message("Mapping all reads from BAM file");
 			}
 		}
 	}
@@ -298,17 +301,17 @@ void BamParser::init(char const * fileName, bool const keepTags) {
 
 	Log.Message("BAM parser initialized");
 
-	startRead = 1000000;
-	if (startRead > 0) {
+	int readOffset = Config.GetInt(READ_OFFSET);
+	if (readOffset > 0) {
 
-		Log.Message("Skipping first %d reads", startRead);
+		Log.Message("Skipping first %d reads", readOffset);
 		int count = 0;
-		while ((reader.GetNextAlignmentCore(al[0])) && count < startRead) {
+		while ((reader.GetNextAlignmentCore(al[0])) && count < readOffset) {
 			if (isPrimary(al)) { // && readNames.find(al->Name) != readNames.end()) {
 				count += 1;
 			}
 		}
-		Log.Message("%d reads skipped", count);
+		Log.Verbose("%d reads skipped", count);
 	}
 }
 
@@ -454,9 +457,11 @@ int BamParser::doParseSingleRead(MappedRead * read, BamAlignment * al) {
 int BamParser::doParseRead(MappedRead * read) {
 
 //	Log.Message("Do parse");
+	static int readNumber = Config.GetInt(READ_NUMBER);
+
 	bool found = false;
 	while (((found = reader.GetNextAlignmentCore(al[0])) || regions.size() > 0)
-			&& parsedReads < 1000000) {
+			&& (readNumber == -1 || parsedReads < readNumber)) {
 //		Log.Message("Do parse loop. %d", regions.size());
 		if (!found) {
 			BamRegion region = regions.back();

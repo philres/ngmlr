@@ -18,6 +18,10 @@ struct NGMStats
 	float validPairs;
 	float insertSize;
 
+	int readsInProcess;
+
+	int readObjectsInProcess;
+
 public:
 	NGMStats() {
 		TotalSeqs = 0;
@@ -31,6 +35,9 @@ public:
 
 		validPairs = 0.0f;
 		insertSize = 0.0f;
+
+		readsInProcess = 0;
+		readObjectsInProcess = 0;
 	}
 
 	~NGMStats() {

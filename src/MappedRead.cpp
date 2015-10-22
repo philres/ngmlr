@@ -5,6 +5,8 @@
 #undef module_name
 #define module_name "READ"
 
+volatile int MappedRead::sInstanceCount = 0;
+
 #ifdef INSTANCE_COUNTING
 volatile int MappedRead::sInstanceCount = 0;
 volatile int LocationScore::sInstanceCount = 0;
@@ -15,19 +17,15 @@ MappedRead::MappedRead(int const readid, int const qrymaxlen) :
 				0), Alignments(0), iScores(0), Paired(0), Status(0), mappingQlty(
 				255), s(0), length(0), RevSeq(0), Seq(0), qlty(0), name(0), AdditionalInfo(
 				0) {
-#ifdef INSTANCE_COUNTING
+//#ifdef INSTANCE_COUNTING
 	AtomicInc(&sInstanceCount);
-	maxSeqCount = std::max(sInstanceCount, maxSeqCount);
-#endif
-	//Name
+//	maxSeqCount = std::max(sInstanceCount, maxSeqCount);
+//#endif
+
+//Name
 	static size_t const MAX_READNAME_LENGTH = 100;
 	name = new char[MAX_READNAME_LENGTH];
 
-	Seq = new char[qryMaxLen];
-	memset(Seq, '\0', qryMaxLen);
-
-	qlty = new char[qryMaxLen];
-	memset(Seq, '\0', qryMaxLen);
 }
 
 static inline char cpl(char c) {
@@ -105,13 +103,14 @@ MappedRead::~MappedRead() {
 		delete[] qlty;
 		qlty = 0;
 	}
-	if (name != 0)
+	if (name != 0) {
 		delete[] name;
-	name = 0;
+		name = 0;
+	}
 
-#ifdef INSTANCE_COUNTING
+//#ifdef INSTANCE_COUNTING
 	AtomicDec(&sInstanceCount);
-#endif
+//#endif
 }
 
 void MappedRead::AllocScores(LocationScore * tmp, int const n) {

@@ -32,7 +32,10 @@ public:
 		writeUnmapped = !Config.GetInt("no_unal");
 	}
 	virtual ~GenericReadWriter() {
-
+		if(writeBuffer != 0) {
+			delete[] writeBuffer;
+			writeBuffer = 0;
+		}
 	}
 protected:
 

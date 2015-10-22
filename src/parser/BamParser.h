@@ -33,8 +33,6 @@ private:
 
 	std::map<std::string, int> readNames;
 
-	int startRead;
-
 	int parsedReads;
 
 public:
@@ -45,7 +43,6 @@ public:
 		al = 0;
 		tmp = 0;
 		parseAdditionalInfo = false;
-		startRead = 0;
 		parsedReads = 0;
 	}
 

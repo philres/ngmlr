@@ -227,27 +227,6 @@ public:
 
 		Log.Verbose("Alignment batchsize = %i", batchSize);
 
-		reads = new Alignment[batchSize];
-
-		qryBuffer = new char const *[batchSize];
-		refBuffer = new char const *[batchSize];
-
-		for (int i = 0; i < batchSize; ++i) {
-			refBuffer[i] = new char[refMaxLen];
-		}
-
-		m_DirBuffer = new char[batchSize];
-
-		alignBuffer = new Align[batchSize];
-		dbLen = std::max(1, Config.GetInt("qry_max_len")) * 8;
-		dBuffer = new char[dbLen];
-
-		dummy = new char[refMaxLen];
-		memset(dummy, '\0', refMaxLen);
-		//dummy[Config.GetInt("qry_max_len") - 1] = '\0';
-
-		alignTime = 0.0f;
-
 	}
 
 	virtual ~AlignmentBuffer() {

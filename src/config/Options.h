@@ -96,6 +96,8 @@ static const struct option long_options[] =
 		{ SNIFFLES,                     required_argument,       0, 0 },
 		{ BED,                       	required_argument,       0, 0 },
 		{ REALIGN,                     	required_argument,       0, 0 },
+		{ "read-offset",               	required_argument,       0, 0 },
+		{ "read-number",               	required_argument,       0, 0 },
 	0 };
 
 #endif /* OPTIONS_H_ */
