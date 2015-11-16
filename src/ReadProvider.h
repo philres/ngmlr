@@ -43,6 +43,8 @@ private:
 
 	bool const skipMateCheck;
 
+	int prefixLength;
+
 	void splitRead(MappedRead * read);
 	virtual MappedRead * NextRead(IParser * parser, int const id);
 	MappedRead * GenerateSingleRead(int const readid);

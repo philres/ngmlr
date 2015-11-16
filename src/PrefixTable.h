@@ -110,6 +110,7 @@ private:
 	//Static members used to direct generation of table units
 	static TableUnit* CurrentUnit;
 
+	inline ulong revComp(ulong prefix) const;
 
 	/********************************************************************/
 	/*************Used only for building reference table*****************/
@@ -128,6 +129,8 @@ private:
 
 	uint m_RefSkip;
 	uint m_PrefixLength;
+	uint m_PrefixBits;
+	uint m_PrefixMask;
 	/********************************************************************/
 
 	//Config values

@@ -75,8 +75,8 @@ protected:
 //	static void BuildReducedRef(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
 //			void* data);
 
-	static void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom,
-			ulong mutateTo, void* data, int mpos = 0);
+//	static void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom,
+//			ulong mutateTo, void* data, int mpos = 0);
 	virtual int CollectResultsStd(MappedRead* read);
 	int CollectResultsFallback(MappedRead* read);
 	void FilterScore(LocationScore* score);
@@ -150,8 +150,8 @@ public:
 
 	static void Init();
 	static void Cleanup();
-	static void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom,
-			ulong mutateTo, void* data);
+//	static void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom,
+//			ulong mutateTo, void* data);
 	static void PrefixIteration(const char* sequence, uloc length,
 			PrefixIterationFn func, ulong mutateFrom, ulong mutateTo,
 			void* data, uint prefixskip = 0, uloc offset = 0);

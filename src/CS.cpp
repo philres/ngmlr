@@ -39,6 +39,8 @@ void CS::PrefixIteration(char const * sequence, uloc length,
 	prefixBits = prefixBasecount * 2;
 	prefixMask = ((ulong) 1 << prefixBits) - 1;
 
+	Log.Message("PrefixIteration with prifxBaseCount called");
+
 	CS::PrefixIteration(sequence, length, func, mutateFrom, mutateTo, data,
 			prefixskip, offset);
 
@@ -47,48 +49,51 @@ void CS::PrefixIteration(char const * sequence, uloc length,
 	prefixMask = ((ulong) 1 << prefixBits) - 1;
 }
 
-// mutate T (0x2) -> C (0x1)
-//ulong const mutateFrom = 0x2;
-//ulong const mutateTo = 0x1;
-//ulong mutateFrom = 0x2;
-//ulong mutateTo = 0x1;
-
-void CS::PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom,
-		ulong mutateTo, void* data) {
-	static int const cMutationLocLimit = Config.GetInt("bs_cutoff");
-	ulong const mask = 0x3;
-
-	int mutationLocs = 0;
-	for (int i = 0; i < (int) prefixBasecount; ++i) {
-		ulong base = mask & (prefix >> (i * 2));
-		if (base == mutateFrom)
-			++mutationLocs;
-	}
-
-	if (mutationLocs <= cMutationLocLimit)
-		PrefixMutateSearchEx(prefix, pos, mutateFrom, mutateTo, data);
-}
-
-void CS::PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom,
-		ulong mutateTo, void* data, int mpos) {
-	PrefixSearch(prefix, pos, mutateFrom, mutateTo, data);
-
-	ulong const mask = 0x3;
-	for (int i = mpos; i < (int) prefixBasecount; ++i) {
-		ulong cur = mask & (prefix >> (i * 2));
-
-		if (cur == mutateFrom) {
-			ulong p1 = (prefix & ~(mask << (i * 2)));
-			ulong p2 = (mutateTo << (i * 2));
-			PrefixMutateSearchEx(p1 | p2, pos, mutateFrom, mutateTo, data,
-					i + 1);
-		}
-	}
-}
+//// mutate T (0x2) -> C (0x1)
+////ulong const mutateFrom = 0x2;
+////ulong const mutateTo = 0x1;
+////ulong mutateFrom = 0x2;
+////ulong mutateTo = 0x1;
+//
+//void CS::PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom,
+//		ulong mutateTo, void* data) {
+//	static int const cMutationLocLimit = Config.GetInt("bs_cutoff");
+//	ulong const mask = 0x3;
+//
+//	int mutationLocs = 0;
+//	for (int i = 0; i < (int) prefixBasecount; ++i) {
+//		ulong base = mask & (prefix >> (i * 2));
+//		if (base == mutateFrom)
+//			++mutationLocs;
+//	}
+//
+//	if (mutationLocs <= cMutationLocLimit)
+//		PrefixMutateSearchEx(prefix, pos, mutateFrom, mutateTo, data);
+//}
+//
+//void CS::PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom,
+//		ulong mutateTo, void* data, int mpos) {
+//	PrefixSearch(prefix, pos, mutateFrom, mutateTo, data);
+//
+//	ulong const mask = 0x3;
+//	for (int i = mpos; i < (int) prefixBasecount; ++i) {
+//		ulong cur = mask & (prefix >> (i * 2));
+//
+//		if (cur == mutateFrom) {
+//			ulong p1 = (prefix & ~(mask << (i * 2)));
+//			ulong p2 = (mutateTo << (i * 2));
+//			PrefixMutateSearchEx(p1 | p2, pos, mutateFrom, mutateTo, data,
+//					i + 1);
+//		}
+//	}
+//}
 
 void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
 		void* data) {
 	CS * cs = (CS*) data;
+
+	Log.Message("Current prefix: %llu", prefix);
+
 
 	RefEntry const * entries = cs->m_RefProvider->GetRefEntry(prefix,
 			cs->m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
@@ -308,20 +313,20 @@ int CS::CollectResultsFallback(MappedRead * read) {
 void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 		AlignmentBuffer * out) {
 
-	if (read == 0)
-		return;
-
-	int count = read->numScores();
-
-	if (count == 0) {
-		read->Calculated = 0;
-		read->group->readsFinished += 1;
-//		out->addRead(read, -1);
-	} else {
-		read->Calculated = 0;
-		sw->addRead(read, count);
-		++m_WrittenReads;
-	}
+//	if (read == 0)
+//		return;
+//
+//	int count = read->numScores();
+//
+//	if (count == 0) {
+//		read->Calculated = 0;
+//		read->group->readsFinished += 1;
+////		out->addRead(read, -1);
+//	} else {
+//		read->Calculated = 0;
+//		sw->addRead(read, count);
+//		++m_WrittenReads;
+//	}
 }
 
 void CS::Cleanup() {
@@ -330,8 +335,8 @@ void CS::Cleanup() {
 
 int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 	PrefixIterationFn pFunc = &CS::PrefixSearch;
-	if (m_EnableBS)
-		pFunc = &CS::PrefixMutateSearch;
+//	if (m_EnableBS)
+//		pFunc = &CS::PrefixMutateSearch;
 
 	int nScoresSum = 0;
 
@@ -441,7 +446,6 @@ void CS::DoRun() {
 
 	NGM.AquireOutputLock();
 	oclAligner = NGM.CreateAlignment(gpu | (std::min(Config.GetInt("format", 0, 2), 1) << 8));
-
 
 //	IAlignment * aligner = new SWCPUCor(0);
 //	Align align;
@@ -564,6 +568,7 @@ CS::CS(bool useBuffer) :
 	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
 
 	if (m_EnableBS) {
+		throw("bs mapping not implemented in NGM-LR");
 		m_PrefixBaseSkip = (Config.Exists("kmer_skip")) ?
 		Config.GetInt("kmer_skip", 0, -1) :
 															cPrefixBaseSkip;

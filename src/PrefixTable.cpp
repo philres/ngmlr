@@ -67,11 +67,11 @@ static const unsigned char ReverseTable16[] = { 0x00, 0x04, 0x08, 0x0C, 0x01, 0x
 ///////////////////////////////////////////////////////////////////////////////
 
 //Works only for 4 byte
-inline ulong revComp(ulong prefix) {
-	static const int shift = 32 - CS::prefixBits;
+inline ulong CompactPrefixTable::revComp(ulong prefix) const {
+	static const int shift = 32 - m_PrefixBits;
 
 	//Compute complement
-	ulong compPrefix = (prefix ^ 0xAAAAAAAA) & CS::prefixMask;
+	ulong compPrefix = (prefix ^ 0xAAAAAAAA) & m_PrefixMask;
 	//Reverse
 	compPrefix = compPrefix << shift;
 	ulong compRevPrefix = (ReverseTable16[compPrefix & 0x0f] << 28) | (ReverseTable16[(compPrefix >> 4) & 0x0f] << 24)
@@ -106,7 +106,9 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		m_RefSkip = 0;
 		Log.Verbose("BS mapping enabled. Kmer skip on ref is set to 0");
 	}
-	m_PrefixLength = CS::prefixBasecount;
+	m_PrefixLength = Config.GetInt("kmer", 4, 32);
+	m_PrefixBits = m_PrefixLength * 2;
+	m_PrefixMask = ((ulong) 1 << m_PrefixBits) - 1;
 	uint indexLength = (int) pow(4.0, (double) m_PrefixLength) + 1;
 
 	std::stringstream refFileName;

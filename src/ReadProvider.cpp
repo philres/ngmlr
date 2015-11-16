@@ -56,110 +56,9 @@ ReadProvider::ReadProvider() :
 
 }
 
-int CollectResultsFallback(int const readLength) {
-	float maxCurrent = 0;
-
-	for (std::map<uloc, float>::iterator itr = iTable.begin();
-			itr != iTable.end(); itr++) {
-		maxCurrent = std::max(maxCurrent, itr->second);
-	}
-
-	static const int skip = (
-	Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0) + 1;
-	//float max = (seq->seq.l - CS::prefixBasecount + 1) / skip;
-
-	int max = ceil((readLength - CS::prefixBasecount + 1) / skip * 1.0);
-
-	if (max > 1.0f && maxCurrent <= max) {
-		maxHitTable[maxHitTableIndex++] = (maxCurrent / ((max))); // * 0.85f + 0.05f;
-	}
-
-	iTable.clear();
-	return 0;
-}
-
-static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom,
-		ulong mutateTo, void* data) {
-
-	RefEntry const * entries = m_RefProvider->GetRefEntry(prefix, m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
-	RefEntry const * cur = entries;
-
-	for (int i = 0; i < m_entryCount; i++) {
-		//Get kmer-weight.
-//		float weight = cur->weight;
-		float weight = 1.0f;
-
-		int const n = cur->refCount;
-
-		if (cur->reverse) {
-			for (int i = 0; i < n; ++i) {
-				uloc curLoc = cur->getRealLocation(cur->ref[i])
-						- (m_CurrentReadLength - (pos + CS::prefixBasecount));
-				curLoc = GetBin(curLoc); // position offset
-				if (iTable.count(curLoc) == 0) {
-					iTable[curLoc] = weight;
-				} else {
-					iTable[curLoc] += weight;
-				}
-			}
-
-		} else {
-			for (int i = 0; i < n; ++i) {
-				uloc curLoc = cur->getRealLocation(cur->ref[i]) - pos;
-				curLoc = GetBin(curLoc); // position offset
-				if (iTable.count(curLoc) == 0) {
-					iTable[curLoc] = weight;
-				} else {
-					iTable[curLoc] += weight;
-				}
-			}
-		}
-
-		cur++;
-	}
-}
-
-void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom,
-		ulong mutateTo, void* data, int mpos = 0);
-
-void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom,
-		ulong mutateTo, void* data) {
-	static int const cMutationLocLimit =
-	Config.Exists("bs_cutoff") ? Config.GetInt("bs_cutoff") : 6;
-	ulong const mask = 0x3;
-
-	int mutationLocs = 0;
-	for (int i = 0; i < (int) CS::prefixBasecount; ++i) {
-		ulong base = mask & (prefix >> (i * 2));
-		if (base == mutateFrom)
-			++mutationLocs;
-	}
-
-	if (mutationLocs <= cMutationLocLimit)
-		PrefixMutateSearchEx(prefix, pos, mutateFrom, mutateTo, data);
-}
-
-void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom,
-		ulong mutateTo, void* data, int mpos) {
-	PrefixSearch(prefix, pos, mutateFrom, mutateTo, data);
-
-	ulong const mask = 0x3;
-	for (int i = mpos; i < (int) CS::prefixBasecount; ++i) {
-		ulong cur = mask & (prefix >> (i * 2));
-
-		if (cur == mutateFrom) {
-			ulong p1 = (prefix & ~(mask << (i * 2)));
-			ulong p2 = (mutateTo << (i * 2));
-			PrefixMutateSearchEx(p1 | p2, pos, mutateFrom, mutateTo, data,
-					i + 1);
-		}
-	}
-}
-
 uint ReadProvider::init() {
 	typedef void (*PrefixIterationFn)(ulong prefix, uloc pos, ulong mutateFrom,
 			ulong mutateTo, void* data);
-	PrefixIterationFn fnc = &PrefixSearch;
 
 	bool const isPaired = Config.GetInt("paired") > 1;
 
@@ -169,12 +68,6 @@ uint ReadProvider::init() {
 							Config.GetString("qry");
 	char const * const fileName2 =
 	Config.Exists("qry2") ? Config.GetString("qry2") : 0;
-
-	bool m_EnableBS = false;
-	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
-
-	if (m_EnableBS)
-		fnc = &PrefixMutateSearch;
 
 	Log.Verbose("Initializing ReadProvider");
 
@@ -211,11 +104,7 @@ uint ReadProvider::init() {
 
 	if (!Config.Exists("sensitivity")) {
 		((_Config*) _config)->Override("sensitivity", 0.5f);
-		if (!m_EnableBS) {
-			Log.Warning("Sensitivity parameter neither set nor estimated. Falling back to default.");
-		} else {
-			Log.Message("Sensitivity parameter set to 0.5");
-		}
+		Log.Warning("Sensitivity parameter neither set nor estimated. Falling back to default.");
 	}
 	Log.Message("Estimating parameter took %.3fs", tmr.ET());
 
