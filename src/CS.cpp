@@ -45,6 +45,7 @@ void CS::PrefixIteration(char const * sequence, uloc length,
 			prefixskip, offset);
 
 	prefixBasecount = Config.GetInt("kmer", 4, 32);
+	prefixBasecount = 22;
 	prefixBits = prefixBasecount * 2;
 	prefixMask = ((ulong) 1 << prefixBits) - 1;
 }
@@ -88,12 +89,41 @@ void CS::PrefixIteration(char const * sequence, uloc length,
 //	}
 //}
 
-void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
-		void* data) {
+static char binToChar(ulong c) {
+	switch (c) {
+	case 0:
+		return 'A';
+	case 1:
+		return 'C';
+	case 2:
+		return 'T';
+	case 3:
+		return 'G';
+	case 4:
+		return 'N';
+	}
+	throw "Error in ref encoding!";
+}
+
+char * CS::toPrefix(ulong prefix, int length) {
+	char * kmer = new char[length + 1];
+	ulong tmp = prefix;
+	int kIndex = 0;
+
+	ulong mask = 3;
+
+	for (int i = 0; i < length; ++i) {
+		kmer[length - i - 1] = binToChar(prefix & mask);
+		prefix = prefix >> 2;
+	}
+	kmer[length] = '\0';
+
+	return kmer;
+}
+
+void CS::PrefixSearchSingle(ulong prefix, uloc pos, ulong mutateFrom,
+		ulong mutateTo, void* data) {
 	CS * cs = (CS*) data;
-
-	Log.Message("Current prefix: %llu", prefix);
-
 
 	RefEntry const * entries = cs->m_RefProvider->GetRefEntry(prefix,
 			cs->m_entry); // Liefert eine liste aller Vorkommen dieses Praefixes in der Referenz
@@ -115,14 +145,15 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
 				(cur->reverse) ?
 						(readLength - (pos + CS::prefixBasecount)) : pos;
 
-//#ifdef _DEBUGCSVERBOSE
-//		Log.Message("Qry Seq %i - Prefix 0x%x got %i locs (sum %i)", cs->m_CurrentSeq, prefix, cur->refTotal);
-//#endif
+		//#ifdef _DEBUGCSVERBOSE
+		//		Log.Message("Qry Seq %i - Prefix 0x%x got %i locs (sum %i)", cs->m_CurrentSeq, prefix, cur->refTotal);
+		//#endif
 
 		int const n = cur->refCount;
 
 		for (int i = 0; i < n; ++i) {
 			uloc loc = cur->getRealLocation(cur->ref[i]);
+//			Log.Message("	%llu", loc - correction);
 			cs->AddLocationStd(GetBin(loc - correction), cur->reverse, weight);
 			//cs->AddLocationStd(GetBin(loc - (int) (correction * 0.95f)),
 			//		cur->reverse, weight);
@@ -130,6 +161,53 @@ void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
 
 		cur++;
 	}
+}
+
+void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
+		void* data) {
+//	CS * cs = (CS*) data;
+
+//	Log.Message("Current prefix: %llu (%s)", prefix, toPrefix(prefix, 22));
+
+	ulong first0 = (prefix & 0xFFF00000000) >> 32;
+	ulong first1 = ((prefix << 2) & 0xFFF00000000) >> 32;
+	ulong first2 = ((prefix << 4) & 0xFFF00000000) >> 32;
+
+	ulong second0 = prefix & 0xFFF;
+	ulong second1 = (prefix >> 2) & 0xFFF;
+	ulong second2 = (prefix >> 4) & 0xFFF;
+
+//	Log.Message("%s (%llu)", toPrefix(prefix, 22), prefix);
+//	Log.Message("%s (%llu)", toPrefix(first0, 6), first0);
+//	Log.Message(" %s (%llu)", toPrefix(first1, 6), first1);
+//	Log.Message("  %s (%llu)", toPrefix(first2, 6), first2);
+//
+//	Log.Message("                %s (%llu)", toPrefix(second0, 6), second0);
+//	Log.Message("               %s (%llu)", toPrefix(second1, 6), second1);
+//	Log.Message("              %s (%llu)", toPrefix(second2, 6), second2);
+
+	ulong prefix1 = (first1 << 12) | second1;
+
+	ulong prefix2 = (first1 << 12) | second0;
+	ulong prefix3 = (first1 << 12) | second2;
+
+	ulong prefix4 = (first0 << 12) | second1;
+	ulong prefix5 = (first2 << 12) | second1;
+
+//	Log.Message("0:- %s", toPrefix(prefix2, 12));
+//	Log.Message("0:+ %s", toPrefix(prefix3, 12));
+//	Log.Message("0:0 %s", toPrefix(prefix, 12));
+//	Log.Message("-:0 %s", toPrefix(prefix4, 12));
+//	Log.Message("+:0 %s", toPrefix(prefix5, 12));
+
+
+
+	PrefixSearchSingle(prefix1, pos, mutateFrom, mutateTo, data);
+	PrefixSearchSingle(prefix2, pos, mutateFrom, mutateTo, data);
+	PrefixSearchSingle(prefix3, pos, mutateFrom, mutateTo, data);
+	PrefixSearchSingle(prefix4, pos, mutateFrom, mutateTo, data);
+	PrefixSearchSingle(prefix5, pos, mutateFrom, mutateTo, data);
+
 }
 
 void CS::AddLocationStd(uloc const m_Location, bool const reverse,
@@ -313,20 +391,20 @@ int CS::CollectResultsFallback(MappedRead * read) {
 void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 		AlignmentBuffer * out) {
 
-//	if (read == 0)
-//		return;
-//
-//	int count = read->numScores();
-//
-//	if (count == 0) {
-//		read->Calculated = 0;
-//		read->group->readsFinished += 1;
-////		out->addRead(read, -1);
-//	} else {
-//		read->Calculated = 0;
-//		sw->addRead(read, count);
-//		++m_WrittenReads;
-//	}
+	if (read == 0)
+		return;
+
+	int count = read->numScores();
+
+	if (count == 0) {
+		read->Calculated = 0;
+		read->group->readsFinished += 1;
+//		out->addRead(read, -1);
+	} else {
+		read->Calculated = 0;
+		sw->addRead(read, count);
+		++m_WrittenReads;
+	}
 }
 
 void CS::Cleanup() {
@@ -343,6 +421,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 	for (size_t i = 0; i < m_CurrentBatch.size(); ++i) {
 
 		m_CurrentSeq = m_CurrentBatch[i]->ReadId;
+//		Log.Message("Read: %s", m_CurrentBatch[i]->name);
 		//m_CurrentSeq = i;
 
 		//currentState = 2 * i;
@@ -542,6 +621,7 @@ void CS::DoRun() {
 }
 void CS::Init() {
 	prefixBasecount = Config.GetInt("kmer", 4, 32);
+	prefixBasecount = 22;
 	prefixBits = prefixBasecount * 2;
 	prefixMask = ((ulong) 1 << prefixBits) - 1;
 

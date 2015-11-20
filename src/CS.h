@@ -68,6 +68,8 @@ protected:
 	static void BuildPrefixTable(ulong prefix, uloc pos, void* data);
 	static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom,
 			ulong mutateTo, void* data);
+	static void PrefixSearchSingle(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
+			void* data);
 
 //	static void AddLocationRead(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
 //			void* data);
@@ -124,6 +126,8 @@ private:
 	float scoreReadPart(char const * const readSeq, int const qryLen, int const bin,
 			long const refBin);
 
+
+
 	LocationScore * tmp;
 	int tmpSize;
 	IAlignment * oclAligner;
@@ -131,6 +135,8 @@ private:
 
 
 public:
+
+	static char * toPrefix(ulong prefix, int length);
 
 	//AddLocationFn AddLocation;
 	virtual void AddLocationStd(const uloc loc, const bool reverse,

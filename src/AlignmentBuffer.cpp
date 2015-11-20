@@ -308,9 +308,9 @@ void printDotPlotLine(int const id, char const * const name,
 		int const onReadStart, int const onReadStop, loc const onRefStart,
 		loc const onRefStop, float const score, bool const isReverse,
 		int const type, int const status) {
-//	printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name,
-//			onReadStart, onReadStop, onRefStart, onRefStop, score, isReverse,
-//			type, status);
+	printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name,
+			onReadStart, onReadStop, onRefStart, onRefStop, score, isReverse,
+			type, status);
 }
 
 int * AlignmentBuffer::cLIS(Anchor * anchors, int const anchorsLenght,
@@ -921,55 +921,55 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			intervals[i].print(group->fullRead->ReadId, group->fullRead->name,
 					i);
 
-			Timer tmr;
-			tmr.ST();
-			Align align = alignInterval(read, intervals[i], i);
-
-			int readPartLength = intervals[i].onReadStop - intervals[i].onReadStart;
-
-			if(align.Score > 0.0f) {
-
-				if (pacbioDebug)
-				Log.Message("CIGAR: %s", align.pBuffer1);
-				if (pacbioDebug)
-				Log.Message("Offset correction: %d", align.PositionOffset);
-
-				//test-align python (ngila)
-				//printf("\t%d\n", read->Alignments[0].PositionOffset);
-
-				tmp[alignIndex].Location.m_Location = intervals[i].onRefStart + align.PositionOffset;//- (corridor >> 1); handled in computeAlingment
-				tmp[alignIndex].Location.setReverse(intervals[i].isReverse);
-				tmp[alignIndex].Score.f = align.Score;
-
-				tmpAling[alignIndex] = align;
-
-				read->Calculated += 1;
-
-				alignIndex += 1;
-
-				int const QStart = align.QStart - intervals[i].onReadStart;
-				int const QEnd = align.QEnd - (read->length - intervals[i].onReadStop);
-
-				if (pacbioDebug)
-				Log.Message("QStart: %d, QEnd: %d, Threshold: %f", QStart, QEnd, readPartLength * 0.1f);
-				if(QStart > readPartLength * 0.1f && QStart > 512) {
-					if (pacbioDebug)
-					Log.Message("Align beginning of read again");
-//					getchar();
-				}
-
-				if(QEnd > readPartLength * 0.1f && QEnd > 512) {
-					if (pacbioDebug)
-					Log.Message("Align end of read again");
-					//getchar();
-				}
-			} else {
-				if (pacbioDebug)
-				Log.Message("Alignment failed");
-			}
-
-			if (pacbioDebug)
-			Log.Message("Alignment took %fs", tmr.ET());
+//			Timer tmr;
+//			tmr.ST();
+//			Align align = alignInterval(read, intervals[i], i);
+//
+//			int readPartLength = intervals[i].onReadStop - intervals[i].onReadStart;
+//
+//			if(align.Score > 0.0f) {
+//
+//				if (pacbioDebug)
+//				Log.Message("CIGAR: %s", align.pBuffer1);
+//				if (pacbioDebug)
+//				Log.Message("Offset correction: %d", align.PositionOffset);
+//
+//				//test-align python (ngila)
+//				//printf("\t%d\n", read->Alignments[0].PositionOffset);
+//
+//				tmp[alignIndex].Location.m_Location = intervals[i].onRefStart + align.PositionOffset;//- (corridor >> 1); handled in computeAlingment
+//				tmp[alignIndex].Location.setReverse(intervals[i].isReverse);
+//				tmp[alignIndex].Score.f = align.Score;
+//
+//				tmpAling[alignIndex] = align;
+//
+//				read->Calculated += 1;
+//
+//				alignIndex += 1;
+//
+//				int const QStart = align.QStart - intervals[i].onReadStart;
+//				int const QEnd = align.QEnd - (read->length - intervals[i].onReadStop);
+//
+//				if (pacbioDebug)
+//				Log.Message("QStart: %d, QEnd: %d, Threshold: %f", QStart, QEnd, readPartLength * 0.1f);
+//				if(QStart > readPartLength * 0.1f && QStart > 512) {
+//					if (pacbioDebug)
+//					Log.Message("Align beginning of read again");
+////					getchar();
+//				}
+//
+//				if(QEnd > readPartLength * 0.1f && QEnd > 512) {
+//					if (pacbioDebug)
+//					Log.Message("Align end of read again");
+//					//getchar();
+//				}
+//			} else {
+//				if (pacbioDebug)
+//				Log.Message("Alignment failed");
+//			}
+//
+//			if (pacbioDebug)
+//			Log.Message("Alignment took %fs", tmr.ET());
 
 		}
 
@@ -985,6 +985,10 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			Log.Message("Aligned %d bp of %d bp", bpAligned, read->length);
 			Log.Message("================++++++++++++++++++================");
 		}
+
+		//TODO: remove
+		WriteRead(group->fullRead, false);
+		return;
 
 		read->AllocScores(tmp, alignIndex);
 		read->Alignments = tmpAling;

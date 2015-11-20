@@ -112,7 +112,8 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 	uint indexLength = (int) pow(4.0, (double) m_PrefixLength) + 1;
 
 	std::stringstream refFileName;
-	refFileName << std::string(Config.GetString("ref")) << "-ht-" << m_PrefixLength << "-" << m_RefSkip << ".2.ngm";
+//	refFileName << std::string(Config.GetString("ref")) << "-ht-" << m_PrefixLength << "-" << m_RefSkip << ".2.ngm";
+	refFileName << std::string(Config.GetString("ref")) << "-ht-" << m_PrefixLength << "-" << m_RefSkip << ".split.22.12.kmer.ngm";
 
 	char * cacheFile = new char[refFileName.str().size() + 1];
 	strcpy(cacheFile, refFileName.str().c_str());
@@ -234,6 +235,8 @@ int * CompactPrefixTable::CountKmerFreq(uint length) {
 			uloc len = SequenceProvider.GetRefLen(m_CurGenSeq);
 			char * seq = new char[len + 2];
 			SequenceProvider.DecodeRefSequence(seq, m_CurGenSeq, offset, len);
+
+//			Log.Message("RefSeq: %s", seq);
 
 			if(skipRep) {
 				CS::PrefixIteration(seq, len, &CompactPrefixTable::CountKmer, 0, 0, freq, m_RefSkip, offset);
@@ -495,9 +498,25 @@ void CompactPrefixTable::CreateTable(uint const length) {
 
 }
 
+void debugPrefix(ulong prefix) {
+	//Log.Message("Prefix: %s", CS::toPrefix(prefix, 12));
+}
+
 void CompactPrefixTable::CountKmer(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	if (pos < kmerCountMinLocation || pos > kmerCountMaxLocation)
 		return;
+
+//	Log.Message("Prefix: %s (%llu) at pos %llu", CS::toPrefix(prefix, 22), prefix, pos);
+
+	ulong first1 = ((prefix << 2) & 0xFFF00000000) >> 32;
+	ulong second1 = (prefix >> 2) & 0xFFF;
+
+
+	prefix = (first1 << 12) | second1;
+
+//	Log.Message("Prefix: %s", CS::toPrefix(prefix, 12));
+
+
 
 	int * freq = (int *) data;
 	if (prefix == lastPrefix) {
@@ -530,6 +549,12 @@ void CompactPrefixTable::CountKmerwoSkip(ulong prefix, uloc pos, ulong mutateFro
 void CompactPrefixTable::BuildPrefixTable(ulong prefix, uloc real_pos, ulong mutateFrom, ulong mutateTo, void* data) {
 	if (real_pos < kmerCountMinLocation || real_pos > kmerCountMaxLocation)
 		return;
+
+	ulong first1 = ((prefix << 2) & 0xFFF00000000) >> 32;
+	ulong second1 = (prefix >> 2) & 0xFFF;
+	prefix = (first1 << 12) | second1;
+
+	debugPrefix(prefix);
 
 	//Rebase position using current hashtable unit offset
 	uloc temp_pos = real_pos - CurrentUnit->Offset;
