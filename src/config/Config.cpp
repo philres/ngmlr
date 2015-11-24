@@ -398,7 +398,8 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("kmer_skip", 2);
 		Default("skip_save", 0);
 
-		Default("topn", 1);
+		//NGM-LR defaults
+		Default("topn", 5);
 		Default("strata", 0);
 		if (Exists("qry1") && Exists("qry2")) {
 			Default("paired", 1);
@@ -415,7 +416,8 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("qry_start", 0);
 		Default("qry_count", -1);
 
-		Default("affine", 0);
+		//NGM-LR defaults
+		Default("affine", 1);
 		Default("max_equal", 1);
 
 		if (Exists(MODE)) {
@@ -487,8 +489,10 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("step_count", 4);
 
 		//Filter
-		Default("min_identity", 0.65f);
-		Default("min_residues", 0.5f);
+		//NGM-LR defaults
+		Default("min_identity", 0.0f);
+		//NGM-LR defaults
+		Default("min_residues", 0.0f);
 		Default("min_score", 0.0f);
 		Default(MIN_MQ, 0);
 
@@ -514,7 +518,8 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 
 		Default(MAX_READ_LENGTH, 0);
 
-		Default(BIN_SIZE, 3);
+		//NGM-LR defaults
+		Default(BIN_SIZE, 4);
 
 		Default(READ_OFFSET, 0);
 		Default(READ_NUMBER, -1);
@@ -523,6 +528,12 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 			Default("sensitivity", 0.0f);
 			Override("cpu_threads", 1);
 		}
+
+		//NGM-LR defaults
+		Default("sensitivity", 0.8f);
+		Default("corridor", 80);
+
+
 
 //#ifdef __APPLE__
 //		Default("gpu", 0);

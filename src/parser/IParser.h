@@ -92,6 +92,7 @@ protected:
 					memcpy(read->qlty, kseq->qual.s, read->length);
 					read->qlty[read->length] = '\0';
 				} else {
+					read->qlty = new char[2];
 					read->qlty[0] = '*';
 					read->qlty[1] = '\0';
 				}
