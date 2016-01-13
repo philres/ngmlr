@@ -490,9 +490,9 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 
 		//Filter
 		//NGM-LR defaults
-		Default("min_identity", 0.0f);
+		Default("min_identity", 0.60f);
 		//NGM-LR defaults
-		Default("min_residues", 0.0f);
+		Default("min_residues", 50.0f);
 		Default("min_score", 0.0f);
 		Default(MIN_MQ, 0);
 
@@ -523,6 +523,9 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 
 		Default(READ_OFFSET, 0);
 		Default(READ_NUMBER, -1);
+
+		Default(NOINVERSIONS, 0);
+		Default(PACBIOLOG, 0);
 
 		if (Exists(ARGOS)) {
 			Default("sensitivity", 0.0f);

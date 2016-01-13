@@ -4,6 +4,7 @@
 #include <string.h>
 #include <cmath>
 
+#include "seqan/EndToEndAffine.h"
 #include "OutputReadBuffer.h"
 #include "Timing.h"
 
@@ -159,13 +160,9 @@ void AlignmentBuffer::DoRun() {
 
 Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 		char * const readSeq, size_t const readLength, int const QStart,
-		int const QEnd, int fullReadLength, MappedRead * read, bool isReverse) {
+		int const QEnd, int fullReadLength) {
 
 	Align align;
-
-	//TODO: hack to pass data for debugin
-	align.ExtendedData = read->name;
-	align.NM = isReverse;
 
 	//initialize arrays for CIGAR and MD string
 	align.pBuffer1 = new char[readLength * 4];
@@ -407,23 +404,27 @@ void AlignmentBuffer::getSeqAnLIS(int allFwdAnchorsLength, int id,
 	for (int i = length(posFwd) - 1; i >= 0; --i) {
 		if (pacbioDebug)
 			std::cerr << posFwd[i] << ", ";
-		printDotPlotLine(id, name, allFwdAnchors[posFwd[i]].onRead * 512,
-				allFwdAnchors[posFwd[i]].onRead * 512 + 512,
-				allFwdAnchors[posFwd[i]].onRef,
-				allFwdAnchors[posFwd[i]].onRef + 512,
-				allFwdAnchors[posFwd[i]].score,
-				allFwdAnchors[posFwd[i]].isReverse, TYPE_LIS_SEQAN, STATUS_OK);
+//		printDotPlotLine(id, name, allFwdAnchors[posFwd[i]].onRead * 512,
+//				allFwdAnchors[posFwd[i]].onRead * 512 + 512,
+//				allFwdAnchors[posFwd[i]].onRef,
+//				allFwdAnchors[posFwd[i]].onRef + 512,
+//				allFwdAnchors[posFwd[i]].score,
+//				allFwdAnchors[posFwd[i]].isReverse, TYPE_LIS_SEQAN, STATUS_OK);
 	}
 	if (pacbioDebug)
 		std::cerr << std::endl;
 
 }
 
+bool AlignmentBuffer::isSameDirection(Interval a, Interval b) {
+	return a.isReverse == b.isReverse;
+}
+
 bool AlignmentBuffer::isCompatible(Interval a, Interval b) {
 
-	if (a.isReverse != b.isReverse) {
-		return false;
-	}
+//	if (!isCompatible(a,b)) {
+//		return false;
+//	}
 
 	bool overlapsOnRead = false;
 	bool overlapsOnRef = false;
@@ -452,8 +453,9 @@ bool AlignmentBuffer::isCompatible(Interval a, Interval b) {
 	if (pacbioDebug)
 		Log.Message("k2: %f, d2: %f", k2, d2);
 
-	if (pacbioDebug)
+	if (pacbioDebug) {
 		Log.Message("Read start - a: %llu, b: %llu, diff: %llu", a_y0, b_y0, abs(b_y0 - a_y0));
+	}
 
 	isInCorridor = abs(b_y0 - a_y0) < 4096;
 
@@ -466,6 +468,29 @@ bool AlignmentBuffer::isContained(Interval a, Interval b) {
 			&& a.isReverse == b.isReverse;
 }
 
+bool AlignmentBuffer::isContainedOnRead(Interval a, Interval b) {
+	if (abs(a.onReadStop - a.onReadStart) > abs(b.onReadStop - b.onReadStart)) {
+		Interval tmp;
+		tmp = a;
+		a = b;
+		b = tmp;
+	}
+	bool isContained = a.onReadStart >= b.onReadStart
+			&& a.onReadStop <= b.onReadStop;
+
+	return isContained;
+}
+
+AlignmentBuffer::Interval AlignmentBuffer::splitInterval(Interval a,
+		Interval b) {
+
+	Log.Message("=======================");
+	a.print();
+	b.print();
+//	getchar();
+	return a;
+}
+
 AlignmentBuffer::Interval AlignmentBuffer::mergeIntervals(Interval a,
 		Interval b) {
 	a.onReadStart = std::min(a.onReadStart, b.onReadStart);
@@ -476,187 +501,337 @@ AlignmentBuffer::Interval AlignmentBuffer::mergeIntervals(Interval a,
 	return a;
 }
 
+//bool AlignmentBuffer::constructMappedSegements(Interval * intervals,
+//		Interval interval, int & intervalsIndex) {
+//	bool addInterval = true;
+//	bool done = false;
+//	for (int j = 0; j < intervalsIndex && !done; ++j) {
+//		if (isContained(interval, intervals[j])) {
+//			if (pacbioDebug)
+//				Log.Message("Interval is contained in %d", j);
+//				addInterval = false;
+//				done = true;
+//				//Do not add
+//			} else {
+//				if (pacbioDebug)
+//				Log.Message("Interval not contained in %d", j);
+//
+//				if(isCompatible(interval, intervals[j])) {
+//					if (pacbioDebug)
+//					Log.Message("Is compatible");
+//
+//					if(isSameDirection(interval, intervals[j])) {
+//						addInterval = false;
+//						//Merge
+//						intervals[j] = mergeIntervals(interval, intervals[j]);
+//						done = true;
+//					} else {
+//
+//						if(isContainedOnRead(interval, intervals[j])) {
+//							//Split interval
+//							intervals[intervalsIndex++] = splitInterval(interval, intervals[j]);
+//							intervals[intervalsIndex++] = interval;
+//							addInterval = false;
+//							done = true;
+//						} else {
+//							if(pacbioDebug) {
+//								Log.Message("Is compatible but not contained on read - skipping");
+//							}
+//						}
+//					}
+//				} else {
+//					if (pacbioDebug)
+//					Log.Message("Is NOT compatible");
+//					addInterval = addInterval && true;
+//					//Add
+//				}
+//			}
+//		}
+//
+//	if (addInterval || intervalsIndex == 0) {
+//		if (intervalsIndex < 1000) {
+//			intervals[intervalsIndex++] = interval;
+//		} else {
+//			return false;
+//		}
+//		if (pacbioDebug)
+//			Log.Message("Adding interval");
+//		}
+//	return true;
+//}
+
+bool AlignmentBuffer::constructMappedSegements(MappedSegment * segments,
+		Interval interval, size_t & segmentsIndex) {
+//	bool addInterval = true;
+//	bool done = false;
+	for (int i = 0; i < segmentsIndex; ++i) {
+		Interval * intervals = segments[i].list;
+		for (int j = 0; j < segments[i].length; ++j) {
+			if (isContained(interval, intervals[j])) {
+				if (pacbioDebug) {
+					Log.Message("Interval is contained in %d", j);
+				}
+
+				//Do not add
+				return true;
+			} else {
+				if (pacbioDebug) {
+					Log.Message("Interval not contained in %d", j);
+				}
+
+				if(isCompatible(interval, intervals[j])) {
+					if (pacbioDebug) {
+						Log.Message("Adding interval to segment");
+					}
+					if (segments[i].length < 100) {
+						intervals[segments[i].length++] = interval;
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					if (pacbioDebug) {
+						Log.Message("Is NOT compatible");
+					}
+					//Add
+				}
+			}
+		}
+	}
+
+	if (pacbioDebug) {
+		Log.Message("Creating new segment from interval");
+	}
+	segments[segmentsIndex].list[0] = interval;
+	segments[segmentsIndex++].length = 1;
+
+	return true;
+}
+
+void AlignmentBuffer::consolidateSegment(Interval * intervals,
+		int & intervalsIndex, MappedSegment segment) {
+
+	Interval lastInterval = segment.list[0];
+	Interval currentInterval;
+
+	for (int i = 1; i < segment.length; ++i) {
+		currentInterval = segment.list[i];
+		if (isSameDirection(currentInterval, lastInterval)) {
+			lastInterval = mergeIntervals(currentInterval, lastInterval);
+		} else {
+			//Add lastInterval
+			intervals[intervalsIndex++] = lastInterval;
+			lastInterval = currentInterval;
+		}
+	}
+	intervals[intervalsIndex++] = lastInterval;
+
+}
+
+bool sortIntervalsInSegment(AlignmentBuffer::Interval a,
+		AlignmentBuffer::Interval b) {
+	return a.onReadStart < b.onReadStart;
+}
+
+AlignmentBuffer::Interval * AlignmentBuffer::consolidateSegments(
+		MappedSegment * segments, size_t segmentsIndex, int & intervalsIndex) {
+
+	if (pacbioDebug) {
+		Log.Message("============================");
+	}
+	Interval * intervals = new Interval[1000];
+
+	for (int i = 0; i < segmentsIndex; ++i) {
+
+		std::sort(segments[i].list, segments[i].list + segments[i].length,
+				sortIntervalsInSegment);
+
+		if (pacbioDebug) {
+			Log.Message("Segment %d: ", i);
+			for(int j = 0; j < segments[i].length; ++j) {
+				Log.Message("\tInterval %d: ", j);
+				segments[i].list[j].print();
+			}
+		}
+
+		consolidateSegment(intervals, intervalsIndex, segments[i]);
+	}
+	if (pacbioDebug) {
+		Log.Message("============================");
+	}
+
+	return intervals;
+}
+
 AlignmentBuffer::Interval * AlignmentBuffer::findSubsequences(char * name,
 		int id, Anchor * allFwdAnchors, int allFwdAnchorsLength,
 		Anchor * allRevAnchors, int allRevAnchorsLength, int readParts,
 		int readLenth, int & intervalsIndex) {
 
-	if (pacbioDebug)
+	if (pacbioDebug) {
 		Log.Message("Finding LIS for read %d", id);
+	}
 
-		Interval * intervals = new Interval[1000];
-		intervalsIndex = 0;
+	//Interval * intervals = new Interval[1000];
+	MappedSegment * segments = new MappedSegment[100];
+	size_t segementsIndex = 0;
+	//intervalsIndex = 0;
 
-		//Sort by position on read. Prpbably not necessary!!
-		std::sort(allFwdAnchors, allFwdAnchors + allFwdAnchorsLength,
-				AlignmentBuffer::sortAnchorOnRead);
+	//Sort by position on read. Prpbably not necessary!!
+	std::sort(allFwdAnchors, allFwdAnchors + allFwdAnchorsLength,
+			AlignmentBuffer::sortAnchorOnRead);
 
-		//Get standard LIS with Seqan
-		getSeqAnLIS(allFwdAnchorsLength, id,
-				allFwdAnchors, name);
+	//Get standard LIS with Seqan
+	getSeqAnLIS(allFwdAnchorsLength, id,
+			allFwdAnchors, name);
 
-		int run = 0;
-		bool finished = false;
-		while (!finished) {
-			if (allFwdAnchorsLength > 0) {
+	int run = 0;
+	bool finished = false;
+	while (!finished) {
+		if (allFwdAnchorsLength > 0) {
 
-				//Print remaining elements
-				if (pacbioDebug) {
-					std::cerr << "Elements: ";
-					for (int i = 0; i < allFwdAnchorsLength; ++i) {
-						std::cerr << i << ":" << allFwdAnchors[i].onRead << ":"
-						<< allFwdAnchors[i].onRef << ":"
-						<< allFwdAnchors[i].isReverse << ", ";
-					}
-					std::cerr << std::endl;
-				}
-
-				//Find constrained LIS
-				int lisLength = 0;
-				int * lis = cLIS(allFwdAnchors, allFwdAnchorsLength, lisLength);
-
-				int minOnRead = 999999;
-				int maxOnRead = 0;
-
-				loc minOnRef = 999999999999;
-				loc maxOnRef = 0;
-
-				bool isReverse = false;
-
-				float intervalScore = 0.0f;
-
-				if (pacbioDebug)
-				std::cerr << "cLIS" << run << ":     ";
-				//Remove LIS from candidates
-				int posInLIS = lisLength - 1;
-				allRevAnchorsLength = 0;
+			//Print remaining elements
+			if (pacbioDebug) {
+				std::cerr << "Elements: ";
 				for (int i = 0; i < allFwdAnchorsLength; ++i) {
-					if (posInLIS >= 0 && i == lis[posInLIS]) {
+					std::cerr << i << ":" << allFwdAnchors[i].onRead << ":"
+					<< allFwdAnchors[i].onRef << ":"
+					<< allFwdAnchors[i].isReverse << ", ";
+				}
+				std::cerr << std::endl;
+			}
 
-						int onRead = allFwdAnchors[lis[posInLIS]].onRead * 512;
+			//Find constrained LIS
+			int lisLength = 0;
+			int * lis = cLIS(allFwdAnchors, allFwdAnchorsLength, lisLength);
+
+			int minOnRead = 999999;
+			int maxOnRead = 0;
+
+			loc minOnRef = 999999999999;
+			loc maxOnRef = 0;
+
+			bool isReverse = false;
+
+			float intervalScore = 0.0f;
+
+			if (pacbioDebug)
+			std::cerr << "cLIS" << run << ":     ";
+			//Remove LIS from candidates
+			int posInLIS = lisLength - 1;
+			allRevAnchorsLength = 0;
+			for (int i = 0; i < allFwdAnchorsLength; ++i) {
+				if (posInLIS >= 0 && i == lis[posInLIS]) {
+
+					int onRead = allFwdAnchors[lis[posInLIS]].onRead * 512;
 //					if(allFwdAnchors[lis[posInLIS]].isReverse) {
 //						onRead = readLenth - onRead;
 //					}
 
-						//Print current LIS
-						if (pacbioDebug)
-						std::cerr << lis[posInLIS] << ", ";
-						printDotPlotLine(id, name,
-								onRead,
-								onRead + 512,
-								allFwdAnchors[lis[posInLIS]].onRef,
-								allFwdAnchors[lis[posInLIS]].onRef + 512,
-								allFwdAnchors[lis[posInLIS]].score,
-								allFwdAnchors[lis[posInLIS]].isReverse,
-								TYPE_CLIS + run, STATUS_OK);
-
-						minOnRead = std::min(minOnRead, onRead);
-						maxOnRead = std::max(maxOnRead, onRead + 512);
-
-						minOnRef = std::min(minOnRef, allFwdAnchors[lis[posInLIS]].onRef);
-						maxOnRef = std::max(maxOnRef, allFwdAnchors[lis[posInLIS]].onRef + 512);
-
-						isReverse = allFwdAnchors[lis[posInLIS]].isReverse;
-						intervalScore += allFwdAnchors[lis[posInLIS]].score;
-
-						//Remove from remaining elements
-						posInLIS -= 1;
-					} else {
-						//Add to second array
-						allRevAnchors[allRevAnchorsLength++] = allFwdAnchors[i];
-						//			printDotPlotLine(id, name, allFwdAnchors[i].onRead,
-						//					allFwdAnchors[i].onRef, allFwdAnchors[i].score,
-						//					allFwdAnchors[i].isReverse, TYPE_CLIS_2, STATUS_OK);
-					}
-				}
-
-				if (pacbioDebug)
-				std::cerr << std::endl;
-
-				Interval interval;
-
-				int addStart = std::min(512, minOnRead);
-				int addEnd = std::min(512, readLenth - maxOnRead);
-
-				interval.onReadStart = minOnRead - addStart;
-				interval.onReadStop = maxOnRead + addEnd;
-
-				interval.onRefStart = minOnRef - addStart;
-				interval.onRefStop = maxOnRef + addEnd;
-
-				interval.isReverse = isReverse;
-				interval.score = intervalScore;
-
-				//TODO: check chromosome borders
-
-				if (pacbioDebug)
-				interval.print();
-
-				bool addInterval = true;
-				bool done = false;
-				for(int j = 0; j < intervalsIndex && !done; ++j) {
-					if(isContained(interval, intervals[j])) {
-						if (pacbioDebug)
-						Log.Message("Interval is contained in %d", j);
-						addInterval = false;
-						done = true;
-						//Do not add
-					} else {
-						if (pacbioDebug)
-						Log.Message("Interval not contained in %d", j);
-
-						if(isCompatible(interval, intervals[j])) {
-							if (pacbioDebug)
-							Log.Message("Is compatible");
-							addInterval = false;
-							//Merge
-							intervals[j] = mergeIntervals(interval, intervals[j]);
-							done = true;
-						} else {
-							if (pacbioDebug)
-							Log.Message("Is NOT compatible");
-							addInterval = addInterval && true;
-							//Add
-						}
-					}
-				}
-
-				if(addInterval || intervalsIndex == 0) {
-					if(intervalsIndex < 1000) {
-						intervals[intervalsIndex++] = interval;
-					} else {
-						Log.Message("Too many intervals found (>1000). Ignoring all others");
-						lisLength = 0;
-						delete[] lis;
-						return intervals;
-					}
+					//Print current LIS
 					if (pacbioDebug)
-					Log.Message("Adding interval");
+					std::cerr << lis[posInLIS] << ", ";
+					printDotPlotLine(id, name,
+							onRead,
+							onRead + 512,
+							allFwdAnchors[lis[posInLIS]].onRef,
+							allFwdAnchors[lis[posInLIS]].onRef + 512,
+							allFwdAnchors[lis[posInLIS]].score,
+							allFwdAnchors[lis[posInLIS]].isReverse,
+							TYPE_LIS_SEQAN + run, STATUS_OK);
+
+					minOnRead = std::min(minOnRead, onRead);
+					maxOnRead = std::max(maxOnRead, onRead + 512);
+
+					minOnRef = std::min(minOnRef, allFwdAnchors[lis[posInLIS]].onRef);
+					maxOnRef = std::max(maxOnRef, allFwdAnchors[lis[posInLIS]].onRef + 512);
+
+					isReverse = allFwdAnchors[lis[posInLIS]].isReverse;
+					intervalScore += allFwdAnchors[lis[posInLIS]].score;
+
+					//Remove from remaining elements
+					posInLIS -= 1;
+				} else {
+					//Add to second array
+					allRevAnchors[allRevAnchorsLength++] = allFwdAnchors[i];
+					//			printDotPlotLine(id, name, allFwdAnchors[i].onRead,
+					//					allFwdAnchors[i].onRef, allFwdAnchors[i].score,
+					//					allFwdAnchors[i].isReverse, TYPE_CLIS_2, STATUS_OK);
 				}
+			}
 
-				//Switch first with second list
-				Anchor * tmp = allFwdAnchors;
-				allFwdAnchors = allRevAnchors;
-				allFwdAnchorsLength = allRevAnchorsLength;
-				allRevAnchors = tmp;
-				allRevAnchorsLength = 0;
+			if (pacbioDebug) {
+				std::cerr << std::endl;
+			}
 
+			Interval interval;
+
+			int addStart = std::min(512, minOnRead);
+			int addEnd = std::min(512, readLenth - maxOnRead);
+
+			interval.onReadStart = minOnRead - addStart;
+			interval.onReadStop = maxOnRead + addEnd;
+
+			interval.onRefStart = minOnRef - addStart;
+			interval.onRefStop = maxOnRef + addEnd;
+
+			interval.isReverse = isReverse;
+			interval.score = intervalScore;
+
+			printDotPlotLine(id, name,
+					interval.onReadStart,
+					interval.onReadStop,
+					interval.onRefStart,
+					interval.onRefStop,
+					interval.score,
+					interval.isReverse,
+					TYPE_CLIS + run, STATUS_OK);
+
+			//TODO: check chromosome borders
+
+			if (pacbioDebug) {
+				interval.print();
+			}
+
+			if(!constructMappedSegements(segments, interval, segementsIndex)) {
+				Log.Message("Too many intervals found (>1000). Ignoring all others");
 				lisLength = 0;
 				delete[] lis;
+//					return intervals;
+				Fatal();
+			}
+			if(pacbioDebug) {
+				Log.Message("%d segments in list", segementsIndex);
+			}
 
-				run += 1;
-				if (run == 4) {
-					finished = true;
-				}
-			} else {
+			//Switch first with second list
+			Anchor * tmp = allFwdAnchors;
+			allFwdAnchors = allRevAnchors;
+			allFwdAnchorsLength = allRevAnchorsLength;
+			allRevAnchors = tmp;
+			allRevAnchorsLength = 0;
+
+			lisLength = 0;
+			delete[] lis;
+
+			run += 1;
+			if (run == 4) {
 				finished = true;
 			}
+		} else {
+			finished = true;
 		}
-
-		//delete intervals;
-		//intervals = 0;
-		return intervals;
 	}
+
+	intervalsIndex = 0;
+	Interval * intervals = consolidateSegments(segments, segementsIndex, intervalsIndex);
+	//delete intervals;
+	//intervals = 0;
+	delete[] segments;
+	segments = 0;
+
+	return intervals;
+}
 
 static inline char cplBase(char c) {
 	if (c == 'A')
@@ -684,91 +859,476 @@ void computeReverseSeq(char * Seq, char * RevSeq, int const length) {
 	}
 }
 
-Align AlignmentBuffer::alignInterval(MappedRead * read_, Interval interval,
-		int i) {
+bool AlignmentBuffer::inversionDetection(Align const align,
+		Interval const interval, int const readLength, char * fullReadSeq,
+		Interval & leftOfInv, Interval & rightOfInv, Interval & inv,
+		char const * const readName) {
+
+	static bool const enabled = Config.GetInt(NOINVERSIONS) != 1;
+
+	if (!enabled) {
+		return false;
+	}
+
+	loc start = interval.onRefStart;
+
+	SequenceLocation seqLoc;
+	seqLoc.m_Location = start + align.PositionOffset;
+	SequenceProvider.convert(seqLoc);
+
+	Log.Message("Mapping Pos: %llu", seqLoc.m_Location);
+
+	bool inversionFound = false;
+
+	int * extData = (int *) align.ExtendedData;
+	int i = 0;
+	int len = 0;
+
+	int alignStartOnRef = extData[i++];
+	int alignStartOnRead = extData[i++];
+
+	int alignStopOnRef = extData[i++];
+	int alignStopOnRead = extData[i++];
+
+	while (extData[i] > 0 && !inversionFound) {
+		uloc ref = extData[i++];
+		uloc read = extData[i++];
+
+		char * refSeq = new char[250];
+		char * readSeq = new char[250];
+		char * revreadSeq = new char[250];
+		memset(refSeq, '\0', 250 * sizeof(char));
+		memset(readSeq, '\0', 250 * sizeof(char));
+		memset(revreadSeq, '\0', 250 * sizeof(char));
+
+		SequenceLocation testLoc;
+		testLoc.m_Location = start + align.PositionOffset + ref - 100;
+		SequenceProvider.DecodeRefSequence(refSeq, 0, testLoc.m_Location, 200);
+		strncpy(readSeq, fullReadSeq + read - 50, 100);
+
+		computeReverseSeq(readSeq, revreadSeq, 100);
+
+		Log.Message("Ref:     %s", refSeq);
+		Log.Message("Read:    %s", readSeq);
+		Log.Message("RevRead: %s", revreadSeq);
+
+		IAlignment * aligner = new EndToEndAffine();
+
+		float scoreFwd = 0.0f;
+		float scoreRev = 0.0f;
+		aligner->SingleScore(10, 100, refSeq, readSeq, scoreFwd, 0);
+		aligner->SingleScore(10, 100, refSeq, revreadSeq, scoreRev, 0);
+
+		Log.Message("Fwd: %f, Rev: %f", scoreFwd, scoreRev);
+
+		SequenceProvider.convert(testLoc);
+
+		if (scoreRev > scoreFwd) {
+			Log.Message("Inversion detected: %llu, %llu", ref,
+					read);
+			printf("%s\t%llu\t%llu\t%s\t%d\n", SequenceProvider.GetRefName(testLoc.getrefId(), len), testLoc.m_Location, testLoc.m_Location + 200, readName, 100);
+			inversionFound = true;
+
+			Log.Message("READ LENGTH: %d", readLength);
+			if(interval.isReverse) {
+
+				leftOfInv.onReadStop = readLength - (interval.onReadStart + alignStartOnRead);
+
+				leftOfInv.onRefStart = start + align.PositionOffset + alignStartOnRef;
+
+				leftOfInv.onReadStart = readLength - (interval.onReadStart + read);
+				leftOfInv.onRefStop = start + align.PositionOffset + ref;
+
+				leftOfInv.isReverse = interval.isReverse;
+
+				rightOfInv.onReadStop = readLength - (interval.onReadStart + read);
+				rightOfInv.onRefStart = start + align.PositionOffset + ref;
+				rightOfInv.onReadStart = readLength - (interval.onReadStart + alignStopOnRead);
+				rightOfInv.onRefStop = start + align.PositionOffset + alignStopOnRef;
+
+				rightOfInv.isReverse = interval.isReverse;
+
+				inv.onReadStart = leftOfInv.onReadStart;
+				inv.onReadStop = leftOfInv.onReadStart;
+				inv.onRefStart = leftOfInv.onRefStop;
+				inv.onRefStop = leftOfInv.onRefStop;
+				inv.isReverse = !rightOfInv.isReverse;
+			} else {
+
+				leftOfInv.onReadStart = interval.onReadStart + alignStartOnRead;
+				leftOfInv.onRefStart = start + align.PositionOffset + alignStartOnRef;
+				leftOfInv.isReverse = interval.isReverse;
+				leftOfInv.onReadStop = interval.onReadStart + read;
+				leftOfInv.onRefStop = start + align.PositionOffset + ref;
+
+				rightOfInv.onReadStart = interval.onReadStart + read;
+				rightOfInv.onRefStart = start + align.PositionOffset + ref;
+				rightOfInv.isReverse = interval.isReverse;
+				rightOfInv.onReadStop = interval.onReadStart + alignStopOnRead;
+				rightOfInv.onRefStop = start + align.PositionOffset + alignStopOnRef;
+
+				inv.onReadStart = leftOfInv.onReadStop;
+				inv.onReadStop = leftOfInv.onReadStop;
+				inv.onRefStart = leftOfInv.onRefStop;
+				inv.onRefStop = leftOfInv.onRefStop;
+				inv.isReverse = !rightOfInv.isReverse;
+			}
+
+
+			SequenceLocation seqLoc2;
+			seqLoc2.m_Location = leftOfInv.onRefStart;
+			SequenceProvider.convert(seqLoc2);
+			Log.Message("Mapping Pos2: %llu - %llu (alignStartOnREf: %llu, corridor: %d)", leftOfInv.onRefStart, seqLoc2.m_Location, alignStartOnRef, corridor);
+			SequenceLocation seqLoc5;
+			seqLoc5.m_Location = rightOfInv.onRefStart;
+			SequenceProvider.convert(seqLoc5);
+			Log.Message("Mapping Pos5: %llu - %llu", rightOfInv.onRefStart, seqLoc5.m_Location);
+			SequenceLocation seqLoc3;
+			seqLoc3.m_Location = rightOfInv.onRefStart;
+			SequenceProvider.convert(seqLoc3);
+			Log.Message("Mapping Pos3: %llu - %llu", rightOfInv.onRefStart, seqLoc3.m_Location);
+			SequenceLocation seqLoc4;
+			seqLoc4.m_Location = rightOfInv.onRefStop;
+			SequenceProvider.convert(seqLoc4);
+			Log.Message("Mapping Pos4: %llu - %llu", rightOfInv.onRefStop, seqLoc4.m_Location);
+
+		} else {
+			printf("%s\t%llu\t%llu\t%s\t%d\n", SequenceProvider.GetRefName(testLoc.getrefId(), len), testLoc.m_Location, testLoc.m_Location + 200, readName, 0);
+		}
+
+//		align->SingleAlign(0, 100, refSeq, readSeq, )
+
+		delete[] refSeq;
+		refSeq = 0;
+		delete[] readSeq;
+		readSeq = 0;
+		delete[] revreadSeq;
+		revreadSeq = 0;
+		delete aligner;
+		aligner = 0;
+	}
+
+//	getchar();
+
+//	Log.Message("Average NM per window: %d", align.NM);
+//
+//	SequenceLocation seqLoc;
+//	seqLoc.m_Location = start + align.PositionOffset;
+//	SequenceProvider.convert(seqLoc);
+//
+//	int startInv = -1;
+//	int stopInv = -1;
+//
+//	int treshold = align.NM * 6;
+//
+//	int len = 0;
+//	for(int i = 0; i < length; ++i) {
+//		int nm = ((int *)align.ExtendedData)[i];
+//		if(nm > 0) {
+////			printf("%s\t%llu\t%llu\t%d\n", SequenceProvider.GetRefName(seqLoc.getrefId(), len), seqLoc.m_Location + i, seqLoc.m_Location + i + 1, nm);
+//		}
+//		if(startInv == -1) {
+//			if(nm > treshold) {
+//				startInv = i;
+//			}
+//
+//		} else {	// if(stopInv == -1) {
+//			if(nm > treshold) {
+//				stopInv = i;
+//			} else {
+//				if(nm > 0) {
+////					startInv = -1;
+////					//printf("%s\t%llu\t%llu\n", SequenceProvider.GetRefName(seqLoc.getrefId(), len), seqLoc.m_Location + startInv, seqLoc.m_Location + stopInv + 1);
+//					Log.Message("Inversion detected");
+//					startInv = -1;
+//					stopInv = -1;
+//				}
+//			}
+//		}
+//
+//	}
+	return inversionFound;
+}
+
+int AlignmentBuffer::estimateCorridor(const Interval & interval) {
+	int corridor = 8192;
+	int onRead = interval.onReadStop - interval.onReadStart;
+	int onRef = interval.onRefStop - interval.onRefStart;
+	int diff = onRead - onRef;
+	int corridorFromDiff = (int) ((abs(diff) * 2.1f));
+	int corridorFromLength = (int) ((abs(onRead) * 0.20f));
+	corridor = std::min(corridor,
+			std::max(corridorFromDiff, corridorFromLength));
+	if (pacbioDebug)
+		Log.Message("Corridor estimation - onRead: %d, onRef: %d, diff: %d, corridor: %d", onRead, onRef, diff, corridor);
+
+	return corridor;
+}
+
+Align AlignmentBuffer::alignInterval(MappedRead const * const read_,
+		Interval const interval, char * const readSeq,
+		size_t const readSeqLen) {
 
 	//int corridor = std::max(abs(difference) * 2, (int) (read->length * 0.2));
 
 	Align align;
 	align.Score = 0.0f;
 
-	int onRead = interval.onReadStop - interval.onReadStart;
-	int onRef = interval.onRefStop - interval.onRefStart;
-	int diff = onRead - onRef;
-
-	int corridor = 8192;
-	int corridorFromDiff = (int) (abs(diff) * 2.1f);
-	int corridorFromLength = (int) (abs(onRead) * 0.20f);
-	corridor = std::min(corridor,
-			std::max(corridorFromDiff, corridorFromLength));
-
-	if (pacbioDebug)
-		Log.Message("Corridor estimation - onRead: %d, onRef: %d, diff: %d, corridor: %d", onRead, onRef, diff, corridor);
-
-	size_t const readSeqLen = interval.onReadStop - interval.onReadStart;
-
-	if (pacbioDebug)
-		Log.Message("Allocating %d bytes", readSeqLen + 1);
-	char * const readSeq = new char[readSeqLen + 1];
+	int corridor = estimateCorridor(interval);
 
 	int QStart = 0;
 	int QEnd = 0;
 
 	if (interval.isReverse) {
-		read_->computeReverseSeq();
-		computeReverseSeq(read_->Seq + interval.onReadStart, readSeq,
-				readSeqLen);
-//		strncpy(readSeq, read_->RevSeq + interval.onReadStart, readSeqLen);
-		readSeq[readSeqLen] = '\0';
-
 		QEnd = interval.onReadStart;
 		QStart = read_->length - interval.onReadStop;
 
 	} else {
-		strncpy(readSeq, read_->Seq + interval.onReadStart, readSeqLen);
-		readSeq[readSeqLen] = '\0';
-
 		QStart = interval.onReadStart;
 		QEnd = read_->length - interval.onReadStop;
 	}
-
-	if (pacbioDebug)
-		Log.Message("ReadSeqLen: %d", readSeqLen);
 
 	if (pacbioDebug)
 		Log.Message("Start pos: %d, Length: %d", interval.onReadStart, readSeqLen);
 
 		//test-align python (ngila)
 //	printf("%s\t%d\t", read_->name, 0);
-	if (pacbioDebug)
+	if (pacbioDebug) {
 		Log.Message("Computing alignment");
+	}
 	align = computeAlignment(interval.onRefStart, corridor, readSeq, readSeqLen,
-			QStart, QEnd, read_->length, read_, false);
+			QStart, QEnd, read_->length);
 
-//	int const QStart = align.QStart - intervals[i].onReadStart;
-//					int const QEnd = align.QEnd - (read->length - intervals[i].onReadStop);
+	return align;
+}
 
-	if ((align.QEnd - QEnd) > readSeqLen * 0.1f) {
-		if (pacbioDebug)
-			Log.Message("Realign: %d, %d, %d", align.QEnd, QEnd, readSeqLen);
-			char * realignReadSeq = readSeq + (readSeqLen - (align.QEnd - QEnd));
-			if (pacbioDebug)
-			Log.Message("Sequence: %s", realignReadSeq);
+char* const AlignmentBuffer::extractReadSeq(const size_t& readSeqLen,
+		Interval& interval, MappedRead* read) {
+	if (pacbioDebug) {
+		Log.Message("Allocating %d bytes", readSeqLen + 1);
+	}
 
-			if (pacbioDebug)
-			Log.Message("Computing realignment");
-//		Align align2 = computeAlignment(interval.onRefStart + (readSeqLen - (align.QEnd - QEnd)), corridor, realignReadSeq, strlen(realignReadSeq),
-//				QStart + (readSeqLen - (align.QEnd - QEnd)), QEnd, read_->length, read_, false);
-//
-//		Log.Message("Realign CIGAR: %s", align2.pBuffer1);
+	char*const readSeq = new char[readSeqLen + 1];
+	if (interval.isReverse) {
+		read->computeReverseSeq();
+		computeReverseSeq(read->Seq + interval.onReadStart, readSeq, readSeqLen);
+		readSeq[readSeqLen] = '\0';
+	} else {
+		strncpy(readSeq, read->Seq + interval.onReadStart, readSeqLen);
+		readSeq[readSeqLen] = '\0';
+	}
+	if (pacbioDebug) {
+		Log.Message("ReadSeqLen: %d", readSeqLen);
+	}
+	if (pacbioDebug) {
+		Log.Message("Start pos: %d, Length: %d", interval.onReadStart, readSeqLen);
+	}
+	return readSeq;
+}
 
+void AlignmentBuffer::alignSingleOrMultipleIntervals(MappedRead * read,
+		Interval interval, LocationScore * tmp, Align * tmpAling,
+		int & alignIndex) {
+
+	size_t const readSeqLen = interval.onReadStop - interval.onReadStart;
+	char * readSeq = extractReadSeq(readSeqLen, interval, read);
+
+	Align align = alignInterval(read, interval, readSeq, readSeqLen);
+
+//	Align & align = alignedIntervals[0];
+
+	SequenceLocation seqLoc2;
+	seqLoc2.m_Location = interval.onRefStart + align.PositionOffset;
+	SequenceProvider.convert(seqLoc2);
+	Log.Message("Mapping Pos (%s): %llu -- %llu", read->name, interval.onRefStart + align.PositionOffset, seqLoc2.m_Location);
+
+	Interval leftOfInv;
+	Interval rightOfInv;
+	Interval inv;
+	if (inversionDetection(align, interval, read->length /*+ readSeqLen*/,
+			readSeq, leftOfInv, rightOfInv, inv, read->name)) {
+
+		int inversionLength = 0;
+
+		Log.Message("Inversion detected! Waiting for input...");
 //		getchar();
+
+		Log.Message("Interval:");
+		interval.print();
+		Log.Message("Left Interval:");
+		leftOfInv.print();
+		//Align part of read that is left of inversion
+		size_t readSeqLen = leftOfInv.onReadStop - leftOfInv.onReadStart;
+
+		char * readSeq = extractReadSeq(readSeqLen, leftOfInv, read);
+		Align align = alignInterval(read, leftOfInv, readSeq, readSeqLen);
+
+		//QEnd from first read part
+		inversionLength += (readSeqLen - ((int *) align.ExtendedData)[3]);
+		inv.onReadStart -= (inversionLength * 1.5);
+		inv.onRefStart -= (inversionLength * 1.5);
+
+//		inv.onReadStart =
+
+		Log.Message("1. pos in read end: %d", inversionLength);
+
+		delete[] readSeq;
+		readSeq = 0;
+		delete[] (int *) align.ExtendedData;
+		align.ExtendedData = 0;
+
+		if (align.Score > 0.0f) {
+			tmpAling[alignIndex] = align;
+
+			tmp[alignIndex].Location.m_Location = leftOfInv.onRefStart
+					+ align.PositionOffset;	//- (corridor >> 1); handled in computeAlingment
+			tmp[alignIndex].Location.setReverse(leftOfInv.isReverse);
+			tmp[alignIndex].Score.f = align.Score;
+
+			read->Calculated += 1;
+			alignIndex += 1;
+
+		} else {
+			if (pacbioDebug) {
+				Log.Message("Alignment failed");
+			}
 		}
 
-	if (readSeq != 0) {
+		Log.Message("Right Interval:");
+		rightOfInv.print();
+
+		//Align part of read that is right of inversion
+		readSeqLen = rightOfInv.onReadStop - rightOfInv.onReadStart;
+		readSeq = extractReadSeq(readSeqLen, rightOfInv, read);
+		align = alignInterval(read, rightOfInv, readSeq, readSeqLen);
+
+		//QEnd from first read part
+		inversionLength += ((int *) align.ExtendedData)[1];
+		inv.onReadStop += (((int *) align.ExtendedData)[1] * 1.5);
+		inv.onRefStop += (((int *) align.ExtendedData)[1] * 1.5);
+		Log.Message("2. pos in read start: %d", ((int *) align.ExtendedData)[1]);
+
 		delete[] readSeq;
+		readSeq = 0;
+		delete[] (int *) align.ExtendedData;
+		align.ExtendedData = 0;
+
+		if (align.Score > 0.0f) {
+			tmpAling[alignIndex] = align;
+
+			tmp[alignIndex].Location.m_Location = rightOfInv.onRefStart
+					+ align.PositionOffset;	//- (corridor >> 1); handled in computeAlingment
+			tmp[alignIndex].Location.setReverse(rightOfInv.isReverse);
+			tmp[alignIndex].Score.f = align.Score;
+
+			read->Calculated += 1;
+			alignIndex += 1;
+
+		} else {
+			if (pacbioDebug) {
+				Log.Message("Alignment failed");
+			}
+		}
+
+		//Align inverted part
+		Log.Message("Lenght of inversion is %d", inversionLength);
+
+		Log.Message("Inverted Interval:");
+		inv.print();
+
+		//Align part of read that is right of inversion
+		readSeqLen = inv.onReadStop - inv.onReadStart;
+		readSeq = extractReadSeq(readSeqLen, inv, read);
+		align = alignInterval(read, inv, readSeq, readSeqLen);
+
+		delete[] readSeq;
+		readSeq = 0;
+		delete[] (int *) align.ExtendedData;
+		align.ExtendedData = 0;
+
+		if (align.Score > 0.0f) {
+			tmpAling[alignIndex] = align;
+
+			tmp[alignIndex].Location.m_Location = inv.onRefStart
+					+ align.PositionOffset;	//- (corridor >> 1); handled in computeAlingment
+			tmp[alignIndex].Location.setReverse(inv.isReverse);
+			tmp[alignIndex].Score.f = align.Score;
+
+			read->Calculated += 1;
+			alignIndex += 1;
+
+		} else {
+			if (pacbioDebug) {
+				Log.Message("Alignment failed");
+			}
+		}
+	} else {
+		if (align.Score > 0.0f) {
+			tmpAling[alignIndex] = align;
+
+			tmp[alignIndex].Location.m_Location = interval.onRefStart
+					+ align.PositionOffset;	//- (corridor >> 1); handled in computeAlingment
+			tmp[alignIndex].Location.setReverse(interval.isReverse);
+			tmp[alignIndex].Score.f = align.Score;
+
+			read->Calculated += 1;
+			alignIndex += 1;
+		} else {
+			if (pacbioDebug) {
+				Log.Message("Alignment failed");
+			}
+
+		}
 	}
-	return align;
+	delete[] (int *) align.ExtendedData;
+	align.ExtendedData = 0;
+	delete[] readSeq;
+	readSeq = 0;
+
+	//TODO: detect partially algined reads (see below)!!!
+
+	//	int readPartLength = intervals[i].onReadStop - intervals[i].onReadStart;
+	//	int const QStart = align.QStart - intervals[i].onReadStart;
+	//	int const QEnd = align.QEnd - (read->length - intervals[i].onReadStop);
+	//
+	//	if (pacbioDebug) {
+	//		Log.Message("QStart: %d, QEnd: %d, Threshold: %f", QStart, QEnd, readPartLength * 0.1f);
+	//	}
+	//	if (QStart > readPartLength * 0.1f && QStart > 512) {
+	//		if (pacbioDebug)
+	//			Log.Message("Align beginning of read again");
+	//			//					getchar();
+	//		}
+	//
+	//	if (QEnd > readPartLength * 0.1f && QEnd > 512) {
+	//		if (pacbioDebug) {
+	//			Log.Message("Align end of read again");
+	//			//getchar();
+	//		}
+
+	//	int const QStart = align.QStart - intervals[i].onReadStart;
+	//					int const QEnd = align.QEnd - (read->length - intervals[i].onReadStop);
+
+//	if ((align.QEnd - QEnd) > readSeqLen * 0.1f) {
+//		if (pacbioDebug) {
+//			Log.Message("Realign: %d, %d, %d", align.QEnd, QEnd, readSeqLen);
+//		}
+//		char * realignReadSeq = readSeq + (readSeqLen - (align.QEnd - QEnd));
+//		if (pacbioDebug) {
+//			Log.Message("Sequence: %s", realignReadSeq);
+//		}
+//
+//		if (pacbioDebug) {
+//			Log.Message("Computing realignment");
+//		}
+//		//		Align align2 = computeAlignment(interval.onRefStart + (readSeqLen - (align.QEnd - QEnd)), corridor, realignReadSeq, strlen(realignReadSeq),
+//		//				QStart + (readSeqLen - (align.QEnd - QEnd)), QEnd, read_->length, read_, false);
+//		//
+//		//		Log.Message("Realign CIGAR: %s", align2.pBuffer1);
+//
+//		//		getchar();
+//	}
+
 }
 
 void reconcileRead(MappedRead * read) {
@@ -923,54 +1483,11 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 			Timer tmr;
 			tmr.ST();
-			Align align = alignInterval(read, intervals[i], i);
+			alignSingleOrMultipleIntervals(read, intervals[i], tmp, tmpAling, alignIndex);
 
-			int readPartLength = intervals[i].onReadStop - intervals[i].onReadStart;
-
-			if(align.Score > 0.0f) {
-
-				if (pacbioDebug)
-				Log.Message("CIGAR: %s", align.pBuffer1);
-				if (pacbioDebug)
-				Log.Message("Offset correction: %d", align.PositionOffset);
-
-				//test-align python (ngila)
-				//printf("\t%d\n", read->Alignments[0].PositionOffset);
-
-				tmp[alignIndex].Location.m_Location = intervals[i].onRefStart + align.PositionOffset;//- (corridor >> 1); handled in computeAlingment
-				tmp[alignIndex].Location.setReverse(intervals[i].isReverse);
-				tmp[alignIndex].Score.f = align.Score;
-
-				tmpAling[alignIndex] = align;
-
-				read->Calculated += 1;
-
-				alignIndex += 1;
-
-				int const QStart = align.QStart - intervals[i].onReadStart;
-				int const QEnd = align.QEnd - (read->length - intervals[i].onReadStop);
-
-				if (pacbioDebug)
-				Log.Message("QStart: %d, QEnd: %d, Threshold: %f", QStart, QEnd, readPartLength * 0.1f);
-				if(QStart > readPartLength * 0.1f && QStart > 512) {
-					if (pacbioDebug)
-					Log.Message("Align beginning of read again");
-//					getchar();
-				}
-
-				if(QEnd > readPartLength * 0.1f && QEnd > 512) {
-					if (pacbioDebug)
-					Log.Message("Align end of read again");
-					//getchar();
-				}
-			} else {
-				if (pacbioDebug)
-				Log.Message("Alignment failed");
-			}
-
-			if (pacbioDebug)
+		}
+		if (pacbioDebug) {
 			Log.Message("Alignment took %fs", tmr.ET());
-
 		}
 
 		if (pacbioDebug) {
@@ -1161,7 +1678,7 @@ void AlignmentBuffer::processLongRead(ReadGroup * group) {
 
 				//test-align python (ngila)
 //				printf("%s\t%d\t", read->name, 1);
-				read->Alignments[0] = computeAlignment(read->Scores[0].Location.m_Location, corridor, readSeq, readSeqLen, QStart, QEnd, read->length, read, true);
+				read->Alignments[0] = computeAlignment(read->Scores[0].Location.m_Location, corridor, readSeq, readSeqLen, QStart, QEnd, read->length);
 			} else {
 //				char * const readSeq = read->Seq + startPosOnRead;
 				size_t const readSeqLen = endPosOnRead - startPosOnRead;
@@ -1180,7 +1697,7 @@ void AlignmentBuffer::processLongRead(ReadGroup * group) {
 
 				//test-align python (ngila)
 //				printf("%s\t%d\t", read->name, 0);
-				read->Alignments[0] = computeAlignment(read->Scores[0].Location.m_Location, corridor, readSeq, readSeqLen, QStart, QEnd, read->length, read, false);
+				read->Alignments[0] = computeAlignment(read->Scores[0].Location.m_Location, corridor, readSeq, readSeqLen, QStart, QEnd, read->length);
 			}
 			if (pacbioDebug)
 			Log.Message("CIGAR: %s", read->Alignments[0].pBuffer1);

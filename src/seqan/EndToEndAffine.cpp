@@ -23,8 +23,19 @@ int EndToEndAffine::SingleScore(int const mode, int const corridor,
 		break;
 	case 1:
 		result = (float) globalAlignmentScore(TSequence(refSeq),
-				TSequence(qrySeq), scoringScheme, alignConfig, lDiag,
-				corridor);
+				TSequence(qrySeq), scoringScheme, alignConfig, lDiag, corridor);
+		break;
+	case 10: {
+		TGaps gapsText;
+		TGaps gapsPattern;
+		assignSource(gapsText, TSequence(refSeq));
+		assignSource(gapsPattern, TSequence(qrySeq));
+		result = (float) localAlignment(gapsText, gapsPattern, scoringScheme);
+	}
+		break;
+	case 11:
+		result = (float) globalAlignmentScore(TSequence(refSeq),
+				TSequence(qrySeq), scoringScheme, alignConfig);
 		break;
 	}
 	return 1;
@@ -76,6 +87,13 @@ int EndToEndAffine::SingleAlign(int const mode, int const corridor,
 	case 1:
 		score = (float) globalAlignment(gapsText, gapsPattern, scoringScheme,
 				alignConfig, lDiag, corridor);
+		break;
+	case 10:
+		score = (float) localAlignment(gapsText, gapsPattern, scoringScheme);
+		break;
+	case 11:
+		score = (float) globalAlignment(gapsText, gapsPattern, scoringScheme,
+				alignConfig);
 		break;
 	}
 	convertToCIGAR(gapsText, gapsPattern, result, len);

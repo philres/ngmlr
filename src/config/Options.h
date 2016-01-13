@@ -98,6 +98,8 @@ static const struct option long_options[] =
 		{ REALIGN,                     	required_argument,       0, 0 },
 		{ "read-offset",               	required_argument,       0, 0 },
 		{ "read-number",               	required_argument,       0, 0 },
+		{ "no-inversions",             	no_argument,       0, 0 },
+		{ PACBIOLOG,             	no_argument,       0, 0 },
 	0 };
 
 #endif /* OPTIONS_H_ */

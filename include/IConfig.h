@@ -51,6 +51,9 @@ static char const * const REALIGN = "realign";
 static char const * const READ_OFFSET = "read_offset";
 static char const * const READ_NUMBER = "read_number";
 
+static char const * const NOINVERSIONS = "no_inversions";
+static char const * const PACBIOLOG = "pacbiolog";
+
 #ifdef DEBUGLOG
 static char const * const LOG = "log";
 static char const * const LOG_LVL = "log_lvl";

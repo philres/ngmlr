@@ -59,7 +59,7 @@ public:
 	void convertToCIGAR(TGaps gapsText, TGaps gapsPattern, Align & result, int const readLen);
 
 private:
-	bool const m_AlignMode;
+	int const m_AlignMode;
 	int const lDiag;
 	int const uDiag;
 	Score<float, Simple> scoringScheme;

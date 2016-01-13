@@ -89,10 +89,15 @@ public:
 		}
 
 		void print(int id, char * name, int intNumber) {
-			printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name, onReadStart, onReadStop, onRefStart, onRefStop,
-					score, isReverse, TYPE_RESULT + intNumber, STATUS_OK);
+//			printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name, onReadStart, onReadStop, onRefStart, onRefStop,
+//					score, isReverse, TYPE_RESULT + intNumber, STATUS_OK);
 		}
 
+	};
+
+	struct MappedSegment {
+		Interval list[100];
+		size_t length;
 	};
 
 	typedef long long loc;
@@ -124,10 +129,10 @@ public:
 	void printDotPlot(char * name, int id, Anchor * anchors, int anchorsLength,
 			int filtered) {
 		for (int i = 0; i < anchorsLength; ++i) {
-			printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name,
-					anchors[i].onRead * 512, anchors[i].onRead * 512 + 512,
-					anchors[i].onRef, anchors[i].onRef + 512, anchors[i].score,
-					anchors[i].isReverse, filtered, anchors[i].type);
+//			printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name,
+//					anchors[i].onRead * 512, anchors[i].onRead * 512 + 512,
+//					anchors[i].onRef, anchors[i].onRef + 512, anchors[i].score,
+//					anchors[i].isReverse, filtered, anchors[i].type);
 		}
 	}
 
@@ -137,6 +142,10 @@ public:
 
 	bool isCompatible(Interval a, Interval b);
 	bool isContained(Interval a, Interval b);
+	bool isContainedOnRead(Interval a, Interval b);
+	bool isSameDirection(Interval a, Interval b);
+	Interval splitInterval(Interval a,
+			Interval b);
 	Interval mergeIntervals(Interval a, Interval b);
 	Interval * findSubsequences(char * name, int id, Anchor * allFwdAnchors,
 			int allFwdAnchorsLength, Anchor * allRevAnchors,
@@ -147,9 +156,29 @@ public:
 			int const corridor);
 
 	Align computeAlignment(uloc const position, int const corridor,
-			char * const readSeq, size_t const readLength, int const QStart, int const QEnd, int fullReadLength, MappedRead * read, bool isReverse);
+			char * const readSeq, size_t const readLength, int const QStart, int const QEnd, int fullReadLength);
 
-	Align alignInterval(MappedRead * read, Interval interval, int i);
+	int estimateCorridor(const Interval & interval);
+	char * const extractReadSeq(const size_t& readSeqLen, Interval & interval,
+			MappedRead* read);
+
+	Align alignInterval(MappedRead const * const read, Interval const interval,
+			char * const readSeq, size_t const readSeqLen);
+	void alignSingleOrMultipleIntervals(MappedRead * read, Interval interval, LocationScore * tmp, Align * tmpAling, int & alignIndex);
+
+//	bool constructMappedSegements(Interval * intervals,
+//			Interval interval, int & intervalsIndex);
+
+	bool constructMappedSegements(MappedSegment * segments,
+			Interval interval, size_t & segmentsIndex);
+
+//	bool sortIntervalsInSegment(Interval a, Interval b);
+
+	Interval * consolidateSegments(MappedSegment * segments, size_t segmentsIndex, int & intervalsIndex);
+	void consolidateSegment(Interval * interval, int & intervalsIndex, MappedSegment segment);
+
+	bool inversionDetection(Align const align, Interval const interval, int const length,
+			char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv, Interval & inv, char const * const readName);
 
 	void processLongRead(ReadGroup * group);
 	void processLongReadLIS(ReadGroup * group);
@@ -161,7 +190,7 @@ public:
 	corridor(Config.GetInt("corridor")),
 	refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
 	min_mq(Config.GetInt(MIN_MQ)),
-	aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(false) {
+	aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(Config.GetInt(PACBIOLOG) == 1) {
 		pairInsertSum = 0;
 		pairInsertCount = 0;
 		brokenPairs = 0;
