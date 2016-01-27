@@ -22,6 +22,8 @@ struct NGMStats
 
 	int readObjectsInProcess;
 
+	uint invalidAligmentCount;
+
 public:
 	NGMStats() {
 		TotalSeqs = 0;
@@ -38,6 +40,8 @@ public:
 
 		readsInProcess = 0;
 		readObjectsInProcess = 0;
+
+		invalidAligmentCount = 0;
 	}
 
 	~NGMStats() {

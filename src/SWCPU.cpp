@@ -253,7 +253,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 
 	//Positions in read and ref for start of alignment
 	extData[edIndex++] = posInRef;
-	extData[edIndex++] = posInRead;
+	extData[edIndex++] = posInRead;	//QStart of aligned sequence, but not for full read (like result.QStart)
 
 	//*********************//
 	// Translate CIGAR to char and compute MD
@@ -442,7 +442,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 
 	//Positions in read and ref for end of alignment
 	extData[edIndex++] = posInRef;
-	extData[edIndex++] = posInRead;
+	extData[edIndex++] = posInRead; //QEnd of aligned sequence, but not for full read (like result.QEnd)
 
 	int startInv = -1;
 	int stopInv = -1;

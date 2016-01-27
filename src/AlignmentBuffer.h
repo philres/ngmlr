@@ -166,6 +166,10 @@ public:
 			char * const readSeq, size_t const readSeqLen);
 	void alignSingleOrMultipleIntervals(MappedRead * read, Interval interval, LocationScore * tmp, Align * tmpAling, int & alignIndex);
 
+	bool alignInversion(Interval interval, Interval leftOfInv, Interval inv,
+			Interval rightOfInv, MappedRead * read, Align * tmpAling,
+			int & alignIndex, LocationScore * tmp);
+
 //	bool constructMappedSegements(Interval * intervals,
 //			Interval interval, int & intervalsIndex);
 

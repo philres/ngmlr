@@ -209,6 +209,8 @@ int main(int argc, char * argv[]) {
 					Log.Message("Valid pairs found: %.2f%%", NGM.Stats->validPairs);
 					Log.Message("Estimated insert size: %d bp", (int)NGM.Stats->insertSize);
 				}
+				Log.Message("Unsuccessful alignment computation %d", NGM.Stats->invalidAligmentCount);
+
 				Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
 				int discarded = NGM.GetReadReadCount() - (NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount());
 				if (discarded != 0) {

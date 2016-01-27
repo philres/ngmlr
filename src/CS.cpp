@@ -442,7 +442,6 @@ void CS::DoRun() {
 	NGM.AquireOutputLock();
 	oclAligner = NGM.CreateAlignment(gpu | (std::min(Config.GetInt("format", 0, 2), 1) << 8));
 
-
 //	IAlignment * aligner = new SWCPUCor(0);
 //	Align align;
 //	align.pBuffer1 = new char[10000];
@@ -502,7 +501,8 @@ void CS::DoRun() {
 		float elapsed = tmr.ET();
 		Log.Debug(LOG_CS_DETAILS, "CS Thread %i finished batch (len %i) with %i overflows, length %d (elapsed: %.3fs)", m_TID, m_CurrentBatch.size(), m_Overflows, c_SrchTableBitLen, elapsed);
 
-		NGM.Stats->readsPerSecond = (NGM.Stats->csTime + 1.0f / (elapsed / m_CurrentBatch.size())) / 2.0f;
+//		NGM.Stats->readsPerSecond = (NGM.Stats->csTime + 1.0f / (elapsed / m_CurrentBatch.size())) / 2.0f;
+		NGM.Stats->readsPerSecond = (m_CurrentBatch.size() * 1.0f / elapsed);
 
 		NGM.Stats->alignTime = std::max(0.0f, alignmentBuffer->getTime());
 		NGM.Stats->scoreTime = std::max(0.0f, scoreBuffer->getTime() - NGM.Stats->alignTime);

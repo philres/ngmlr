@@ -49,8 +49,8 @@ protected:
 
 	bool writeUnmapped;
 
-	static int const BUFFER_SIZE = 17000000;
-	static int const BUFFER_LIMIT = 16000000;
+	static int const BUFFER_SIZE = 1700000;
+	static int const BUFFER_LIMIT = 1600000;
 
 	char * writeBuffer;
 	int bufferPosition;
