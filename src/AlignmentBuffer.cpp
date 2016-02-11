@@ -945,14 +945,15 @@ bool AlignmentBuffer::inversionDetection(Align const align,
 
 		float scoreFwd = 0.0f;
 		float scoreRev = 0.0f;
-		aligner->SingleScore(10, 100, refSeq, readSeq, scoreFwd, 0);
-		aligner->SingleScore(10, 100, refSeq, revreadSeq, scoreRev, 0);
+		aligner->SingleScore(10, 0, readSeq, refSeq, scoreFwd, 0);
+		aligner->SingleScore(10, 0, revreadSeq, refSeq, scoreRev, 0);
 
 		if (pacbioDebug) {
 			Log.Message("Fwd: %f, Rev: %f", scoreFwd, scoreRev);
 			SequenceProvider.convert(testLoc);
 		}
 
+//		printf("%s\t%llu\t%llu\t%s\t%d\n", SequenceProvider.GetRefName(testLoc.getrefId(), len), testLoc.m_Location, testLoc.m_Location + 200, readName, 100);
 		if (scoreRev > scoreFwd) {
 
 			inversionFound = true;
@@ -960,7 +961,7 @@ bool AlignmentBuffer::inversionDetection(Align const align,
 				Log.Message("Inversion detected: %llu, %llu", ref,
 						read);
 				Log.Message("READ LENGTH: %d", readLength);
-				//			printf("%s\t%llu\t%llu\t%s\t%d\n", SequenceProvider.GetRefName(testLoc.getrefId(), len), testLoc.m_Location, testLoc.m_Location + 200, readName, 100);
+//				printf("%s\t%llu\t%llu\t%s\t%d\n", SequenceProvider.GetRefName(testLoc.getrefId(), len), testLoc.m_Location, testLoc.m_Location + 200, readName, 100);
 			}
 
 			if (interval.isReverse) {
@@ -1305,6 +1306,8 @@ void AlignmentBuffer::alignSingleOrMultipleIntervals(MappedRead * read,
 			int len = 0;
 			Log.Message("Potential inversion detected at %s:%llu-%llu but not taken into account due to errors. (read: %s)", SequenceProvider.GetRefName(loc.getrefId(), len), loc.m_Location, loc2.m_Location, read->name);
 		}
+	} else {
+		Log.Message("No inversion detected!");
 	}
 
 	if (!inversionDetected || !inversionAligned) {
@@ -1367,8 +1370,23 @@ void AlignmentBuffer::alignSingleOrMultipleIntervals(MappedRead * read,
 
 }
 
-void reconcileRead(MappedRead * read) {
+void reconcileRead(ReadGroup * group) {
 
+	for (int j = 0; j < group->readNumber; ++j) {
+		MappedRead * part = group->reads[j];
+
+		Log.Message("%d: %d", j, part->mappingQlty);
+	}
+
+	MappedRead * read = group->fullRead;
+
+	for (int i = 0; i < read->Calculated; ++i) {
+		printf("%s\t%d\t%d\t%d\t%d\t%d\t%f\n", read->name, i, read->length,
+				read->Alignments[i].QStart, read->Alignments[i].QEnd,
+				read->Scores[i].Location.isReverse(),
+				read->Alignments[i].Score);
+	}
+	getchar();
 }
 
 void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
@@ -1554,7 +1572,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 		}
 		if (read->Calculated > 0) {
 
-			reconcileRead(group->fullRead);
+			reconcileRead(group);
 
 			WriteRead(group->fullRead, true);
 		} else {

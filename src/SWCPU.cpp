@@ -30,11 +30,11 @@ SWCPUCor::SWCPUCor(int gpu_id) :
 	batch_size = 1;
 
 	mat = 2.0f;
-	mis = -10.0f;
+	mis = -5.0f;
 	gap_open_read = -5.0f;
 	gap_open_ref = -5.0f;
 	gap_ext = -5.0f;
-	gap_decay = 0.05f;
+	gap_decay = 0.15f;
 	gap_ext_min = -1.0f;
 
 	maxAlignMatrixLen = (long) 30000 * (long) 9000;
@@ -200,6 +200,8 @@ int SWCPUCor::printCigarElement(char const op, int const length, char * cigar) {
 	return offset;
 }
 
+int readNr = 0;
+
 int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 		int const * const gpuCigar, char const * const refSeq, int corr_length,
 		int read_length, int const QStart, int const QEnd) {
@@ -285,15 +287,18 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 			for (int k = 0; k < length; ++k) {
 				md_offset += sprintf(result.pQry + md_offset, "%c",
 						refSeq[ref_index++]);
+
+				buffer = buffer | 1;
+				buffer = buffer << 1;
 			}
 			md_eq_length = 0;
 
-			if (bufferLength < 32) {
-				buffer = buffer << bufferLength;
-			} else {
-				buffer = 0;
-			}
-			buffer = buffer | (uint) (pow(2.0, bufferLength) - 1);
+//			if (bufferLength < 32) {
+//				buffer = buffer << bufferLength;
+//			} else {
+//				buffer = 0;
+//			}
+//			buffer = buffer | (uint) (pow(2.0, bufferLength) - 1);
 			posInRef += length;
 			posInRead += length;
 
@@ -340,13 +345,16 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 				result.pQry[md_offset++] = refSeq[ref_index++];
 			}
 
+//			if (length > 1) {
+				buffer = buffer | 1;
+//			}
 			if (bufferLength < 32) {
 				buffer = buffer << bufferLength;
 			} else {
 				buffer = 0;
 			}
 //			buffer = buffer | (uint) (pow(2.0, bufferLength) - 1);
-			buffer = buffer | 1;
+
 			posInRef += length;
 
 //			fprintf(stderr, "%d x D: shifting by %d\n", length, bufferLength);
@@ -366,13 +374,16 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 					result.pRef + cigar_offset);
 			finalCigarLength += length;
 
+//			if (length > 1) {
+				buffer = buffer | 1;
+//			}
 			if (bufferLength < 32) {
 				buffer = buffer << bufferLength;
 			} else {
 				buffer = 0;
 			}
 //			buffer = buffer | (uint) (pow(2.0, bufferLength) - 1);
-			buffer = buffer | 1;
+
 //			posInAligment += length;
 			posInRead += length;
 
@@ -401,6 +412,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 		positionsInRead[posInRef] = posInRead;
 		perWindowSum += mmPerWindow;
 		windowNumber += 1;
+//		printf("%d\t%d\t%d\t%d\n", readNr, posInRead, posInRef, mmPerWindow);
 	}
 	//*********************//
 	//Print last element
@@ -432,6 +444,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	result.pQry[md_offset] = '\0';
 	result.NM = perWindowSum * 1.0f / windowNumber;
 
+	readNr += 1;
 	//*********************//
 	//Detect inversions
 	//*********************//
@@ -451,13 +464,15 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	int stopInvRead = -1;
 
 	//TODO: improve
-	int treshold = result.NM * 4;
+	int treshold = result.NM * 2;
 //	fprintf(stderr, "Threshold: %d\n", treshold);
 
 	int len = 0;
 	for (int i = 0; i < alignment_length && edIndex < maxInverions; ++i) {
 		int nm = nmPerPos[i];
+
 		if (nm > 0) {
+//			fprintf(stderr, "%d: %d (%d)\n", positionsInRead[i], nm, treshold);
 //			printf("%s\t%llu\t%llu\t%d\n",
 //					SequenceProvider.GetRefName(seqLoc.getrefId(), len),
 //					seqLoc.m_Location + i, seqLoc.m_Location + i + 1, nm);
@@ -478,12 +493,13 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 				if (nm > 0) {
 					//					startInv = -1;
 //					printf("%s\t%llu\t%llu\n", SequenceProvider.GetRefName(seqLoc.getrefId(), len), seqLoc.m_Location + startInv, seqLoc.m_Location + stopInv + 1);
-//					fprintf(stderr, "Inversion detected: %d - %d, %d - %d (length: %d)\n",
-//							startInv, stopInv,
-//							startInvRead, stopInvRead, abs(stopInv - startInv));
+					fprintf(stderr,
+							"Inversion detected: %d - %d, %d - %d (length: %d)\n",
+							startInv, stopInv, startInvRead, stopInvRead,
+							abs(stopInv - startInv));
 					if (abs(stopInv - startInv) > minInversionLength) {
-//						fprintf(stderr, "Length: %d\n",
-//								abs(stopInv - startInv));
+						fprintf(stderr, "Length: %d\n",
+								abs(stopInv - startInv));
 						//Positions in read and ref midpoint of inversion
 						extData[edIndex++] = (startInv + stopInv) / 2;
 						extData[edIndex++] = (startInvRead + stopInvRead) / 2;
