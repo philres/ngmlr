@@ -3,13 +3,23 @@
 #include <stdio.h>
 #include <string.h>
 #include <cmath>
+#include <vector>
 
 #include "seqan/EndToEndAffine.h"
 #include "OutputReadBuffer.h"
 #include "Timing.h"
 
+using std::vector;
+
 ulong AlignmentBuffer::alignmentCount = 0;
 bool AlignmentBuffer::first = true;
+
+bool stdoutPrintDotPlot = false;
+bool stdoutInversionBed = false;
+bool stdoutErrorProfile = false;
+bool printInvCandidateFa = false;
+bool stdoutPrintMappedSegments = false;
+
 
 void AlignmentBuffer::flush() {
 	DoRun();
@@ -152,7 +162,7 @@ void AlignmentBuffer::DoRun() {
 			}
 
 		}
-		alignTime = tmr.ET();
+		overallTime += tmr.ET();
 	} else {
 		Log.Debug(1, "INFO\tALGN\tEmpty buffer submitted.");
 	}
@@ -180,7 +190,7 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 
 	bool shortAlignment = false;
 
-	int maxTries = 3;
+	int maxTries = 1;
 
 	while (cigarLength == -1) {
 
@@ -227,7 +237,8 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 			align.Score = -1.0f;
 		}
 
-		if (cigarLength == -1 /*|| aligned < 0.1f * readLength*/) {
+		if (cigarLength == -1
+				|| (aligned < 0.05f * readLength && maxTries > 0)) {
 			corridor = corridor * 2;
 			correctOffset = (corridor >> 1);
 
@@ -239,6 +250,10 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 //					cigarLength = -1;
 //				}
 //			}
+			if (cigarLength != -1) {
+				maxTries -= 1;
+				cigarLength = -1;
+			}
 			if (pacbioDebug) {
 				Log.Message("Invalid alignment found. Running again with corridor %d, %d attempts left", corridor, maxTries);
 				NGM.Stats->invalidAligmentCount += 1;
@@ -330,9 +345,11 @@ void printDotPlotLine(int const id, char const * const name,
 		int const onReadStart, int const onReadStop, loc const onRefStart,
 		loc const onRefStop, float const score, bool const isReverse,
 		int const type, int const status) {
-//	printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name,
-//			onReadStart, onReadStop, onRefStart, onRefStop, score, isReverse,
-//			type, status);
+	if (stdoutPrintDotPlot) {
+		printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name,
+				onReadStart, onReadStop, onRefStart, onRefStop, score,
+				isReverse, type, status);
+	}
 }
 
 int * AlignmentBuffer::cLIS(Anchor * anchors, int const anchorsLenght,
@@ -740,8 +757,9 @@ AlignmentBuffer::Interval * AlignmentBuffer::findSubsequences(char * name,
 
 			float intervalScore = 0.0f;
 
-			if (pacbioDebug)
-			std::cerr << "cLIS" << run << ":     ";
+			if (pacbioDebug) {
+				std::cerr << "cLIS" << run << ":     ";
+			}
 			//Remove LIS from candidates
 			int posInLIS = lisLength - 1;
 			allRevAnchorsLength = 0;
@@ -754,8 +772,9 @@ AlignmentBuffer::Interval * AlignmentBuffer::findSubsequences(char * name,
 //					}
 
 					//Print current LIS
-					if (pacbioDebug)
-					std::cerr << lis[posInLIS] << ", ";
+					if (pacbioDebug) {
+						std::cerr << lis[posInLIS] << ", ";
+					}
 					printDotPlotLine(id, name,
 							onRead,
 							onRead + 512,
@@ -884,6 +903,13 @@ void computeReverseSeq(char * Seq, char * RevSeq, int const length) {
 	}
 }
 
+bool inline isInversion(float const nm) {
+	float const minIdentity = 0.45f;
+	float const maxIdentity = 0.65f;
+
+	return nm > minIdentity && nm < maxIdentity;
+}
+
 bool AlignmentBuffer::inversionDetection(Align const align,
 		Interval const interval, int const readLength, char * fullReadSeq,
 		Interval & leftOfInv, Interval & rightOfInv, Interval & inv,
@@ -899,157 +925,310 @@ bool AlignmentBuffer::inversionDetection(Align const align,
 
 	SequenceLocation seqLoc;
 	seqLoc.m_Location = start + align.PositionOffset;
+	SequenceProvider.convert(seqLoc);
 
 	if (pacbioDebug) {
-		SequenceProvider.convert(seqLoc);
+
 		Log.Message("Mapping Pos: %llu", seqLoc.m_Location);
 	}
 
 	bool inversionFound = false;
 
-	int * extData = (int *) align.ExtendedData;
-	int i = 0;
-	int len = 0;
+//	int * extData = (int *) align.ExtendedData;
+//	int i = 0;
+//	int len = 0;
 
-	int alignStartOnRef = extData[i++];
-	int alignStartOnRead = extData[i++];
+//	int alignStartOnRef = extData[i++];
+//	int alignStartOnRead = extData[i++];
+//
+//	int alignStopOnRef = extData[i++];
+//	int alignStopOnRead = extData[i++];
 
-	int alignStopOnRef = extData[i++];
-	int alignStopOnRead = extData[i++];
+//*********************//
+//Detect inversions
+//*********************//
 
-	while (extData[i] > 0 && !inversionFound) {
-		uloc ref = extData[i++];
-		uloc read = extData[i++];
+//Not bp but differences (mismatch, insertion, deletion)
+//Inversion is only detected if NM is above threshold for 10 consecutive windows
+	int const minInversionLength = 20;
 
-		char * refSeq = new char[250];
-		char * readSeq = new char[500];
-		char * revreadSeq = new char[500];
-		memset(refSeq, '\0', 250 * sizeof(char));
-		memset(readSeq, '\0', 500 * sizeof(char));
-		memset(revreadSeq, '\0', 500 * sizeof(char));
+	//Half of window size used to compute NM in SWCPU.cpp
+	int const inversionPositionShift = 0;
 
-		SequenceLocation testLoc;
-		testLoc.m_Location = start + align.PositionOffset + ref - 100;
-		SequenceProvider.DecodeRefSequence(refSeq, 0, testLoc.m_Location, 200);
-		strncpy(readSeq, fullReadSeq + read - 200, 400);
+	int const intervalCheckLength = 50;
 
-		computeReverseSeq(readSeq, revreadSeq, 400);
+	//Peaks (isInversion(nm) == true) that are less than maxDistance apart will be merged
+	int const maxDistance = 1;
+	int distance = maxDistance;
 
-		if (pacbioDebug) {
-			Log.Message("Ref:     %s", refSeq);
-			Log.Message("Read:    %s", readSeq);
-			Log.Message("RevRead: %s", revreadSeq);
+	int startInv = -1;
+	int stopInv = -1;
+
+	int startInvRead = -1;
+	int stopInvRead = -1;
+
+	int alignStartOnRef = align.firstPosition.refPosition;
+	int alignStartOnRead = align.firstPosition.readPosition;
+
+	int alignStopOnRef = align.lastPosition.refPosition;
+	int alignStopOnRead = align.lastPosition.readPosition;
+
+//TODO: improve
+//	int treshold = result.NM * 4;
+//	int treshold = 3;
+
+//	fprintf(stderr, "Threshold: %d\n", treshold);
+
+	if (stdoutErrorProfile) {
+		int len = 0;
+		for (int i = 0; i < align.alignmentLength; ++i) {
+			printf("%s\t%d\t%d\t%s\n", SequenceProvider.GetRefName(seqLoc.getrefId(), len), seqLoc.m_Location + align.nmPerPosition[i].refPosition, align.nmPerPosition[i].nm, readName);
 		}
-
-		IAlignment * aligner = new EndToEndAffine();
-
-		float scoreFwd = 0.0f;
-		float scoreRev = 0.0f;
-		aligner->SingleScore(10, 0, readSeq, refSeq, scoreFwd, 0);
-		aligner->SingleScore(10, 0, revreadSeq, refSeq, scoreRev, 0);
-
-		if (pacbioDebug) {
-			Log.Message("Fwd: %f, Rev: %f", scoreFwd, scoreRev);
-			SequenceProvider.convert(testLoc);
-		}
-
-//		printf("%s\t%llu\t%llu\t%s\t%d\n", SequenceProvider.GetRefName(testLoc.getrefId(), len), testLoc.m_Location, testLoc.m_Location + 200, readName, 100);
-		if (scoreRev > scoreFwd) {
-
-			inversionFound = true;
-			if (pacbioDebug) {
-				Log.Message("Inversion detected: %llu, %llu", ref,
-						read);
-				Log.Message("READ LENGTH: %d", readLength);
-//				printf("%s\t%llu\t%llu\t%s\t%d\n", SequenceProvider.GetRefName(testLoc.getrefId(), len), testLoc.m_Location, testLoc.m_Location + 200, readName, 100);
-			}
-
-			if (interval.isReverse) {
-
-				leftOfInv.onReadStop = readLength
-						- (interval.onReadStart + alignStartOnRead);
-
-				leftOfInv.onRefStart = start + align.PositionOffset
-						+ alignStartOnRef;
-
-				leftOfInv.onReadStart = readLength
-						- (interval.onReadStart + read);
-				leftOfInv.onRefStop = start + align.PositionOffset + ref;
-
-				leftOfInv.isReverse = interval.isReverse;
-
-				rightOfInv.onReadStop = readLength
-						- (interval.onReadStart + read);
-				rightOfInv.onRefStart = start + align.PositionOffset + ref;
-				rightOfInv.onReadStart = readLength
-						- (interval.onReadStart + alignStopOnRead);
-				rightOfInv.onRefStop = start + align.PositionOffset
-						+ alignStopOnRef;
-
-				rightOfInv.isReverse = interval.isReverse;
-
-				inv.onReadStart = leftOfInv.onReadStart;
-				inv.onReadStop = leftOfInv.onReadStart;
-				inv.onRefStart = leftOfInv.onRefStop;
-				inv.onRefStop = leftOfInv.onRefStop;
-				inv.isReverse = !rightOfInv.isReverse;
-			} else {
-
-				leftOfInv.onReadStart = interval.onReadStart + alignStartOnRead;
-				leftOfInv.onRefStart = start + align.PositionOffset
-						+ alignStartOnRef;
-				leftOfInv.isReverse = interval.isReverse;
-				leftOfInv.onReadStop = interval.onReadStart + read;
-				leftOfInv.onRefStop = start + align.PositionOffset + ref;
-
-				rightOfInv.onReadStart = interval.onReadStart + read;
-				rightOfInv.onRefStart = start + align.PositionOffset + ref;
-				rightOfInv.isReverse = interval.isReverse;
-				rightOfInv.onReadStop = interval.onReadStart + alignStopOnRead;
-				rightOfInv.onRefStop = start + align.PositionOffset
-						+ alignStopOnRef;
-
-				inv.onReadStart = leftOfInv.onReadStop;
-				inv.onReadStop = leftOfInv.onReadStop;
-				inv.onRefStart = leftOfInv.onRefStop;
-				inv.onRefStop = leftOfInv.onRefStop;
-				inv.isReverse = !rightOfInv.isReverse;
-			}
-
-			if (pacbioDebug) {
-				SequenceLocation seqLoc2;
-				seqLoc2.m_Location = leftOfInv.onRefStart;
-				SequenceProvider.convert(seqLoc2);
-				Log.Message("Mapping Pos2: %llu - %llu (alignStartOnREf: %llu, corridor: %d)", leftOfInv.onRefStart, seqLoc2.m_Location, alignStartOnRef, corridor);
-				SequenceLocation seqLoc5;
-				seqLoc5.m_Location = rightOfInv.onRefStart;
-				SequenceProvider.convert(seqLoc5);
-				Log.Message("Mapping Pos5: %llu - %llu", rightOfInv.onRefStart, seqLoc5.m_Location);
-				SequenceLocation seqLoc3;
-				seqLoc3.m_Location = rightOfInv.onRefStart;
-				SequenceProvider.convert(seqLoc3);
-				Log.Message("Mapping Pos3: %llu - %llu", rightOfInv.onRefStart, seqLoc3.m_Location);
-				SequenceLocation seqLoc4;
-				seqLoc4.m_Location = rightOfInv.onRefStop;
-				SequenceProvider.convert(seqLoc4);
-				Log.Message("Mapping Pos4: %llu - %llu", rightOfInv.onRefStop, seqLoc4.m_Location);
-			}
-
-		} else {
-//			printf("%s\t%llu\t%llu\t%s\t%d\n", SequenceProvider.GetRefName(testLoc.getrefId(), len), testLoc.m_Location, testLoc.m_Location + 200, readName, 0);
-		}
-
-		delete[] refSeq;
-		refSeq = 0;
-		delete[] readSeq;
-		readSeq = 0;
-		delete[] revreadSeq;
-		revreadSeq = 0;
-		delete aligner;
-		aligner = 0;
 	}
 
-	return inversionFound;
+	// Only for debugging!
+	int inversionNumber = 0;
+	int len = 0;
+	for (int i = 0; i < align.alignmentLength; ++i) {
+		float nm = (32 - align.nmPerPosition[i].nm) / 32.0f;
+
+		if (nm > 0) {
+//			fprintf(stderr, "%d: %d (%d)\n", positionsInRead[i], nm, treshold);
+//			printf("%s\t%llu\t%llu\t%d\n",
+//					SequenceProvider.GetRefName(seqLoc.getrefId(), len),
+//					seqLoc.m_Location + i, seqLoc.m_Location + i + 1, nm);
+		}
+		if (startInv == -1) {
+			if (isInversion(nm)) {
+				startInv = align.nmPerPosition[i].refPosition
+						- inversionPositionShift;
+				startInvRead = align.nmPerPosition[i].readPosition
+						- inversionPositionShift;
+				stopInv = align.nmPerPosition[i].refPosition
+						- inversionPositionShift;
+				stopInvRead = align.nmPerPosition[i].readPosition
+						- inversionPositionShift;
+			}
+
+		} else {	// if(stopInv == -1) {
+			if (isInversion(nm)) {
+				stopInv = align.nmPerPosition[i].refPosition
+						- inversionPositionShift;
+				stopInvRead = align.nmPerPosition[i].readPosition
+						- inversionPositionShift;
+			} else {
+				//if (nm > 0) {
+				//					startInv = -1;
+				if (distance == 0) {
+
+					if (pacbioDebug) {
+						fprintf(stderr,
+								"Inversion detected: %d - %d, %d - %d (length: %d)\n",
+								startInv, stopInv, startInvRead, stopInvRead,
+								abs(stopInv - startInv));
+					}
+					if (abs(stopInv - startInv) > minInversionLength) {
+						if (pacbioDebug) {
+							Log.Message("Check inversion on read %s", readName);
+						}
+						inversionNumber += 1;
+						if (pacbioDebug) {
+							//Print BED files with potential inversion
+							//printf("%s\t%llu\t%llu\n", SequenceProvider.GetRefName(seqLoc.getrefId(), len), seqLoc.m_Location + startInv, seqLoc.m_Location + stopInv + 1);
+							fprintf(stderr, "Length: %d\n",
+									abs(stopInv - startInv));
+						}
+						//Positions in read and ref midpoint of inversion
+						uloc ref = (startInv + stopInv) / 2 + intervalCheckLength / 2;
+						//uloc ref = startInv;
+
+						uloc read = (startInvRead + stopInvRead) / 2;
+//						uloc read = startInvRead;
+
+						char * refSeq = new char[250];
+						char * readSeq = new char[600];
+						char * revreadSeq = new char[600];
+						memset(refSeq, '\0', 250 * sizeof(char));
+						memset(readSeq, '\0', 500 * sizeof(char));
+						memset(revreadSeq, '\0', 500 * sizeof(char));
+
+						SequenceLocation testLoc;
+//						testLoc.m_Location = start + align.PositionOffset + ref
+//						- intervalCheckLength / 2;
+						testLoc.m_Location = start + align.PositionOffset + ref;
+						// Extract sequence from reference
+						SequenceProvider.DecodeRefSequence(refSeq, 0, testLoc.m_Location, intervalCheckLength);
+
+						// Extract sequence from read
+//						strncpy(readSeq, fullReadSeq + read - intervalCheckLength, intervalCheckLength * 2);
+						strncpy(readSeq, fullReadSeq + read, intervalCheckLength * 2);
+						// Reverse complement
+						computeReverseSeq(readSeq, revreadSeq, intervalCheckLength * 2);
+
+						if (pacbioDebug) {
+							Log.Message("Ref:     %s", refSeq);
+							Log.Message("Read:    %s", readSeq);
+							Log.Message("RevRead: %s", revreadSeq);
+						}
+						if(printInvCandidateFa) {
+							printf(">%s_%d/1\n%s\n", readName, inversionNumber, refSeq);
+							printf(">%s_%d/2\n%s\n", readName, inversionNumber, revreadSeq);
+
+						}
+
+						IAlignment * aligner = new EndToEndAffine();
+
+						float scoreFwd = 0.0f;
+						float scoreRev = 0.0f;
+
+						static const float minScore = Config.GetFloat(
+								MATCH_BONUS) * 1.0f * intervalCheckLength / 4.0f;
+						aligner->SingleScore(10, 0, readSeq, refSeq, scoreFwd,
+								0);
+						aligner->SingleScore(10, 0, revreadSeq, refSeq,
+								scoreRev, 0);
+
+						delete[] refSeq;
+						refSeq = 0;
+						delete[] readSeq;
+						readSeq = 0;
+						delete[] revreadSeq;
+						revreadSeq = 0;
+						delete aligner;
+						aligner = 0;
+
+						if (pacbioDebug) {
+							Log.Message("Fwd: %f, Rev: %f, min: %f", scoreFwd, scoreRev, minScore);
+							SequenceProvider.convert(testLoc);
+						}
+
+						if(stdoutInversionBed) {
+							printf("%s\t%llu\t%llu\t%s\t%d\n", SequenceProvider.GetRefName(testLoc.getrefId(), len), testLoc.m_Location, testLoc.m_Location + intervalCheckLength, readName, 0);
+						}
+						if (scoreRev > scoreFwd && scoreRev > minScore) {
+							//if (scoreRev > scoreFwd || scoreFwd < minScore) {
+
+							inversionFound = true;
+							if (pacbioDebug) {
+								Log.Message("Inversion detected: %llu, %llu", ref,
+										read);
+								Log.Message("READ LENGTH: %d", readLength);
+								//				printf("%s\t%llu\t%llu\t%s\t%d\n", SequenceProvider.GetRefName(testLoc.getrefId(), len), testLoc.m_Location, testLoc.m_Location + 200, readName, 100);
+							}
+
+							if (interval.isReverse) {
+
+								leftOfInv.onReadStop = readLength
+								- (interval.onReadStart
+										+ alignStartOnRead);
+
+								leftOfInv.onRefStart = start
+								+ align.PositionOffset
+								+ alignStartOnRef;
+
+								leftOfInv.onReadStart = readLength
+								- (interval.onReadStart + read);
+								leftOfInv.onRefStop = start
+								+ align.PositionOffset + ref;
+
+								leftOfInv.isReverse = interval.isReverse;
+
+								rightOfInv.onReadStop = readLength
+								- (interval.onReadStart + read);
+								rightOfInv.onRefStart = start
+								+ align.PositionOffset + ref;
+								rightOfInv.onReadStart = readLength
+								- (interval.onReadStart
+										+ alignStopOnRead);
+								rightOfInv.onRefStop = start
+								+ align.PositionOffset + alignStopOnRef;
+
+								rightOfInv.isReverse = interval.isReverse;
+
+								inv.onReadStart = leftOfInv.onReadStart;
+								inv.onReadStop = leftOfInv.onReadStart;
+								inv.onRefStart = leftOfInv.onRefStop;
+								inv.onRefStop = leftOfInv.onRefStop;
+								inv.isReverse = !rightOfInv.isReverse;
+							} else {
+
+								leftOfInv.onReadStart = interval.onReadStart
+								+ alignStartOnRead;
+								leftOfInv.onRefStart = start
+								+ align.PositionOffset
+								+ alignStartOnRef;
+								leftOfInv.isReverse = interval.isReverse;
+								leftOfInv.onReadStop = interval.onReadStart
+								+ read;
+								leftOfInv.onRefStop = start
+								+ align.PositionOffset + ref;
+
+								rightOfInv.onReadStart = interval.onReadStart
+								+ read;
+								rightOfInv.onRefStart = start
+								+ align.PositionOffset + ref;
+								rightOfInv.isReverse = interval.isReverse;
+								rightOfInv.onReadStop = interval.onReadStart
+								+ alignStopOnRead;
+								rightOfInv.onRefStop = start
+								+ align.PositionOffset + alignStopOnRef;
+
+								inv.onReadStart = leftOfInv.onReadStop;
+								inv.onReadStop = leftOfInv.onReadStop;
+								inv.onRefStart = leftOfInv.onRefStop;
+								inv.onRefStop = leftOfInv.onRefStop;
+								inv.isReverse = !rightOfInv.isReverse;
+							}
+
+//							if (pacbioDebug) {
+//								SequenceLocation seqLoc2;
+//								seqLoc2.m_Location = leftOfInv.onRefStart;
+//								SequenceProvider.convert(seqLoc2);
+//								Log.Message("Mapping Pos2: %llu - %llu (alignStartOnREf: %llu, corridor: %d)", leftOfInv.onRefStart, seqLoc2.m_Location, alignStartOnRef, corridor);
+//								SequenceLocation seqLoc5;
+//								seqLoc5.m_Location = rightOfInv.onRefStart;
+//								SequenceProvider.convert(seqLoc5);
+//								Log.Message("Mapping Pos5: %llu - %llu", rightOfInv.onRefStart, seqLoc5.m_Location);
+//								SequenceLocation seqLoc3;
+//								seqLoc3.m_Location = rightOfInv.onRefStart;
+//								SequenceProvider.convert(seqLoc3);
+//								Log.Message("Mapping Pos3: %llu - %llu", rightOfInv.onRefStart, seqLoc3.m_Location);
+//								SequenceLocation seqLoc4;
+//								seqLoc4.m_Location = rightOfInv.onRefStop;
+//								SequenceProvider.convert(seqLoc4);
+//								Log.Message("Mapping Pos4: %llu - %llu", rightOfInv.onRefStop, seqLoc4.m_Location);
+//							}
+							return true;
+						} else {
+							//			printf("%s\t%llu\t%llu\t%s\t%d\n", SequenceProvider.GetRefName(testLoc.getrefId(), len), testLoc.m_Location, testLoc.m_Location + 200, readName, 0);
+						}
+					}
+					startInv = -1;
+					stopInv = -1;
+					distance = maxDistance;
+				} else {
+					distance -= 1;
+				}
+//					getchar();
+
+			}
+		}
+	}
+
+//}
+//
+//	extData[edIndex++] = -1;
+//
+//	delete[] positionsInRead;
+//	positionsInRead = 0;
+//
+//	delete[] nmPerPos;
+//	nmPerPos = 0;
+
+//	getchar();
+
+//	return inversionFound;
+	return false;
 }
 
 int AlignmentBuffer::estimateCorridor(const Interval & interval) {
@@ -1071,7 +1250,9 @@ Align AlignmentBuffer::alignInterval(MappedRead const * const read_,
 		Interval const interval, char * const readSeq,
 		size_t const readSeqLen) {
 
-	//int corridor = std::max(abs(difference) * 2, (int) (read->length * 0.2));
+	Timer alignTimer;
+	alignTimer.ST();
+//int corridor = std::max(abs(difference) * 2, (int) (read->length * 0.2));
 
 	Align align;
 	align.Score = 0.0f;
@@ -1094,7 +1275,7 @@ Align AlignmentBuffer::alignInterval(MappedRead const * const read_,
 		Log.Message("Start pos: %d, Length: %d", interval.onReadStart, readSeqLen);
 	}
 
-	//test-align python (ngila)
+//test-align python (ngila)
 //	printf("%s\t%d\t", read_->name, 0);
 	if (pacbioDebug) {
 		Log.Message("Computing alignment");
@@ -1108,6 +1289,7 @@ Align AlignmentBuffer::alignInterval(MappedRead const * const read_,
 		Fatal();
 	}
 
+	alignTime += alignTimer.ET();
 	return align;
 }
 
@@ -1137,7 +1319,7 @@ char* const AlignmentBuffer::extractReadSeq(const size_t& readSeqLen,
 
 bool AlignmentBuffer::alignInversion(Interval interval, Interval leftOfInv,
 		Interval inv, Interval rightOfInv, MappedRead * read, Align * tmpAling,
-		int & alignIndex, LocationScore * tmp) {
+		int & alignIndex, LocationScore * tmp, int mq) {
 	int inversionLength = 0;
 	if (pacbioDebug) {
 		Log.Message("Inversion detected!");
@@ -1156,7 +1338,8 @@ bool AlignmentBuffer::alignInversion(Interval interval, Interval leftOfInv,
 	//QEnd from first read part, gives length of
 	//inversion that was covered by left part
 	/**********************************************/
-	inversionLength += (readSeqLen - ((int*) (align.ExtendedData))[3]);
+	inversionLength += (readSeqLen - align.lastPosition.readPosition);
+//	inversionLength += (readSeqLen - ((int*) (align.ExtendedData))[3]);
 	if (inv.isReverse) {
 		inv.onReadStart -= (inversionLength * 1.2);
 	} else {
@@ -1168,9 +1351,14 @@ bool AlignmentBuffer::alignInversion(Interval interval, Interval leftOfInv,
 	}
 	delete[] readSeq;
 	readSeq = 0;
-	delete[] (int*) (align.ExtendedData);
-	align.ExtendedData = 0;
+	if (align.ExtendedData != 0) {
+		delete[] (int*) (align.ExtendedData);
+		align.ExtendedData = 0;
+	}
+	delete[] align.nmPerPosition;
+	align.nmPerPosition = 0;
 	if (align.Score > 0.0f) {
+		align.MQ = mq;
 		tmpAling[alignIndex] = align;
 
 		tmp[alignIndex].Location.m_Location = leftOfInv.onRefStart
@@ -1201,21 +1389,28 @@ bool AlignmentBuffer::alignInversion(Interval interval, Interval leftOfInv,
 	//QStart from second read part, gives length
 	//of inversion that was covered by second read
 	/**********************************************/
-	inversionLength += ((int*) (align.ExtendedData))[1];
+	int secondQStart = align.firstPosition.readPosition;
+//	inversionLength += secondQStart;
+	inversionLength += secondQStart;
 	if (inv.isReverse) {
-		inv.onReadStop += (((int*) (align.ExtendedData))[1] * 1.2);
+		inv.onReadStop += (secondQStart * 1.2);
 	} else {
-		inv.onReadStart -= (((int*) (align.ExtendedData))[1] * 1.2);
+		inv.onReadStart -= (secondQStart * 1.2);
 	}
-	inv.onRefStop += (((int*) (align.ExtendedData))[1] * 1.5);
+	inv.onRefStop += (secondQStart * 1.5);
 	if (pacbioDebug) {
-		Log.Message("2. pos in read start: %d", ((int *) align.ExtendedData)[1]);
+		Log.Message("2. pos in read start: %d", secondQStart);
 	}
 	delete[] readSeq;
 	readSeq = 0;
-	delete[] (int*) (align.ExtendedData);
-	align.ExtendedData = 0;
+	if (align.ExtendedData != 0) {
+		delete[] (int*) (align.ExtendedData);
+		align.ExtendedData = 0;
+	}
+	delete[] align.nmPerPosition;
+	align.nmPerPosition = 0;
 	if (align.Score > 0.0f) {
+		align.MQ = mq;
 		tmpAling[alignIndex] = align;
 
 		tmp[alignIndex].Location.m_Location = rightOfInv.onRefStart
@@ -1247,9 +1442,14 @@ bool AlignmentBuffer::alignInversion(Interval interval, Interval leftOfInv,
 	align = alignInterval(read, inv, readSeq, readSeqLen);
 	delete[] readSeq;
 	readSeq = 0;
-	delete[] (int*) (align.ExtendedData);
-	align.ExtendedData = 0;
+	if (align.ExtendedData != 0) {
+		delete[] (int*) (align.ExtendedData);
+		align.ExtendedData = 0;
+	}
+	delete[] align.nmPerPosition;
+	align.nmPerPosition = 0;
 	if (align.Score > 0.0f) {
+		align.MQ = mq;
 		tmpAling[alignIndex] = align;
 
 		tmp[alignIndex].Location.m_Location = inv.onRefStart
@@ -1294,8 +1494,9 @@ void AlignmentBuffer::alignSingleOrMultipleIntervals(MappedRead * read,
 			read->length /*+ readSeqLen*/, readSeq, leftOfInv, rightOfInv, inv,
 			read->name))) {
 
+		int mq = computeMappingQuality(align, read->length);
 		inversionAligned = alignInversion(interval, leftOfInv, inv, rightOfInv,
-				read, tmpAling, alignIndex, tmp);
+				read, tmpAling, alignIndex, tmp, mq);
 		if (!inversionAligned) {
 			SequenceLocation loc;
 			loc.m_Location = inv.onRefStart;
@@ -1307,14 +1508,19 @@ void AlignmentBuffer::alignSingleOrMultipleIntervals(MappedRead * read,
 			Log.Message("Potential inversion detected at %s:%llu-%llu but not taken into account due to errors. (read: %s)", SequenceProvider.GetRefName(loc.getrefId(), len), loc.m_Location, loc2.m_Location, read->name);
 		}
 	} else {
-		Log.Message("No inversion detected!");
+		if (pacbioDebug) {
+			Log.Message("No inversion detected!");
+		}
 	}
+	delete[] align.nmPerPosition;
+	align.nmPerPosition = 0;
 
 	if (!inversionDetected || !inversionAligned) {
 		/**********************************************/
 		// No inversion detected
 		/**********************************************/
 		if (align.Score > 0.0f) {
+			align.MQ = computeMappingQuality(align, read->length);
 			tmpAling[alignIndex] = align;
 
 			tmp[alignIndex].Location.m_Location = interval.onRefStart
@@ -1335,9 +1541,9 @@ void AlignmentBuffer::alignSingleOrMultipleIntervals(MappedRead * read,
 		// Check if significant portion of read was
 		// not aligned
 		/**********************************************/
-		int QStart = ((int*) (align.ExtendedData))[1];
-		int QEnd = readSeqLen - ((int*) (align.ExtendedData))[3];
-
+//	TODO: use nmPosition instead (see IAlignment.h)
+//		int QStart = ((int*) (align.ExtendedData))[1];
+//		int QEnd = readSeqLen - ((int*) (align.ExtendedData))[3];
 //	if (QStart > 0.1f * readSeqLen && QStart > 512) {
 //
 //		SequenceLocation loc;
@@ -1363,36 +1569,76 @@ void AlignmentBuffer::alignSingleOrMultipleIntervals(MappedRead * read,
 //		getchar();
 //	}
 	}
-	delete[] (int *) align.ExtendedData;
-	align.ExtendedData = 0;
+	if (align.ExtendedData != 0) {
+		delete[] (int *) align.ExtendedData;
+		align.ExtendedData = 0;
+	}
 	delete[] readSeq;
 	readSeq = 0;
 
 }
 
-void reconcileRead(ReadGroup * group) {
+int AlignmentBuffer::computeMappingQuality(Align const & alignment,
+		int readLength) {
+	std::vector<IntervalTree::Interval<int> > results;
 
-	for (int j = 0; j < group->readNumber; ++j) {
-		MappedRead * part = group->reads[j];
-
-		Log.Message("%d: %d", j, part->mappingQlty);
+	readCoordsTree->findOverlapping(alignment.QStart,
+			readLength - alignment.QEnd, results);
+//	Log.Message("On read: %d - %d", alignment.QStart, readLength - alignment.QEnd);
+	int mqSum = 0;
+	int mqCount = 0;
+	for (int j = 0; j < results.size(); ++j) {
+//		Log.Message("\tOverlap: %d;%d;%d", results[j].start, results[j].stop, results[j].value);
+		mqSum += results[j].value;
+		mqCount += 1;
 	}
+	return (int) (mqSum * 1.0f / mqCount);
+}
+
+//bool sortAlignPerRefPos(Align a,
+//		Align b) {
+//	return a. < b.onReadStart;
+//}
+
+
+void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 
 	MappedRead * read = group->fullRead;
 
+	//Interval * sortByRefPos = new Interval[read->Calculated];
+
+	//memcpy(sortByRefPos, read->Alignments, sizeof(Align) * read->Calculated);
+
+
+
+//	std::sort(sortByRefPos, sortByRefPos + read->Calculated,
+//					sortIntervalsInSegment);
+
+//	Log.Message("Read: %s", read->name);
 	for (int i = 0; i < read->Calculated; ++i) {
-		printf("%s\t%d\t%d\t%d\t%d\t%d\t%f\n", read->name, i, read->length,
-				read->Alignments[i].QStart, read->Alignments[i].QEnd,
-				read->Scores[i].Location.isReverse(),
-				read->Alignments[i].Score);
+
+		if (stdoutPrintMappedSegments) {
+			fprintf(stdout, "%s\t%d\t%d\t%d\t%d\t%d\t%f\n", read->name, i,
+					read->length, read->Alignments[i].QStart,
+					read->Alignments[i].QEnd,
+					read->Scores[i].Location.isReverse(),
+					read->Alignments[i].MQ, read->Alignments[i].Score);
+		}
+
 	}
-	getchar();
+//	getchar();
+
+//	delete[] sortByRefPos;
+//	sortByRefPos = 0;
 }
 
 void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 	Timer tmr;
 	tmr.ST();
+
+	// Parts of read that were aligned plus MQ of subalignments
+	std::vector<IntervalTree::Interval<int> > treeIntervals;
 
 	if (pacbioDebug) {
 		Log.Message("Processing LongReadLIS: %d - %s (lenght %d)", group->fullRead->ReadId, group->fullRead->name, group->fullRead->length);
@@ -1423,6 +1669,10 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 		//Reverse order if read is reverse
 //		int onRead = (isReverse) ? (int) (group->readNumber) - j : j;
 		int onRead = j;
+
+		treeIntervals.push_back(
+				IntervalTree::Interval<int>(onRead * 512, onRead * 512 + 512,
+						part->mappingQlty));
 
 		float minScore =
 				(part->numScores() > 0) ? part->Scores[0].Score.f * 0.8 : 0.0f;
@@ -1500,6 +1750,8 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			}
 		}
 	}
+
+	readCoordsTree = new IntervalTree::IntervalTree<int>(treeIntervals);
 
 	int intervalsIndex = 0;
 	Interval * intervals = findSubsequences(group->fullRead->name,
@@ -1591,7 +1843,10 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	delete[] intervals;
 	intervals = 0;
 
-	alignTime += tmr.ET();
+	delete readCoordsTree;
+	readCoordsTree = 0;
+
+	processTime += tmr.ET();
 }
 
 void AlignmentBuffer::processLongRead(ReadGroup * group) {

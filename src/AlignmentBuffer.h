@@ -8,6 +8,8 @@
 #include "ScoreWriter.h"
 #include "StrippedSW.h"
 
+#include "intervaltree/IntervalTree.h"
+
 #undef module_name
 #define module_name "OUTPUT"
 
@@ -42,7 +44,9 @@ private:
 	long pairInsertSum;
 	long brokenPairs;
 
+	float processTime;
 	float alignTime;
+	float overallTime;
 
 	GenericReadWriter* m_Writer;
 
@@ -53,6 +57,8 @@ private:
 	bool const argos;
 
 	bool const pacbioDebug;
+
+	IntervalTree::IntervalTree<int> * readCoordsTree;
 
 	void debugAlgnFinished(MappedRead * read);
 
@@ -168,7 +174,7 @@ public:
 
 	bool alignInversion(Interval interval, Interval leftOfInv, Interval inv,
 			Interval rightOfInv, MappedRead * read, Align * tmpAling,
-			int & alignIndex, LocationScore * tmp);
+			int & alignIndex, LocationScore * tmp, int mq);
 
 //	bool constructMappedSegements(Interval * intervals,
 //			Interval interval, int & intervalsIndex);
@@ -177,6 +183,8 @@ public:
 			Interval interval, size_t & segmentsIndex);
 
 //	bool sortIntervalsInSegment(Interval a, Interval b);
+
+	void reconcileRead(ReadGroup * group);
 
 	Interval * consolidateSegments(MappedSegment * segments, size_t segmentsIndex, int & intervalsIndex);
 	void consolidateSegment(Interval * interval, int & intervalsIndex, MappedSegment segment);
@@ -187,6 +195,8 @@ public:
 	void processLongRead(ReadGroup * group);
 	void processLongReadLIS(ReadGroup * group);
 
+	int computeMappingQuality(Align const & alignment, int readLength);
+
 	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
 	batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(
 			NGM.GetOutputFormat()),
@@ -194,7 +204,7 @@ public:
 	corridor(Config.GetInt("corridor")),
 	refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
 	min_mq(Config.GetInt(MIN_MQ)),
-	aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(Config.GetInt(PACBIOLOG) == 1) {
+	aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(Config.GetInt(PACBIOLOG) == 1), readCoordsTree(0) {
 		pairInsertSum = 0;
 		pairInsertCount = 0;
 		brokenPairs = 0;
@@ -249,6 +259,8 @@ public:
 		memset(dummy, '\0', refMaxLen);
 		//dummy[Config.GetInt("qry_max_len") - 1] = '\0';
 
+		processTime = 0.0f;
+		overallTime = 0.0f;
 		alignTime = 0.0f;
 		//}
 		//}
@@ -300,6 +312,18 @@ public:
 	void flush();
 
 	float getTime() {
+		float tmp = overallTime;
+		overallTime = 0;
+		return tmp;
+	}
+
+	float getProcessTime() {
+		float tmp = processTime;
+		processTime = 0;
+		return tmp;
+	}
+
+	float getAlignTime() {
 		float tmp = alignTime;
 		alignTime = 0;
 		return tmp;

@@ -120,7 +120,8 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 	Print("%d\t", flags);
 	Print("%.*s\t", refnamelen, refname);
 	Print("%u\t", read->Scores[scoreID].Location.m_Location + report_offset );
-	Print("%d\t", mappingQlty);
+//	Print("%d\t", mappingQlty);
+	Print("%d\t", read->Alignments[scoreID].MQ);
 
 	Print("%s\t", read->Alignments[scoreID].pBuffer1);
 	Print("%s\t", pRefName);//Ref. name of the mate/next fragment
@@ -195,7 +196,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 					strand = '-';
 				}
 
-				Print("%.*s,%d,%c,%s,%d,%d;", refnamelen, refname, read->Scores[i].Location.m_Location + report_offset, strand, read->Alignments[i].pBuffer1, mappingQlty, read->Alignments[i].NM);
+				Print("%.*s,%d,%c,%s,%d,%d;", refnamelen, refname, read->Scores[i].Location.m_Location + report_offset, strand, read->Alignments[i].pBuffer1, read->Alignments[i].MQ, read->Alignments[i].NM);
 			}
 		}
 		Print("\t");

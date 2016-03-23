@@ -200,8 +200,6 @@ int SWCPUCor::printCigarElement(char const op, int const length, char * cigar) {
 	return offset;
 }
 
-int readNr = 0;
-
 int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 		int const * const gpuCigar, char const * const refSeq, int corr_length,
 		int read_length, int const QStart, int const QEnd) {
@@ -213,24 +211,15 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	int posInRef = 0;
 	int posInRead = 0;
 
-	int const maxInverions = 100;
-	result.ExtendedData = new int[4 * maxInverions + 1];
-	int * extData = (int *) result.ExtendedData;
-	int edIndex = 0;
-
 	//*********************//
 	//General init
 	//*********************//
 
 	int alignment_length = corr_length + read_length + 1;
-	int * nmPerPos = new int[alignment_length];
+	result.nmPerPosition = new PositionNM[alignment_length];
+	int nmIndex = 0;
+	int exactAlignmentLength = 0;
 
-	int * positionsInRead = new int[alignment_length];
-	//memset((int*)result.ExtendedData, 0, sizeof(int));
-	for (int i = 0; i < alignment_length; ++i) {
-		nmPerPos[i] = 0;
-		positionsInRead[i] = 0;
-	}
 	int perWindowSum = 0;
 	int windowNumber = 0;
 
@@ -254,8 +243,8 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	}
 
 	//Positions in read and ref for start of alignment
-	extData[edIndex++] = posInRef;
-	extData[edIndex++] = posInRead;	//QStart of aligned sequence, but not for full read (like result.QStart)
+	result.firstPosition.refPosition = posInRef;
+	result.firstPosition.readPosition = posInRead; //QStart of aligned sequence, but not for full read (like result.QStart)
 
 	//*********************//
 	// Translate CIGAR to char and compute MD
@@ -267,12 +256,17 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	int md_eq_length = 0;
 	int ref_index = 0;
 
+	int walk = 0;
+	int overallMatchCount = 0;
+
+	uint const maxIndelLength = 5;
+
 //	fprintf(stderr, "Buffer: %llu", buffer);
 	for (int j = gpuCigarOffset + 1; j < (alignment_length - 1); ++j) {
 		int op = gpuCigar[j] & 15;
 		int length = gpuCigar[j] >> 4;
 
-		int bufferLength = std::min(32, length);
+		uint bufferLength = std::min(32, length);
 
 		//debugCigar(op, length);
 		total += length;
@@ -288,8 +282,10 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 				md_offset += sprintf(result.pQry + md_offset, "%c",
 						refSeq[ref_index++]);
 
-				buffer = buffer | 1;
+
 				buffer = buffer << 1;
+				buffer = buffer | 1;
+
 			}
 			md_eq_length = 0;
 
@@ -302,10 +298,13 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 			posInRef += length;
 			posInRead += length;
 
+			exactAlignmentLength += length;
 //			fprintf(stderr, "%d x X: shifting by %d\n", length, bufferLength);
 //			fprintf(stderr, "Buffer: %llu (%d)\n", buffer,
 //					NumberOfSetBits(buffer));
 //			fprintf(stderr, "Buffer: %d\n", NumberOfSetBits(buffer));
+
+			walk += length;
 
 			break;
 		case CIGAR_EQ:
@@ -321,11 +320,16 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 			}
 			posInRef += length;
 			posInRead += length;
+			exactAlignmentLength += length;
 
 //			fprintf(stderr, "%d x =: shifting by %d\n", length, bufferLength);
 //			fprintf(stderr, "Buffer: %llu (%d)\n", buffer,
 //					NumberOfSetBits(buffer));
 //			fprintf(stderr, "Buffer: %d\n", NumberOfSetBits(buffer));
+
+			walk = std::max(0, walk - length);
+
+			overallMatchCount += length;
 
 			break;
 		case CIGAR_D:
@@ -346,21 +350,25 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 			}
 
 //			if (length > 1) {
-				buffer = buffer | 1;
+
 //			}
 			if (bufferLength < 32) {
 				buffer = buffer << bufferLength;
 			} else {
 				buffer = 0;
 			}
-//			buffer = buffer | (uint) (pow(2.0, bufferLength) - 1);
+//			buffer = buffer | 1;
+			buffer = buffer | (uint) (pow(2.0, std::min(maxIndelLength, bufferLength)) - 1);
 
 			posInRef += length;
+			exactAlignmentLength += length;
 
 //			fprintf(stderr, "%d x D: shifting by %d\n", length, bufferLength);
 //			fprintf(stderr, "Buffer: %llu (%d)\n", buffer,
 //					NumberOfSetBits(buffer));
 //			fprintf(stderr, "Buffer: %d\n", NumberOfSetBits(buffer));
+
+			walk += 1;
 
 			break;
 		case CIGAR_I:
@@ -375,22 +383,28 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 			finalCigarLength += length;
 
 //			if (length > 1) {
-				buffer = buffer | 1;
+
 //			}
 			if (bufferLength < 32) {
 				buffer = buffer << bufferLength;
 			} else {
 				buffer = 0;
 			}
-//			buffer = buffer | (uint) (pow(2.0, bufferLength) - 1);
+//			buffer = buffer | 1;
+			buffer = buffer | (uint) (pow(2.0, std::min(maxIndelLength, bufferLength)) - 1);
 
 //			posInAligment += length;
 			posInRead += length;
+			exactAlignmentLength += length;
 
 //			fprintf(stderr, "%d x I: shifting by %d\n", length, bufferLength);
 //			fprintf(stderr, "Buffer: %llu (%d)\n", buffer,
 //					NumberOfSetBits(buffer));
 //			fprintf(stderr, "Buffer: %d\n", NumberOfSetBits(buffer));
+
+//			if(length > 1) {
+			walk += 1;
+//			}
 
 			break;
 		default:
@@ -407,12 +421,14 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 		// Stats for inversion detection
 		//*********************//
 		int mmPerWindow = NumberOfSetBits(buffer);
-//		fprintf(stderr, "%d: %d\n", posInRef, mmPerWindow);
-		nmPerPos[posInRef] = mmPerWindow;
-		positionsInRead[posInRef] = posInRead;
+		result.nmPerPosition[nmIndex].readPosition = posInRead;
+		result.nmPerPosition[nmIndex].refPosition = posInRef;
+//		result.nmPerPosition[nmIndex].nm = walk;
+		result.nmPerPosition[nmIndex].nm = mmPerWindow;
+		nmIndex += 1;
+
 		perWindowSum += mmPerWindow;
 		windowNumber += 1;
-//		printf("%d\t%d\t%d\t%d\n", readNr, posInRead, posInRef, mmPerWindow);
 	}
 	//*********************//
 	//Print last element
@@ -443,85 +459,16 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	result.pRef[cigar_offset] = '\0';
 	result.pQry[md_offset] = '\0';
 	result.NM = perWindowSum * 1.0f / windowNumber;
+	result.alignmentLength = exactAlignmentLength;
 
-	readNr += 1;
-	//*********************//
-	//Detect inversions
-	//*********************//
-
-	//Not bp but differences (mismatch, insertion, deletion)
-	//Inversion is only detected if NM is above threshold for 10 consecutive windows
-	int const minInversionLength = 10;
+//	fprintf(stderr, "\n==== Matches: %d of %d ====\n", overallMatchCount,
+//			posInRead);
 
 	//Positions in read and ref for end of alignment
-	extData[edIndex++] = posInRef;
-	extData[edIndex++] = posInRead; //QEnd of aligned sequence, but not for full read (like result.QEnd)
-
-	int startInv = -1;
-	int stopInv = -1;
-
-	int startInvRead = -1;
-	int stopInvRead = -1;
-
-	//TODO: improve
-	int treshold = result.NM * 2;
-//	fprintf(stderr, "Threshold: %d\n", treshold);
-
-	int len = 0;
-	for (int i = 0; i < alignment_length && edIndex < maxInverions; ++i) {
-		int nm = nmPerPos[i];
-
-		if (nm > 0) {
-//			fprintf(stderr, "%d: %d (%d)\n", positionsInRead[i], nm, treshold);
-//			printf("%s\t%llu\t%llu\t%d\n",
-//					SequenceProvider.GetRefName(seqLoc.getrefId(), len),
-//					seqLoc.m_Location + i, seqLoc.m_Location + i + 1, nm);
-		}
-		if (startInv == -1) {
-			if (nm > treshold) {
-				startInv = i;
-				startInvRead = positionsInRead[i];
-				stopInv = i;
-				stopInvRead = positionsInRead[i];
-			}
-
-		} else {	// if(stopInv == -1) {
-			if (nm > treshold) {
-				stopInv = i;
-				stopInvRead = positionsInRead[i];
-			} else {
-				if (nm > 0) {
-					//					startInv = -1;
-//					printf("%s\t%llu\t%llu\n", SequenceProvider.GetRefName(seqLoc.getrefId(), len), seqLoc.m_Location + startInv, seqLoc.m_Location + stopInv + 1);
-					fprintf(stderr,
-							"Inversion detected: %d - %d, %d - %d (length: %d)\n",
-							startInv, stopInv, startInvRead, stopInvRead,
-							abs(stopInv - startInv));
-					if (abs(stopInv - startInv) > minInversionLength) {
-						fprintf(stderr, "Length: %d\n",
-								abs(stopInv - startInv));
-						//Positions in read and ref midpoint of inversion
-						extData[edIndex++] = (startInv + stopInv) / 2;
-						extData[edIndex++] = (startInvRead + stopInvRead) / 2;
-					}
-//					getchar();
-					startInv = -1;
-					stopInv = -1;
-				}
-			}
-		}
-
-	}
-
-	extData[edIndex++] = -1;
-
-	delete[] positionsInRead;
-	positionsInRead = 0;
-
-	delete[] nmPerPos;
-	nmPerPos = 0;
-
-//	getchar();
+	result.lastPosition.refPosition = posInRef;
+	result.lastPosition.readPosition = posInRead;
+//	extData[edIndex++] = posInRef;
+//	extData[edIndex++] = posInRead; //QEnd of aligned sequence, but not for full read (like result.QEnd)
 
 	return finalCigarLength;
 }

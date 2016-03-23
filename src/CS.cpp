@@ -14,6 +14,9 @@
 #undef module_name
 #define module_name "CS"
 
+bool stdoutPrintRunningTime = false;
+
+
 //static const int cInvalidLocation = -99999999;
 static const SequenceLocation sInvalidLocation(9223372036854775808u, 0, false);
 
@@ -504,9 +507,14 @@ void CS::DoRun() {
 //		NGM.Stats->readsPerSecond = (NGM.Stats->csTime + 1.0f / (elapsed / m_CurrentBatch.size())) / 2.0f;
 		NGM.Stats->readsPerSecond = (m_CurrentBatch.size() * 1.0f / elapsed);
 
-		NGM.Stats->alignTime = std::max(0.0f, alignmentBuffer->getTime());
-		NGM.Stats->scoreTime = std::max(0.0f, scoreBuffer->getTime() - NGM.Stats->alignTime);
-		NGM.Stats->csTime = std::max(0.0f, elapsed - NGM.Stats->scoreTime - NGM.Stats->alignTime);
+		//NGM.Stats->alignTime = std::max(0.0f, alignmentBuffer->getTime());
+		//NGM.Stats->scoreTime = std::max(0.0f, scoreBuffer->getTime() - NGM.Stats->alignTime);
+		//NGM.Stats->csTime = std::max(0.0f, elapsed - NGM.Stats->scoreTime - NGM.Stats->alignTime);
+
+		if(stdoutPrintRunningTime) {
+			fprintf(stdout, "%f\t%f\t%f\t%f\t%f\n", elapsed, scoreBuffer->getTime(), alignmentBuffer->getTime(), alignmentBuffer->getProcessTime(), alignmentBuffer->getAlignTime());
+			fflush(stdout);
+		}
 
 		NGM.Stats->csLength = c_SrchTableBitLen;
 		NGM.Stats->csOverflows = m_Overflows;

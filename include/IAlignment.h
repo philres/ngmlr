@@ -1,20 +1,38 @@
 #ifndef __IALIGNMENT_H__
 #define __IALIGNMENT_H__
 
+struct PositionNM {
+
+	PositionNM() : refPosition(0), readPosition(0), nm(0) {
+
+	}
+
+	int refPosition;
+	int readPosition;
+	int nm;
+
+};
+
 struct Align {
 	Align() :
-			pBuffer1(0), pBuffer2(0), ExtendedData(0), PositionOffset(0), QStart(
-					0), QEnd(0), Score(0.0f), Identity(0.0f), NM(0) {
+			pBuffer1(0), pBuffer2(0), nmPerPosition(0), ExtendedData(0), alignmentLength(0), PositionOffset(
+					0), QStart(0), QEnd(0), Score(0.0f), Identity(0.0f), NM(0), MQ(
+					0) {
 	}
 	char * pBuffer1; // = pCigar = pRef
 	char * pBuffer2; // = pMD = pQry
+	PositionNM * nmPerPosition;
 	void * ExtendedData;
+	PositionNM firstPosition;
+	PositionNM lastPosition;
+	int alignmentLength;
 	int PositionOffset; // Position in Ref, an der das Alignment beginnt
 	int QStart; // Anzahl Basen, die beim Qry am Anfang abgeschnitten wurden
 	int QEnd; // Anzahl Basen, die beim Qry am Ende abgeschnitten wurden
 	float Score;
 	float Identity;
 	int NM;
+	int MQ;
 };
 
 static int const cCookie = 0x10201130;
@@ -45,16 +63,25 @@ public:
 			char const * const * const qrySeqList, float * const results,
 			void * extData) = 0;
 
-	virtual int SingleAlign(int const mode, int const corridor, char const * const refSeq, char const * const qrySeq, Align & result, void * extData) { return 0; }
+	virtual int SingleAlign(int const mode, int const corridor,
+			char const * const refSeq, char const * const qrySeq,
+			Align & result, void * extData) {
+		return 0;
+	}
 
-	virtual int SingleScore(int const mode, int const corridor, char const * const refSeq, char const * const qrySeq, float & result, void * extData) { return 0; }
+	virtual int SingleScore(int const mode, int const corridor,
+			char const * const refSeq, char const * const qrySeq,
+			float & result, void * extData) {
+		return 0;
+	}
 
 	virtual int BatchAlign(int const mode, int const batchSize,
 			char const * const * const refSeqList,
 			char const * const * const qrySeqList, Align * const results,
 			void * extData) = 0;
 
-	virtual ~IAlignment() {}
+	virtual ~IAlignment() {
+	}
 };
 
 typedef IAlignment * (*pfCreateAlignment)(int const gpu_id);
