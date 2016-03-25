@@ -192,6 +192,9 @@ public:
 	bool inversionDetection(Align const align, Interval const interval, int const length,
 			char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv, Interval & inv, char const * const readName);
 
+	bool inversionDetectionArndt(Align const align, Interval const interval, int const length,
+				char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv, Interval & inv, char const * const readName);
+
 	void processLongRead(ReadGroup * group);
 	void processLongReadLIS(ReadGroup * group);
 
