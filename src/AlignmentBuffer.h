@@ -178,10 +178,9 @@ public:
 	Interval splitInterval(Interval a,
 			Interval b);
 	Interval mergeIntervals(Interval a, Interval b);
-	Interval * findSubsequences(char * name, int id, Anchor * allFwdAnchors,
-			int allFwdAnchorsLength, Anchor * allRevAnchors,
-			int allRevAnchorsLength, int readParts, int readLenth,
-			int & intervalsIndex);
+	Interval * infereCMRsfromAnchors(int & intervalsIndex, Anchor * allFwdAnchors, int allFwdAnchorsLength,
+			Anchor * allRevAnchors, int allRevAnchorsLength,
+			MappedRead * read);
 
 	Align computeAlignment(MappedRead* read, int const scoreId,
 			int const corridor);
