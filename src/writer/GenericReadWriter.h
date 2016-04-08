@@ -32,7 +32,7 @@ public:
 		writeUnmapped = !Config.GetInt("no_unal");
 	}
 	virtual ~GenericReadWriter() {
-		if(writeBuffer != 0) {
+		if (writeBuffer != 0) {
 			delete[] writeBuffer;
 			writeBuffer = 0;
 		}
@@ -40,9 +40,12 @@ public:
 protected:
 
 	virtual void DoWriteProlog() = 0;
-	virtual void DoWriteRead(MappedRead const * const read, int const scoreID) = 0;
-	virtual void DoWritePair(MappedRead const * const read1, int const scoreId1, MappedRead const * const read2, int const scoreId2) = 0;
-	virtual void DoWriteUnmappedRead(MappedRead const * const read, int flags = 0x4) = 0;
+	virtual void DoWriteRead(MappedRead const * const read,
+			int const scoreID) = 0;
+	virtual void DoWritePair(MappedRead const * const read1, int const scoreId1,
+			MappedRead const * const read2, int const scoreId2) = 0;
+	virtual void DoWriteUnmappedRead(MappedRead const * const read, int flags =
+			0x4) = 0;
 	virtual void DoWriteEpilog() = 0;
 
 	float identity;
@@ -104,7 +107,9 @@ public:
 						if (iTable.find(read->Scores[i].Location) == iTable.end()) {
 							iTable[read->Scores[i].Location] = true;
 							Log.Debug(4, "READ_%d\tOUTPUT\tWriting alignment CRM_%d", read->ReadId, i);
-							DoWriteRead(read, i);
+							if(!read->Alignments[i].skip) {
+								DoWriteRead(read, i);
+							}
 						} else {
 							Log.Debug(4, "READ_%d\tOUTPUT\tIgnoring duplicated alignment CRM_%d", read->ReadId, i);
 						}
@@ -144,7 +149,6 @@ public:
 			static float const minResiduesConfig = Config.GetFloat("min_residues", 0, 1000);
 			float minResidues = minResiduesConfig;
 			static int const min_mq = Config.GetInt(MIN_MQ);
-
 
 			float minResidues1 = 0.0f;
 			float minResidues2 = 0.0f;

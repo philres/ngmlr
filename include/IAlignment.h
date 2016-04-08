@@ -17,7 +17,7 @@ struct Align {
 	Align() :
 			pBuffer1(0), pBuffer2(0), nmPerPosition(0), ExtendedData(0), alignmentLength(0), PositionOffset(
 					0), QStart(0), QEnd(0), Score(0.0f), Identity(0.0f), NM(0), MQ(
-					0) {
+					0), skip(false) {
 	}
 	char * pBuffer1; // = pCigar = pRef
 	char * pBuffer2; // = pMD = pQry
@@ -33,6 +33,7 @@ struct Align {
 	float Identity;
 	int NM;
 	int MQ;
+	bool skip;
 };
 
 static int const cCookie = 0x10201130;

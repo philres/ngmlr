@@ -53,6 +53,9 @@ static char const * const READ_NUMBER = "read_number";
 
 static char const * const NOINVERSIONS = "no_inversions";
 static char const * const PACBIOLOG = "pacbiolog";
+static char const * const READ_PART_LENGTH = "read_part_length";
+
+static char const * const STDOUT = "stdout";
 
 #ifdef DEBUGLOG
 static char const * const LOG = "log";

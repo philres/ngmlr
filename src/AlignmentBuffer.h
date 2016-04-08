@@ -9,6 +9,7 @@
 #include "StrippedSW.h"
 
 #include "intervaltree/IntervalTree.h"
+#include "misc/LinearRegression.h"
 
 #undef module_name
 #define module_name "OUTPUT"
@@ -58,29 +59,50 @@ private:
 
 	bool const pacbioDebug;
 
+	bool stdoutPrintDotPlot;
+	bool stdoutInversionBed;
+	bool stdoutErrorProfile;
+	bool printInvCandidateFa;
+	bool stdoutPrintMappedSegments;
+
 	IntervalTree::IntervalTree<int> * readCoordsTree;
 
+	int const readPartLength;
+
 	void debugAlgnFinished(MappedRead * read);
+	bool alignmentCheckForInversion(int const inversionLength,
+			const int refCheckLength, SequenceLocation inversionCheckLocation,
+			uloc inversionMidpointOnRead, const char* const readName,
+			int inversionNumber, char* fullReadSeq);
 
 public:
 
-#define TYPE_UNFILTERED 0
-#define TYPE_LIS_SEQAN 1
-#define TYPE_CLIS 200
-#define TYPE_RESULT 1000
+#define DP_TYPE_UNFILTERED 0
+#define DP_TYPE_CLIS 1
+#define DP_TYPE_SEQMENTS 200
+#define DP_TYPE_SEQMENTS_REG 300
+#define DP_TYPE_SEQMENTS_CONS 400
+#define DP_TYPE_RESULT 600
+#define DP_TYPE_RESULT_CONS 800
 
-#define STATUS_OK 0
-#define STATUS_REPETITIVE 1
-#define STATUS_NOHIT 2
-#define STATUS_LOWSCORE 3
+#define DP_STATUS_OK 0
+#define DP_STATUS_REPETITIVE 1
+#define DP_STATUS_NOHIT 2
+#define DP_STATUS_LOWSCORE 3
+#define DP_STATUS_NOCOORDS 4
 
 	struct Interval {
 		int onReadStart;
 		int onReadStop;
 		loc onRefStart;
 		loc onRefStop;
+		double m;
+		double b;
+		double r;
 		float score;
+		short id;
 		bool isReverse;
+		bool isProcessed;
 
 		void printOneLine() {
 			Log.Message("Interval: %d - %d on read, %lu - %lu on ref, Reverse: %d, Score: %f", onReadStart, onReadStop, onRefStart, onRefStop, isReverse, score);
@@ -101,19 +123,33 @@ public:
 
 	};
 
+	// A list of intervals that are "compatible" meaning they are located in
+	// a "corridor" that is small enough to be handled by the alignment
+	// algorithm
+	// TODO: remove fixed length!
 	struct MappedSegment {
 		Interval list[100];
 		size_t length;
 	};
 
+	// Signed position on the reference
+	// For cLIS reverse positions are represented as negative
+	// numbers (TODO: check whether this in neccessary!)
 	typedef long long loc;
 
+	// Non overlapping part of the reads that are mapped to the reference
+	// using NextGenMap short-read mapping code (only candidate search and score computation)
 	struct Anchor {
+		// Position of anchor on the read
 		int onRead;
+		// Position of anchor on the reference
 		loc onRef;
+		// Alignment score of anchor
 		float score;
+		// Anchor was mapped to the reverse strand
 		bool isReverse;
-		int type; //0: normal, 1: repetitive, 2: nothing found, 3: socre too low
+		// Used for visualization only!
+		int type;//0: normal, 1: repetitive, 2: nothing found, 3: socre too low, 4: no coordinates
 	};
 
 	static bool sortAnchorOnRead(Anchor a, Anchor b) {
@@ -128,19 +164,8 @@ public:
 		return a.onRef < b.onRef;
 	}
 
-	void getSeqAnLIS(int allFwdAnchorsLength, int id,
-			Anchor* allFwdAnchors, char* name);
-
-	//Type: 0 unfiltered, 1 filtered
-	void printDotPlot(char * name, int id, Anchor * anchors, int anchorsLength,
-			int filtered) {
-		for (int i = 0; i < anchorsLength; ++i) {
-//			printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name,
-//					anchors[i].onRead * 512, anchors[i].onRead * 512 + 512,
-//					anchors[i].onRef, anchors[i].onRef + 512, anchors[i].score,
-//					anchors[i].isReverse, filtered, anchors[i].type);
-		}
-	}
+//	void getSeqAnLIS(int allFwdAnchorsLength, int id,
+//			Anchor* allFwdAnchors, char* name);
 
 	static ulong alignmentCount;
 
@@ -172,7 +197,7 @@ public:
 			char * const readSeq, size_t const readSeqLen);
 	void alignSingleOrMultipleIntervals(MappedRead * read, Interval interval, LocationScore * tmp, Align * tmpAling, int & alignIndex);
 
-	bool alignInversion(Interval interval, Interval leftOfInv, Interval inv,
+	bool alignInversion(Interval interval, Interval leftOfInv,
 			Interval rightOfInv, MappedRead * read, Align * tmpAling,
 			int & alignIndex, LocationScore * tmp, int mq);
 
@@ -184,21 +209,39 @@ public:
 
 //	bool sortIntervalsInSegment(Interval a, Interval b);
 
+//	bool sortMappedSegements(IntervalTree::Interval<Interval> a, IntervalTree::Interval<Interval> b);
+
 	void reconcileRead(ReadGroup * group);
 
 	Interval * consolidateSegments(MappedSegment * segments, size_t segmentsIndex, int & intervalsIndex);
 	void consolidateSegment(Interval * interval, int & intervalsIndex, MappedSegment segment);
 
-	bool inversionDetection(Align const align, Interval const interval, int const length,
-			char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv, Interval & inv, char const * const readName);
+	bool inversionDetection(Align const align, Interval const interval,
+			char * readPartSeq, Interval & leftOfInv, Interval & rightOfInv, MappedRead * read);
 
-	bool inversionDetectionArndt(Align const align, Interval const interval, int const length,
-				char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv, Interval & inv, char const * const readName);
+	bool validateInversion(Align const align, AlignmentBuffer::Interval const interval,
+			int startInv, int stopInv, int startInvRead, int stopInvRead,
+			char * fullReadSeq,
+			AlignmentBuffer::Interval & leftOfInv,
+			AlignmentBuffer::Interval & rightOfInv,
+			MappedRead * read);
+
+//	bool inversionDetectionArndt(Align const align, Interval const interval, int const length,
+//			char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv, Interval & inv, char const * const readName);
 
 	void processLongRead(ReadGroup * group);
 	void processLongReadLIS(ReadGroup * group);
 
 	int computeMappingQuality(Align const & alignment, int readLength);
+
+	void printDotPlotLine(int const id, char const * const name,
+			int const onReadStart, int const onReadStop, loc const onRefStart,
+			loc const onRefStop, float const score, bool const isReverse,
+			int const type, int const status);
+
+	void printDotPlotLine(int const id, char const * const name,
+			REAL const m, REAL const b, REAL const r, float const score,
+			bool const isReverse, int const type, int const status);
 
 	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
 	batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(
@@ -207,7 +250,7 @@ public:
 	corridor(Config.GetInt("corridor")),
 	refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
 	min_mq(Config.GetInt(MIN_MQ)),
-	aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(Config.GetInt(PACBIOLOG) == 1), readCoordsTree(0) {
+	aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(Config.GetInt(PACBIOLOG) == 1), readCoordsTree(0), readPartLength(Config.GetInt(READ_PART_LENGTH)) {
 		pairInsertSum = 0;
 		pairInsertCount = 0;
 		brokenPairs = 0;
@@ -273,6 +316,12 @@ public:
 			first = false;
 		}
 
+		stdoutPrintDotPlot = Config.GetInt(STDOUT) == 1;
+		stdoutInversionBed = Config.GetInt(STDOUT) == 2;
+		stdoutErrorProfile = Config.GetInt(STDOUT) == 3;
+		printInvCandidateFa = Config.GetInt(STDOUT) == 4;
+		stdoutPrintMappedSegments = Config.GetInt(STDOUT) == 5;
+
 		Log.Verbose("Alignment batchsize = %i", batchSize);
 
 	}
@@ -334,6 +383,7 @@ public:
 
 	void SaveRead(MappedRead* read, bool mapped = true);
 	void WriteRead(MappedRead* read, bool mapped);
-};
+}
+;
 
 #endif

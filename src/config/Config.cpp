@@ -536,6 +536,10 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("sensitivity", 0.8f);
 		Default("corridor", 80);
 
+		Default(READ_PART_LENGTH, 512);
+
+		Default(STDOUT, 0);
+
 
 
 //#ifdef __APPLE__

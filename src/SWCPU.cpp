@@ -200,11 +200,14 @@ int SWCPUCor::printCigarElement(char const op, int const length, char * cigar) {
 	return offset;
 }
 
-void addPosition(Align & result, int & nmIndex, int posInRef, int Yi) {
-	//result.nmPerPosition[nmIndex].readPosition = posInRead;
-	result.nmPerPosition[nmIndex].refPosition = posInRef;
-	result.nmPerPosition[nmIndex].nm = Yi;
-	nmIndex += 1;
+void addPosition(Align & result, int & nmIndex, int posInRef, int posInRead,
+		int Yi) {
+	if (posInRead > 16 && posInRef > 16) {
+		result.nmPerPosition[nmIndex].readPosition = posInRead - 16;
+		result.nmPerPosition[nmIndex].refPosition = posInRef - 16;
+		result.nmPerPosition[nmIndex].nm = Yi;
+		nmIndex += 1;
+	}
 }
 
 int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
@@ -227,8 +230,8 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	int nmIndex = 0;
 	int exactAlignmentLength = 0;
 
-	int perWindowSum = 0;
-	int windowNumber = 0;
+//	int perWindowSum = 0;
+//	int windowNumber = 0;
 
 	int finalCigarLength = 0;
 
@@ -263,7 +266,6 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	int md_eq_length = 0;
 	int ref_index = 0;
 
-	int walk = 0;
 	int overallMatchCount = 0;
 
 	//uint const maxIndelLength = 5;
@@ -272,7 +274,6 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	//Inversion detection Arndt
 	int Yi = 0;
 
-//	fprintf(stderr, "Buffer: %llu", buffer);
 	for (int j = gpuCigarOffset + 1; j < (alignment_length - 1); ++j) {
 		int op = gpuCigar[j] & 15;
 		int length = gpuCigar[j] >> 4;
@@ -296,27 +297,13 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 				buffer = buffer << 1;
 				buffer = buffer | 1;
 
-				Yi = std::max(0, Yi + 1);
-				addPosition(result, nmIndex, posInRef++, Yi);
+//				Yi = std::max(0, Yi + 1);
+				Yi = NumberOfSetBits(buffer);
+				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
 			}
 			md_eq_length = 0;
 
-//			if (bufferLength < 32) {
-//				buffer = buffer << bufferLength;
-//			} else {
-//				buffer = 0;
-//			}
-//			buffer = buffer | (uint) (pow(2.0, bufferLength) - 1);
-//			posInRef += length;
-			posInRead += length;
-
 			exactAlignmentLength += length;
-//			fprintf(stderr, "%d x X: shifting by %d\n", length, bufferLength);
-//			fprintf(stderr, "Buffer: %llu (%d)\n", buffer,
-//					NumberOfSetBits(buffer));
-//			fprintf(stderr, "Buffer: %d\n", NumberOfSetBits(buffer));
-
-			walk += length;
 
 			break;
 		case CIGAR_EQ:
@@ -325,28 +312,16 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 			ref_index += length;
 			matches += length;
 
-			if (bufferLength < 32) {
-				buffer = buffer << bufferLength;
-			} else {
-				buffer = 0;
-			}
-//			posInRef += length;
-			posInRead += length;
-			exactAlignmentLength += length;
-
-//			fprintf(stderr, "%d x =: shifting by %d\n", length, bufferLength);
-//			fprintf(stderr, "Buffer: %llu (%d)\n", buffer,
-//					NumberOfSetBits(buffer));
-//			fprintf(stderr, "Buffer: %d\n", NumberOfSetBits(buffer));
-
-			walk = std::max(0, walk - length);
-
 			overallMatchCount += length;
 
 			for (int k = 0; k < length; ++k) {
-				Yi = std::max(0, Yi - 1);
-				addPosition(result, nmIndex, posInRef++, Yi);
+				buffer = buffer << 1;
+//				Yi = std::max(0, Yi - 1);
+				Yi = NumberOfSetBits(buffer);
+				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
 			}
+
+			exactAlignmentLength += length;
 
 			break;
 		case CIGAR_D:
@@ -365,34 +340,15 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 
 			for (int k = 0; k < length; ++k) {
 				result.pQry[md_offset++] = refSeq[ref_index++];
+				buffer = buffer << 1;
 				if (k < maxIndelLength) {
+					buffer = buffer | 1;
 					Yi = std::max(0, Yi + 1);
 				}
-				addPosition(result, nmIndex, posInRef++, Yi);
+				addPosition(result, nmIndex, posInRef++, posInRead, Yi);
 			}
 
-//			if (length > 1) {
-
-//			}
-			if (bufferLength < 32) {
-				buffer = buffer << bufferLength;
-			} else {
-				buffer = 0;
-			}
-//			buffer = buffer | 1;
-			buffer = buffer
-					| (uint) (pow(2.0, std::min(maxIndelLength, bufferLength))
-							- 1);
-
-//			posInRef += length;
 			exactAlignmentLength += length;
-
-//			fprintf(stderr, "%d x D: shifting by %d\n", length, bufferLength);
-//			fprintf(stderr, "Buffer: %llu (%d)\n", buffer,
-//					NumberOfSetBits(buffer));
-//			fprintf(stderr, "Buffer: %d\n", NumberOfSetBits(buffer));
-
-			walk += 1;
 
 			break;
 		case CIGAR_I:
@@ -406,35 +362,17 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 					result.pRef + cigar_offset);
 			finalCigarLength += length;
 
-//			if (length > 1) {
-
-//			}
-			if (bufferLength < 32) {
-				buffer = buffer << bufferLength;
-			} else {
-				buffer = 0;
+			for (int k = 0; k < length; ++k) {
+				buffer = buffer << 1;
+				if (k < maxIndelLength) {
+					buffer = buffer | 1;
+					Yi = std::max(0, Yi + 1);
+				}
+//				addPosition(result, nmIndex, posInRef++, posInRead, Yi);
+				posInRead += 1;
 			}
-//			buffer = buffer | 1;
-			buffer = buffer
-					| (uint) (pow(2.0, std::min(maxIndelLength, bufferLength))
-							- 1);
 
-//			posInAligment += length;
-			posInRead += length;
 			exactAlignmentLength += length;
-
-//			fprintf(stderr, "%d x I: shifting by %d\n", length, bufferLength);
-//			fprintf(stderr, "Buffer: %llu (%d)\n", buffer,
-//					NumberOfSetBits(buffer));
-//			fprintf(stderr, "Buffer: %d\n", NumberOfSetBits(buffer));
-
-//			if(length > 1) {
-			walk += 1;
-//			}
-
-			for (int k = 0; k < std::min(maxIndelLength, (uint) length); ++k) {
-				Yi = std::max(0, Yi + 1);
-			}
 
 			break;
 		default:
@@ -453,12 +391,12 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 //		int mmPerWindow = NumberOfSetBits(buffer);
 //		result.nmPerPosition[nmIndex].readPosition = posInRead;
 //		result.nmPerPosition[nmIndex].refPosition = posInRef;
-////		result.nmPerPosition[nmIndex].nm = walk;
+//		result.nmPerPosition[nmIndex].nm = walk;
 //		result.nmPerPosition[nmIndex].nm = mmPerWindow;
 //		nmIndex += 1;
 
 //		perWindowSum += mmPerWindow;
-		windowNumber += 1;
+//		windowNumber += 1;
 	}
 	//*********************//
 	//Print last element
@@ -488,7 +426,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	result.Identity = matches * 1.0f / total;
 	result.pRef[cigar_offset] = '\0';
 	result.pQry[md_offset] = '\0';
-	result.NM = perWindowSum * 1.0f / windowNumber;
+//	result.NM = perWindowSum * 1.0f / windowNumber;
 	result.alignmentLength = exactAlignmentLength;
 
 //	fprintf(stderr, "\n==== Matches: %d of %d ====\n", overallMatchCount,

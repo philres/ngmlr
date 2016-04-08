@@ -46,8 +46,8 @@ int maxHitTableIndex;
 int m_CurrentReadLength;
 
 ReadProvider::ReadProvider() :
-		//bufferLength based on max read length of 1MB and read part length of 512
-		readPartLength(512), bufferLength(2000), readBuffer(
+		//bufferLength based on max read length of 1MB and read part length of readPartLength
+		readPartLength(Config.GetInt(READ_PART_LENGTH)), bufferLength(2000), readBuffer(
 				new MappedRead *[bufferLength]), readsInBuffer(0), parser1(0), parser2(
 				0), peDelimiter(
 		Config.GetString("pe_delimiter")[0]), isPaired(
@@ -181,12 +181,12 @@ uint ReadProvider::init() {
 	uint readCount = 0;
 	Timer tmr;
 	tmr.ST();
-	size_t maxLen = 512;
+	size_t maxLen = readPartLength;
 	bool estimate = !(Config.Exists("skip_estimate")
 			&& Config.GetInt("skip_estimate"));
 	if (!Config.Exists("qry_max_len") || estimate) {
 
-		int avgLen = 512;
+		int avgLen = readPartLength;
 
 //		if (maxLen > maxReadLength) {
 //			Log.Warning("Max. supported read length is 1000bp. All reads longer than 1000bp will be hard clipped in the output.");
@@ -196,7 +196,7 @@ uint ReadProvider::init() {
 		((_Config*) _config)->Override("qry_max_len", (int) maxLen);
 		((_Config*) _config)->Override("qry_avg_len", (int) avgLen);
 
-		Log.Message("Average read length: %d (min: %d, max: %d)", avgLen, 512, maxLen);
+		Log.Message("Average read length: %d (min: %d, max: %d)", avgLen, readPartLength, maxLen);
 
 		if (Config.Exists("corridor")) {
 			Log.Warning("Corridor witdh overwritten!");

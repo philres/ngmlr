@@ -27,7 +27,8 @@ add_executable(ngm-core
 					config/Config.cpp					
 					CS.cpp					
 					CSstatic.cpp
-					misc/Debug.cpp													
+					misc/Debug.cpp
+					misc/LinearRegression.cpp													
 					log/Logging.cpp
 					MappedRead.cpp
 					NGM_main.cpp
@@ -71,7 +72,8 @@ add_executable(ngm-core-debug
 					config/Config.cpp					
 					CS.cpp					
 					CSstatic.cpp
-					misc/Debug.cpp													
+					misc/Debug.cpp
+					misc/LinearRegression.cpp													
 					log/Logging.cpp
 					MappedRead.cpp
 					NGM_main.cpp
