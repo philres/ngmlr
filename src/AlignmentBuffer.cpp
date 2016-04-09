@@ -319,27 +319,33 @@ int * AlignmentBuffer::cLIS(Anchor * anchors, int const anchorsLenght,
 			trace[i] = -1;
 
 			for (int j = i - 1; j >= 0; j--) {
-				loc iRef =
-						(anchors[i].isReverse) ?
-								-1 * anchors[i].onRef : anchors[i].onRef;
-				loc jRef =
-						(anchors[j].isReverse) ?
-								-1 * anchors[j].onRef : anchors[j].onRef;
-				loc refDiff = llabs(iRef - jRef);
 
-				loc readDiff = abs(anchors[i].onRead - anchors[j].onRead);
+				loc iRef = anchors[i].onRef;
+				loc jRef = anchors[j].onRef;
+
+				loc refDiff = 0;
+				if(anchors[j].isReverse) {
+					refDiff = jRef - iRef;
+				} else {
+					refDiff = iRef - jRef;
+				}
+
+				loc readDiff = anchors[i].onRead - anchors[j].onRead;
 
 				loc diff = llabs(refDiff - readDiff);
-
-//				Log.Message("cLIS: (rev %d, %d) %lld;%lld -  %lld - %lld = %lld; read %lld; diff %lld", anchors[j].isReverse, anchors[i].isReverse , anchors[i].onRef, anchors[j].onRef,  iRef, jRef, diff, readDiff, diff);
+				loc maxDiff = std::max(llabs(refDiff), readDiff) * 0.25;
+				loc maxRefDiff = readPartLength * 2.0f;
+//				Log.Message("cLIS: (rev %d, %d) ref %lld - %lld = %lld; read %d - %d = %d; diff %lld < %lld", anchors[j].isReverse, anchors[i].isReverse, iRef, jRef, refDiff, anchors[i].onRead, anchors[j].onRead, readDiff, diff, maxDiff);
 
 				if (DP[j] + 1 > DP[i] // New LIS must be longer then best so far
-				&& anchors[j].isReverse == anchors[i].isReverse //Anchors have to be on the same strand to be joined!
-						&& (diff < std::max(refDiff, readDiff) * 0.25f // The distance between the two anchors on the read and on the reference should not exceed a threshold. Adhoc threshold of 15% (INDEL sequencing error was to littel). 25% works better.
+						&& anchors[j].isReverse == anchors[i].isReverse //Anchors have to be on the same strand to be joined!
+						&& (diff < maxDiff // The distance between the two anchors on the read and on the reference should not exceed a threshold. Adhoc threshold of 15% (INDEL sequencing error was to littel). 25% works better.
 								|| (anchors[i].onRead == anchors[j].onRead
-										&& llabs(refDiff) < readPartLength) // if anchors stem from the same read position accept ref positions that are in close proximity (to avoid additional segments caused be anchors that are only a few bp off)
-						) && refDiff < readPartLength * 2.0f // Distance between anchors must be smaller than twice the anchor length. With this, gaps break the segment even if they are on the same "diagonal"
+										&& llabs(refDiff) <= readPartLength) // if anchors stem from the same read position accept ref positions that are in close proximity (to avoid additional segments caused be anchors that are only a few bp off)
+						) && refDiff < maxRefDiff // Distance between anchors must be smaller than twice the anchor length. With this, gaps break the segment even if they are on the same "diagonal"
+						  && refDiff >= 0 // And is not allowed to be negative (only if read position is the same, see above)
 								) {
+//					Log.Message("---> OK!");
 					DP[i] = DP[j] + 1;
 					trace[i] = j;
 				}
@@ -422,7 +428,9 @@ bool AlignmentBuffer::isCompatible(Interval a, Interval b) {
 	REAL corridorSize = 2048;
 
 	// Short intervals don't reliably define a corridor.
-	if ((b.onReadStop - b.onReadStart) > readPartLength) {
+//	if ((b.onReadStop - b.onReadStart) > readPartLength) {
+	// Check if regression worked on read
+	if (b.m != 0 && b.b != 0 && (b.r * b.r) > 0.8f) {
 
 		if (a.isReverse == b.isReverse) {
 			// a and b are on the same strand
@@ -730,6 +738,13 @@ AlignmentBuffer::Interval * AlignmentBuffer::infereCMRsfromAnchors(
 
 			// Linear regression for segment
 			REAL m,b,r;
+			if(pointNumber == 1) {
+				regX[0] = minOnRef;
+				regY[0] = minOnRead;
+				regX[1] = maxOnRef;
+				regY[1] = maxOnRead;
+				pointNumber = 2;
+			}
 			linreg(pointNumber,regX,regY,&m,&b,&r);
 			delete[] regX; regX = 0;
 			delete[] regY; regY = 0;
@@ -1211,7 +1226,7 @@ Align AlignmentBuffer::alignInterval(MappedRead const * const read_,
 				readSeqLen, QStart, QEnd, read_->length);
 	} catch (int e) {
 		Log.Error("Error occurred while aligning read %s", read_->name);
-		Fatal();
+//		Fatal();
 	}
 
 	alignTime += alignTimer.ET();
