@@ -70,7 +70,7 @@ private:
 	int const readPartLength;
 
 	void debugAlgnFinished(MappedRead * read);
-	bool alignmentCheckForInversion(int const inversionLength,
+	int alignmentCheckForInversion(int const inversionLength,
 			const int refCheckLength, SequenceLocation inversionCheckLocation,
 			uloc inversionMidpointOnRead, const char* const readName,
 			int inversionNumber, char* fullReadSeq);
@@ -90,6 +90,11 @@ public:
 #define DP_STATUS_NOHIT 2
 #define DP_STATUS_LOWSCORE 3
 #define DP_STATUS_NOCOORDS 4
+
+#define SV_NONE 0
+#define SV_INVERSION 1
+#define SV_TRANSLOCATION 2
+#define SV_UNKNOWN 3
 
 	struct Interval {
 		int onReadStart;
@@ -196,7 +201,7 @@ public:
 			char * const readSeq, size_t const readSeqLen);
 	void alignSingleOrMultipleIntervals(MappedRead * read, Interval interval, LocationScore * tmp, Align * tmpAling, int & alignIndex);
 
-	bool alignInversion(Interval interval, Interval leftOfInv,
+	int realign(int svType, Interval interval, Interval leftOfInv,
 			Interval rightOfInv, MappedRead * read, Align * tmpAling,
 			int & alignIndex, LocationScore * tmp, int mq);
 
@@ -215,10 +220,10 @@ public:
 	Interval * consolidateSegments(MappedSegment * segments, size_t segmentsIndex, int & intervalsIndex);
 	void consolidateSegment(Interval * interval, int & intervalsIndex, MappedSegment segment);
 
-	bool inversionDetection(Align const align, Interval const interval,
+	int detectMisalignment(Align const align, Interval const interval,
 			char * readPartSeq, Interval & leftOfInv, Interval & rightOfInv, MappedRead * read);
 
-	bool validateInversion(Align const align, AlignmentBuffer::Interval const interval,
+	int checkForSV(Align const align, AlignmentBuffer::Interval const interval,
 			int startInv, int stopInv, int startInvRead, int stopInvRead,
 			char * fullReadSeq,
 			AlignmentBuffer::Interval & leftOfInv,

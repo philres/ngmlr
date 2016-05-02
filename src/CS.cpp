@@ -28,7 +28,10 @@ int kCount = 0;
 //Default values
 int x_SrchTableBitLen = 24;
 //Number of bases per batch
-int const cBatchSize = 1800000;
+//Default batch size
+//int const cBatchSize = 1800000;
+// Reduced batch size (for low read number PacBio samples)
+int const cBatchSize = 100000;
 //int const cBatchSize =   10000;
 uint const cPrefixBaseSkip = 0;
 

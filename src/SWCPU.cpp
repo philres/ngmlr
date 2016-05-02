@@ -382,7 +382,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 				std::cout << gpuCigar[x] << " ";
 			}
 			std::cout << std::endl;
-			exit(1);
+			throw 1;
 		}
 
 		//*********************//

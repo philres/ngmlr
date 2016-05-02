@@ -137,7 +137,8 @@ _SequenceProvider::Chromosome _SequenceProvider::getChrStart(
 		uloc const position) {
 	if (position < 1000) {
 		Log.Message("Can't get starting position of chromosome (%llu).", position);
-		Fatal();
+//		upper += 1;
+//		Fatal();
 	}
 	//Find the next larger chromosome start position in the concatenated reference for the mapping location
 	uloc * upper = std::upper_bound(refStartPos,
