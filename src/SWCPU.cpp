@@ -377,11 +377,11 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 			break;
 		default:
 			fprintf(stderr, "Invalid cigar string: %d\n", op);
-			std::cout << "Offset: " << gpuCigarOffset << std::endl;
+			std::cerr << "Offset: " << gpuCigarOffset << std::endl;
 			for (int x = 0; x < alignment_length * 2; ++x) {
-				std::cout << gpuCigar[x] << " ";
+				std::cerr << gpuCigar[x] << " ";
 			}
-			std::cout << std::endl;
+			std::cerr << std::endl;
 			throw 1;
 		}
 
