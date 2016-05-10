@@ -136,7 +136,7 @@ static inline char dec4Low(unsigned char c) {
 _SequenceProvider::Chromosome _SequenceProvider::getChrStart(
 		uloc const position) {
 	if (position < 1000) {
-		Log.Message("Can't get starting position of chromosome (%llu).", position);
+		Log.Verbose("Can't get starting position of chromosome (%llu).", position);
 //		upper += 1;
 //		Fatal();
 	}
@@ -145,7 +145,7 @@ _SequenceProvider::Chromosome _SequenceProvider::getChrStart(
 			refStartPos + (refCount / 2) + 1, position);
 	//Check whether the mapping position is in one of the spacer regions between the chromosomes
 	if ((*upper - position) < 1000) {
-		Log.Message("Can't get starting position of chromosome (%llu - %llu = %llu).", *upper, position, *upper - position);
+		Log.Verbose("Can't get starting position of chromosome (%llu - %llu = %llu).", *upper, position, *upper - position);
 //		Fatal();
 		upper += 1;
 	}

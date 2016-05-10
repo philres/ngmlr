@@ -1665,9 +1665,9 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 	std::sort(mappedSegements.begin(), mappedSegements.end(),
 			sortMappedSegements);
 	for (int i = 0; i < mappedSegements.size(); ++i) {
-		if (pacbioDebug) {
+//		if (pacbioDebug) {
 			Log.Message("%d: Read: %d - %d, Ref: %llu - %llu (%d) - %f - %d", mappedSegements[i].value->id, mappedSegements[i].value->onReadStart, mappedSegements[i].value->onReadStop, mappedSegements[i].value->onRefStart, mappedSegements[i].value->onRefStop, mappedSegements[i].value->isReverse, mappedSegements[i].value->score, mappedSegements[i].value->isProcessed);
-		}
+//		}
 
 		if(!readIsReverse) {
 			printDotPlotLine(read->ReadId, read->name,
@@ -1719,6 +1719,7 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 								Log.Message("%d is fully contained in %d on read", results[j].value->id, mappedSegements[i].value->id);
 							}
 							results[j].value->isProcessed = true;
+							read->Alignments[results[j].value->id].skip = true;
 						}
 					} else {
 						if(isValidOverlapRef(results[j].value,

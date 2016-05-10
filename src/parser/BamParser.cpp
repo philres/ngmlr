@@ -31,7 +31,6 @@ void BamParser::parseBedFile(char const * fileName) {
 
 	while (std::getline(input, line)) {
 		if(line.length() > 5) {
-			std::cerr << line << '\n';
 
 			BamRegion region;
 
@@ -46,15 +45,11 @@ void BamParser::parseBedFile(char const * fileName) {
 			region.LeftRefID = reader.GetReferenceID(token);
 			region.RightRefID = reader.GetReferenceID(token);
 
-			std::cerr << "1: " << token << std::endl;
-
 			int lastPos = pos + 1;
 			pos = line.find(delimiter, lastPos);
 			token = line.substr(lastPos, pos - lastPos); // token is "scott"
 
 			region.LeftPosition = atoi(token.c_str());
-
-			std::cerr << "2: " << token << std::endl;
 
 			lastPos = pos + 1;
 			pos = line.find(delimiter, lastPos);
@@ -62,7 +57,6 @@ void BamParser::parseBedFile(char const * fileName) {
 
 			region.RightPosition = atoi(token.c_str());
 
-			std::cerr << "3: " << token << std::endl;
 
 			regions.push_back(region);
 
@@ -87,7 +81,6 @@ void BamParser::parseRealignFile(char const * fileName) {
 
 	while (std::getline(input, line)) {
 		if(line.length() > 5) {
-			std::cerr << line << '\n';
 
 			int pos = 0;
 			int lastPos = 0;
@@ -99,7 +92,6 @@ void BamParser::parseRealignFile(char const * fileName) {
 			pos = line.find(delimiter);
 			std::string token = line.substr(0, pos); // token is "scott"
 
-			std::cerr << "0: " << token << std::endl;
 
 			lastPos = pos + 1;
 			pos = line.find(delimiter, lastPos);
@@ -112,7 +104,6 @@ void BamParser::parseRealignFile(char const * fileName) {
 			region.LeftRefID = reader.GetReferenceID(token);
 			region.RightRefID = region.LeftRefID;
 
-			std::cerr << "1: " << token << std::endl;
 
 			lastPos = pos + 1;
 			pos = line.find(delimiter, lastPos);
@@ -125,7 +116,6 @@ void BamParser::parseRealignFile(char const * fileName) {
 
 			BamRegion region2;
 
-			std::cerr << "2: " << token << std::endl;
 
 			lastPos = pos + 1;
 			pos = line.find(delimiter, lastPos);
@@ -134,7 +124,6 @@ void BamParser::parseRealignFile(char const * fileName) {
 			region2.LeftRefID = reader.GetReferenceID(token);
 			region2.RightRefID = region.LeftRefID;
 
-			std::cerr << "3: " << token << std::endl;
 
 			lastPos = pos + 1;
 			pos = line.find(delimiter, lastPos);
@@ -143,7 +132,6 @@ void BamParser::parseRealignFile(char const * fileName) {
 			region2.LeftPosition = atoi(token.c_str());
 			region2.RightPosition = region.LeftPosition + 1;
 
-			std::cerr << "4: " << token << std::endl;
 
 			regions.push_back(region2);
 
@@ -169,7 +157,6 @@ void BamParser::parseSnifflesFile(char const * fileName) {
 
 	while (std::getline(input, line)) {
 		if(line.length() > 5) {
-			std::cerr << line << '\n';
 
 			BamRegion region;
 
@@ -184,7 +171,6 @@ void BamParser::parseSnifflesFile(char const * fileName) {
 			region.LeftRefID = reader.GetReferenceID(token);
 			region.RightRefID = reader.GetReferenceID(token);
 
-			std::cerr << "1: " << token << std::endl;
 
 			int lastPos = pos + 1;
 			pos = line.find(delimiter, lastPos);
@@ -192,7 +178,6 @@ void BamParser::parseSnifflesFile(char const * fileName) {
 
 			region.LeftPosition = atoi(token.c_str());
 
-			std::cerr << "2: " << token << std::endl;
 
 			lastPos = pos + 1;
 			pos = line.find(delimiter, lastPos);
@@ -200,7 +185,6 @@ void BamParser::parseSnifflesFile(char const * fileName) {
 
 			region.RightPosition = atoi(token.c_str());
 
-			std::cerr << "3: " << token << std::endl;
 
 			regions.push_back(region);
 
@@ -213,7 +197,6 @@ void BamParser::parseSnifflesFile(char const * fileName) {
 			region2.LeftRefID = reader.GetReferenceID(token);
 			region2.RightRefID = reader.GetReferenceID(token);
 
-			std::cerr << "4: " << token << std::endl;
 
 			lastPos = pos + 1;
 			pos = line.find(delimiter, lastPos);
@@ -221,7 +204,6 @@ void BamParser::parseSnifflesFile(char const * fileName) {
 
 			region2.LeftPosition = atoi(token.c_str());
 
-			std::cerr << "5: " << token << std::endl;
 
 			lastPos = pos + 1;
 			pos = line.find(delimiter, lastPos);
@@ -229,7 +211,6 @@ void BamParser::parseSnifflesFile(char const * fileName) {
 
 			region.RightPosition = atoi(token.c_str());
 
-			std::cerr << "6: " << token << std::endl;
 
 			regions.push_back(region2);
 
