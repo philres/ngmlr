@@ -384,8 +384,7 @@ bool AlignmentBuffer::isSameDirection(Interval a, Interval b) {
 	return a.isReverse == b.isReverse;
 }
 
-bool isIntervalInCorridor(REAL k, REAL d, REAL corridor,
-		AlignmentBuffer::Interval testee) {
+bool isIntervalInCorridor(REAL k, REAL d, REAL corridor, Interval testee) {
 
 	bool inCorridor = false;
 	REAL y = testee.onReadStart;
@@ -443,6 +442,9 @@ bool AlignmentBuffer::isCompatible(Interval a, Interval b) {
 		if (a.isReverse == b.isReverse) {
 			// a and b are on the same strand
 			isCompatible = isIntervalInCorridor(b.m, b.b, corridorSize, a);
+
+			// Check for duplication (overlapping ends)
+
 		} else {
 			if (pacbioDebug) {
 				Log.Message("Intervals not on same strand");
@@ -475,21 +477,20 @@ bool AlignmentBuffer::isContained(Interval a, Interval b) {
 			&& a.isReverse == b.isReverse;
 }
 
-bool AlignmentBuffer::isContainedOnRead(Interval a, Interval b) {
-	if (abs(a.onReadStop - a.onReadStart) > abs(b.onReadStop - b.onReadStart)) {
-		Interval tmp;
-		tmp = a;
-		a = b;
-		b = tmp;
-	}
-	bool isContained = a.onReadStart >= b.onReadStart
-			&& a.onReadStop <= b.onReadStop;
+//bool AlignmentBuffer::isContainedOnRead(Interval a, Interval b) {
+//	if (abs(a.onReadStop - a.onReadStart) > abs(b.onReadStop - b.onReadStart)) {
+//		Interval tmp;
+//		tmp = a;
+//		a = b;
+//		b = tmp;
+//	}
+//	bool isContained = a.onReadStart >= b.onReadStart
+//			&& a.onReadStop <= b.onReadStop;
+//
+//	return isContained;
+//}
 
-	return isContained;
-}
-
-AlignmentBuffer::Interval AlignmentBuffer::mergeIntervals(Interval a,
-		Interval b) {
+Interval AlignmentBuffer::mergeIntervals(Interval a, Interval b) {
 	if (a.onReadStart > b.onReadStart) {
 		a.onReadStart = b.onReadStart;
 		a.onRefStart = b.onRefStart;
@@ -551,15 +552,65 @@ bool AlignmentBuffer::constructMappedSegements(MappedSegment * segments,
 	return true;
 }
 
+bool AlignmentBuffer::isDuplication(Interval a, int ttt, Interval b) {
+
+//	Log.Message("A: %lld, %lld", a.onRefStart, a.onRefStop);
+//	Log.Message("B: %lld, %lld", b.onRefStart, b.onRefStop);
+
+	int diffOnRead = 0;
+	loc diffOnRef = 0;
+	if (a.isReverse) {
+		if (b.onRefStop < a.onRefStop) {
+			Interval tmp = a;
+			a = b;
+			b = tmp;
+		}
+
+		//Log.Message("IsDuplication reverse:");
+		//Log.Message("Diff on Ref: %lld", b.onRefStop - a.onRefStart);
+		//Log.Message("Diff on Read: %d", b.onReadStop - a.onReadStart);
+
+		diffOnRead = abs(b.onReadStop - a.onReadStart);
+		diffOnRef = llabs(b.onRefStop - a.onRefStart);
+
+	} else {
+
+		if (b.onRefStart < a.onRefStart) {
+			Interval tmp = a;
+			a = b;
+			b = tmp;
+		}
+
+		diffOnRead = abs(b.onReadStart - a.onReadStop);
+		diffOnRef = llabs(b.onRefStart - a.onRefStop);
+
+	}
+
+//	Log.Message("Diff on Ref: %lld", diffOnRef);
+//	Log.Message("Diff on Read: %d", diffOnRead);
+//	Log.Message("IsDuplication: %d", diffOnRef >= readPartLength && diffOnRead <= readPartLength);
+
+//	Log.Message("===========================");
+
+	return diffOnRef >= readPartLength && diffOnRead <= readPartLength;
+}
+
 void AlignmentBuffer::consolidateSegment(Interval * intervals,
 		int & intervalsIndex, MappedSegment segment) {
+
+//	Log.Message("--------------");
+//	for (int i = 0; i < segment.length; ++i) {
+//		Log.Message("%d", i);
+//		segment.list[i].print();
+//	}
 
 	Interval lastInterval = segment.list[0];
 	Interval currentInterval;
 
 	for (int i = 1; i < segment.length; ++i) {
 		currentInterval = segment.list[i];
-		if (isSameDirection(currentInterval, lastInterval)) {
+		if (isSameDirection(currentInterval, lastInterval)
+				&& !isDuplication(currentInterval, 0, lastInterval)) {
 			lastInterval = mergeIntervals(currentInterval, lastInterval);
 		} else {
 			//Add lastInterval
@@ -569,15 +620,15 @@ void AlignmentBuffer::consolidateSegment(Interval * intervals,
 	}
 	intervals[intervalsIndex++] = lastInterval;
 
+//	Log.Message("--------------");
 }
 
-bool sortIntervalsInSegment(AlignmentBuffer::Interval a,
-		AlignmentBuffer::Interval b) {
+bool sortIntervalsInSegment(Interval a, Interval b) {
 	return a.onReadStart < b.onReadStart;
 }
 
-AlignmentBuffer::Interval * AlignmentBuffer::consolidateSegments(
-		MappedSegment * segments, size_t segmentsIndex, int & intervalsIndex) {
+Interval * AlignmentBuffer::consolidateSegments(MappedSegment * segments,
+		size_t segmentsIndex, int & intervalsIndex) {
 
 	if (pacbioDebug) {
 		Log.Message("============================");
@@ -610,9 +661,9 @@ AlignmentBuffer::Interval * AlignmentBuffer::consolidateSegments(
  * Intervals are continues candidate mapping for a read or parts of the
  * read. Contains repeatedly computing cLIS and reconciling of the found
  * intervals. */
-AlignmentBuffer::Interval * AlignmentBuffer::infereCMRsfromAnchors(
-		int & intervalsIndex, Anchor * allFwdAnchors, int allFwdAnchorsLength,
-		Anchor * allRevAnchors, int allRevAnchorsLength, MappedRead * read) {
+Interval * AlignmentBuffer::infereCMRsfromAnchors(int & intervalsIndex,
+		Anchor * allFwdAnchors, int allFwdAnchorsLength, Anchor * allRevAnchors,
+		int allRevAnchorsLength, MappedRead * read) {
 
 	if (pacbioDebug) {
 		Log.Message("Finding LIS for read %d", read->ReadId);
@@ -984,11 +1035,10 @@ int AlignmentBuffer::alignmentCheckForInversion(int const inversionLength,
 	return svType;
 }
 
-int AlignmentBuffer::checkForSV(Align const align,
-		AlignmentBuffer::Interval const interval, int startInv, int stopInv,
-		int startInvRead, int stopInvRead, char * fullReadSeq,
-		AlignmentBuffer::Interval & leftOfInv,
-		AlignmentBuffer::Interval & rightOfInv, MappedRead * read) {
+int AlignmentBuffer::checkForSV(Align const align, Interval const interval,
+		int startInv, int stopInv, int startInvRead, int stopInvRead,
+		char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv,
+		MappedRead * read) {
 
 	int len = 0;
 
@@ -1562,16 +1612,35 @@ int AlignmentBuffer::computeMappingQuality(Align const & alignment,
 	return (int) (mqSum * 1.0f / mqCount);
 }
 
-bool sortMappedSegements(IntervalTree::Interval<AlignmentBuffer::Interval *> a,
-		IntervalTree::Interval<AlignmentBuffer::Interval *> b) {
+bool sortMappedSegements(IntervalTree::Interval<Interval *> a,
+		IntervalTree::Interval<Interval *> b) {
 //	return a.value.onReadStart < b.value.onReadStart;
 //	return a.value->score > b.value->score;
 	return (a.value->onReadStop - a.value->onReadStart)
 			> (b.value->onReadStop - b.value->onReadStart);
 }
 
-bool isFullyContainedOnRead(AlignmentBuffer::Interval * shortInterval,
-		AlignmentBuffer::Interval * longInterval) {
+bool isContainedOnRead(Interval * shortInterval, Interval * longInterval,
+		float minOverlap) {
+
+	if(longInterval->onReadStart > shortInterval->onReadStart) {
+		Interval * tmp = longInterval;
+		longInterval = shortInterval;
+		shortInterval = tmp;
+	}
+
+
+	int threshold = minOverlap
+			* abs(shortInterval->onReadStop - shortInterval->onReadStart);
+
+	int overlap = std::max(0, longInterval->onReadStop - shortInterval->onReadStart);
+//	int overlap = abs(longInterval->onReadStart - shortInterval->onReadStart)
+//			+ abs(longInterval->onReadStop - shortInterval->onReadStop);
+//	Log.Message("Overlap: %d, %d", overlap, threshold);
+	return overlap > threshold;
+}
+
+bool isFullyContainedOnRead(Interval * shortInterval, Interval * longInterval) {
 
 //	int threshold = 0.01f * (longInterval->onReadStop - longInterval->onReadStart);
 	int threshold = 10;
@@ -1580,8 +1649,7 @@ bool isFullyContainedOnRead(AlignmentBuffer::Interval * shortInterval,
 					>= -threshold;
 }
 
-bool isFullyContainedOnRef(AlignmentBuffer::Interval * shortInterval,
-		AlignmentBuffer::Interval * longInterval) {
+bool isFullyContainedOnRef(Interval * shortInterval, Interval * longInterval) {
 
 //	int threshold = 0.10f * (longInterval->onReadStop - longInterval->onReadStart);
 	int threshold = 10;
@@ -1590,20 +1658,17 @@ bool isFullyContainedOnRef(AlignmentBuffer::Interval * shortInterval,
 					>= -threshold;
 }
 
-bool isFullyContained(AlignmentBuffer::Interval * shortInterval,
-		AlignmentBuffer::Interval * longInterval) {
+bool isFullyContained(Interval * shortInterval, Interval * longInterval) {
 
 	return isFullyContainedOnRead(shortInterval, longInterval)
 			&& isFullyContainedOnRef(shortInterval, longInterval);
 }
 
-bool isValidOverlap(AlignmentBuffer::Interval * shortInterval,
-		AlignmentBuffer::Interval * longInterval) {
+bool isValidOverlap(Interval * shortInterval, Interval * longInterval) {
 	return true;
 }
 
-bool isValidOverlapRef(AlignmentBuffer::Interval * shortInterval,
-		AlignmentBuffer::Interval * longInterval) {
+bool isValidOverlapRef(Interval * shortInterval, Interval * longInterval) {
 	return shortInterval->isReverse == longInterval->isReverse
 			&& shortInterval->onRefStart <= longInterval->onRefStop
 			&& shortInterval->onRefStop >= longInterval->onRefStart;
@@ -1665,9 +1730,9 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 	std::sort(mappedSegements.begin(), mappedSegements.end(),
 			sortMappedSegements);
 	for (int i = 0; i < mappedSegements.size(); ++i) {
-//		if (pacbioDebug) {
+		if (pacbioDebug) {
 			Log.Message("%d: Read: %d - %d, Ref: %llu - %llu (%d) - %f - %d", mappedSegements[i].value->id, mappedSegements[i].value->onReadStart, mappedSegements[i].value->onReadStop, mappedSegements[i].value->onRefStart, mappedSegements[i].value->onRefStop, mappedSegements[i].value->isReverse, mappedSegements[i].value->score, mappedSegements[i].value->isProcessed);
-//		}
+		}
 
 		if(!readIsReverse) {
 			printDotPlotLine(read->ReadId, read->name,
@@ -1722,6 +1787,18 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 							read->Alignments[results[j].value->id].skip = true;
 						}
 					} else {
+//						Log.Message("%d vs %d", results[j].value->id, mappedSegements[i].value->id);
+						if(isContainedOnRead(results[j].value,
+										mappedSegements[i].value, 0.5f)) {
+
+							//read->Alignments[results[j].value->id].MQ = 0;
+							if(pacbioDebug) {
+								Log.Message("%d is contained in %d on read", results[j].value->id, mappedSegements[i].value->id);
+							}
+							results[j].value->isProcessed = true;
+							read->Alignments[results[j].value->id].skip = true;
+
+						}
 						if(isValidOverlapRef(results[j].value,
 										mappedSegements[i].value)) {
 							Log.Error("Mapped segment %d overlaps with %d on read %s and reference", mappedSegements[i].value->id, results[j].value->id, read->name);

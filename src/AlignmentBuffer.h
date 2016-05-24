@@ -14,6 +14,52 @@
 #undef module_name
 #define module_name "OUTPUT"
 
+struct Interval {
+	int onReadStart;
+	int onReadStop;
+	loc onRefStart;
+	loc onRefStop;
+	double m;
+	double b;
+	double r;
+	float score;
+	short id;
+	bool isReverse;
+	bool isProcessed;
+
+	Interval() {
+		onReadStart = 0;
+		onReadStop = 0;
+		onRefStart = 0;
+		onRefStop = 0;
+		m = 0.0;
+		b = 0.0;
+		r = 0.0;
+		score = 0.0f;
+		id = 0;
+		isReverse = false;
+		isProcessed = false;
+	}
+
+	void printOneLine() {
+		Log.Message("Interval: %d - %d on read, %lu - %lu on ref, Reverse: %d, Score: %f", onReadStart, onReadStop, onRefStart, onRefStop, isReverse, score);
+//			Log.Message("\tAnchor on ref: %lu - %lu (diff: %d)", onRefStart, onRefStop, onRefStop - onRefStart);
+//			Log.Message("\tReverse: %d, Score: %f", isReverse, score);
+	}
+
+	void print() {
+		Log.Message("Interval on read: %d - %d (diff: %d)", onReadStart, onReadStop, (onReadStop - onReadStart));
+		Log.Message("\tAnchor on ref: %lu - %lu (diff: %d)", onRefStart, onRefStop, onRefStop - onRefStart);
+		Log.Message("\tReverse: %d, Score: %f", isReverse, score);
+	}
+
+	void print(int id, char * name, int intNumber) {
+//			printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name, onReadStart, onReadStop, onRefStart, onRefStop,
+//					score, isReverse, TYPE_RESULT + intNumber, STATUS_OK);
+	}
+
+};
+
 class AlignmentBuffer {
 
 private:
@@ -96,38 +142,6 @@ public:
 #define SV_TRANSLOCATION 2
 #define SV_UNKNOWN 3
 
-	struct Interval {
-		int onReadStart;
-		int onReadStop;
-		loc onRefStart;
-		loc onRefStop;
-		double m;
-		double b;
-		double r;
-		float score;
-		short id;
-		bool isReverse;
-		bool isProcessed;
-
-		void printOneLine() {
-			Log.Message("Interval: %d - %d on read, %lu - %lu on ref, Reverse: %d, Score: %f", onReadStart, onReadStop, onRefStart, onRefStop, isReverse, score);
-//			Log.Message("\tAnchor on ref: %lu - %lu (diff: %d)", onRefStart, onRefStop, onRefStop - onRefStart);
-//			Log.Message("\tReverse: %d, Score: %f", isReverse, score);
-		}
-
-		void print() {
-			Log.Message("Interval on read: %d - %d (diff: %d)", onReadStart, onReadStop, (onReadStop - onReadStart));
-			Log.Message("\tAnchor on ref: %lu - %lu (diff: %d)", onRefStart, onRefStop, onRefStop - onRefStart);
-			Log.Message("\tReverse: %d, Score: %f", isReverse, score);
-		}
-
-		void print(int id, char * name, int intNumber) {
-//			printf("%d\t%s\t%d\t%d\t%llu\t%llu\t%f\t%d\t%d\t%d\n", id, name, onReadStart, onReadStop, onRefStart, onRefStop,
-//					score, isReverse, TYPE_RESULT + intNumber, STATUS_OK);
-		}
-
-	};
-
 	// A list of intervals that are "compatible" meaning they are located in
 	// a "corridor" that is small enough to be handled by the alignment
 	// algorithm
@@ -178,20 +192,21 @@ public:
 
 	bool isCompatible(Interval a, Interval b);
 	bool isContained(Interval a, Interval b);
-	bool isContainedOnRead(Interval a, Interval b);
+//	bool isContainedOnRead(Interval a, Interval b);
 	bool isSameDirection(Interval a, Interval b);
-	Interval splitInterval(Interval a,
-			Interval b);
+	bool isDuplication(Interval, int, Interval);
+	Interval splitInterval(Interval a, Interval b);
 	Interval mergeIntervals(Interval a, Interval b);
-	Interval * infereCMRsfromAnchors(int & intervalsIndex, Anchor * allFwdAnchors, int allFwdAnchorsLength,
-			Anchor * allRevAnchors, int allRevAnchorsLength,
-			MappedRead * read);
+	Interval * infereCMRsfromAnchors(int & intervalsIndex,
+			Anchor * allFwdAnchors, int allFwdAnchorsLength,
+			Anchor * allRevAnchors, int allRevAnchorsLength, MappedRead * read);
 
 	Align computeAlignment(MappedRead* read, int const scoreId,
 			int const corridor);
 
 	Align computeAlignment(uloc const position, int const corridor,
-			char * const readSeq, size_t const readLength, int const QStart, int const QEnd, int fullReadLength);
+			char * const readSeq, size_t const readLength, int const QStart,
+			int const QEnd, int fullReadLength);
 
 	int estimateCorridor(const Interval & interval);
 	char * const extractReadSeq(const size_t& readSeqLen, Interval & interval,
@@ -199,7 +214,8 @@ public:
 
 	Align alignInterval(MappedRead const * const read, Interval const interval,
 			char * const readSeq, size_t const readSeqLen);
-	void alignSingleOrMultipleIntervals(MappedRead * read, Interval interval, LocationScore * tmp, Align * tmpAling, int & alignIndex);
+	void alignSingleOrMultipleIntervals(MappedRead * read, Interval interval,
+			LocationScore * tmp, Align * tmpAling, int & alignIndex);
 
 	int realign(int svType, Interval interval, Interval leftOfInv,
 			Interval rightOfInv, MappedRead * read, Align * tmpAling,
@@ -208,8 +224,8 @@ public:
 //	bool constructMappedSegements(Interval * intervals,
 //			Interval interval, int & intervalsIndex);
 
-	bool constructMappedSegements(MappedSegment * segments,
-			Interval interval, size_t & segmentsIndex);
+	bool constructMappedSegements(MappedSegment * segments, Interval interval,
+			size_t & segmentsIndex);
 
 //	bool sortIntervalsInSegment(Interval a, Interval b);
 
@@ -217,18 +233,19 @@ public:
 
 	void reconcileRead(ReadGroup * group);
 
-	Interval * consolidateSegments(MappedSegment * segments, size_t segmentsIndex, int & intervalsIndex);
-	void consolidateSegment(Interval * interval, int & intervalsIndex, MappedSegment segment);
+	Interval * consolidateSegments(MappedSegment * segments,
+			size_t segmentsIndex, int & intervalsIndex);
+	void consolidateSegment(Interval * interval, int & intervalsIndex,
+			MappedSegment segment);
 
 	int detectMisalignment(Align const align, Interval const interval,
-			char * readPartSeq, Interval & leftOfInv, Interval & rightOfInv, MappedRead * read);
-
-	int checkForSV(Align const align, AlignmentBuffer::Interval const interval,
-			int startInv, int stopInv, int startInvRead, int stopInvRead,
-			char * fullReadSeq,
-			AlignmentBuffer::Interval & leftOfInv,
-			AlignmentBuffer::Interval & rightOfInv,
+			char * readPartSeq, Interval & leftOfInv, Interval & rightOfInv,
 			MappedRead * read);
+
+	int checkForSV(Align const align, Interval const interval,
+			int startInv, int stopInv, int startInvRead, int stopInvRead,
+			char * fullReadSeq, Interval & leftOfInv,
+			Interval & rightOfInv, MappedRead * read);
 
 //	bool inversionDetectionArndt(Align const align, Interval const interval, int const length,
 //			char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv, Interval & inv, char const * const readName);
@@ -244,17 +261,17 @@ public:
 			int const type, int const status);
 
 	void printDotPlotLine(int const id, char const * const name,
-			REAL const m, REAL const b, REAL const r, float const score,
+	REAL const m, REAL const b, REAL const r, float const score,
 			bool const isReverse, int const type, int const status);
 
 	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
-	batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(
+			batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(
 			NGM.GetOutputFormat()),
-	alignmode(Config.GetInt(MODE, 0, 1)),
-	corridor(Config.GetInt("corridor")),
-	refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
-	min_mq(Config.GetInt(MIN_MQ)),
-	aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(Config.GetInt(PACBIOLOG) == 1), readCoordsTree(0), readPartLength(Config.GetInt(READ_PART_LENGTH)) {
+			alignmode(Config.GetInt(MODE, 0, 1)),
+			corridor(Config.GetInt("corridor")),
+			refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
+			min_mq(Config.GetInt(MIN_MQ)),
+			aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(Config.GetInt(PACBIOLOG) == 1), readCoordsTree(0), readPartLength(Config.GetInt(READ_PART_LENGTH)) {
 		pairInsertSum = 0;
 		pairInsertCount = 0;
 		brokenPairs = 0;
