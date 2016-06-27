@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 2.8)
 project(NextGenMap)
 
 set( NGM_VERSION_MAJOR 0 )
-set( NGM_VERSION_MINOR 4 )
+set( NGM_VERSION_MINOR 1 )
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Building in debug mode!")
     set( NGM_VERSION_BUILD 13-debug )
 else()
-  set( NGM_VERSION_BUILD 13 )
+  set( NGM_VERSION_BUILD 1 )
 ENDIF()
 
 

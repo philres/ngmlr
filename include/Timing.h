@@ -14,14 +14,14 @@ private:
 public:
 	inline void ST()
 	{
-//		gettimeofday(&start, 0);
+		gettimeofday(&start, 0);
 	}
 	inline volatile float ET()
 	{
-//		gettimeofday(&end, 0);
+		gettimeofday(&end, 0);
 
-//		return (float)(end.tv_sec - start.tv_sec) + (float)(end.tv_usec - start.tv_usec) / 1000000.0f;
-		return 0.0f;
+		return (float)(end.tv_sec - start.tv_sec) + (float)(end.tv_usec - start.tv_usec) / 1000000.0f;
+//		return 0.0f;
 	}
 };
 

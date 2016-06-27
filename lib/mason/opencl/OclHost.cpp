@@ -72,9 +72,9 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 			oclGpuContext = clCreateContext(0, ciDeviceCount, devices, NULL,
 					NULL, &ciErrNum);
 			checkClError("Couldn't create context. Error: ", ciErrNum);
-			Log.Message("Context for GPU devices created.");
+			Log.Verbose("Context for GPU devices created.");
 
-			Log.Message("%d GPU device(s) found: ", ciDeviceCount);
+			Log.Verbose("%d GPU device(s) found: ", ciDeviceCount);
 			for (int i = 0; i < ciDeviceCount; ++i) {
 				char device_string[1024];
 				char driver_string[1024];
@@ -82,7 +82,7 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 						sizeof(device_string), &device_string, NULL);
 				clGetDeviceInfo(devices[i], CL_DRIVER_VERSION,
 						sizeof(driver_string), &driver_string, NULL);
-				Log.Message("Device %d: %s (Driver: %s)", i, device_string, driver_string);
+				Log.Verbose("Device %d: %s (Driver: %s)", i, device_string, driver_string);
 			}
 
 		} else {
@@ -96,14 +96,14 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 					&device_id, NULL);
 			checkClError("Couldn't get CPU device id. Error: ", ciErrNum);
 
-			Log.Message("%d CPU device found.", ciDeviceCount);
+			Log.Verbose("%d CPU device found.", ciDeviceCount);
 			char device_string[1024];
 			char driver_string[1024];
 			clGetDeviceInfo(device_id, CL_DEVICE_NAME, sizeof(device_string),
 					&device_string, NULL);
 			clGetDeviceInfo(device_id, CL_DRIVER_VERSION, sizeof(driver_string),
 					&driver_string, NULL);
-			Log.Message("Device %d: %s (Driver: %s)", 0, device_string, driver_string);
+			Log.Verbose("Device %d: %s (Driver: %s)", 0, device_string, driver_string);
 
 			cl_device_partition_property props[3];
 
@@ -121,7 +121,7 @@ OclHost::OclHost(int const device_type, int gpu_id, int const cpu_cores) :
 				checkClError("Couldn't create sub-devices. Error: ", ciErrNum);
 			}
 
-			Log.Message("%d CPU cores available.", ciDeviceCount);
+			Log.Verbose("%d CPU cores available.", ciDeviceCount);
 
 			//Create context
 			oclGpuContext = clCreateContext(0, ciDeviceCount, devices, NULL,
@@ -180,17 +180,17 @@ cl_platform_id getPlatformID(char const * const platformName) {
 		// Get OpenCL platform count
 		cl_platform_id clPlatformID[platformNumber];
 		ciErrNum = clGetPlatformIDs(platformNumber, clPlatformID, 0);
-		Log.Message("Available platforms: %d", platformNumber);
+		Log.Verbose("Available platforms: %d", platformNumber);
 		for (size_t i = 0; i < platformNumber; ++i) {
 			ciErrNum = clGetPlatformInfo(clPlatformID[i], CL_PLATFORM_NAME,
 					1024, &clPlatformName, NULL);
-			Log.Message("%s", clPlatformName);
+			Log.Verbose("%s", clPlatformName);
 			if (ciErrNum == CL_SUCCESS) {
 				if (strcasestr(clPlatformName, platformName) != 0) {
-					Log.Message("Selecting OpenCl platform: %s", clPlatformName);
+					Log.Verbose("Selecting OpenCl platform: %s", clPlatformName);
 					ciErrNum = clGetPlatformInfo(clPlatformID[i],
 					CL_PLATFORM_VERSION, 1024, &clPlatformName, NULL);
-					Log.Message("Platform: %s", clPlatformName);
+					Log.Verbose("Platform: %s", clPlatformName);
 					//ciErrNum = clGetDeviceInfo(oclDevice, CL_DRIVER_VERSION, 1024, &clPlatformName, NULL);
 					//ciErrNum = clGetPlatformInfo(clPlatformID[i], CL_DRIVER_VERSION, 1024, &clPlatformName, NULL);
 					//Log.Message("Driver: %s", clPlatformName);
@@ -214,7 +214,7 @@ cl_context OclHost::partitionDevice(cl_platform_id platform,
 //			NULL, NULL, &ciErrNum);
 	//cl_device_id device_id = 0;
 
-	Log.Message("%d", ciDeviceCount);
+	Log.Verbose("%d", ciDeviceCount);
 //	clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, 1, &device_id, &ciDeviceCount);
 //	Log.Message("%d", ciDeviceCount);
 
@@ -227,7 +227,7 @@ cl_context OclHost::partitionDevice(cl_platform_id platform,
 
 //	pfn_clCreateSubDevicesEXT(cdDevices[0], partitionPrty, 0, NULL, &numSubDevices);
 	clCreateSubDevices(cdDevices[0], partitionPrty, 0, NULL, &numSubDevices);
-	Log.Message("%d", numSubDevices);
+	Log.Verbose("%d", numSubDevices);
 	cl_device_id *subDevices = (cl_device_id*) (malloc(
 			numSubDevices * sizeof(cl_device_id)));
 	clCreateSubDevices(cdDevices[0], partitionPrty, numSubDevices, subDevices,

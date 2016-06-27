@@ -16,7 +16,6 @@
 
 bool stdoutPrintRunningTime = false;
 
-
 //static const int cInvalidLocation = -99999999;
 static const SequenceLocation sInvalidLocation(9223372036854775808u, 0, false);
 
@@ -322,6 +321,10 @@ void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 	if (count == 0) {
 		read->Calculated = 0;
 		read->group->readsFinished += 1;
+		if (read->group->readsFinished == read->group->readNumber) {
+//			out->processLongReadLIS(group);
+			out->WriteRead(read->group->fullRead, false);
+		}
 //		out->addRead(read, -1);
 	} else {
 		read->Calculated = 0;
@@ -382,7 +385,8 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 				hpoc = c_SrchTableLen * 0.333f;
 				PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo,
 						this, m_PrefixBaseSkip);
-				nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
+				int nScores = CollectResultsStd(m_CurrentBatch[i]);
+				nScoresSum += nScores;
 			} catch (int overflow) {
 				++m_Overflows;
 
@@ -411,10 +415,13 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 					nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
 
 				} catch (int overflow) {
-					Log.Message("Overflow in fallback!");
+//					Log.Message("Overflow in fallback for read %s!", m_CurrentBatch[i]->name);
 					fallback = true;
 					x += 1;
 				}
+			}
+			if (fallback) {
+				Log.Message("Couldn't find candidate for read %s (too many candidates)", m_CurrentBatch[i]->name);
 			}
 			SetSearchTableBitLen(c_SrchTableBitLenBackup);
 		}
@@ -495,11 +502,11 @@ void CS::DoRun() {
 	m_RefProvider = 0;
 
 	Timer tmr;
+	tmr.ST();
 	m_RefProvider = NGM.GetRefProvider(m_TID);
 	AllocRefEntryChain();
 	while (NGM.ThreadActive(m_TID, GetStage()) && ((m_CurrentBatch = NGM.GetNextReadBatch(m_BatchSize)), (m_CurrentBatch.size() > 0))) {
 		Log.Debug(LOG_CS_DETAILS, "CS Thread %i got batch (len %i)", m_TID, m_CurrentBatch.size());
-		tmr.ST();
 
 		int nCRMsSum = RunBatch(scoreBuffer, alignmentBuffer);
 		scoreBuffer->flush();
@@ -507,17 +514,28 @@ void CS::DoRun() {
 		float elapsed = tmr.ET();
 		Log.Debug(LOG_CS_DETAILS, "CS Thread %i finished batch (len %i) with %i overflows, length %d (elapsed: %.3fs)", m_TID, m_CurrentBatch.size(), m_Overflows, c_SrchTableBitLen, elapsed);
 
-//		NGM.Stats->readsPerSecond = (NGM.Stats->csTime + 1.0f / (elapsed / m_CurrentBatch.size())) / 2.0f;
-		NGM.Stats->readsPerSecond = (m_CurrentBatch.size() * 1.0f / elapsed);
+		float alignmentTime = alignmentBuffer->getAlignTime();
+		float longReadProcessingTime = alignmentBuffer->getProcessTime() - alignmentTime;
+		float shortReadScoringTime = scoreBuffer->getTime() - alignmentBuffer->getProcessTime();
+		float kmerSearchTime = elapsed - scoreBuffer->getTime();
 
-		//NGM.Stats->alignTime = std::max(0.0f, alignmentBuffer->getTime());
-		//NGM.Stats->scoreTime = std::max(0.0f, scoreBuffer->getTime() - NGM.Stats->alignTime);
-		//NGM.Stats->csTime = std::max(0.0f, elapsed - NGM.Stats->scoreTime - NGM.Stats->alignTime);
+//		if(stdoutPrintRunningTime) {
+//			fprintf(stdout, "%f\t%f\t%f\t%f\t%f\n", elapsed,
+//					scoreBuffer->getTime(),
+//					alignmentBuffer->getTime(),
+//					alignmentBuffer->getProcessTime(),
+//					alignmentBuffer->getAlignTime());
+//			fprintf(stdout, "%f (%d)\t%f(%d)\t%f(%d)\t%f(%d)\n",
+//					kmerSearchTime, (int)(kmerSearchTime / elapsed * 100.0f),
+//					shortReadScoringTime, (int)(shortReadScoringTime / elapsed * 100.0f),
+//					longReadProcessingTime, (int)(longReadProcessingTime / elapsed * 100.0f),
+//					alignmentTime, (int)(alignmentTime / elapsed * 100.0f));
+//			fflush(stdout);
+//		}
 
-		if(stdoutPrintRunningTime) {
-			fprintf(stdout, "%f\t%f\t%f\t%f\t%f\n", elapsed, scoreBuffer->getTime(), alignmentBuffer->getTime(), alignmentBuffer->getProcessTime(), alignmentBuffer->getAlignTime());
-			fflush(stdout);
-		}
+		NGM.Stats->alignTime = (NGM.Stats->alignTime + (int)(alignmentTime / elapsed * 100.0f)) / 2;
+		NGM.Stats->scoreTime = (NGM.Stats->scoreTime + (int)(shortReadScoringTime / elapsed * 100.0f)) / 2;
+		NGM.Stats->csTime = (NGM.Stats->csTime + (int)(kmerSearchTime / elapsed * 100.0f)) / 2;
 
 		NGM.Stats->csLength = c_SrchTableBitLen;
 		NGM.Stats->csOverflows = m_Overflows;

@@ -226,7 +226,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	//*********************//
 
 	int alignment_length = corr_length + read_length + 1;
-	result.nmPerPosition = new PositionNM[alignment_length];
+	result.nmPerPosition = new PositionNM[alignment_length * 2];
 	int nmIndex = 0;
 	int exactAlignmentLength = 0;
 
@@ -429,6 +429,10 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 //	result.NM = perWindowSum * 1.0f / windowNumber;
 	result.alignmentLength = exactAlignmentLength;
 
+	if (alignment_length * 2 < exactAlignmentLength) {
+		fprintf(stderr, "Alignmentlength < exactAlingmentlength");
+		exit(-1);
+	}
 //	fprintf(stderr, "\n==== Matches: %d of %d ====\n", overallMatchCount,
 //			posInRead);
 
@@ -649,9 +653,11 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 	int read_length = strlen(qrySeq);
 	if ((long) (read_length * 1.1f) * (long) corridor > maxAlignMatrixLen) {
 		delete[] alignMatrix;
-		fprintf(stderr, "Reallocationg: %llu\n",
-				((long) (read_length * 1.1f) * (long) corridor)
-						* sizeof(MatrixElement));
+		if (pacbioDebug) {
+			fprintf(stderr, "Reallocationg: %llu\n\n",
+					((long) (read_length * 1.1f) * (long) corridor)
+							* sizeof(MatrixElement));
+		}
 		alignMatrix = new MatrixElement[(long) (read_length * 1.1f)
 				* (long) corridor];
 		realoc = true;
@@ -668,8 +674,9 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 		clipping = (int *) extData;
 	}
 
-	if (pacbioDebug)
+	if (pacbioDebug) {
 		fprintf(stderr, "Read length (single align) is %d\n", read_length);
+	}
 //	align.pBuffer1 = new char[read_length * 4];
 //	align.pBuffer2 = new char[read_length * 4];
 	//align.pBuffer2 = new char[1];

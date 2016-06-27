@@ -417,7 +417,7 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("qry_count", -1);
 
 		//NGM-LR defaults
-		Default("affine", 1);
+		Default("affine", 0);
 		Default("max_equal", 1);
 
 		if (Exists(MODE)) {
@@ -508,7 +508,7 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("bs_cutoff", 6);
 
 		//Others
-		Default("no_progress", 0);
+		Default(PROGRESS, 0);
 		Default("pe_delimiter", "/");
 		Default("update_check", 0);
 
@@ -534,9 +534,11 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 
 		//NGM-LR defaults
 		Default("sensitivity", 0.8f);
-		Default("corridor", 80);
+		Default("corridor", 40);
 
 		Default(READ_PART_LENGTH, 256);
+//		Default("qry_max_len", 264);
+//		Default("qry_avg_len", 264);
 
 		Default(STDOUT, 0);
 

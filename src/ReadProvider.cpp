@@ -47,7 +47,7 @@ int m_CurrentReadLength;
 
 ReadProvider::ReadProvider() :
 		//bufferLength based on max read length of 1MB and read part length of readPartLength
-		readPartLength(Config.GetInt(READ_PART_LENGTH)), bufferLength(2000), readBuffer(
+		readPartLength(Config.GetInt(READ_PART_LENGTH)), bufferLength(2000), parsedReads(0), readBuffer(
 				new MappedRead *[bufferLength]), readsInBuffer(0), parser1(0), parser2(
 				0), peDelimiter(
 		Config.GetString("pe_delimiter")[0]), isPaired(
@@ -196,10 +196,10 @@ uint ReadProvider::init() {
 		((_Config*) _config)->Override("qry_max_len", (int) maxLen);
 		((_Config*) _config)->Override("qry_avg_len", (int) avgLen);
 
-		Log.Message("Average read length: %d (min: %d, max: %d)", avgLen, readPartLength, maxLen);
+		Log.Message("Read part length: %d", readPartLength);
 
 		if (Config.Exists("corridor")) {
-			Log.Warning("Corridor witdh overwritten!");
+			Log.Verbose("Corridor witdh overwritten!");
 		} else {
 			((_Config*) _config)->Default("corridor", (int) (5 + avgLen * 0.15));
 		}
@@ -217,7 +217,7 @@ uint ReadProvider::init() {
 			Log.Message("Sensitivity parameter set to 0.5");
 		}
 	}
-	Log.Message("Estimating parameter took %.3fs", tmr.ET());
+	//Log.Message("Estimating parameter took %.3fs", tmr.ET());
 
 	parser1 = DetermineParser(fileName1, maxLen);
 	if (fileName2 != 0) {
@@ -243,8 +243,9 @@ ReadProvider::~ReadProvider() {
 	}
 }
 
-void ReadProvider::splitRead(MappedRead * read) {
+void ReadProvider::splitRead(MappedRead * read, int const qryMaxLen) {
 
+	read->qryMaxLen = read->length + 1;
 //	Log.Message("New read with length: %d", read->length);
 
 	int splitNumber = read->length / readPartLength;
@@ -272,7 +273,7 @@ void ReadProvider::splitRead(MappedRead * read) {
 		group->readNumber = splitNumber;
 		group->reads = new MappedRead *[splitNumber];
 		MappedRead * readPart = new MappedRead(read->ReadId + 1,
-				readPartLength);
+				readPartLength + 16);
 
 //		readPart->name = new char[nameLength + 1];
 		strcpy(readPart->name, read->name);
@@ -280,8 +281,9 @@ void ReadProvider::splitRead(MappedRead * read) {
 		int length = read->length;
 		readPart->length = length;
 
-		readPart->Seq = new char[length + 1];
-		memset(readPart->Seq, '\0', length + 1);
+		readPart->Seq = new char[readPartLength + 16];
+		memset(readPart->Seq, '\0', readPartLength + 16);
+//		memset(readPart->Seq, 'N', readPartLength);
 		strncpy(readPart->Seq, read->Seq, length);
 
 		//readPart->qlty = new char[readPartLength + 1];
@@ -300,7 +302,7 @@ void ReadProvider::splitRead(MappedRead * read) {
 
 		for (int i = splitNumber - 1; i >= 0; --i) {
 			MappedRead * readPart = new MappedRead(read->ReadId + i,
-					readPartLength);
+					readPartLength + 16);
 
 //			readPart->name = new char[nameLength + 1];
 			strcpy(readPart->name, read->name);
@@ -309,8 +311,9 @@ void ReadProvider::splitRead(MappedRead * read) {
 					read->length - i * readPartLength);
 			readPart->length = length;
 
-			readPart->Seq = new char[readPartLength + 1];
-			memset(readPart->Seq, '\0', readPartLength + 1);
+			readPart->Seq = new char[readPartLength + 16];
+			memset(readPart->Seq, '\0', readPartLength + 16);
+//			memset(readPart->Seq, 'N', readPartLength);
 			strncpy(readPart->Seq, read->Seq + i * readPartLength, length);
 
 			//readPart->qlty = new char[readPartLength + 1];
@@ -336,6 +339,7 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 
 	int l = 0;
 
+//	if (readsInBuffer == 0 && ++parsedReads <= 200) {
 	if (readsInBuffer == 0) {
 		try {
 			static int const qryMaxLen = Config.GetInt("qry_max_len");
@@ -347,7 +351,7 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 				Log.Debug(2, "READ_%d\tINPUT\t%s", id, read->name);
 				Log.Debug(16384, "READ_%d\tINPUT_DETAILS\t%s\t%s\t%s\t%s", id, read->Seq, read->qlty, read->AdditionalInfo);
 
-				splitRead(read);
+				splitRead(read, qryMaxLen);
 				NGM.AddReadRead(read->ReadId);
 
 				NGM.Stats->readsInProcess += 1;

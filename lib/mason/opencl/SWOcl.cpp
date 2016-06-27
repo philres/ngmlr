@@ -30,7 +30,10 @@ long overall = 0;
 
 bool usedPinnedMemory = true;
 
-int SWOcl::BatchScore(int const mode, int const batchSize_, char const * const * const refSeqList_, char const * const * const qrySeqList_, float * const results_, void * extData) {
+int SWOcl::BatchScore(int const mode, int const batchSize_,
+		char const * const * const refSeqList_,
+		char const * const * const qrySeqList_, float * const results_,
+		void * extData) {
 
 	if (batchSize_ <= 0) {
 		Log.Warning("Score for batchSize <= 0");
@@ -59,7 +62,8 @@ int SWOcl::BatchScore(int const mode, int const batchSize_, char const * const *
 
 	bool batchSizeDif = !host->isGPU() && (batchSize_ % 4 != 0);
 	//int batchSize = (batchSizeDif) ? batchSize_ + 4 : batchSize_;
-	int batchSize = (batchSizeDif) ? ((int)(batchSize_ / 4) + 1) * 4 : batchSize_;
+	int batchSize =
+			(batchSizeDif) ? ((int) (batchSize_ / 4) + 1) * 4 : batchSize_;
 	float * const results = batchSizeDif ? new float[batchSize] : results_;
 	char const * * const tmpRefSeqList = new char const *[batchSize];
 	char const * * const tmpQrySeqList = new char const *[batchSize];
@@ -74,65 +78,99 @@ int SWOcl::BatchScore(int const mode, int const batchSize_, char const * const *
 			tmpQrySeqList[i] = qrySeqList_[0];
 		}
 	}
-	char const * const * const refSeqList = batchSizeDif ? tmpRefSeqList : refSeqList_;
-	char const * const * const qrySeqList = batchSizeDif ? tmpQrySeqList : qrySeqList_;
+	char const * const * const refSeqList =
+			batchSizeDif ? tmpRefSeqList : refSeqList_;
+	char const * const * const qrySeqList =
+			batchSizeDif ? tmpQrySeqList : qrySeqList_;
 
 	cl_kernel scoreKernel = 0;
 	switch (mode & 0xFF) {
-		case 0: {
-			scoreKernel = swScoringKernel;
+	case 0: {
+		scoreKernel = swScoringKernel;
 
-			//Log.Verbose("Alignment mode: local");
-		}
+		//Log.Verbose("Alignment mode: local");
+	}
 		break;
-		case 1: {
-			scoreKernel = swScoringKernelGlobal;
+	case 1: {
+		scoreKernel = swScoringKernelGlobal;
 
-			//Log.Verbose("Alignment mode: end-free");
-		}
+		//Log.Verbose("Alignment mode: end-free");
+	}
 		break;
-		default:
+	default:
 		break;
-			Log.Error("Unsupported alignment mode %i", mode & 0xFF);
-			return 0;
+		Log.Error("Unsupported alignment mode %i", mode & 0xFF);
+		return 0;
 	}
 	Timer timer;
 	timer.ST();
 
 	cl_int ciErrNum = 0;
-	cl_mem results_gpu = host->allocate(CL_MEM_WRITE_ONLY, batch_size_scoring * sizeof(cl_float));
+	cl_mem results_gpu = host->allocate(CL_MEM_WRITE_ONLY,
+			batch_size_scoring * sizeof(cl_float));
 
 //#pragma omp critical
 	{
 		if (host->isGPU()) {
-			ciErrNum |= clSetKernelArg(interleaveKernel, 0, sizeof(cl_mem), (void *) (&scaffold_gpu));
-			ciErrNum |= clSetKernelArg(interleaveKernel, 1, sizeof(cl_mem), &c_scaff_gpu);
+			ciErrNum |= clSetKernelArg(interleaveKernel, 0, sizeof(cl_mem),
+					(void *) (&scaffold_gpu));
+			ciErrNum |= clSetKernelArg(interleaveKernel, 1, sizeof(cl_mem),
+					&c_scaff_gpu);
 
-			ciErrNum |= clSetKernelArg(scoreKernel, 0, sizeof(cl_mem), (void *) (&c_scaff_gpu));
+			ciErrNum |= clSetKernelArg(scoreKernel, 0, sizeof(cl_mem),
+					(void *) (&c_scaff_gpu));
 		} else {
-			ciErrNum |= clSetKernelArg(scoreKernel, 0, sizeof(cl_mem), (void *) (&scaffold_gpu));
+			ciErrNum |= clSetKernelArg(scoreKernel, 0, sizeof(cl_mem),
+					(void *) (&scaffold_gpu));
 		}
-		ciErrNum |= clSetKernelArg(scoreKernel, 1, sizeof(cl_mem), (void*) (&reads_gpu));
-		ciErrNum |= clSetKernelArg(scoreKernel, 2, sizeof(cl_mem), &results_gpu);
+		ciErrNum |= clSetKernelArg(scoreKernel, 1, sizeof(cl_mem),
+				(void*) (&reads_gpu));
+		ciErrNum |= clSetKernelArg(scoreKernel, 2, sizeof(cl_mem),
+				&results_gpu);
 	}
 
 	cl_mem bsdirection_gpu = 0;
 	static bool const bsMapping = Config.GetInt("bs_mapping") == 1;
 	if (bsMapping) {
 		if (host->isGPU()) {
-			bsdirection_gpu = host->allocate(CL_MEM_READ_ONLY, batch_size_scoring * sizeof(cl_char));
+			bsdirection_gpu = host->allocate(CL_MEM_READ_ONLY,
+					batch_size_scoring * sizeof(cl_char));
 		} else {
-			bsdirection_gpu = host->allocate(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, batch_size_scoring * sizeof(cl_char),
-					(char *) extData);
+			bsdirection_gpu = host->allocate(
+			CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
+					batch_size_scoring * sizeof(cl_char), (char *) extData);
 		}
 		//bsdirection_gpu = host->allocate(CL_MEM_READ_ONLY, batch_size_scoring * sizeof(cl_char));
 //#pragma omp critical
 		{
-			ciErrNum |= clSetKernelArg(scoreKernel, 3, sizeof(cl_mem), (void *) (&bsdirection_gpu));
+			ciErrNum |= clSetKernelArg(scoreKernel, 3, sizeof(cl_mem),
+					(void *) (&bsdirection_gpu));
 		}
 	}
 
-	runSwScoreKernel(scoreKernel, batchSize, qrySeqList, refSeqList, (char *) extData, bsdirection_gpu, results_gpu, results);
+//	Log.Message("==========================================================================");
+//	for (int u = 0; u < batchSize; ++u) {
+//
+//		if (strlen(qrySeqList[u]) != 256) {
+//			Log.Message("Read %d: %s", u, qrySeqList[u]);
+//			for (int v = 0; v < 256; ++v) {
+//				if (qrySeqList[u][v] == '\0') {
+//					printf("_");
+//				} else {
+//					printf("%c", qrySeqList[u][v]);
+//				}
+//			}
+//			printf("\n");
+//			Log.Message("Ref: %d, Read: %d", strlen(refSeqList[u]), strlen(qrySeqList[u]));
+//		}
+////		Log.Message("Ref  %d: %s", u, refSeqList[u]);
+//
+//
+//	}
+//	Log.Message("==========================================================================");
+
+	runSwScoreKernel(scoreKernel, batchSize, qrySeqList, refSeqList,
+			(char *) extData, bsdirection_gpu, results_gpu, results);
 
 	clReleaseMemObject(results_gpu);
 	if (bsMapping) {
@@ -157,7 +195,8 @@ int SWOcl::BatchScore(int const mode, int const batchSize_, char const * const *
 	return batchSize_;
 }
 
-SWOcl::SWOcl(char const * const oclSwScoreSourceCode, char const * const additional_defines, OclHost * phost) :
+SWOcl::SWOcl(char const * const oclSwScoreSourceCode,
+		char const * const additional_defines, OclHost * phost) :
 		host(phost) {
 
 //	Log.Message("HHHHHHHHHHHHHAAAALLLOOO");
@@ -190,7 +229,6 @@ SWOcl::SWOcl(char const * const oclSwScoreSourceCode, char const * const additio
 
 	Log.Verbose("SW finished init opencl. (elapsed: %.3fs)", timer2.ET());
 
-
 	Timer timer;
 	timer.ST();
 
@@ -200,12 +238,18 @@ SWOcl::SWOcl(char const * const oclSwScoreSourceCode, char const * const additio
 
 	stringstream buildCmd;
 	static bool const bsMapping = Config.GetInt("bs_mapping") == 1;
-	buildCmd << "-D MATRIX_LENGTH=" << (matrix_length * threads_per_block) << " -D interleave_number=" << "256" << " -D threads_per_block="
-			<< threads_per_block << " -D match=" << Config.GetFloat(MATCH_BONUS) << " -D mismatch=" << Config.GetFloat(MISMATCH_PENALTY) * -1.0f
-			<< " -D gap_read=" << Config.GetFloat(GAP_READ_PENALTY) * -1.0f << " -D gap_ref=" << Config.GetFloat(GAP_REF_PENALTY) * -1.0f << " -D matchBS="
-			<< Config.GetFloat(MATCH_BONUS_TT) << " -D mismatchBS=" << Config.GetFloat(MATCH_BONUS_TC) << " -D read_length="
-			<< Config.GetInt("qry_max_len") << " -D ref_length=" << config_ref_size << " -D corridor_length="
-			<< (Config.GetInt("corridor") + 1) << " -D alignment_length=" << alignment_length;
+	buildCmd << "-D MATRIX_LENGTH=" << (matrix_length * threads_per_block)
+			<< " -D interleave_number=" << "256" << " -D threads_per_block="
+			<< threads_per_block << " -D match=" << Config.GetFloat(MATCH_BONUS)
+			<< " -D mismatch=" << Config.GetFloat(MISMATCH_PENALTY) * -1.0f
+			<< " -D gap_read=" << Config.GetFloat(GAP_READ_PENALTY) * -1.0f
+			<< " -D gap_ref=" << Config.GetFloat(GAP_REF_PENALTY) * -1.0f
+			<< " -D matchBS=" << Config.GetFloat(MATCH_BONUS_TT)
+			<< " -D mismatchBS=" << Config.GetFloat(MATCH_BONUS_TC)
+			<< " -D read_length=" << Config.GetInt("qry_max_len")
+			<< " -D ref_length=" << config_ref_size << " -D corridor_length="
+			<< (Config.GetInt("corridor") + 1) << " -D alignment_length="
+			<< alignment_length;
 	buildCmd << additional_defines;
 	if (host->isGPU()) {
 		buildCmd << "-D __GPU__";
@@ -223,9 +267,11 @@ SWOcl::SWOcl(char const * const oclSwScoreSourceCode, char const * const additio
 	Log.Verbose("Building program.");
 
 	stringstream source;
-	source << oclDefines << std::endl << oclSwScore << oclEndFreeScore << oclSwScoreSourceCode;
+	source << oclDefines << std::endl << oclSwScore << oclEndFreeScore
+			<< oclSwScoreSourceCode;
 	//			Log.Message("SOURCE: %s", oclEndFreeScore);
-	clProgram = host->setUpProgram(source.str().c_str(), buildCmd.str().c_str());
+	clProgram = host->setUpProgram(source.str().c_str(),
+			buildCmd.str().c_str());
 	//}
 	//programUserCount += 1;
 	//}
@@ -238,14 +284,19 @@ SWOcl::SWOcl(char const * const oclSwScoreSourceCode, char const * const additio
 
 		reads_gpu = host->allocate(CL_MEM_READ_ONLY, read_data_size);
 		scaffold_gpu = host->allocate(CL_MEM_READ_WRITE, ref_data_size);
-		c_scaff_gpu = host->allocate(CL_MEM_READ_WRITE, ref_data_size * sizeof(cl_char));
+		c_scaff_gpu = host->allocate(CL_MEM_READ_WRITE,
+				ref_data_size * sizeof(cl_char));
 
 		if (usedPinnedMemory) {
 			//Setup pinned memory
-			cmPinnedBufRead = host->allocate(CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, read_data_size);
-			cmPinnedBufRef = host->allocate(CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, ref_data_size);
-			cpu_read_data = (char*) host->mapBuffer(cmPinnedBufRead, 0, read_data_size);
-			cpu_ref_data = (char*) host->mapBuffer(cmPinnedBufRef, 0, ref_data_size);
+			cmPinnedBufRead = host->allocate(
+			CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, read_data_size);
+			cmPinnedBufRef = host->allocate(
+			CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, ref_data_size);
+			cpu_read_data = (char*) host->mapBuffer(cmPinnedBufRead, 0,
+					read_data_size);
+			cpu_ref_data = (char*) host->mapBuffer(cmPinnedBufRef, 0,
+					ref_data_size);
 		} else {
 			cpu_read_data = new char[read_data_size];
 			cpu_ref_data = new char[ref_data_size];
@@ -253,8 +304,10 @@ SWOcl::SWOcl(char const * const oclSwScoreSourceCode, char const * const additio
 	} else {
 		cpu_read_data = new char[read_data_size];
 		cpu_ref_data = new char[ref_data_size];
-		reads_gpu = host->allocate(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, read_data_size, cpu_read_data);
-		scaffold_gpu = host->allocate(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, ref_data_size, cpu_ref_data);
+		reads_gpu = host->allocate(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
+				read_data_size, cpu_read_data);
+		scaffold_gpu = host->allocate(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
+				ref_data_size, cpu_ref_data);
 	}
 
 	Log.Verbose("SW finished allocating memory. (elapsed: %.3fs)", timer.ET());
@@ -277,7 +330,7 @@ SWOcl::~SWOcl() {
 	if (host->isGPU()) {
 		clReleaseMemObject(c_scaff_gpu);
 		if (usedPinnedMemory) {
-			Log.Message("Releasing pinned memory.");
+			Log.Verbose("Releasing pinned memory.");
 			clReleaseMemObject(cmPinnedBufRead);
 			clReleaseMemObject(cmPinnedBufRef);
 		}
@@ -294,7 +347,10 @@ SWOcl::~SWOcl() {
 }
 
 int SWOcl::getMaxAllocSize() {
-	return std::max(std::max(ref_data_size * sizeof(cl_char), read_data_size * sizeof(cl_char)), batch_size_scoring * sizeof(cl_float));
+	return std::max(
+			std::max(ref_data_size * sizeof(cl_char),
+					read_data_size * sizeof(cl_char)),
+			batch_size_scoring * sizeof(cl_float));
 }
 
 void SWOcl::checkMemory() {
@@ -314,7 +370,8 @@ void SWOcl::checkMemory() {
 	}
 #endif
 
-	alignment_length = 2 * Config.GetInt("qry_max_len") + Config.GetInt("corridor") + 1;
+	alignment_length = 2 * Config.GetInt("qry_max_len")
+			+ Config.GetInt("corridor") + 1;
 	config_ref_size = Config.GetInt("qry_max_len") + Config.GetInt("corridor");
 	matrix_length = Config.GetInt("corridor") + 1;
 	batch_size_scoring = computeScoringBatchSize();
@@ -323,7 +380,8 @@ void SWOcl::checkMemory() {
 	ref_data_size = batch_size_scoring * config_ref_size;
 
 	//Check local Memory
-	unsigned int localMemByte = (host->isGPU()) ? (matrix_length * threads_per_block) * 2 : 0;
+	unsigned int localMemByte =
+			(host->isGPU()) ? (matrix_length * threads_per_block) * 2 : 0;
 	//cl_ulong localMemAvailable = host->getDeviceInfoLong(CL_DEVICE_LOCAL_MEM_SIZE);
 	Log.Verbose("You are using %d byte local memory. (%d byte available).", localMemByte, host->getDeviceInfoLong(CL_DEVICE_LOCAL_MEM_SIZE));
 
@@ -381,7 +439,10 @@ int SWOcl::GetScoreBatchSize() const {
 #define benchOCL(x,z) x;
 #endif
 
-int SWOcl::runSwScoreKernel(cl_kernel scoreKernel, const int batchSize, const char * const * const qrySeqList, const char * const * const refSeqList, char * bsDirection, cl_mem & bsdirection_gpu, cl_mem & results_gpu, float * const results) {
+int SWOcl::runSwScoreKernel(cl_kernel scoreKernel, const int batchSize,
+		const char * const * const qrySeqList,
+		const char * const * const refSeqList, char * bsDirection,
+		cl_mem & bsdirection_gpu, cl_mem & results_gpu, float * const results) {
 #ifdef _TEST
 	Timer2 test;
 #endif
@@ -391,34 +452,47 @@ int SWOcl::runSwScoreKernel(cl_kernel scoreKernel, const int batchSize, const ch
 	const size_t cBlockSize = threads_per_block;
 	int runbatchSize = std::min(batch_size_scoring, batchSize);
 
-	benchCPP(copySeqDataToDevice(cpu_read_data, cpu_ref_data, qrySeqList, refSeqList, runbatchSize, batch_size_scoring), "Flatten: ");
+	benchCPP(
+			copySeqDataToDevice(cpu_read_data, cpu_ref_data, qrySeqList,
+					refSeqList, runbatchSize, batch_size_scoring), "Flatten: ");
 
 	for (int i = 0; i < batchSize; i += batch_size_scoring) {
 		if (host->isGPU()) {
-			benchOCL(host->writeToDevice(scaffold_gpu, CL_FALSE, 0, ref_data_size * sizeof(cl_char), cpu_ref_data), "Scaff: ");
-			benchOCL(host->writeToDevice(reads_gpu, CL_FALSE, 0, read_data_size * sizeof(cl_char), cpu_read_data), "Read: ");
+			benchOCL(
+					host->writeToDevice(scaffold_gpu, CL_FALSE, 0, ref_data_size * sizeof(cl_char), cpu_ref_data),
+					"Scaff: ");
+			benchOCL(
+					host->writeToDevice(reads_gpu, CL_FALSE, 0, read_data_size * sizeof(cl_char), cpu_read_data),
+					"Read: ");
 			if (bsdirection_gpu != 0) {
-				host->writeToDevice(bsdirection_gpu, CL_FALSE, 0, std::min(runbatchSize, batchSize - i) * sizeof(cl_char), bsDirection + i);
+				host->writeToDevice(bsdirection_gpu, CL_FALSE, 0,
+						std::min(runbatchSize, batchSize - i) * sizeof(cl_char),
+						bsDirection + i);
 			}
 			host->waitForDevice();
-			benchOCL(host->executeKernel(interleaveKernel, cnDim, cBlockSize), "Interl: ");
+			benchOCL(host->executeKernel(interleaveKernel, cnDim, cBlockSize),
+					"Interl: ");
 		}
 		benchOCL(host->executeKernel(scoreKernel, cnDim, cBlockSize)
 		;,
 		"Kernel: ");
 
 		int nextBatch = (i + batch_size_scoring);
-		int nextRunbatchSize = std::min(batch_size_scoring, batchSize - nextBatch);
+		int nextRunbatchSize = std::min(batch_size_scoring,
+				batchSize - nextBatch);
 		if (nextRunbatchSize > 0) {
-			copySeqDataToDevice(cpu_read_data, cpu_ref_data, qrySeqList + nextBatch, refSeqList + nextBatch, nextRunbatchSize,
-					batch_size_scoring);
+			copySeqDataToDevice(cpu_read_data, cpu_ref_data,
+					qrySeqList + nextBatch, refSeqList + nextBatch,
+					nextRunbatchSize, batch_size_scoring);
 #ifdef _TEST
 			Log.Error("I should not be here. Set step_count to 1 when compiling with _TEST switch.");
 			throw "";
 #endif
 		}
 
-		benchOCL(host->readFromDevice(results_gpu, CL_FALSE, 0, runbatchSize, results + i, sizeof(cl_float)), "Result: ");
+		benchOCL(
+				host->readFromDevice(results_gpu, CL_FALSE, 0, runbatchSize, results + i, sizeof(cl_float)),
+				"Result: ");
 		runbatchSize = nextRunbatchSize;
 	}
 	host->waitForDevice();
@@ -456,7 +530,8 @@ int SWOcl::runSwScoreKernel(cl_kernel scoreKernel, const int batchSize, const ch
 //	//memset(cpu_ref_data + offset, '\0', (refsize * batch_size) - offset);
 //}
 
-void SWOcl::copy(char const * const * const refs, char * cpu_ref_data, int const alignment_number, int const batch_size, int const refsize) {
+void SWOcl::copy(char const * const * const refs, char * cpu_ref_data,
+		int const alignment_number, int const batch_size, int const refsize) {
 
 	int const size = 16;
 	int offset = 0;
@@ -485,28 +560,52 @@ void SWOcl::copy(char const * const * const refs, char * cpu_ref_data, int const
 	}
 	if (j < alignment_number) {
 		for (int readPos = 0; readPos < refsize; ++readPos) {
-			cpu_ref_data[offset] = (j < alignment_number) ? refs[j][readPos] : '\0';
-			cpu_ref_data[offset + 1] = ((j + 1) < alignment_number) ? refs[j + 1][readPos] : '\0';
-			cpu_ref_data[offset + 2] = ((j + 2) < alignment_number) ? refs[j + 2][readPos] : '\0';
-			cpu_ref_data[offset + 3] = ((j + 3) < alignment_number) ? refs[j + 3][readPos] : '\0';
-			cpu_ref_data[offset + 4] = ((j + 4) < alignment_number) ? refs[j + 4][readPos] : '\0';
-			cpu_ref_data[offset + 5] = ((j + 5) < alignment_number) ? refs[j + 5][readPos] : '\0';
-			cpu_ref_data[offset + 6] = ((j + 6) < alignment_number) ? refs[j + 6][readPos] : '\0';
-			cpu_ref_data[offset + 7] = ((j + 7) < alignment_number) ? refs[j + 7][readPos] : '\0';
-			cpu_ref_data[offset + 8] = ((j + 8) < alignment_number) ? refs[j + 8][readPos] : '\0';
-			cpu_ref_data[offset + 9] = ((j + 9) < alignment_number) ? refs[j + 9][readPos] : '\0';
-			cpu_ref_data[offset + 10] = ((j + 10) < alignment_number) ? refs[j + 10][readPos] : '\0';
-			cpu_ref_data[offset + 11] = ((j + 11) < alignment_number) ? refs[j + 11][readPos] : '\0';
-			cpu_ref_data[offset + 12] = ((j + 12) < alignment_number) ? refs[j + 12][readPos] : '\0';
-			cpu_ref_data[offset + 13] = ((j + 13) < alignment_number) ? refs[j + 13][readPos] : '\0';
-			cpu_ref_data[offset + 14] = ((j + 14) < alignment_number) ? refs[j + 14][readPos] : '\0';
-			cpu_ref_data[offset + 15] = ((j + 15) < alignment_number) ? refs[j + 15][readPos] : '\0';
+			cpu_ref_data[offset] =
+					(j < alignment_number) ? refs[j][readPos] : '\0';
+			cpu_ref_data[offset + 1] =
+					((j + 1) < alignment_number) ? refs[j + 1][readPos] : '\0';
+			cpu_ref_data[offset + 2] =
+					((j + 2) < alignment_number) ? refs[j + 2][readPos] : '\0';
+			cpu_ref_data[offset + 3] =
+					((j + 3) < alignment_number) ? refs[j + 3][readPos] : '\0';
+			cpu_ref_data[offset + 4] =
+					((j + 4) < alignment_number) ? refs[j + 4][readPos] : '\0';
+			cpu_ref_data[offset + 5] =
+					((j + 5) < alignment_number) ? refs[j + 5][readPos] : '\0';
+			cpu_ref_data[offset + 6] =
+					((j + 6) < alignment_number) ? refs[j + 6][readPos] : '\0';
+			cpu_ref_data[offset + 7] =
+					((j + 7) < alignment_number) ? refs[j + 7][readPos] : '\0';
+			cpu_ref_data[offset + 8] =
+					((j + 8) < alignment_number) ? refs[j + 8][readPos] : '\0';
+			cpu_ref_data[offset + 9] =
+					((j + 9) < alignment_number) ? refs[j + 9][readPos] : '\0';
+			cpu_ref_data[offset + 10] =
+					((j + 10) < alignment_number) ?
+							refs[j + 10][readPos] : '\0';
+			cpu_ref_data[offset + 11] =
+					((j + 11) < alignment_number) ?
+							refs[j + 11][readPos] : '\0';
+			cpu_ref_data[offset + 12] =
+					((j + 12) < alignment_number) ?
+							refs[j + 12][readPos] : '\0';
+			cpu_ref_data[offset + 13] =
+					((j + 13) < alignment_number) ?
+							refs[j + 13][readPos] : '\0';
+			cpu_ref_data[offset + 14] =
+					((j + 14) < alignment_number) ?
+							refs[j + 14][readPos] : '\0';
+			cpu_ref_data[offset + 15] =
+					((j + 15) < alignment_number) ?
+							refs[j + 15][readPos] : '\0';
 			offset += 16;
 		}
 	}
 }
 
-void SWOcl::copySeqDataToDevice(char * cpu_read_data, char * cpu_ref_data, char const * const * const reads, char const * const * const refs, int const alignment_number, int const batch_size) {
+void SWOcl::copySeqDataToDevice(char * cpu_read_data, char * cpu_ref_data,
+		char const * const * const reads, char const * const * const refs,
+		int const alignment_number, int const batch_size) {
 	int refsize = Config.GetInt("qry_max_len") + Config.GetInt("corridor");
 
 	int readsize = Config.GetInt("qry_max_len");
@@ -518,14 +617,18 @@ void SWOcl::copySeqDataToDevice(char * cpu_read_data, char * cpu_ref_data, char 
 	//copy(reads, cpu_read_data, alignment_number, batch_size, readsize);
 
 	for (int i = 0; i < alignment_number; ++i) {
-		memcpy(&cpu_ref_data[i * config_ref_size], refs[i], sizeof(char) * refsize);
+		memcpy(&cpu_ref_data[i * config_ref_size], refs[i],
+				sizeof(char) * refsize);
 		memcpy(&cpu_read_data[i * readsize], reads[i], sizeof(char) * readsize);
 	}
 	if (alignment_number < batch_size) { // if there are not enough sequence pairs
 		//set the rest
 		//Log.Warning("Batchsize not large enough!");
-		memset(&cpu_read_data[alignment_number * readsize], '\0', (batch_size - alignment_number) * readsize * sizeof(char));
-		memset(&cpu_ref_data[alignment_number * config_ref_size], '\0', (batch_size - alignment_number) * config_ref_size * sizeof(char));
+		memset(&cpu_read_data[alignment_number * readsize], '\0',
+				(batch_size - alignment_number) * readsize * sizeof(char));
+		memset(&cpu_ref_data[alignment_number * config_ref_size], '\0',
+				(batch_size - alignment_number) * config_ref_size
+						* sizeof(char));
 	}
 
 }
@@ -536,7 +639,8 @@ unsigned int SWOcl::computeScoringBatchSize() {
 
 	if (host->isGPU()) {
 		//long max_alloc = host->getDeviceInfoLong(CL_DEVICE_MAX_MEM_ALLOC_SIZE);
-		int block_count = mpCount * block_multiplier * (host->getThreadPerMulti() / threads_per_block);
+		int block_count = mpCount * block_multiplier
+				* (host->getThreadPerMulti() / threads_per_block);
 		block_count = (block_count / mpCount) * mpCount;
 
 		//block_count = 4;

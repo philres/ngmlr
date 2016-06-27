@@ -41,7 +41,7 @@ public:
 	//is computed for this read, Calculated is increased by one
 	int Calculated; // Amount of Scores updated by SW
 
-	int const qryMaxLen;
+	int qryMaxLen;
 
 	uint numTopScores; // Total number of equal scoring results
 	LocationScore * Scores;

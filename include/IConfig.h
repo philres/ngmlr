@@ -57,6 +57,8 @@ static char const * const READ_PART_LENGTH = "read_part_length";
 
 static char const * const STDOUT = "stdout";
 
+static char const * const PROGRESS = "progress";
+
 #ifdef DEBUGLOG
 static char const * const LOG = "log";
 static char const * const LOG_LVL = "log_lvl";

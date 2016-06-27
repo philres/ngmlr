@@ -156,7 +156,7 @@ public:
 
 	float getTime() {
 		float tmp = scoreTime;
-		scoreTime = 0.0f;
+//		scoreTime = 0.0f;
 		return tmp;
 	}
 

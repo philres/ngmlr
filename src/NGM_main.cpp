@@ -19,7 +19,6 @@
 
 #include "Timing.h"
 
-
 #include "Debug.h"
 #include "UpdateCheck.h"
 
@@ -151,7 +150,7 @@ int main(int argc, char * argv[]) {
 
 	char const * arch[] = { "x86", "x64" };
 	char const * build = (cDebug) ? " (DEBUG)" : "";
-	Log.Message("NextGenMap %s", version.str().c_str());
+	Log.Message("NextGenMap-LR %s", version.str().c_str());
 	Log.Message("Startup : %s%s (build %s %s)", arch[sizeof(void*) / 4 - 1], build, __DATE__, __TIME__);
 
 	Log.Message("Starting time: %s", currentDateTime().c_str());
@@ -199,29 +198,30 @@ int main(int argc, char * argv[]) {
 			Log.Message("No qry file specified. If you want to map single-end data use -q/--qry. If you want to map paired-end data, either use -q/--qry and -p or --qry1 and --qry2.");
 		} else {
 			try {
-				Log.Message("Core initialization complete");
 				NGM.StartThreads();
+
+				bool const progress = Config.GetInt(PROGRESS) == 1;
+
+				if(!progress) {
+					Log.Message("No progress information (use --progress)");
+				}
+				Log.Message("Mapping reads...");
 
 				NGM.MainLoop();
 
-				bool const isPaired = Config.GetInt("paired") > 0;
-				if (isPaired) {
-					Log.Message("Valid pairs found: %.2f%%", NGM.Stats->validPairs);
-					Log.Message("Estimated insert size: %d bp", (int)NGM.Stats->insertSize);
+				if(NGM.Stats->invalidAligmentCount > 0) {
+					Log.Message("Unsuccessful alignment computation %d", NGM.Stats->invalidAligmentCount);
 				}
-				Log.Message("Unsuccessful alignment computation %d", NGM.Stats->invalidAligmentCount);
 
-				Log.Message("Alignments computed: %ld", AlignmentBuffer::alignmentCount);
 				int discarded = NGM.GetReadReadCount() - (NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount());
 				if (discarded != 0) {
-//					Log.Warning("Reads discarded: %d", discarded);
-					Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped (%i discarded), %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount() + discarded)),NGM.GetUnmappedReadCount() + discarded, discarded, NGM.GetWrittenReadCount(), tmr.ET());
+					Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped (%i discarded), %i lines written)(elapsed: %ds, %d r/s)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount() + discarded)),NGM.GetUnmappedReadCount() + discarded, discarded, NGM.GetWrittenReadCount(), (int) tmr.ET(), (int)(NGM.GetMappedReadCount() * 1.0f / tmr.ET()));
 				} else {
-					Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped, %i lines written)(elapsed: %fs)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount())),NGM.GetUnmappedReadCount(),NGM.GetWrittenReadCount(), tmr.ET());
+					Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped, %i lines written)(elapsed: %ds, %d r/s)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount())),NGM.GetUnmappedReadCount(),NGM.GetWrittenReadCount(), (int) tmr.ET(), (int)(NGM.GetMappedReadCount() * 1.0f / tmr.ET()));
 				}
 
 			} catch (...) {
-				Log.Error("Unhandled exception in control thread");
+				Log.Error("Unhandled exception in control thread.");
 			}
 		}
 	}
@@ -390,7 +390,7 @@ Other:\n\
 \n\
  --update-check                Perform an online check for a newer version of NGM\n\
  --color                       Colored text output (default: off)\n\
- --no-progress                 Don't print progress info while mapping\n\
+ --progress                    Print progress info while mapping\n\
                                (default: off)\n\
 \n\
 \n";

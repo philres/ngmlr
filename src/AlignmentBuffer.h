@@ -93,7 +93,7 @@ private:
 
 	float processTime;
 	float alignTime;
-	float overallTime;
+//	float overallTime;
 
 	GenericReadWriter* m_Writer;
 
@@ -327,7 +327,7 @@ public:
 		//dummy[Config.GetInt("qry_max_len") - 1] = '\0';
 
 		processTime = 0.0f;
-		overallTime = 0.0f;
+//		overallTime = 0.0f;
 		alignTime = 0.0f;
 		//}
 		//}
@@ -385,20 +385,20 @@ public:
 	void flush();
 
 	float getTime() {
-		float tmp = overallTime;
-		overallTime = 0;
-		return tmp;
+//		float tmp = overallTime;
+//		overallTime = 0;
+		return 0;
 	}
 
 	float getProcessTime() {
 		float tmp = processTime;
-		processTime = 0;
+//		processTime = 0;
 		return tmp;
 	}
 
 	float getAlignTime() {
 		float tmp = alignTime;
-		alignTime = 0;
+//		alignTime = 0;
 		return tmp;
 	}
 
