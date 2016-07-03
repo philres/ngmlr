@@ -47,8 +47,9 @@ int m_CurrentReadLength;
 
 ReadProvider::ReadProvider() :
 		//bufferLength based on max read length of 1MB and read part length of readPartLength
-		readPartLength(Config.GetInt(READ_PART_LENGTH)), bufferLength(2000), parsedReads(0), readBuffer(
-				new MappedRead *[bufferLength]), readsInBuffer(0), parser1(0), parser2(
+		readPartLength(Config.GetInt(READ_PART_LENGTH)), bufferLength(2000), parsedReads(
+				0), /*readBuffer(
+				 new MappedRead *[bufferLength]),*/readsInBuffer(0), parser1(0), parser2(
 				0), peDelimiter(
 		Config.GetString("pe_delimiter")[0]), isPaired(
 		Config.GetInt("paired") > 0), skipMateCheck(
@@ -181,7 +182,7 @@ uint ReadProvider::init() {
 	uint readCount = 0;
 	Timer tmr;
 	tmr.ST();
-	size_t maxLen = readPartLength;
+	size_t maxLen = readPartLength + 16;
 	bool estimate = !(Config.Exists("skip_estimate")
 			&& Config.GetInt("skip_estimate"));
 	if (!Config.Exists("qry_max_len") || estimate) {
@@ -237,15 +238,14 @@ ReadProvider::~ReadProvider() {
 		parser2 = 0;
 	}
 
-	if (readBuffer != 0) {
-		delete[] readBuffer;
-		readBuffer = 0;
-	}
+//	if (readBuffer != 0) {
+//		delete[] readBuffer;
+//		readBuffer = 0;
+//	}
 }
 
-void ReadProvider::splitRead(MappedRead * read, int const qryMaxLen) {
+void ReadProvider::splitRead(MappedRead * read) {
 
-	read->qryMaxLen = read->length + 1;
 //	Log.Message("New read with length: %d", read->length);
 
 	int splitNumber = read->length / readPartLength;
@@ -281,6 +281,10 @@ void ReadProvider::splitRead(MappedRead * read, int const qryMaxLen) {
 		int length = read->length;
 		readPart->length = length;
 
+		if ((readPartLength + 16) <= length) {
+			Log.Message("ERror ereroeroeroeor");
+			Fatal();
+		}
 		readPart->Seq = new char[readPartLength + 16];
 		memset(readPart->Seq, '\0', readPartLength + 16);
 //		memset(readPart->Seq, 'N', readPartLength);
@@ -294,7 +298,7 @@ void ReadProvider::splitRead(MappedRead * read, int const qryMaxLen) {
 		readPart->group = group;
 		group->reads[0] = readPart;
 
-		readBuffer[readsInBuffer++] = readPart;
+//		readBuffer[readsInBuffer++] = readPart;
 	} else {
 		group->readNumber = splitNumber;
 		group->reads = new MappedRead *[splitNumber];
@@ -330,7 +334,7 @@ void ReadProvider::splitRead(MappedRead * read, int const qryMaxLen) {
 //		printf("Length: %d\n", readPart->length);
 //		printf("Seq: %s\n", readPart->Seq);
 
-			readBuffer[readsInBuffer++] = readPart;
+//			readBuffer[readsInBuffer++] = readPart;
 		}
 	}
 }
@@ -339,50 +343,51 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 
 	int l = 0;
 
-//	if (readsInBuffer == 0 && ++parsedReads <= 200) {
-	if (readsInBuffer == 0) {
-		try {
-			static int const qryMaxLen = Config.GetInt("qry_max_len");
-			MappedRead * read = new MappedRead(id, qryMaxLen);
-			l = parser->parseRead(read);
+//	if (readsInBuffer == 0 && ++parsedReads <= 20) {
+//	if (readsInBuffer == 0) {
+	try {
+		static int const qryMaxLen = Config.GetInt("qry_max_len");
+		MappedRead * read = new MappedRead(id, qryMaxLen);
+		l = parser->parseRead(read);
 //			Log.Message("Parsing next read: %s (%d)", read->name, read->ReadId);
-			if (l >= 0) {
+		if (l >= 0) {
 
-				Log.Debug(2, "READ_%d\tINPUT\t%s", id, read->name);
-				Log.Debug(16384, "READ_%d\tINPUT_DETAILS\t%s\t%s\t%s\t%s", id, read->Seq, read->qlty, read->AdditionalInfo);
+			Log.Debug(2, "READ_%d\tINPUT\t%s", id, read->name);
+			Log.Debug(16384, "READ_%d\tINPUT_DETAILS\t%s\t%s\t%s\t%s", id, read->Seq, read->qlty, read->AdditionalInfo);
 
-				splitRead(read, qryMaxLen);
-				NGM.AddReadRead(read->ReadId);
+			splitRead(read);
+			NGM.AddReadRead(read->ReadId);
 
-				NGM.Stats->readsInProcess += 1;
+			NGM.Stats->readsInProcess += 1;
+			return read;
 
-			} else {
+		} else {
 
-				Log.Debug(2, "READ_%d\tINPUT\t%s error while reading", id, read->name);
+			Log.Debug(2, "READ_%d\tINPUT\t%s error while reading", id, read->name);
 
-				if(l == -2) {
-					Log.Error("Read %s: Length of read not equal length of quality values.", read->name);
-					Fatal();
-				} else if (l != -1) {
-					//TODO correct number when paired
-					Log.Error("Unknown error while parsing read number %d (error code: %d)", id + 1, l);
-					Fatal();
-				}
+			if(l == -2) {
+				Log.Error("Read %s: Length of read not equal length of quality values.", read->name);
+				Fatal();
+			} else if (l != -1) {
+				//TODO correct number when paired
+				Log.Error("Unknown error while parsing read number %d (error code: %d)", id + 1, l);
+				Fatal();
 			}
-			//delete read;
-			//read = 0;
-		} catch (char * ex) {
-			Log.Error("%s", ex);
-			Fatal();
 		}
+		//delete read;
+		//read = 0;
+	} catch (char * ex) {
+		Log.Error("%s", ex);
+		Fatal();
 	}
+//	}
 
-	if (readsInBuffer == 0) {
-		return 0;
-	} else {
-//		Log.Message("Sending already paresed read %d", readBuffer[readsInBuffer - 1]->ReadId);
-		return readBuffer[readsInBuffer-- - 1];
-	}
+//	if (readsInBuffer == 0) {
+	return 0;
+//	} else {
+////		Log.Message("Sending already paresed read %d", readBuffer[readsInBuffer - 1]->ReadId);
+//		return readBuffer[readsInBuffer-- - 1];
+//	}
 }
 
 IParser * ReadProvider::DetermineParser(char const * fileName,
@@ -447,6 +452,7 @@ bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1,
 
 	read1 = GenerateSingleRead(readid1);
 
+//	Log.Message("Readseq: %s", read1->Seq);
 	return read1 != 0;
 }
 

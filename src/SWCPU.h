@@ -103,6 +103,8 @@ private:
 	//meta info
 	unsigned int batch_size; //effictive thread number that is started per call
 
+	int const maxBinaryCigarLength;
+
 	bool const pacbioDebug;
 
 	int printCigarElement(char const op, int const length, char * cigar);

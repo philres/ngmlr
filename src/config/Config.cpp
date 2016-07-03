@@ -452,11 +452,11 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 				Default(GAP_REF_PENALTY, 2);
 				Default(GAP_EXTEND_PENALTY, 1);
 			} else {
-				Default(MATCH_BONUS, 10);
-				Default(MISMATCH_PENALTY, 15);
-				Default(GAP_READ_PENALTY, 20);
-				Default(GAP_REF_PENALTY, 20);
-				Default(GAP_EXTEND_PENALTY, 5);
+				Default(MATCH_BONUS, 1);
+				Default(MISMATCH_PENALTY, 4);
+				Default(GAP_READ_PENALTY, 2);
+				Default(GAP_REF_PENALTY, 2);
+				Default(GAP_EXTEND_PENALTY, 1);
 			}
 		} else {
 			Log.Message("Using bs-mapping scoring scheme");
@@ -541,8 +541,6 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 //		Default("qry_avg_len", 264);
 
 		Default(STDOUT, 0);
-
-
 
 //#ifdef __APPLE__
 //		Default("gpu", 0);

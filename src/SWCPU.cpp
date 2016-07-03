@@ -23,7 +23,7 @@ int NumberOfSetBits(uint32_t i) {
 }
 
 SWCPUCor::SWCPUCor(int gpu_id) :
-		pacbioDebug(false) {
+		maxBinaryCigarLength(200000), pacbioDebug(false) {
 
 //	cigar = bool(((gpu_id >> 8) & 0xFF) == 1);
 
@@ -43,7 +43,8 @@ SWCPUCor::SWCPUCor(int gpu_id) :
 	alignMatrix = new MatrixElement[maxAlignMatrixLen];
 //	fprintf(stderr, "Allocationg finished\n");
 
-	binaryCigar = new int[200000];
+//	binaryCigarLength = 200000;
+	binaryCigar = new int[maxBinaryCigarLength];
 
 //	short temp[6][6] = { mat, mis, mis, mis, 0, mis, mis, mat, mis, mis, 0, mis,
 //			mis, mis, mat, mis, 0, mis, mis, mis, mis, mat, 0, mis, 0, 0, 0, 0,
@@ -225,8 +226,8 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	//General init
 	//*********************//
 
-	int alignment_length = corr_length + read_length + 1;
-	result.nmPerPosition = new PositionNM[alignment_length * 2];
+	int nmPerPositionLength = (corr_length + read_length + 1) * 2;
+	result.nmPerPosition = new PositionNM[nmPerPositionLength];
 	int nmIndex = 0;
 	int exactAlignmentLength = 0;
 
@@ -274,7 +275,7 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	//Inversion detection Arndt
 	int Yi = 0;
 
-	for (int j = gpuCigarOffset + 1; j < (alignment_length - 1); ++j) {
+	for (int j = gpuCigarOffset + 1; j < (maxBinaryCigarLength - 1); ++j) {
 		int op = gpuCigar[j] & 15;
 		int length = gpuCigar[j] >> 4;
 
@@ -377,11 +378,11 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 			break;
 		default:
 			fprintf(stderr, "Invalid cigar string: %d\n", op);
-			std::cerr << "Offset: " << gpuCigarOffset << std::endl;
-			for (int x = 0; x < alignment_length * 2; ++x) {
-				std::cerr << gpuCigar[x] << " ";
-			}
-			std::cerr << std::endl;
+//			std::cerr << "Offset: " << gpuCigarOffset << std::endl;
+//			for (int x = 0; x < alignmentLength * 2; ++x) {
+//				std::cerr << gpuCigar[x] << " ";
+//			}
+//			std::cerr << std::endl;
 			throw 1;
 		}
 
@@ -412,11 +413,11 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 	//*********************//
 	//Set QEnd
 	//*********************//
-	if (((gpuCigar[alignment_length - 1] >> 4) + QEnd) > 0) {
+	if (((gpuCigar[maxBinaryCigarLength - 1] >> 4) + QEnd) > 0) {
 		if (pacbioDebug) {
 			fprintf(stderr, "Adding %d to QEnd\n", QEnd);
 		}
-		result.QEnd = (gpuCigar[alignment_length - 1] >> 4) + QEnd;
+		result.QEnd = (gpuCigar[maxBinaryCigarLength - 1] >> 4) + QEnd;
 		cigar_offset += printCigarElement('S', result.QEnd,
 				result.pRef + cigar_offset);
 		finalCigarLength += result.QEnd;
@@ -429,8 +430,9 @@ int SWCPUCor::computeCigarMD(Align & result, int const gpuCigarOffset,
 //	result.NM = perWindowSum * 1.0f / windowNumber;
 	result.alignmentLength = exactAlignmentLength;
 
-	if (alignment_length * 2 < exactAlignmentLength) {
-		fprintf(stderr, "Alignmentlength < exactAlingmentlength");
+	if (nmPerPositionLength < exactAlignmentLength) {
+		fprintf(stderr, "Alignmentlength (%d) < exactAlingmentlength (%d)\n",
+				nmPerPositionLength, exactAlignmentLength);
 		exit(-1);
 	}
 //	fprintf(stderr, "\n==== Matches: %d of %d ====\n", overallMatchCount,
@@ -470,7 +472,8 @@ bool SWCPUCor::Backtracking_CIGAR(char const * const scaff,
 		matrix += (((corr_length + 1) * (best_read_index + 1)));
 
 		int abs_ref_index = best_ref_index + best_read_index;
-		int alignment_index = alignment_length - 1;
+//		int alignment_index = alignment_length - 1;
+		int alignment_index = maxBinaryCigarLength - 1;
 
 		int pointer = CIGAR_STOP;
 		int cigar_element = CIGAR_S;
@@ -524,6 +527,12 @@ bool SWCPUCor::Backtracking_CIGAR(char const * const scaff,
 				cigar_element = pointer;
 				cigar_length = 1;
 			}
+
+			if (alignment_index < 10) {
+				fprintf(stderr,
+						"Error in backtracking. Binary cigar array not long enough.\n");
+				throw 1;
+			}
 		}
 		alignments[alignment_index--] = (cigar_length << 4 | cigar_element);
 		if (cigar_element != CIGAR_D) {
@@ -548,9 +557,10 @@ bool SWCPUCor::Backtracking_CIGAR(char const * const scaff,
 				exit(1);
 			}
 		}
-		if (pacbioDebug)
+		if (pacbioDebug) {
 			fprintf(stderr, "Read length: %d, CIGAR length: %d\n", read_length,
 					cigarLenth);
+		}
 	}
 	return valid;
 }
@@ -650,16 +660,29 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 //	Log.Message("%s", qrySeq);
 
 	bool realoc = false;
-	int read_length = strlen(qrySeq);
-	if ((long) (read_length * 1.1f) * (long) corridor > maxAlignMatrixLen) {
+	ulong read_length = strlen(qrySeq);
+	ulong extReadLength = read_length * 1.1f;
+	ulong lcorridor = corridor + 2;
+
+	ulong maxMemory = 6000000000ll;
+
+	ulong memUsage = extReadLength * lcorridor;
+
+//	fprintf(stderr, "%llu > %llu == %d && %llu > %llu == %d\n", memUsage,
+//			maxAlignMatrixLen, memUsage > maxAlignMatrixLen, memUsage,
+//			maxMemory, memUsage > maxMemory);
+	if (memUsage > maxAlignMatrixLen) {
+
+		if (memUsage > maxMemory) {
+			return -2;
+		}
 		delete[] alignMatrix;
 		if (pacbioDebug) {
-			fprintf(stderr, "Reallocationg: %llu\n\n",
-					((long) (read_length * 1.1f) * (long) corridor)
-							* sizeof(MatrixElement));
+			fprintf(stderr, "%llu * %llu * %d\n", extReadLength, lcorridor,
+					sizeof(MatrixElement));
+			fprintf(stderr, "Reallocationg: %llu\n\n", memUsage);
 		}
-		alignMatrix = new MatrixElement[(long) (read_length * 1.1f)
-				* (long) corridor];
+		alignMatrix = new MatrixElement[memUsage];
 		realoc = true;
 	}
 
@@ -685,7 +708,7 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 	int finalCigarLength = 0;
 
 	int corr_length = corridor;
-	int alignment_length = (corr_length + read_length + 1);
+	//int alignment_length = (corr_length + read_length + 1);
 
 	int * fwdResults = new int[result_number];
 
@@ -696,10 +719,12 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 //			alignMatrix);
 //	Log.Message("%d, %d, %d, %d", fwdResults[0], fwdResults[1], fwdResults[2], fwdResults[3]);
 
+//	bool valid = false;
 	bool valid = Backtracking_CIGAR(refSeq, qrySeq, fwdResults, binaryCigar,
-			corr_length, read_length, alignment_length, alignMatrix);
+			corr_length, read_length, 0, alignMatrix);
 
 	if (valid) {
+		int binaryCigarLength = maxBinaryCigarLength - fwdResults[3];
 		finalCigarLength = computeCigarMD(align, fwdResults[3], binaryCigar,
 				refSeq + fwdResults[0], corr_length, read_length, clipping[0],
 				clipping[1]);

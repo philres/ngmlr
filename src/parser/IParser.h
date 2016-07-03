@@ -79,10 +79,12 @@ protected:
 					}
 					read->Seq[read->length] = '\0';
 				} else {
-					read->length = 1;
-					read->Seq[0] = 'N';
-//					read->length = qryMaxLen - 2;
-//					memset(read->Seq, 'N', read->length);
+					fprintf(stderr, "Empty read found!\n");
+
+					read->length = qryMaxLen;
+					read->Seq = new char[read->length];
+					memset(read->Seq, 'N', read->length - 1);
+					read->Seq[read->length] = '\0';
 					read->SetFlag(NGMNames::Empty);
 				}
 

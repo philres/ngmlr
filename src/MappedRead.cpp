@@ -53,8 +53,9 @@ char const * MappedRead::computeReverseSeq() {
 	if (RevSeq == 0) {
 //		RevSeq = new char[length + 1];
 //		memset(RevSeq, 0, length + 1);
-		RevSeq = new char[qryMaxLen];
-		memset(RevSeq, 0, qryMaxLen);
+		int revLength = std::max(qryMaxLen, length + 16);
+		RevSeq = new char[revLength];
+		memset(RevSeq, 0, revLength);
 
 		char * fwd = Seq;
 		char * rev = RevSeq + length - 1;

@@ -109,6 +109,10 @@ protected:
 	}
 
 	inline void SetSearchTableBitLen(int bitLen) {
+		if(bitLen >= 24) {
+			Log.Message("SearchTable exceeded length.");
+			Fatal();
+		}
 		c_SrchTableBitLen = bitLen;
 		c_BitShift = 64 - c_SrchTableBitLen;
 		c_SrchTableLen = (int) pow(2, c_SrchTableBitLen);

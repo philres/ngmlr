@@ -30,7 +30,7 @@ int x_SrchTableBitLen = 24;
 //Default batch size
 //int const cBatchSize = 1800000;
 // Reduced batch size (for low read number PacBio samples)
-int const cBatchSize = 100000;
+int const cBatchSize = 1000;
 //int const cBatchSize =   10000;
 uint const cPrefixBaseSkip = 0;
 
@@ -322,7 +322,7 @@ void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 		read->Calculated = 0;
 		read->group->readsFinished += 1;
 		if (read->group->readsFinished == read->group->readNumber) {
-//			out->processLongReadLIS(group);
+			//			out->processLongReadLIS(group);
 			out->WriteRead(read->group->fullRead, false);
 		}
 //		out->addRead(read, -1);
@@ -330,6 +330,11 @@ void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 		read->Calculated = 0;
 		sw->addRead(read, count);
 		++m_WrittenReads;
+//		read->group->readsFinished += 1;
+//		if (read->group->readsFinished == read->group->readNumber) {
+//			//			out->processLongReadLIS(group);
+//			out->WriteRead(read->group->fullRead, false);
+//		}
 	}
 }
 
@@ -580,7 +585,7 @@ void CS::Init() {
 
 CS::CS(bool useBuffer) :
 		m_CSThreadID((useBuffer) ? (AtomicInc(&s_ThreadCount) - 1) : -1), m_BatchSize(
-				cBatchSize / Config.GetInt("qry_avg_len")), m_ProcessedReads(0), m_WrittenReads(
+				cBatchSize), m_ProcessedReads(0), m_WrittenReads(
 				0), m_DiscardedReads(0), m_EnableBS(false), m_Overflows(0), m_entry(
 				0), m_PrefixBaseSkip(0), m_Fallback(false) // cTableLen <= 0 means always use fallback
 {

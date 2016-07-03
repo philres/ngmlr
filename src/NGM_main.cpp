@@ -195,7 +195,7 @@ int main(int argc, char * argv[]) {
 
 		if (!Config.Exists("qry") && !(Config.Exists("qry1") && Config.Exists("qry2"))) {
 			Log.Message("Finished building hash table.");
-			Log.Message("No qry file specified. If you want to map single-end data use -q/--qry. If you want to map paired-end data, either use -q/--qry and -p or --qry1 and --qry2.");
+			Log.Message("No qry file specified. If you want to map single-end data use -q/--qry. If you want to map paired-end data, either use -q/--qry and -p or --qry1 and --qry2");
 		} else {
 			try {
 				NGM.StartThreads();

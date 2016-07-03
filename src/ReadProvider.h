@@ -32,7 +32,7 @@ private:
 
 	size_t parsedReads;
 
-	MappedRead * * readBuffer;
+//	MappedRead * * readBuffer;
 
 	size_t readsInBuffer;
 
@@ -45,7 +45,7 @@ private:
 
 	bool const skipMateCheck;
 
-	void splitRead(MappedRead * read, int const qryMaxLen);
+	void splitRead(MappedRead * read);
 	virtual MappedRead * NextRead(IParser * parser, int const id);
 	MappedRead * GenerateSingleRead(int const readid);
 	IParser * DetermineParser(char const * fileName, int const qryMaxLen);

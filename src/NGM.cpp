@@ -17,6 +17,7 @@
 #include "OclHost.h"
 #include "SWOclCigar.h"
 #include "seqan/EndToEndAffine.h"
+#include "BitpalAligner.h"
 
 #undef module_name
 #define module_name "NGM"
@@ -254,14 +255,27 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 	//Each part should have its own id.
 	int idJump = 2000;
 
-	for (int i = 0; i < desBatchSize && !eof; i = i + 2) {
+	int i = 0;
+	while (count < desBatchSize && !eof) {
 		MappedRead * read1 = 0;
 		eof = !NGM.GetReadProvider()->GenerateRead(m_CurStart + i * idJump, read1, 0, read1);
-		if (read1 != 0) {
-			count += 1;
-			list.push_back(read1);
+		i += 1;
+		if (!eof) {
+			for (int j = 0; j < read1->group->readNumber; ++j) {
+				count += 1;
+				list.push_back(read1->group->reads[j]);
+			}
 		}
+
 	}
+
+//	for (int i = 0; i < desBatchSize && !eof; i = i + 2) {
+//		MappedRead * read1 = 0;
+//		eof = !NGM.GetReadProvider()->GenerateRead(m_CurStart + i * idJump, read1, 0, read1);
+//		if (read1 != 0) {
+//
+//		}
+//	}
 
 	m_CurStart += count;
 	m_CurCount -= desBatchSize;
@@ -394,45 +408,47 @@ IAlignment * _NGM::CreateAlignment(int const mode) {
 		}
 		instance = new EndToEndAffine();
 	} else {
-		int dev_type = CL_DEVICE_TYPE_CPU;
+		instance = new BitpalAligner();
 
-		if (Config.Exists("gpu")) {
-			dev_type = CL_DEVICE_TYPE_GPU;
-		}
-
-		Log.Debug(LOG_INFO, "INFO", "Mode: %d GPU: %d", mode, mode & 0xFF);
-		OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
-
-		int ReportType = (mode >> 8) & 0xFF;
-		switch (ReportType) {
-			case 1:
-
-			instance = new SWOclCigar(host);
-			break;
-			default:
-			Log.Error("Unsupported report type %i", mode);
-			break;
-		}
+//		int dev_type = CL_DEVICE_TYPE_CPU;
+//
+//		if (Config.Exists("gpu")) {
+//			dev_type = CL_DEVICE_TYPE_GPU;
+//		}
+//
+//		Log.Debug(LOG_INFO, "INFO", "Mode: %d GPU: %d", mode, mode & 0xFF);
+//		OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
+//
+//		int ReportType = (mode >> 8) & 0xFF;
+//		switch (ReportType) {
+//			case 1:
+//
+//			instance = new SWOclCigar(host);
+//			break;
+//			default:
+//			Log.Error("Unsupported report type %i", mode);
+//			break;
+//		}
 	}
 
 	return instance;
 }
 
 void _NGM::DeleteAlignment(IAlignment* instance) {
-	OclHost * host = 0;
-	if (!Config.GetInt("affine")) {
-		host = ((SWOcl *) instance)->getHost();
-	}
+//	OclHost * host = 0;
+//	if (!Config.GetInt("affine")) {
+//		host = ((SWOcl *) instance)->getHost();
+//	}
 	Log.Verbose("Delete alignment called");
 	if (instance != 0) {
 		delete instance;
 		instance = 0;
 	}
 
-	if (host != 0) {
-		delete host;
-		host = 0;
-	}
+//	if (host != 0) {
+//		delete host;
+//		host = 0;
+//	}
 }
 
 void _NGM::MainLoop() {
@@ -450,12 +466,12 @@ void _NGM::MainLoop() {
 	while (Running()) {
 		Sleep(2000);
 		if (progress) {
-			 processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
+			processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
 
 			runTime = tmr.ET();
 			readsPerSecond = processed / runTime;
 			//Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Reads: %d (%d)", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->readsInProcess, MappedRead::sInstanceCount);
-			Log.Progress("Mapped: %d (%.2f r/s), Time: %.2f %.2f %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
+			Log.Progress("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
 		}
 	}
 
@@ -463,7 +479,7 @@ void _NGM::MainLoop() {
 		processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
 		runTime = tmr.ET();
 		readsPerSecond = processed / runTime;
-		Log.Message("Mapped: %d (%.2f r/s), Time: %.2f %.2f %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
+		Log.Message("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
 	}
 }
 

@@ -52,7 +52,7 @@ protected:
 
 	bool writeUnmapped;
 
-	static int const BUFFER_SIZE = 1700000;
+	static int const BUFFER_SIZE =  3200000;
 	static int const BUFFER_LIMIT = 1600000;
 
 	char * writeBuffer;
@@ -65,6 +65,10 @@ protected:
 		va_start(arg, format);
 		done = vsprintf(writeBuffer + bufferPosition, format, arg);
 		bufferPosition += done;
+		if(bufferPosition >= BUFFER_SIZE) {
+			Log.Error("Size of write buffer exceeded");
+			Fatal();
+		}
 		va_end(arg);
 		return done;
 	}

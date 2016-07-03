@@ -177,10 +177,6 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 	clipping[0] = QStart;
 	clipping[1] = QEnd;
 
-//	if(QStart < 0 || QEnd < 0) {
-//		throw 1;
-//	}
-
 	int cigarLength = -1;
 	//Required if corridor is increased!
 	int correctOffset = (corridor >> 1);
@@ -210,10 +206,10 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 			Log.Message("Additional QStart: %d, QEnd: %d", clipping[0], clipping[1]);
 		}
 
-//		if (pacbioDebug) {
+		if (pacbioDebug) {
 //			Log.Message("Ref: %s", refSeq);
 //			Log.Message("Read: %s", readSeq);
-//		}
+		}
 
 		int mode = 0;
 		try {
@@ -229,6 +225,9 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 			throw 1;
 		}
 
+		if (pacbioDebug) {
+			Log.Message("CIARG: %s", align.pBuffer1);
+		}
 		int aligned = readLength - (align.QStart - clipping[0])
 				- (align.QEnd - clipping[1]);
 
@@ -257,6 +256,8 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 				Log.Message("Invalid alignment found. Running again with corridor %d, %d attempts left", corridor, maxTries);
 				NGM.Stats->invalidAligmentCount += 1;
 			}
+		} else if(cigarLength == -2) {
+			Log.Message("Could not compute alignment. Not enough memory.");
 		} else {
 			if (pacbioDebug) {
 				Log.Message("%d of %d bp successfully aligned", aligned, readLength);
@@ -724,8 +725,8 @@ Interval * AlignmentBuffer::infereCMRsfromAnchors(int & intervalsIndex,
 			int posInLIS = lisLength - 1;
 			allRevAnchorsLength = 0;
 
-			REAL * regX = new REAL[allFwdAnchorsLength];
-			REAL * regY = new REAL[allFwdAnchorsLength];
+			REAL * regX = new REAL[std::max(2, allFwdAnchorsLength)];
+			REAL * regY = new REAL[std::max(2, allFwdAnchorsLength)];
 			int pointNumber = 0;
 
 			for (int i = 0; i < allFwdAnchorsLength; ++i) {
@@ -988,6 +989,8 @@ int AlignmentBuffer::alignmentCheckForInversion(int const inversionLength,
 	int svType = SV_NONE;
 	int const readCheckLength = 50;
 
+	int const fullReadSeqLength = strlen(fullReadSeq);
+
 	// TODO: don't allocate and delete every time. Can be done once
 	// and reused
 	const int readSeqLenght = readCheckLength * 2 + 10;
@@ -999,46 +1002,73 @@ int AlignmentBuffer::alignmentCheckForInversion(int const inversionLength,
 	char* refSeq = new char[refSeqLength + 10];
 	memset(refSeq, '\0', (refSeqLength + 10) * sizeof(char));
 	SequenceProvider.DecodeRefSequence(refSeq, 0, inversionCheckLocation.m_Location, refSeqLength);
-	// Extract sequence from read
-	strncpy(readSeq, fullReadSeq + inversionMidpointOnRead - readCheckLength,
-			readCheckLength * 2);
-	// Reverse complement
-	computeReverseSeq(readSeq, revreadSeq, readCheckLength * 2);
+
+	// Extract sequence from read.
 	if (pacbioDebug) {
-		Log.Message("Ref:     %s", refSeq);
-		Log.Message("Read:    %s", readSeq);
-		Log.Message("RevRead: %s", revreadSeq);
+		Log.Message("CheckLength: %d, Midpoint: %d, readSeqLength: %d", readCheckLength, inversionMidpointOnRead, readSeqLenght);
 	}
-	if (printInvCandidateFa) {
-		printf(">%s_%d/1\n%s\n", readName, inversionNumber, refSeq);
-		printf(">%s_%d/2\n%s\n", readName, inversionNumber, revreadSeq);
+	if (readCheckLength <= inversionMidpointOnRead
+			&& (inversionMidpointOnRead + readCheckLength)
+					< fullReadSeqLength) {
+		strncpy(readSeq,
+				fullReadSeq + inversionMidpointOnRead - readCheckLength,
+				readCheckLength * 2);
 	}
-	IAlignment* aligner = new EndToEndAffine();
-	float scoreFwd = 0.0f;
-	float scoreRev = 0.0f;
-	static const float minScore = Config.GetFloat(MATCH_BONUS) * 1.0f
-			* readCheckLength / 4.0f;
-	aligner->SingleScore(10, 0, readSeq, refSeq, scoreFwd, 0);
-	aligner->SingleScore(10, 0, revreadSeq, refSeq, scoreRev, 0);
+
+//	if (readCheckLength > inversionMidpointOnRead) {
+//		strncpy(readSeq, fullReadSeq,
+//				std::min(readCheckLength * 2, fullReadSeqLength));
+//	} else {
+//		if ((inversionMidpointOnRead + readCheckLength) < readSeqLenght) {
+//			strncpy(readSeq,
+//					fullReadSeq + inversionMidpointOnRead - readCheckLength,
+//					readCheckLength * 2);
+//		}
+//	}
+	if (strlen(readSeq) > 0) {
+		// Reverse complement
+		computeReverseSeq(readSeq, revreadSeq, readCheckLength * 2);
+		if (pacbioDebug) {
+			Log.Message("Ref:      %s", refSeq);Log.Message("Read:     %s", readSeq);Log.Message(
+					"RevRead:  %s", revreadSeq);}
+		if (printInvCandidateFa) {
+			printf(">%s_%d/1\n%s\n", readName, inversionNumber, refSeq);
+			printf(">%s_%d/2\n%s\n", readName, inversionNumber, revreadSeq);
+		}
+		IAlignment* aligner = new EndToEndAffine();
+		float scoreFwd = 0.0f;
+		float scoreRev = 0.0f;
+		static const float minScore = Config.GetFloat(MATCH_BONUS) * 1.0f
+				* readCheckLength / 4.0f;
+		aligner->SingleScore(10, 0, refSeq, readSeq, scoreFwd, 0);
+		aligner->SingleScore(10, 0, refSeq, revreadSeq, scoreRev, 0);
+		delete aligner;
+		aligner = 0;
+		if (pacbioDebug) {
+			SequenceProvider.convert(inversionCheckLocation);
+			int len = 0;
+			Log.Message(
+					"Inversion check at position %s:%llu - fwd: %f, rev: %f, min: %f",
+					SequenceProvider.GetRefName(inversionCheckLocation.getrefId(), len),
+					inversionCheckLocation.m_Location, scoreFwd, scoreRev, minScore);
+		}
+		if (scoreRev > scoreFwd && scoreRev > minScore) {
+			svType = SV_INVERSION;
+		} else if (scoreRev < minScore && scoreFwd < minScore) {
+			svType = SV_TRANSLOCATION;
+		}
+		//		inversionVerified = scoreRev > scoreFwd || scoreFwd < minScore;
+	} else {
+		if (pacbioDebug) {
+			Log.Message("Skipping alignment. Readpart not long enough.");
+		}
+	}
 	delete[] refSeq;
 	refSeq = 0;
 	delete[] readSeq;
 	readSeq = 0;
 	delete[] revreadSeq;
 	revreadSeq = 0;
-	delete aligner;
-	aligner = 0;
-	if (pacbioDebug) {
-		SequenceProvider.convert(inversionCheckLocation);
-		int len = 0;
-		Log.Message("Inversion check at position %s:%llu - fwd: %f, rev: %f, min: %f", SequenceProvider.GetRefName(inversionCheckLocation.getrefId(), len), inversionCheckLocation.m_Location, scoreFwd, scoreRev, minScore);
-	}
-	if (scoreRev > scoreFwd && scoreRev > minScore) {
-		svType = SV_INVERSION;
-	} else if (scoreRev < minScore && scoreFwd < minScore) {
-		svType = SV_TRANSLOCATION;
-	}
-	//		inversionVerified = scoreRev > scoreFwd || scoreFwd < minScore;
 
 	return svType;
 }
@@ -1053,8 +1083,8 @@ int AlignmentBuffer::checkForSV(Align const align, Interval const interval,
 	int inversionNumber = 0;
 
 	int const minInversionLength = 25;
-	// Length of regions that will be checked left and right to the midpoint of the
-	// inversion on the reference
+// Length of regions that will be checked left and right to the midpoint of the
+// inversion on the reference
 	int const refCheckLength = 250;
 
 	int inversionLength = abs(stopInv - startInv);
@@ -1155,7 +1185,7 @@ int AlignmentBuffer::detectMisalignment(Align const align,
 	//Half of window size used to compute NM in SWCPU.cpp
 	int const inversionPositionShift = 0;
 
-	//Peaks (isInversion(nm) == true) that are less than maxDistance apart will be merged
+//Peaks (isInversion(nm) == true) that are less than maxDistance apart will be merged
 	int const maxDistance = 20;
 	int distance = maxDistance;
 
@@ -1179,7 +1209,8 @@ int AlignmentBuffer::detectMisalignment(Align const align,
 
 	// Extremely simple "peak-finding" algorithm
 	int len = 0;
-	for (int i = 0; i < align.alignmentLength; ++i) {
+	int result = SV_NONE;
+	for (int i = 0; i < align.alignmentLength && result == SV_NONE; ++i) {
 		float nm = (32 - align.nmPerPosition[i].nm) / 32.0f;
 
 		//Log.Message("Inv: %d - %d", startInvRead, stopInvRead);
@@ -1218,12 +1249,8 @@ int AlignmentBuffer::detectMisalignment(Align const align,
 						startInv, stopInv, startInvRead, stopInvRead,
 						abs(stopInv - startInv), read->name);
 					}
-					int result = checkForSV(align, alignedInterval, startInv, stopInv,
-					startInvRead, stopInvRead, readPartSeq,
-					leftOfInv, rightOfInv, read);
-					if(result != SV_NONE) {
-						return result;
-					}
+
+					result = checkForSV(align, alignedInterval, startInv, stopInv, startInvRead, stopInvRead, readPartSeq, leftOfInv, rightOfInv, read);
 
 					startInv = -1;
 					stopInv = -1;
@@ -1237,7 +1264,7 @@ int AlignmentBuffer::detectMisalignment(Align const align,
 		}
 	}
 
-	return SV_NONE;
+	return result;
 }
 
 int AlignmentBuffer::estimateCorridor(const Interval & interval) {
@@ -1259,7 +1286,7 @@ Align AlignmentBuffer::alignInterval(MappedRead const * const read_,
 		Interval const interval, char * const readSeq,
 		size_t const readSeqLen) {
 
-	//Log.Message("%d %d", abs(interval.onReadStart - interval.onReadStop), llabs(interval.onRefStart - interval.onRefStop));
+//Log.Message("%d %d", abs(interval.onReadStart - interval.onReadStop), llabs(interval.onRefStart - interval.onRefStop));
 	if (llabs(interval.onReadStart - interval.onReadStop) == 0
 			|| llabs(interval.onRefStart - interval.onRefStop) == 0
 			|| readSeqLen < 10) {
@@ -1306,6 +1333,7 @@ Align AlignmentBuffer::alignInterval(MappedRead const * const read_,
 //		Fatal();
 	}
 
+//	Log.Message("CIGAR: %s", align.pBuffer1);
 	alignTime += alignTimer.ET();
 	return align;
 }
@@ -1903,6 +1931,9 @@ void sortRead(ReadGroup * group) {
 
 void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
+//	WriteRead(group->fullRead, false);
+//	return;
+
 	Timer overallTmr;
 	overallTmr.ST();
 
@@ -1920,10 +1951,11 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 		// TODO: remove fixed length and don't allocate and delete for
 		// every read
-		Anchor * anchorsFwd = new Anchor[100000];
+		int maxAnchorNumber = 100000;
+		Anchor * anchorsFwd = new Anchor[maxAnchorNumber];
 		int anchorFwdIndex = 0;
 
-		Anchor * anchorsRev = new Anchor[100000];
+		Anchor * anchorsRev = new Anchor[maxAnchorNumber];
 		int anchorRevIndex = 0;
 
 		for (int j = 0; j < group->readNumber; ++j) {
@@ -1953,6 +1985,16 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 				if (part->numScores() < maxCandidatesPerReadPart) {
 					if (part->Scores[k].Score.f > minScore) {
 						// Anchor is valid and will be used
+						if (anchorFwdIndex >= (maxAnchorNumber - 1)) {
+							Log.Message("Anchor array too small - reallocating.");
+							maxAnchorNumber = maxAnchorNumber * 2;
+							Anchor * anchorsTmp = new Anchor[maxAnchorNumber];
+							memcpy(anchorsTmp, anchorsFwd, anchorFwdIndex * sizeof(Anchor *));
+							delete[] anchorsFwd;
+							anchorsFwd = anchorsTmp;
+							delete[] anchorsRev;
+							anchorsRev = new Anchor[maxAnchorNumber];
+						}
 						Anchor & anchor = anchorsFwd[anchorFwdIndex++];
 
 						anchor.score = part->Scores[k].Score.f;
@@ -1974,7 +2016,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 									group->fullRead->name, anchor.onRead,
 									anchor.onRead + readPartLength,
 									part->Scores[k].Location.m_Location
-											+ readPartLength,
+									+ readPartLength,
 									part->Scores[k].Location.m_Location,
 									part->Scores[k].Score.f,
 									part->Scores[k].Location.isReverse(),
@@ -1985,7 +2027,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 									anchor.onRead + readPartLength,
 									part->Scores[k].Location.m_Location,
 									part->Scores[k].Location.m_Location
-											+ readPartLength,
+									+ readPartLength,
 									part->Scores[k].Score.f,
 									part->Scores[k].Location.isReverse(),
 									DP_TYPE_UNFILTERED, DP_STATUS_OK);
@@ -2124,7 +2166,8 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 					bpAligned += (read->length - align.QStart - align.QEnd);
 				}
 				Log.Message("Aligned %d bp of %d bp", bpAligned, read->length);
-				Log.Message("================++++++++++++++++++================");
+				Log.Message("================++++++++++++++++++=================");
+//				getchar();
 			}
 
 			read->AllocScores(tmpLocationScores, nTempAlignments);
@@ -2134,7 +2177,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			tmpLocationScores = 0;
 
 			if (pacbioDebug) {
-				Log.Message("========================");
+				Log.Message("==========================");
 			}
 			if (read->Calculated > 0) {
 

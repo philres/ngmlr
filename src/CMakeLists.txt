@@ -23,6 +23,7 @@ add_executable(ngm-core
 					../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
 					parser/BamParser.cpp
 					writer/BAMWriter.cpp
+					BitpalAligner.cpp
 					parser/VcfParser.cpp																	
 					config/Config.cpp					
 					CS.cpp					
@@ -68,6 +69,7 @@ add_executable(ngm-core-debug
 					../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
 					parser/BamParser.cpp
 					writer/BAMWriter.cpp
+					BitpalAligner.cpp
 					parser/VcfParser.cpp																		
 					config/Config.cpp					
 					CS.cpp					
