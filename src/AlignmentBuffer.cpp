@@ -183,7 +183,7 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 
 	bool shortAlignment = false;
 
-	int maxTries = 1;
+	int maxTries = 5;
 
 	while (cigarLength == -1) {
 
@@ -248,10 +248,10 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 //					cigarLength = -1;
 //				}
 //			}
-			if (cigarLength != -1) {
-				maxTries -= 1;
-				cigarLength = -1;
-			}
+//			if (cigarLength != -1) {
+			maxTries -= 1;
+//				cigarLength = -1;
+//			}
 			if (pacbioDebug) {
 				Log.Message("Invalid alignment found. Running again with corridor %d, %d attempts left", corridor, maxTries);
 				NGM.Stats->invalidAligmentCount += 1;
@@ -273,8 +273,10 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 	clipping = 0;
 
 	if (cigarLength != fullReadLength) {
-		Log.Error("CIGAR string invalid: seq len: %d, cigar len: %d", fullReadLength,
-				cigarLength);
+		if (cigarLength != -2) {
+			Log.Error("CIGAR string invalid: seq len: %d, cigar len: %d", fullReadLength,
+					cigarLength);
+		}
 		throw 1;
 	}
 
@@ -1494,6 +1496,7 @@ int AlignmentBuffer::realign(int svType, Interval interval, Interval leftOfInv,
 
 			if (align.Score > 0.0f) {
 				align.MQ = mq;
+				align.svType = SV_INVERSION;
 				tmpAling[alignIndex] = align;
 
 				tmp[alignIndex].Location.m_Location = inv.onRefStart
@@ -1503,6 +1506,17 @@ int AlignmentBuffer::realign(int svType, Interval interval, Interval leftOfInv,
 
 				read->Calculated += 1;
 				alignIndex += 1;
+
+
+				SequenceLocation inversionStartRef;
+				inversionStartRef.m_Location = inv.onRefStart;
+				SequenceProvider.convert(inversionStartRef);
+				SequenceLocation inversionStopRef;
+				inversionStopRef.m_Location = inv.onRefStop;
+				SequenceProvider.convert(inversionStopRef);
+
+				//int len = 0;
+				//printf("%s\t%llu\t%llu\n", SequenceProvider.GetRefName(inversionStartRef.getrefId(), len), inversionStartRef.m_Location, inversionStopRef.m_Location);
 
 				return SV_INVERSION;
 			} else {

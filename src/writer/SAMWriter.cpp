@@ -184,6 +184,10 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 	Print("XR:i:%d\t", read->length - read->Alignments[scoreID].QStart - read->Alignments[scoreID].QEnd);
 	Print("MD:Z:%s\t", read->Alignments[scoreID].pBuffer2);
 
+	if(read->Alignments[scoreID].svType > -1) {
+		Print("SV:i:%d\t", read->Alignments[scoreID].svType);
+	}
+
 	if(read->Calculated > 1) {
 		Print("SA:Z:");
 		for(int i = 0; i < read->Calculated; ++i) {

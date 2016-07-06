@@ -666,12 +666,14 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 
 	ulong maxMemory = 6000000000ll;
 
-	ulong memUsage = extReadLength * lcorridor;
+	ulong matrixLength = extReadLength * lcorridor;
+
+	ulong memUsage = matrixLength * sizeof(MatrixElement);
 
 //	fprintf(stderr, "%llu > %llu == %d && %llu > %llu == %d\n", memUsage,
 //			maxAlignMatrixLen, memUsage > maxAlignMatrixLen, memUsage,
 //			maxMemory, memUsage > maxMemory);
-	if (memUsage > maxAlignMatrixLen) {
+	if (matrixLength > maxAlignMatrixLen) {
 
 		if (memUsage > maxMemory) {
 			return -2;
@@ -682,7 +684,7 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 					sizeof(MatrixElement));
 			fprintf(stderr, "Reallocationg: %llu\n\n", memUsage);
 		}
-		alignMatrix = new MatrixElement[memUsage];
+		alignMatrix = new MatrixElement[matrixLength];
 		realoc = true;
 	}
 
