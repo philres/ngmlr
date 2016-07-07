@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 2.8)
 project(NextGenMap)
 
 set( NGM_VERSION_MAJOR 0 )
-set( NGM_VERSION_MINOR 1 )
+set( NGM_VERSION_MINOR 2 )
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Building in debug mode!")
     set( NGM_VERSION_BUILD 13-debug )
 else()
-  set( NGM_VERSION_BUILD 2 )
+  set( NGM_VERSION_BUILD 0 )
 ENDIF()
 
 
@@ -59,7 +59,11 @@ ENDIF()
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/lib/zlib-1.2.7")
 include_directories("${PROJECT_SOURCE_DIR}/lib/zlib-1.2.7")
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/lib/minimap")
 
+include_directories("${PROJECT_SOURCE_DIR}/lib/minimap")
+
+add_subdirectory(lib/minimap)
 add_subdirectory(lib/zlib-1.2.7)
 add_subdirectory(lib/bamtools-2.3.0)
 

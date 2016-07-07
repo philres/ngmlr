@@ -39,6 +39,7 @@ public:
 	static const int maxRefNameLength = 100;
 
 	bool convert(SequenceLocation & m_Location);
+	uloc convert(char const * refId, uloc position);
 
 	Chromosome getChrStart(uloc const position);
 
@@ -81,6 +82,8 @@ private:
 	bool m_EnableBS;
 
 	uloc * refStartPos;
+
+	std::map<std::string, int> m;
 
 	static const int minRefSeqLen = 10;
 

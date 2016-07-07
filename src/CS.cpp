@@ -29,8 +29,7 @@ int x_SrchTableBitLen = 24;
 //Number of bases per batch
 //Default batch size
 //int const cBatchSize = 1800000;
-// Reduced batch size (for low read number PacBio samples)
-int const cBatchSize = 1000;
+int const cBatchSize = 5;
 //int const cBatchSize =   10000;
 uint const cPrefixBaseSkip = 0;
 
@@ -513,16 +512,19 @@ void CS::DoRun() {
 	while (NGM.ThreadActive(m_TID, GetStage()) && ((m_CurrentBatch = NGM.GetNextReadBatch(m_BatchSize)), (m_CurrentBatch.size() > 0))) {
 		Log.Debug(LOG_CS_DETAILS, "CS Thread %i got batch (len %i)", m_TID, m_CurrentBatch.size());
 
-		int nCRMsSum = RunBatch(scoreBuffer, alignmentBuffer);
-		scoreBuffer->flush();
+//		int nCRMsSum = RunBatch(scoreBuffer, alignmentBuffer);
+//		scoreBuffer->flush();
+		for (size_t i = 0; i < m_CurrentBatch.size(); ++i) {
+			alignmentBuffer->processLongReadLIS(m_CurrentBatch[i]->group);
+		}
 
 		float elapsed = tmr.ET();
 		Log.Debug(LOG_CS_DETAILS, "CS Thread %i finished batch (len %i) with %i overflows, length %d (elapsed: %.3fs)", m_TID, m_CurrentBatch.size(), m_Overflows, c_SrchTableBitLen, elapsed);
 
 		float alignmentTime = alignmentBuffer->getAlignTime();
 		float longReadProcessingTime = alignmentBuffer->getProcessTime() - alignmentTime;
-		float shortReadScoringTime = scoreBuffer->getTime() - alignmentBuffer->getProcessTime();
-		float kmerSearchTime = elapsed - scoreBuffer->getTime();
+//		float shortReadScoringTime = scoreBuffer->getTime() - alignmentBuffer->getProcessTime();
+		float kmerSearchTime = elapsed - alignmentBuffer->getProcessTime();
 
 //		if(stdoutPrintRunningTime) {
 //			fprintf(stdout, "%f\t%f\t%f\t%f\t%f\n", elapsed,
@@ -539,12 +541,12 @@ void CS::DoRun() {
 //		}
 
 		NGM.Stats->alignTime = (NGM.Stats->alignTime + (int)(alignmentTime / elapsed * 100.0f)) / 2;
-		NGM.Stats->scoreTime = (NGM.Stats->scoreTime + (int)(shortReadScoringTime / elapsed * 100.0f)) / 2;
+		NGM.Stats->scoreTime = (NGM.Stats->scoreTime + (int)(longReadProcessingTime / elapsed * 100.0f)) / 2;
 		NGM.Stats->csTime = (NGM.Stats->csTime + (int)(kmerSearchTime / elapsed * 100.0f)) / 2;
 
 		NGM.Stats->csLength = c_SrchTableBitLen;
 		NGM.Stats->csOverflows = m_Overflows;
-		NGM.Stats->avgnCRMS = nCRMsSum / m_CurrentBatch.size();
+//		NGM.Stats->avgnCRMS = nCRMsSum / m_CurrentBatch.size();
 
 		if (!Config.Exists("search_table_length")) {
 			if (m_Overflows <= 5 && !up && c_SrchTableBitLen > 8) {

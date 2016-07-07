@@ -156,6 +156,16 @@ _SequenceProvider::Chromosome _SequenceProvider::getChrStart(
 	return chr;
 }
 
+uloc _SequenceProvider::convert(char const * ref, uloc position) {
+	std::string refString(ref);
+	if (m.find(refString) != m.end()) {
+		int refId = m[refString];
+		return GetRefStart(refId) + position;
+	} else {
+		return 0;
+	}
+}
+
 bool _SequenceProvider::convert(SequenceLocation & m_Location) {
 	//Convert position back to Chromosome+Position
 	SequenceLocation loc = m_Location;
@@ -415,9 +425,17 @@ void _SequenceProvider::Init(bool dualstrand) {
 	refStartPos = new uloc[refCount / ((DualStrand) ? 2 : 1) + 1];
 	int i = 0;
 	int j = 0;
+	int len = 0;
 	while (i < refCount) {
 		refStartPos[j++] = SequenceProvider.GetRefStart(i);
 		i += (DualStrand) ? 2 : 1;
+
+		if(i % 2 == 0) {
+			std::string refName(GetRefName(i / 2, len));
+			if (m.find(refName) == m.end()) {
+				m[refName] = i / 2;
+			}
+		}
 	}
 	//Add artificial start position as upper bound for all all reads that map to the last chromosome
 	refStartPos[j] = refStartPos[j - 1] + SequenceProvider.GetRefLen(refCount - 1) + 1000;

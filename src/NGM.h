@@ -22,6 +22,8 @@
 #include "IAlignment.h"
 #include "FileWriter.h"
 
+#include "minimap.h"
+
 #ifdef _WIN32
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -95,6 +97,10 @@ public:
 	}
 	int GetStageThreadCount( int stage );
 
+	mm_idx_t * GetMimaIndex() {
+		return mimaIndex;
+	}
+
 	bool ThreadActive( int tid, int stage );
 
 	IRefProvider const * GetRefProvider(int const tid);
@@ -162,6 +168,8 @@ private:
 
 	IRefProvider * m_RefProvider;
 	IReadProvider * m_ReadProvider;
+
+	mm_idx_t * mimaIndex;
 
 	friend class _SequenceProvider;
 };

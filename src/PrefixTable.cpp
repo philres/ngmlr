@@ -112,35 +112,35 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 	std::stringstream refFileName;
 	refFileName << std::string(Config.GetString("ref")) << "-ht-" << m_PrefixLength << "-" << m_RefSkip << ".2.ngm";
 
-	char * cacheFile = new char[refFileName.str().size() + 1];
-	strcpy(cacheFile, refFileName.str().c_str());
-
-	if (!readFromFile(cacheFile)) {
-		Log.Message("Building reference table");
-		kmerCountMinLocation = 0;
-		kmerCountMaxLocation = c_tableLocMax;
-
-		if( Config.Exists("vcf") )
-		{
-			vcf.open(Config.GetString("vcf"));
-			Log.Message("Loaded VCF (%u variations)",vcf.length());
-
-			BuildSNPTable();
-		}
-
-		uloc genomeSize = SequenceProvider.GetConcatRefLen();
-		m_UnitCount = 1 + genomeSize / c_tableLocMax;
-		m_Units = new TableUnit[m_UnitCount];
-
-		Log.Message("Allocated %d hashtable units (tableLocMax=2^%f, genomeSize=2^%f)",m_UnitCount,log(c_tableLocMax)*M_LOG2E,log(genomeSize)*M_LOG2E);
-
-		CreateTable(indexLength);
-
-		saveToFile(cacheFile, indexLength);
-	}
-
-	delete[] cacheFile;
-	cacheFile = 0;
+//	char * cacheFile = new char[refFileName.str().size() + 1];
+//	strcpy(cacheFile, refFileName.str().c_str());
+//
+//	if (!readFromFile(cacheFile)) {
+//		Log.Message("Building reference table");
+//		kmerCountMinLocation = 0;
+//		kmerCountMaxLocation = c_tableLocMax;
+//
+//		if( Config.Exists("vcf") )
+//		{
+//			vcf.open(Config.GetString("vcf"));
+//			Log.Message("Loaded VCF (%u variations)",vcf.length());
+//
+//			BuildSNPTable();
+//		}
+//
+//		uloc genomeSize = SequenceProvider.GetConcatRefLen();
+//		m_UnitCount = 1 + genomeSize / c_tableLocMax;
+//		m_Units = new TableUnit[m_UnitCount];
+//
+//		Log.Message("Allocated %d hashtable units (tableLocMax=2^%f, genomeSize=2^%f)",m_UnitCount,log(c_tableLocMax)*M_LOG2E,log(genomeSize)*M_LOG2E);
+//
+//		CreateTable(indexLength);
+//
+//		saveToFile(cacheFile, indexLength);
+//	}
+//
+//	delete[] cacheFile;
+//	cacheFile = 0;
 //	test();
 }
 

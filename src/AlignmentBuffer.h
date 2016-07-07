@@ -10,6 +10,9 @@
 
 #include "intervaltree/IntervalTree.h"
 #include "misc/LinearRegression.h"
+#include "minimap.h"
+
+#include <stdio.h>
 
 #undef module_name
 #define module_name "OUTPUT"
@@ -68,6 +71,10 @@ private:
 		MappedRead * read;
 		int scoreId;
 	};
+
+	mm_idx_t * mimaIndex;
+	mm_tbuf_t * tbuf;
+	mm_mapopt_t opt;
 
 	int const outputformat;
 	int const alignmode;
@@ -200,6 +207,9 @@ public:
 	Interval * infereCMRsfromAnchors(int & intervalsIndex,
 			Anchor * allFwdAnchors, int allFwdAnchorsLength,
 			Anchor * allRevAnchors, int allRevAnchorsLength, MappedRead * read);
+	Interval * infereCMRsfromMinimap(int & intervalsIndex,
+			Anchor * allFwdAnchors, int allFwdAnchorsLength, Anchor * allRevAnchors,
+			int allRevAnchorsLength, MappedRead * read);
 
 	Align computeAlignment(MappedRead* read, int const scoreId,
 			int const corridor);
@@ -242,10 +252,9 @@ public:
 			char * readPartSeq, Interval & leftOfInv, Interval & rightOfInv,
 			MappedRead * read);
 
-	int checkForSV(Align const align, Interval const interval,
-			int startInv, int stopInv, int startInvRead, int stopInvRead,
-			char * fullReadSeq, Interval & leftOfInv,
-			Interval & rightOfInv, MappedRead * read);
+	int checkForSV(Align const align, Interval const interval, int startInv,
+			int stopInv, int startInvRead, int stopInvRead, char * fullReadSeq,
+			Interval & leftOfInv, Interval & rightOfInv, MappedRead * read);
 
 //	bool inversionDetectionArndt(Align const align, Interval const interval, int const length,
 //			char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv, Interval & inv, char const * const readName);
@@ -265,7 +274,7 @@ public:
 			bool const isReverse, int const type, int const status);
 
 	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
-			batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(
+			tbuf(0), mimaIndex(NGM.GetMimaIndex()), batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(
 			NGM.GetOutputFormat()),
 			alignmode(Config.GetInt(MODE, 0, 1)),
 			corridor(Config.GetInt("corridor")),
@@ -306,6 +315,10 @@ public:
 			m_Writer->WriteProlog();
 			first = false;
 		}
+
+
+		tbuf = mm_tbuf_init(); // thread buffer; for multi-threading, allocate one tbuf for each thread
+		mm_mapopt_init(&opt); // initialize mapping parameters
 
 		reads = new Alignment[batchSize];
 
@@ -348,6 +361,9 @@ public:
 	}
 
 	virtual ~AlignmentBuffer() {
+		mm_tbuf_destroy(tbuf);
+		// deallocate index and close the query file
+
 		delete m_Writer;
 		delete[] m_DirBuffer;
 		m_DirBuffer = 0;

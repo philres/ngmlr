@@ -61,6 +61,7 @@ target_link_libraries(ngm-core pthread)
 target_link_libraries(ngm-core MASonOpenCl)	
 TARGET_LINK_LIBRARIES(ngm-core BamTools-static)
 TARGET_LINK_LIBRARIES(ngm-core zlibstatic)
+TARGET_LINK_LIBRARIES(ngm-core minimapstatic)
 	
 add_definitions(-D _BAM) 
 
@@ -109,4 +110,5 @@ target_link_libraries(ngm-core-debug pthread)
 target_link_libraries(ngm-core-debug MASonOpenCl-debug)	
 TARGET_LINK_LIBRARIES(ngm-core-debug BamTools-static)
 TARGET_LINK_LIBRARIES(ngm-core-debug zlibstatic)
+TARGET_LINK_LIBRARIES(ngm-core-debug minimapstatic)
 

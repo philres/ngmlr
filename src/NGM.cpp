@@ -59,7 +59,7 @@ m_OutputFormat(Config.GetInt("format", 0, 2)),
 m_OutputFormat(Config.GetInt("format", 0, 1)),
 #endif
 m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(false), m_UnmappedReads(0), m_MappedReads(
-		0), m_WrittenReads(0), m_ReadReads(0), m_ReadProvider(0) {
+		0), m_WrittenReads(0), m_ReadReads(0), m_ReadProvider(0), mimaIndex(0) {
 
 	char const * const output_name = Config.Exists("output") ? Config.GetString("output") : 0;
 	if (m_OutputFormat != 2) {
@@ -98,6 +98,13 @@ m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnma
 	if (m_Paired && !m_DualStrand)
 	Log.Error("Logical error: Paired read mode without dualstrand search.");
 
+	char const * fileName = "/project/ngs/philipp/sv-paper/ref/hs37d5.fa.mmi";
+	Log.Message("Loading minmap index from: %s", fileName);
+	FILE * idxFile = fopen(fileName, "rb");
+
+	mimaIndex = mm_idx_load(idxFile);
+	fclose(idxFile);
+
 }
 
 void _NGM::InitProviders() {
@@ -115,6 +122,11 @@ void _NGM::InitProviders() {
 }
 
 _NGM::~_NGM() {
+
+	if (mimaIndex != 0) {
+		mm_idx_destroy(mimaIndex);
+		mimaIndex = 0;
+	}
 
 	delete Stats;
 	Stats = 0;
@@ -261,10 +273,11 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 		eof = !NGM.GetReadProvider()->GenerateRead(m_CurStart + i * idJump, read1, 0, read1);
 		i += 1;
 		if (!eof) {
-			for (int j = 0; j < read1->group->readNumber; ++j) {
-				count += 1;
-				list.push_back(read1->group->reads[j]);
-			}
+//			for (int j = 0; j < read1->group->readNumber; ++j) {
+			count += 1;
+//				list.push_back(read1->group->reads[j]);
+			list.push_back(read1);
+//			}
 		}
 
 	}
