@@ -713,6 +713,7 @@ int SWCPUCor::SingleAlign(int const mode, int const corridor,
 	//int alignment_length = (corr_length + read_length + 1);
 
 	int * fwdResults = new int[result_number];
+	memset(fwdResults, 0, sizeof(int) * result_number);
 
 	Score score = SW_Score(refSeq, qrySeq, fwdResults, corr_length,
 			alignMatrix);

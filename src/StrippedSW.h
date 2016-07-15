@@ -19,13 +19,13 @@ class StrippedSW: public IAlignment {
 public:
 	StrippedSW() :
 			m_AlignMode(Config.GetInt(MODE, 0, 1)), lDiag(0), uDiag(
-					Config.GetInt("corridor")) {
+			Config.GetInt("corridor")) {
 
 		//scoringScheme = Score<float, Simple>(Config.GetFloat(MATCH_BONUS), Config.GetFloat(MISMATCH_PENALTY) * -1.0f, Config.GetFloat(GAP_EXTEND_PENALTY) * -1.0f, Config.GetFloat(GAP_READ_PENALTY) * -1.0f);
 		gap_open = 1;
 		gap_extension = 1;
-		match = 1;
-		mismatch = 2;
+		match = 5;
+		mismatch = 4;
 		int32_t l, m, k;	// default parameters for genome sequence alignment
 		// initialize scoring matrix for genome sequences
 		//  A  C  G  T	N (or other ambiguous code)
@@ -43,8 +43,8 @@ public:
 		for (m = 0; m < 5; ++m)
 			mat[k++] = 0;
 
-		num = (int8_t*) malloc(100000);// the read sequence represented in numbers
-		ref_num = (int8_t*) malloc(100000);// the read sequence represented in numbers
+		num = (int8_t*) malloc(100000); // the read sequence represented in numbers
+		ref_num = (int8_t*) malloc(100000); // the read sequence represented in numbers
 
 	}
 	virtual ~StrippedSW() {
@@ -70,9 +70,13 @@ public:
 			char const * const * const qrySeqList, Align * const results,
 			void * extData);
 
-	virtual int SingleAlign(int const mode, int const corridor, char const * const refSeq, char const * const qrySeq, Align & result, void * extData);
+	virtual int SingleAlign(int const mode, int const corridor,
+			char const * const refSeq, char const * const qrySeq,
+			Align & result, void * extData);
 
-
+	virtual int SingleScore(int const mode, int const corridor,
+			char const * const refSeq, char const * const qrySeq,
+			float & result, void * extData);
 
 private:
 	bool const m_AlignMode;

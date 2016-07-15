@@ -154,7 +154,7 @@ public:
 	// algorithm
 	// TODO: remove fixed length!
 	struct MappedSegment {
-		Interval list[100];
+		Interval list[1000];
 		size_t length;
 	};
 

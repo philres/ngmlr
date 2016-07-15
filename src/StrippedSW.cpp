@@ -158,6 +158,50 @@ int StrippedSW::BatchScore(int const mode, int const batchSize,
 	return batchSize;
 }
 
+int StrippedSW::SingleScore(int const mode, int const corridor,
+		char const * const refSeq, char const * const qrySeq, float & sswScore,
+		void * extData) {
+
+//	Log.Message("Ref:  %s", refSeq);
+//	Log.Message("Read: %s", qrySeq);
+
+	int read_len = strlen(qrySeq) + 1;
+	int ref_len = strlen(refSeq) + 1;
+
+	s_profile* profile;
+	s_align * result;
+
+	for (int32_t m = 0; m < read_len; ++m)
+		num[m] = nt_table[(int) qrySeq[m]];
+	num[read_len] = nt_table[(int) '\0'];
+
+	profile = ssw_init(num, read_len, mat, 5, 1);
+	for (int32_t m = 0; m < ref_len; ++m)
+		ref_num[m] = nt_table[(int) refSeq[m]];
+	ref_num[ref_len] = nt_table[(int) '\0'];
+
+	// Only the 8 bit of the flag is setted. ssw_align will always return the best alignment beginning position and cigar.
+	result = ssw_align(profile, ref_num, ref_len, gap_open, gap_extension, 0, 0,
+			0, 0);
+
+	if (mode) {
+		Log.Message(
+				"Identity: %f, NM: %d, RefStart: %d, RefEnd: %d, ReadStart: %d, ReadEnd: %d, Score1: %d, Score2: %d",
+				result->identity, result->nm, result->read_begin1,
+				result->read_end1, result->ref_begin1, result->ref_end1,
+				result->score1, result->score2);
+	}
+
+	//ssw_write(result, ref_seq, read_seq, nt_table);
+	//fprintf(stderr, "%d\n", result->score1);
+	sswScore = result->score1;
+
+	align_destroy(result);
+	init_destroy(profile);
+
+	return 1;
+}
+
 int StrippedSW::SingleAlign(int const mode, int const corridor,
 		char const * const refSeq, char const * const qrySeq, Align & results,
 		void * extData) {
@@ -186,6 +230,7 @@ int StrippedSW::SingleAlign(int const mode, int const corridor,
 	// Only the 8 bit of the flag is setted. ssw_align will always return the best alignment beginning position and cigar.
 	result = ssw_align(profile, ref_num, ref_len, gap_open, gap_extension, 1, 0,
 			0, 0);
+
 	//ssw_write(result, ref_seq, read_seq, nt_table);
 	//Log.Message("%d", result->score1);
 	Align & align = results;

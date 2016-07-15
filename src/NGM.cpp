@@ -98,9 +98,17 @@ m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnma
 	if (m_Paired && !m_DualStrand)
 	Log.Error("Logical error: Paired read mode without dualstrand search.");
 
-	char const * fileName = "/project/ngs/philipp/sv-paper/ref/hs37d5.fa.mmi";
+	std::stringstream refFileName;
+	//refFileName << std::string(Config.GetString("ref")) << "-ht-" << m_PrefixLength << "-" << m_RefSkip << ".2.ngm";
+	refFileName << std::string(Config.GetString("ref")) << ".mmi.ngm";
+
+	char const * fileName = refFileName.str().c_str();
 	Log.Message("Loading minmap index from: %s", fileName);
 	FILE * idxFile = fopen(fileName, "rb");
+	if (!idxFile) {
+		Log.Error("Couldn't open file %s for reading.", fileName);
+		Fatal();
+	}
 
 	mimaIndex = mm_idx_load(idxFile);
 	fclose(idxFile);

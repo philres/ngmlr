@@ -83,7 +83,7 @@ private:
 
 	uloc * refStartPos;
 
-	std::map<std::string, int> m;
+	std::map<std::string, int> refnameTorefId;
 
 	static const int minRefSeqLen = 10;
 

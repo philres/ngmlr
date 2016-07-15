@@ -769,6 +769,9 @@ static cigar* banded_sw(const int8_t* ref, const int8_t* read, int32_t refLen,
 	h_c = (int32_t*) malloc(s1 * sizeof(int32_t));
 	direction = (int8_t*) malloc(s2 * sizeof(int8_t));
 
+	int32_t alignLength = 0;
+	int32_t alignMatches = 0;
+
 	do {
 		fprintf(stderr, "Bandwidth: %d\n", band_width);
 		width = band_width * 2 + 3, width_d = band_width * 2 + 1;
@@ -853,12 +856,14 @@ static cigar* banded_sw(const int8_t* ref, const int8_t* read, int32_t refLen,
 	temp2 = 2;	// h
 	while (LIKELY(i > 0)) {
 		set_d(temp1, band_width, i, j, temp2);
+		alignLength += 1;
 		switch (direction_line[temp1]) {
 		case 1:
 			--i;
 			--j;
 			temp2 = 2;
 			direction_line -= width_d * 3;
+			alignMatches += 1;
 			op = 'M';
 			break;
 		case 2:
@@ -945,6 +950,9 @@ static cigar* banded_sw(const int8_t* ref, const int8_t* read, int32_t refLen,
 	free(e_b);
 	free(h_b);
 	free(c);
+
+	//fprintf(stderr, "%d / %d = %f\n", alignMatches, alignLength, alignMatches * 1.0f / alignLength);
+
 	return result;
 }
 
@@ -1050,8 +1058,8 @@ s_align* ssw_align(const s_profile* prof, const int8_t* ref, int32_t refLen,
 		r->ref_end2 = -1;
 	}
 	free(bests);
-	if (flag == 0 || (flag == 2 && r->score1 < filters))
-		goto end;
+//	if (flag == 0 || (flag == 2 && r->score1 < filters))
+//		goto end;
 
 	// Find the beginning position of the best alignment.
 //	fprintf(stderr, "Find the beginning position of the best alignment\n");

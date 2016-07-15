@@ -211,6 +211,18 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 //			Log.Message("Read: %s", readSeq);
 		}
 
+//		Timer sswTmr;
+//		sswTmr.ST();
+//		IAlignment * sswAligner = new StrippedSW();
+//		float sswScore = 0.0f;
+//		sswAligner->SingleScore(pacbioDebug, corridor, refSeq, readSeq, sswScore, 0);
+//		delete sswAligner;
+//		sswAligner = 0;
+//		if (pacbioDebug) {
+//			Log.Message("ssw align: %f", sswTmr.ET());
+//			Log.Message("Score: %f", sswScore);
+//		}
+
 		int mode = 0;
 		try {
 			cigarLength = aligner->SingleAlign(mode, corridor,
@@ -235,8 +247,9 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 			align.Score = -1.0f;
 		}
 
-		if (cigarLength == -1
-				|| (aligned < 0.05f * readLength && maxTries > 0)) {
+//		if (cigarLength == -1
+//				|| (aligned < 0.05f * readLength && maxTries > 0)) {
+		if (cigarLength == -1) {
 			corridor = corridor * 2;
 			correctOffset = (corridor >> 1);
 
@@ -536,7 +549,7 @@ bool AlignmentBuffer::constructMappedSegements(MappedSegment * segments,
 					if (pacbioDebug) {
 						Log.Message("Adding interval to segment");
 					}
-					if (segments[i].length < 100) {
+					if (segments[i].length < 1000) {
 						intervals[segments[i].length++] = interval;
 						return true;
 					} else {
@@ -645,7 +658,13 @@ Interval * AlignmentBuffer::consolidateSegments(MappedSegment * segments,
 	if (pacbioDebug) {
 		Log.Message("============================");
 	}
-	Interval * intervals = new Interval[1000];
+
+	int totalCount = 1;
+	for(int j = 0; j < segmentsIndex; ++j) {
+		totalCount += segments[j].length;
+	}
+
+	Interval * intervals = new Interval[totalCount];
 
 	for (int i = 0; i < segmentsIndex; ++i) {
 
@@ -661,6 +680,10 @@ Interval * AlignmentBuffer::consolidateSegments(MappedSegment * segments,
 		}
 
 		consolidateSegment(intervals, intervalsIndex, segments[i]);
+		if(intervalsIndex > totalCount) {
+			Log.Error("Too many intervals found while consolidating segments.");
+			Fatal();
+		}
 	}
 	if (pacbioDebug) {
 		Log.Message("============================");
@@ -677,25 +700,28 @@ Interval * AlignmentBuffer::infereCMRsfromMinimap(int & intervalsIndex,
 		Log.Message("Running minimap for read %d", read->ReadId);
 	}
 
-	//TODO: remove fixed length
-	int const maxMappedSegementCount = 100;
-	MappedSegment * segments = new MappedSegment[maxMappedSegementCount];
-	size_t segementsIndex = 0;
-
 	const mm_reg1_t *reg;
 	int j, n_reg;
 	// get all hits for the query
-	opt.max_gap = 500;
+	opt.max_gap = 1000;
+
 	reg = mm_map(mimaIndex, read->length - 1, read->Seq,
 			&n_reg, tbuf, &opt, 0);
+
+	//TODO: remove fixed length
+//	int const maxMappedSegementCount = 100;
+	MappedSegment * segments = new MappedSegment[n_reg + 1];
+	size_t segementsIndex = 0;
+
 	// traverse hits and print them out
 	for (j = 0; j < n_reg; ++j) {
 		const mm_reg1_t * mimar = &reg[j];
-//		fprintf(stderr, "%s\t%d\t%d\t%d\t%c\t", read->name,
-//				read->length, mimar->qs, mimar->qe, "+-"[mimar->rev]);
-//		fprintf(stderr,"%s\t%d\t%d\t%d\t%d\t%d\n", mimaIndex->name[mimar->rid],
-//				mimaIndex->len[mimar->rid], mimar->rs, mimar->re, mimar->len, mimar->cnt);
-
+		if(pacbioDebug) {
+			fprintf(stderr, "%s\t%d\t%d\t%d\t%c\t", read->name,
+					read->length, mimar->qs, mimar->qe, "+-"[mimar->rev]);
+			fprintf(stderr,"%s\t%d\t%d\t%d\t%d\t%d\n", mimaIndex->name[mimar->rid],
+					mimaIndex->len[mimar->rid], mimar->rs, mimar->re, mimar->len, mimar->cnt);
+		}
 
 		REAL * regX = new REAL[2];
 		REAL * regY = new REAL[2];
@@ -709,8 +735,8 @@ Interval * AlignmentBuffer::infereCMRsfromMinimap(int & intervalsIndex,
 		if(interval.isReverse) {
 			interval.onReadStart = mimar->qs;
 			interval.onReadStop = mimar->qe;
-			interval.onRefStart = SequenceProvider.convert(mimaIndex->name[mimar->rid], mimar->re);
-			interval.onRefStop = SequenceProvider.convert(mimaIndex->name[mimar->rid], mimar->rs);
+			interval.onRefStart = SequenceProvider.convert(mimaIndex->name[mimar->rid], mimar->rs);
+			interval.onRefStop = SequenceProvider.convert(mimaIndex->name[mimar->rid], mimar->re);
 		} else {
 			interval.onReadStart = mimar->qs;
 			interval.onReadStop = mimar->qe;
@@ -726,6 +752,7 @@ Interval * AlignmentBuffer::infereCMRsfromMinimap(int & intervalsIndex,
 //
 //		interval.onRefStop = std::max(SequenceProvider.convert(mimaIndex->name[mimar->rid], mimar->rs),
 //				SequenceProvider.convert(mimaIndex->name[mimar->rid], mimar->re));
+//		interval.print();
 
 		// Linear regression for segment
 		REAL m,b,r;
@@ -776,7 +803,7 @@ Interval * AlignmentBuffer::infereCMRsfromMinimap(int & intervalsIndex,
 		if(abs(interval.onReadStop - interval.onReadStart) > 0 &&
 				llabs(interval.onRefStart - interval.onRefStop) > 0) {
 			if(!constructMappedSegements(segments, interval, segementsIndex)) {
-				Log.Message("Too many intervals found (>1000). Ignoring all others");
+				Log.Message("Too many intervals found for read %s (>1000). Ignoring all others", read->name);
 				Fatal();
 			}
 		} else {
@@ -822,6 +849,7 @@ Interval * AlignmentBuffer::infereCMRsfromMinimap(int & intervalsIndex,
 		}
 	}
 
+	intervalsIndex = std::min(intervalsIndex, 5);
 	return intervals;
 
 }

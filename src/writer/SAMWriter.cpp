@@ -120,8 +120,8 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 	Print("%d\t", flags);
 	Print("%.*s\t", refnamelen, refname);
 	Print("%u\t", read->Scores[scoreID].Location.m_Location + report_offset );
-//	Print("%d\t", mappingQlty);
-	Print("%d\t", read->Alignments[scoreID].MQ);
+	Print("%d\t", 255);
+	//Print("%d\t", read->Alignments[scoreID].MQ);
 
 	Print("%s\t", read->Alignments[scoreID].pBuffer1);
 	Print("%s\t", pRefName);//Ref. name of the mate/next fragment
