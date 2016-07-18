@@ -1507,7 +1507,6 @@ int AlignmentBuffer::realign(int svType, Interval interval, Interval leftOfInv,
 				read->Calculated += 1;
 				alignIndex += 1;
 
-
 				SequenceLocation inversionStartRef;
 				inversionStartRef.m_Location = inv.onRefStart;
 				SequenceProvider.convert(inversionStartRef);
@@ -1671,8 +1670,9 @@ bool sortMappedSegements(IntervalTree::Interval<Interval *> a,
 		IntervalTree::Interval<Interval *> b) {
 //	return a.value.onReadStart < b.value.onReadStart;
 //	return a.value->score > b.value->score;
-	return (a.value->onReadStop - a.value->onReadStart)
-			> (b.value->onReadStop - b.value->onReadStart);
+	int aLen = a.value->onReadStop - a.value->onReadStart;
+	int bLen = b.value->onReadStop - b.value->onReadStart;
+	return (aLen == bLen && a.value->score > b.value->score) || aLen > bLen;
 }
 
 bool isContainedOnRead(Interval * shortInterval, Interval * longInterval,
@@ -1825,6 +1825,10 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 					mappedSegements[i].value->isReverse,
 					DP_TYPE_RESULT + mappedSegements[i].value->id, DP_STATUS_OK);
 		}
+	}
+
+	if(mappedSegements.size() > 0) {
+		read->Alignments[mappedSegements[0].value->id].primary = true;
 	}
 
 	bool overlapFound = false;

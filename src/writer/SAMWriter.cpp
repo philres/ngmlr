@@ -100,7 +100,8 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 	char * readname = read->name;
 	char * qltystr = read->qlty;
 
-	if (scoreID != 0) {
+	//if (scoreID != 0) {
+	if(!read->Alignments[scoreID].primary) {
 		flags |= 0x800;
 	}
 
