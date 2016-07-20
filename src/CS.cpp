@@ -10,6 +10,7 @@
 #include "AlignmentBuffer.h"
 
 #include "SWCPU.h"
+#include "ConvexAlign.h"
 
 #undef module_name
 #define module_name "CS"
@@ -479,6 +480,7 @@ void CS::DoRun() {
 //	IAlignment * sswAligner = new StrippedSW();
 //	IAlignment * sswAligner = oclAligner;
 	IAlignment * sswAligner = new SWCPUCor(0);
+//	IAlignment * sswAligner = new Convex::ConvexAlign(0);
 
 	alignmentBuffer = new AlignmentBuffer(
 	Config.Exists("output") ? Config.GetString("output") : 0, sswAligner);

@@ -206,7 +206,7 @@ public:
 
 	Align computeAlignment(uloc const position, int const corridor,
 			char * const readSeq, size_t const readLength, int const QStart,
-			int const QEnd, int fullReadLength);
+			int const QEnd, int fullReadLength, MappedRead const * const read);
 
 	int estimateCorridor(const Interval & interval);
 	char * const extractReadSeq(const size_t& readSeqLen, Interval & interval,

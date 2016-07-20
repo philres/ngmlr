@@ -163,7 +163,7 @@ void AlignmentBuffer::DoRun() {
 
 Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 		char * const readSeq, size_t const readLength, int const QStart,
-		int const QEnd, int fullReadLength) {
+		int const QEnd, int fullReadLength, MappedRead const * const read) {
 
 	Align align;
 
@@ -213,7 +213,7 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 
 		int mode = 0;
 		try {
-			cigarLength = aligner->SingleAlign(mode, corridor,
+			cigarLength = aligner->SingleAlign(read->ReadId, corridor,
 					(char const * const ) refSeq, (char const * const ) readSeq,
 					align, clipping);
 		} catch (...) {
@@ -1329,7 +1329,7 @@ Align AlignmentBuffer::alignInterval(MappedRead const * const read_,
 
 	try {
 		align = computeAlignment(interval.onRefStart, corridor, readSeq,
-				readSeqLen, QStart, QEnd, read_->length);
+				readSeqLen, QStart, QEnd, read_->length, read_);
 	} catch (int e) {
 		Log.Error("Error occurred while aligning read %s", read_->name);
 //		Fatal();

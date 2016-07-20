@@ -28,6 +28,7 @@ add_executable(ngm-core
 					config/Config.cpp					
 					CS.cpp					
 					CSstatic.cpp
+					ConvexAlign.cpp
 					misc/Debug.cpp
 					misc/LinearRegression.cpp													
 					log/Logging.cpp
@@ -74,6 +75,7 @@ add_executable(ngm-core-debug
 					config/Config.cpp					
 					CS.cpp					
 					CSstatic.cpp
+					ConvexAlign.cpp
 					misc/Debug.cpp
 					misc/LinearRegression.cpp													
 					log/Logging.cpp
