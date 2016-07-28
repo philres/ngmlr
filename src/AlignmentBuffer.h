@@ -204,7 +204,7 @@ public:
 	Align computeAlignment(MappedRead* read, int const scoreId,
 			int const corridor);
 
-	Align computeAlignment(uloc const position, int const corridor,
+	Align computeAlignment(uloc const onRefStart, uloc const onRefStop, int const corridor,
 			char * const readSeq, size_t const readLength, int const QStart,
 			int const QEnd, int fullReadLength, MappedRead const * const read);
 

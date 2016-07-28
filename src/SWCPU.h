@@ -26,10 +26,10 @@ using std::max;
 #define short_min -16000
 #define result_number 4
 #define line_end '\0'
-#define ref_position 0
-#define qstart 1
-#define qend 2
-#define alignment_offset 3
+#define param_ref_position 0
+#define param_qstart 1
+#define param_qend 2
+#define param_alignment_offset 3
 #define param_best_read_index 0
 #define param_best_ref_index 1
 

@@ -477,8 +477,8 @@ bool SWCPUCor::Backtracking_CIGAR(char const * const scaff,
 
 		int pointer = CIGAR_STOP;
 		int cigar_element = CIGAR_S;
-		int cigar_length = fwdResults[qend];
-		cigarLenth += fwdResults[qend];
+		int cigar_length = fwdResults[param_qend];
+		cigarLenth += fwdResults[param_qend];
 		while ((pointer = matrix[(best_ref_index + 1)].direction) != CIGAR_STOP) {
 //			Log.Message("Best ref index: %d (%d)", best_ref_index + 1, (corr_length + 1));
 //			printf("%s\t%d\t%d\t%d\t%d\n", (char *) cur_align.ExtendedData,
@@ -542,10 +542,10 @@ bool SWCPUCor::Backtracking_CIGAR(char const * const scaff,
 		alignments[alignment_index] = ((best_read_index + 1) << 4 | CIGAR_S);
 		cigarLengthCheck += (best_read_index + 1);
 		cigarLenth += (best_read_index + 1);
-		fwdResults[ref_position] = abs_ref_index + 1;
-		fwdResults[qstart] = best_read_index + 1;
+		fwdResults[param_ref_position] = abs_ref_index + 1;
+		fwdResults[param_qstart] = best_read_index + 1;
 		//qend was set by "forward" kernel
-		fwdResults[alignment_offset] = alignment_index;
+		fwdResults[param_alignment_offset] = alignment_index;
 
 		if (cigarLenth != cigarLengthCheck) {
 			fprintf(stderr, "Error in CIGAR length: %d vs %d\n", cigarLenth,

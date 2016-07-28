@@ -161,7 +161,7 @@ void AlignmentBuffer::DoRun() {
 	}
 }
 
-Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
+Align AlignmentBuffer::computeAlignment(uloc const onRefStart, uloc const onRefStop, int corridor,
 		char * const readSeq, size_t const readLength, int const QStart,
 		int const QEnd, int fullReadLength, MappedRead const * const read) {
 
@@ -179,7 +179,8 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 
 	int cigarLength = -1;
 	//Required if corridor is increased!
-	int correctOffset = (corridor >> 1);
+//	int correctOffset = (corridor >> 1);
+	int correctOffset = 0;
 
 	bool shortAlignment = false;
 
@@ -187,13 +188,14 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 
 	while (cigarLength == -1) {
 
-		size_t const refSeqLen = readLength + corridor + 1;
+//		size_t const refSeqLen = readLength + corridor + 1;
+		size_t const refSeqLen = onRefStop - onRefStart + 1;
 		//TODO: check why decoded/SequenceProvider writes outside of refSeqLen
 		//This makes + 100 necessary
 		char * refSeq = new char[refSeqLen + 100];
 
 		//decode reference sequence
-		if (!SequenceProvider.DecodeRefSequenceExact(refSeq, position, refSeqLen, corridor)) {
+		if (!SequenceProvider.DecodeRefSequenceExact(refSeq, onRefStart, refSeqLen, 0)) {
 			//Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
 			Log.Warning("Could not decode reference for alignment");
 			memset(refSeq, 'N', refSeqLen);
@@ -213,9 +215,14 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 
 		int mode = 0;
 		try {
+			Timer algnTimer;
+			algnTimer.ST();
 			cigarLength = aligner->SingleAlign(read->ReadId, corridor,
 					(char const * const ) refSeq, (char const * const ) readSeq,
 					align, clipping);
+			if(pacbioDebug) {
+				Log.Message("Aligning took %f seconds", algnTimer.ET());
+			}
 		} catch (...) {
 			delete[] refSeq;
 			refSeq = 0;
@@ -238,7 +245,8 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 		if (cigarLength == -1
 				|| (aligned < 0.05f * readLength && maxTries > 0)) {
 			corridor = corridor * 2;
-			correctOffset = (corridor >> 1);
+//			correctOffset = (corridor >> 1);
+			correctOffset = 0;
 
 			align.Score = -1.0f;
 //			if (aligned < 0.1f * readLength) {
@@ -1328,7 +1336,7 @@ Align AlignmentBuffer::alignInterval(MappedRead const * const read_,
 	}
 
 	try {
-		align = computeAlignment(interval.onRefStart, corridor, readSeq,
+		align = computeAlignment(interval.onRefStart, interval.onRefStop, corridor, readSeq,
 				readSeqLen, QStart, QEnd, read_->length, read_);
 	} catch (int e) {
 		Log.Error("Error occurred while aligning read %s", read_->name);

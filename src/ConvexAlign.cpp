@@ -15,9 +15,6 @@ namespace Convex {
 
 int alignmentId = 0;
 
-//TODO: hack to pass data for debug output
-Align cur_align;
-
 int NumberOfSetBits(uint32_t i) {
 	// Java: use >>> instead of >>
 	// C or C++: use uint32_t
@@ -29,8 +26,6 @@ int NumberOfSetBits(uint32_t i) {
 ConvexAlign::ConvexAlign(int gpu_id) :
 		maxBinaryCigarLength(200000), pacbioDebug(false) {
 
-//	cigar = bool(((gpu_id >> 8) & 0xFF) == 1);
-
 	batch_size = 1;
 
 	mat = 2.0f;
@@ -41,95 +36,484 @@ ConvexAlign::ConvexAlign(int gpu_id) :
 	gap_decay = 0.15f;
 	gap_ext_min = -1.0f;
 
-	maxAlignMatrixLen = (long) 30000 * (long) 9000;
-//	fprintf(stderr, "Allocationg: %llu\n",
-//			maxAlignMatrixLen * sizeof(MatrixElement));
-	alignMatrix = new MatrixElement[maxAlignMatrixLen];
-//	fprintf(stderr, "Allocationg finished\n");
+	matrix = 0;
 
-//	binaryCigarLength = 200000;
 	binaryCigar = new int[maxBinaryCigarLength];
 
-//	short temp[6][6] = { mat, mis, mis, mis, 0, mis, mis, mat, mis, mis, 0, mis,
-//			mis, mis, mat, mis, 0, mis, mis, mis, mis, mat, 0, mis, 0, 0, 0, 0,
-//			0, 0, 0, 0, 0, 0, 0, mat };
-//	memcpy(scores, temp, 6 * 6 * sizeof(short));
-
-//	fprintf(stderr, "SWCPU initialized\n");
 }
 
 ConvexAlign::~ConvexAlign() {
-	delete[] alignMatrix;
-	alignMatrix = 0;
 	delete[] binaryCigar;
 	binaryCigar = 0;
 }
 
-Score ConvexAlign::SW_Score(char const * const refSeqList,
-		char const * const qrySeqList, int * fwResults, int corr_length,
-		MatrixElement * mat_pointer, int readId) {
+int ConvexAlign::printCigarElement(char const op, int const length,
+		char * cigar) {
+	int offset = 0;
+	offset = sprintf(cigar, "%d%c", length, op);
+
+	return offset;
+}
+
+void addPosition(Align & result, int & nmIndex, int posInRef, int posInRead,
+		int Yi) {
+	if (posInRead > 16 && posInRef > 16) {
+		result.nmPerPosition[nmIndex].readPosition = posInRead - 16;
+		result.nmPerPosition[nmIndex].refPosition = posInRef - 16;
+		result.nmPerPosition[nmIndex].nm = Yi;
+		nmIndex += 1;
+	}
+}
+
+int ConvexAlign::convertCigar(char const * const refSeq, Align & result,
+		FwdResults & fwdResults, int const externalQStart,
+		int const externalQEnd) {
+
+	//*********************//
+	//Inversion detection init
+	//*********************//
+	uint buffer = 0;
+	int posInRef = 0;
+	int posInRead = 0;
+
+	//*********************//
+	//General init
+	//*********************//
+
+	int nmPerPositionLength = (matrix->getHeight() + 1) * 2;
+	result.nmPerPosition = new PositionNM[nmPerPositionLength];
+	int nmIndex = 0;
+	int exactAlignmentLength = 0;
+
+	int finalCigarLength = 0;
+
+	int cigar_offset = 0;
+	int md_offset = 0;
+
+	int binaryCigarIndex = fwdResults.alignment_offset;
+
+	//*********************//
+	// Set QStart
+	//*********************//
+	result.QStart = ((binaryCigar[binaryCigarIndex] >> 4) + externalQStart);
+	if (result.QStart > 0) {
+		cigar_offset += printCigarElement('S', result.QStart,
+				result.pRef + cigar_offset);
+		finalCigarLength += result.QStart;
+	}
+	posInRead = binaryCigar[binaryCigarIndex] >> 4;
+
+	//Positions in read and ref for start of alignment
+	result.firstPosition.refPosition = posInRef;
+	result.firstPosition.readPosition = posInRead; //QStart of aligned sequence, but not for full read (like result.QStart)
+
+	//*********************//
+	// Translate CIGAR to char and compute MD
+	//*********************//
+	int matches = 0;
+	int alignmentLength = 0;
+
+	int cigar_m_length = 0;
+	int md_eq_length = 0;
+	int ref_index = 0;
+
+	int overallMatchCount = 0;
+
+	//uint const maxIndelLength = 5;
+	uint const maxIndelLength = 1;
+
+	//Inversion detection Arndt
+	int Yi = 0;
+
+	for (int j = binaryCigarIndex + 1; j < (maxBinaryCigarLength - 1); ++j) {
+		int cigarOp = binaryCigar[j] & 15;
+		int cigarOpLength = binaryCigar[j] >> 4;
+
+		alignmentLength += cigarOpLength;
+
+		switch (cigarOp) {
+		case CIGAR_X:
+			cigar_m_length += cigarOpLength;
+
+			//Produces: 	[0-9]+(([A-Z]+|\^[A-Z]+)[0-9]+)*
+			//instead of: 	[0-9]+(([A-Z]|\^[A-Z]+)[0-9]+)*
+			md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
+			for (int k = 0; k < cigarOpLength; ++k) {
+				md_offset += sprintf(result.pQry + md_offset, "%c",
+						refSeq[ref_index++]);
+
+				buffer = buffer << 1;
+				buffer = buffer | 1;
+
+				//				Yi = std::max(0, Yi + 1);
+				Yi = NumberOfSetBits(buffer);
+				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
+			}
+			md_eq_length = 0;
+
+			exactAlignmentLength += cigarOpLength;
+
+			break;
+		case CIGAR_EQ:
+			cigar_m_length += cigarOpLength;
+			md_eq_length += cigarOpLength;
+			ref_index += cigarOpLength;
+			matches += cigarOpLength;
+
+			overallMatchCount += cigarOpLength;
+
+			for (int k = 0; k < cigarOpLength; ++k) {
+				buffer = buffer << 1;
+				//				Yi = std::max(0, Yi - 1);
+				Yi = NumberOfSetBits(buffer);
+				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
+			}
+
+			exactAlignmentLength += cigarOpLength;
+
+			break;
+		case CIGAR_D:
+			if (cigar_m_length > 0) {
+				cigar_offset += printCigarElement('M', cigar_m_length,
+						result.pRef + cigar_offset);
+				finalCigarLength += cigar_m_length;
+				cigar_m_length = 0;
+			}
+			cigar_offset += printCigarElement('D', cigarOpLength,
+					result.pRef + cigar_offset);
+
+			md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
+			md_eq_length = 0;
+			result.pQry[md_offset++] = '^';
+
+			for (int k = 0; k < cigarOpLength; ++k) {
+				result.pQry[md_offset++] = refSeq[ref_index++];
+				buffer = buffer << 1;
+				if (k < maxIndelLength) {
+					buffer = buffer | 1;
+					Yi = std::max(0, Yi + 1);
+				}
+				addPosition(result, nmIndex, posInRef++, posInRead, Yi);
+			}
+
+			exactAlignmentLength += cigarOpLength;
+
+			break;
+		case CIGAR_I:
+			if (cigar_m_length > 0) {
+				cigar_offset += printCigarElement('M', cigar_m_length,
+						result.pRef + cigar_offset);
+				finalCigarLength += cigar_m_length;
+				cigar_m_length = 0;
+			}
+			cigar_offset += printCigarElement('I', cigarOpLength,
+					result.pRef + cigar_offset);
+			finalCigarLength += cigarOpLength;
+
+			for (int k = 0; k < cigarOpLength; ++k) {
+				buffer = buffer << 1;
+				if (k < maxIndelLength) {
+					buffer = buffer | 1;
+					Yi = std::max(0, Yi + 1);
+				}
+				//				addPosition(result, nmIndex, posInRef++, posInRead, Yi);
+				posInRead += 1;
+			}
+
+			exactAlignmentLength += cigarOpLength;
+
+			break;
+		default:
+			fprintf(stderr, "Invalid cigar string: %d\n", cigarOp);
+			throw 1;
+		}
+	}
+
+	//*********************//
+	//Print last element
+	//*********************//
+	md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
+	if (cigar_m_length > 0) {
+		cigar_offset += printCigarElement('M', cigar_m_length,
+				result.pRef + cigar_offset);
+		finalCigarLength += cigar_m_length;
+		cigar_m_length = 0;
+	}
+
+	//*********************//
+	//Set QEnd
+	//*********************//
+	result.QEnd = ((binaryCigar[maxBinaryCigarLength - 1] >> 4) + externalQEnd);
+	if (result.QEnd > 0) {
+		cigar_offset += printCigarElement('S', result.QEnd,
+				result.pRef + cigar_offset);
+	}
+	finalCigarLength += result.QEnd;
+
+	result.Identity = matches * 1.0f / alignmentLength;
+	result.pRef[cigar_offset] = '\0';
+	result.pQry[md_offset] = '\0';
+
+	//	result.NM = perWindowSum * 1.0f / windowNumber;
+	result.alignmentLength = exactAlignmentLength;
+
+	if (nmPerPositionLength < exactAlignmentLength) {
+		fprintf(stderr, "Alignmentlength (%d) < exactAlingmentlength (%d)\n",
+				nmPerPositionLength, exactAlignmentLength);
+		exit(-1);
+	}
+	//	fprintf(stderr, "\n==== Matches: %d of %d ====\n", overallMatchCount,
+	//			posInRead);
+
+	//Positions in read and ref for end of alignment
+	result.lastPosition.refPosition = posInRef;
+	result.lastPosition.readPosition = posInRead;
+	//	extData[edIndex++] = posInRef;
+	//	extData[edIndex++] = posInRead; //QEnd of aligned sequence, but not for full read (like result.QEnd)
+
+	return finalCigarLength;
+
+}
+
+bool ConvexAlign::revBacktrack(char const * const refSeq,
+		char const * const qrySeq, FwdResults & fwdResults, int readId) {
+
+	if (fwdResults.best_read_index <= 0) {
+		return false;
+	}
+
+	bool validAlignment = true;
+
+	int binaryCigarIndex = maxBinaryCigarLength - 1;
+
+	int cigar_element = CIGAR_S;
+	int cigar_element_length = fwdResults.qend;
+
+	int cigarStringLength = fwdResults.qend;
+
+	int x = fwdResults.best_ref_index;
+	int y = fwdResults.best_read_index;
+
+	AlignmentMatrix::MatrixElement currentElement;
+
+	while ((currentElement = *matrix->getElement(x, y)).direction != CIGAR_STOP) {
+
+		if (x < 0 || y < 0 || x > matrix->getWidth()
+				|| y > matrix->getHeight()) {
+			fprintf(stderr, "Error in backtracking. x, y indexing error.\n");
+			return false;
+		}
+
+		//TODO: add corridor check. backtracking path too close to corridor end
+
+		printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, x, y, 2);
+
+		if (currentElement.direction == CIGAR_X
+				|| currentElement.direction == CIGAR_EQ) {
+			y -= 1;
+			x -= 1;
+
+			cigarStringLength += 1;
+		} else if (currentElement.direction == CIGAR_I) {
+			y -= 1;
+			cigarStringLength += 1;
+		} else if (currentElement.direction == CIGAR_D) {
+			x -= 1;
+		} else {
+			fprintf(stderr,
+					"Error in backtracking. Invalid CIGAR operation found\n");
+			throw "";
+
+		}
+
+		if (currentElement.direction == cigar_element) {
+			cigar_element_length += 1;
+		} else {
+			binaryCigar[binaryCigarIndex--] = (cigar_element_length << 4
+					| cigar_element);
+
+			if (binaryCigarIndex < 0) {
+				fprintf(stderr,
+						"Error in backtracking. CIGAR buffer not long enough\n");
+				throw "";
+			}
+
+			cigar_element = currentElement.direction;
+			cigar_element_length = 1;
+		}
+	}
+	// Add last element to binary cigar
+	binaryCigar[binaryCigarIndex--] =
+			(cigar_element_length << 4 | cigar_element);
+	if (binaryCigarIndex < 0) {
+		fprintf(stderr,
+				"Error in backtracking. CIGAR buffer not long enough\n");
+		return false;
+	}
+
+	binaryCigar[binaryCigarIndex--] = ((y + 1) << 4 | CIGAR_S);
+	cigarStringLength += (y + 1);
+
+	fwdResults.ref_position = x + 1;
+	fwdResults.qstart = (y + 1);
+	//qend was set by "forward" kernel
+	fwdResults.alignment_offset = binaryCigarIndex + 1;
+
+	if (matrix->getHeight() != cigarStringLength) {
+		fprintf(stderr, "Error read length != cigar length: %d vs %d\n",
+				matrix->getHeight(), cigarStringLength);
+		validAlignment = false;
+	}
+
+	return validAlignment;
+
+}
+
+int ConvexAlign::GetScoreBatchSize() const {
+	return 0;
+}
+int ConvexAlign::GetAlignBatchSize() const {
+	return 0;
+}
+
+int ConvexAlign::BatchAlign(int const mode, int const batchSize,
+		char const * const * const refSeqList,
+		char const * const * const qrySeqList, Align * const results,
+		void * extData) {
+
+	throw "Not implemented";
+
+	fprintf(stderr, "Unsupported alignment mode %i\n", mode);
+	return 0;
+}
+
+int ConvexAlign::SingleAlign(int const mode, int const corridor,
+		char const * const refSeq, char const * const qrySeq, Align & align,
+		void * extData) {
+
+//	Log.Message("Aligning: ");
+//	Log.Message("%s", refSeq);
+//	Log.Message("%s", qrySeq);
 
 	/*
-	 * Debug output corridor + backtrace path
+	 * New Matrix start
 	 */
-	int readIndex = 0;
-	int refCorridorStart = 0;
-	int refCorridorStop = corr_length;
+	int corridorWidth = corridor;
+	int const refLen = strlen(refSeq);
+	int const qryLen = strlen(qrySeq);
 
-//	memset(local_mat_line, 0, corr_length * sizeof(short));
-	char const * scaff = refSeqList;
-	char const * read = qrySeqList;
+	int corridorHeight = qryLen;
+	AlignmentMatrix::CorridorLine * corridorLines =
+			new AlignmentMatrix::CorridorLine[corridorHeight];
 
-	//Init matrix lines
-	MatrixElement * matrix = mat_pointer;
-
-	//Init matrix lines
-	for (int i = 0; i < corr_length; ++i) {
-		//local_mat_line[i] = 0;
-		matrix[i].direction = CIGAR_STOP;
-		matrix[i].indelRun = 0;
-		matrix[i].score = 0;
+	for (int i = 0; i < corridorHeight; ++i) {
+		corridorLines[i].offset = i - corridorWidth / 2;
+		corridorLines[i].length = corridorWidth;
 	}
-	matrix[corr_length].direction = CIGAR_STOP;
-	matrix[corr_length].indelRun = 0;
-	matrix[corr_length].score = 0;
 
-	Score curr_max = -1.0f;
-	int read_index = 0;
+	matrix = new AlignmentMatrix(refLen, qryLen, corridorLines, corridorHeight);
 
-	printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, refCorridorStart,
-			readIndex, 0);
-	printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, refCorridorStop,
-			readIndex, 1);
+//	matrix->printMatrix(refSeq, qrySeq);
+//	getchar();
 
-	int x = 0;
-	for (; *read != line_end; ++read) {
-		char read_char_cache = *read;
-		matrix += (corr_length + 1);
-//		short left_cell = 0;
-		matrix[0].direction = CIGAR_STOP;
-		matrix[0].indelRun = 0;
-		matrix[0].score = 0;
+	int * clipping = 0;
+	if (extData == 0) {
+		clipping = new int[2];
+		clipping[0] = 0;
+		clipping[1] = 0;
+	} else {
+		clipping = (int *) extData;
+	}
 
-		refCorridorStart += 1;
-		refCorridorStop += 1;
-		readIndex += 1;
-		printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, refCorridorStart,
-				readIndex, 0);
-		printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, refCorridorStop,
-				readIndex, 1);
+	align.pBuffer2[0] = '\0';
 
-		for (int ref_index = 0; ref_index < corr_length - 1; ++ref_index) {
+	int finalCigarLength = 0;
 
-			MatrixElement & diag = matrix[-(corr_length + 1) + ref_index + 1];
-			MatrixElement & up = matrix[-(corr_length + 1) + ref_index + 2];
-			MatrixElement & left = matrix[ref_index];
+	FwdResults fwdResults;
 
-			bool eq = read_char_cache == scaff[ref_index];
-			Score diag_cell = diag.score + ((eq) ? mat : mis);
+	// Debug: rscript convex-align-vis.r
+	printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, refLen, qryLen, -1);
 
-			Score up_cell = 0;
-			Score left_cell = 0;
+	AlignmentMatrix::Score score = fwdFillMatrix(refSeq, qrySeq, fwdResults,
+			mode);
+
+//	matrix->printMatrix(refSeq, qrySeq);
+
+	fprintf(stderr, "Best y: %d, Best x: %d, Score: %d, QEnd: %d\n",
+			fwdResults.best_read_index, fwdResults.best_ref_index,
+			fwdResults.max_score, fwdResults.qend);
+
+	bool validAlignment = revBacktrack(refSeq, qrySeq, fwdResults, mode);
+
+	if (validAlignment) {
+
+		fprintf(stderr, "QStart: %d, Ref offset: %d, Binary cigar offset: %d\n",
+				fwdResults.qstart, fwdResults.ref_position,
+				fwdResults.alignment_offset);
+
+		finalCigarLength = convertCigar(refSeq, align, fwdResults, clipping[0],
+				clipping[1]);
+
+		align.PositionOffset = fwdResults.ref_position;
+		align.Score = score;
+	}
+	/*
+	 * New Matrix end
+	 */
+
+	if (extData == 0) {
+		delete[] clipping;
+		clipping = 0;
+	}
+
+	printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, (int) score,
+			finalCigarLength, -3);
+
+	alignmentId += 1;
+
+	delete matrix;
+	matrix = 0;
+
+	delete[] corridorLines;
+	corridorLines = 0;
+
+	return finalCigarLength;
+}
+
+AlignmentMatrix::Score ConvexAlign::fwdFillMatrix(char const * const refSeq,
+		char const * const qrySeq, FwdResults & fwdResult, int readId) {
+
+	AlignmentMatrix::Score curr_max = -1.0f;
+
+	for (int y = 0; y < matrix->getHeight(); ++y) {
+
+		int xOffset = matrix->getCorridorOffset(y);
+
+		// Debug: rscript convex-align-vis.r
+		printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, xOffset, y, 0);
+		printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId,
+				xOffset + matrix->getCorridorLength(y), y, 1);
+
+		char read_char_cache = qrySeq[y];
+
+		for (int x = xOffset; x < (xOffset + matrix->getCorridorLength(y));
+				++x) {
+			if (x >= matrix->getWidth() || x < 0) {
+				continue;
+			}
+
+			AlignmentMatrix::MatrixElement const diag = *matrix->getElement(
+					x - 1, y - 1);
+			AlignmentMatrix::MatrixElement const up = *matrix->getElement(x,
+					y - 1);
+			AlignmentMatrix::MatrixElement const left = *matrix->getElement(
+					x - 1, y);
+
+			bool eq = read_char_cache == refSeq[x];
+			AlignmentMatrix::Score diag_cell = diag.score + ((eq) ? mat : mis);
+
+			AlignmentMatrix::Score up_cell = 0;
+			AlignmentMatrix::Score left_cell = 0;
 
 			int ins_run = 0;
 			int del_run = 0;
@@ -161,12 +545,13 @@ Score ConvexAlign::SW_Score(char const * const refSeqList,
 			}
 
 			//find max
-			Score max_cell = 0;
+			AlignmentMatrix::Score max_cell = 0;
 			max_cell = max(left_cell, max_cell);
 			max_cell = max(diag_cell, max_cell);
 			max_cell = max(up_cell, max_cell);
 
-			MatrixElement & current = matrix[(ref_index + 1)];
+			AlignmentMatrix::MatrixElement & current = *matrix->getElement(x,
+					y);
 			if (del_run > 0 && max_cell == left_cell) {
 				current.score = max_cell;
 				current.direction = CIGAR_D;
@@ -199,600 +584,20 @@ Score ConvexAlign::SW_Score(char const * const refSeqList,
 
 			if (max_cell > curr_max) {
 				curr_max = max_cell;
-				fwResults[param_best_ref_index] = ref_index;
-				fwResults[param_best_read_index] = read_index;
-				fwResults[3] = curr_max;
-
+				fwdResult.best_ref_index = x;
+				fwdResult.best_read_index = y;
+				fwdResult.max_score = curr_max;
 			}
-		}
-		matrix[corr_length].direction = CIGAR_STOP;
-		matrix[corr_length].score = 0;
-		matrix[corr_length].indelRun = 0;
 
-		scaff++;
-		read_index += 1;
+		}
+
 	}
-	fwResults[2] = (read_index - fwResults[0]) - 1;
-	if (read_index == 0) {
-		fwResults[0] = fwResults[1] = 2;
+	fwdResult.qend = (matrix->getHeight() - fwdResult.best_read_index) - 1;
+	if (matrix->getHeight() == 0) {
+		fwdResult.best_read_index = fwdResult.best_ref_index = 0;
 	}
+
 	return curr_max;
-}
-
-int ConvexAlign::printCigarElement(char const op, int const length,
-		char * cigar) {
-	int offset = 0;
-	offset = sprintf(cigar, "%d%c", length, op);
-	return offset;
-}
-
-void addPosition(Align & result, int & nmIndex, int posInRef, int posInRead,
-		int Yi) {
-	if (posInRead > 16 && posInRef > 16) {
-		result.nmPerPosition[nmIndex].readPosition = posInRead - 16;
-		result.nmPerPosition[nmIndex].refPosition = posInRef - 16;
-		result.nmPerPosition[nmIndex].nm = Yi;
-		nmIndex += 1;
-	}
-}
-
-int ConvexAlign::computeCigarMD(Align & result, int const gpuCigarOffset,
-		int const * const gpuCigar, char const * const refSeq, int corr_length,
-		int read_length, int const QStart, int const QEnd) {
-
-	//*********************//
-	//Inversion detection init
-	//*********************//
-	uint buffer = 0;
-	int posInRef = 0;
-	int posInRead = 0;
-
-	//*********************//
-	//General init
-	//*********************//
-
-	int nmPerPositionLength = (corr_length + read_length + 1) * 2;
-	result.nmPerPosition = new PositionNM[nmPerPositionLength];
-	int nmIndex = 0;
-	int exactAlignmentLength = 0;
-
-//	int perWindowSum = 0;
-//	int windowNumber = 0;
-
-	int finalCigarLength = 0;
-
-	int cigar_offset = 0;
-	int md_offset = 0;
-
-	//*********************//
-	// Set QStart
-	//*********************//
-	if (((gpuCigar[gpuCigarOffset] >> 4) + QStart) > 0) {
-		if (pacbioDebug)
-			fprintf(stderr, "Adding %d to QSTart\n", QStart);
-		result.QStart = (gpuCigar[gpuCigarOffset] >> 4) + QStart;
-		cigar_offset += printCigarElement('S', result.QStart,
-				result.pRef + cigar_offset);
-		finalCigarLength += result.QStart;
-
-		posInRead = gpuCigar[gpuCigarOffset] >> 4;
-	}
-
-	//Positions in read and ref for start of alignment
-	result.firstPosition.refPosition = posInRef;
-	result.firstPosition.readPosition = posInRead; //QStart of aligned sequence, but not for full read (like result.QStart)
-
-	//*********************//
-	// Translate CIGAR to char and compute MD
-	//*********************//
-	int matches = 0;
-	int total = 0;
-
-	int cigar_m_length = 0;
-	int md_eq_length = 0;
-	int ref_index = 0;
-
-	int overallMatchCount = 0;
-
-	//uint const maxIndelLength = 5;
-	uint const maxIndelLength = 1;
-
-	//Inversion detection Arndt
-	int Yi = 0;
-
-	for (int j = gpuCigarOffset + 1; j < (maxBinaryCigarLength - 1); ++j) {
-		int op = gpuCigar[j] & 15;
-		int length = gpuCigar[j] >> 4;
-
-		uint bufferLength = std::min(32, length);
-
-		//debugCigar(op, length);
-		total += length;
-
-		switch (op) {
-		case CIGAR_X:
-			cigar_m_length += length;
-
-			//Produces: 	[0-9]+(([A-Z]+|\^[A-Z]+)[0-9]+)*
-			//instead of: 	[0-9]+(([A-Z]|\^[A-Z]+)[0-9]+)*
-			md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
-			for (int k = 0; k < length; ++k) {
-				md_offset += sprintf(result.pQry + md_offset, "%c",
-						refSeq[ref_index++]);
-
-				buffer = buffer << 1;
-				buffer = buffer | 1;
-
-//				Yi = std::max(0, Yi + 1);
-				Yi = NumberOfSetBits(buffer);
-				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
-			}
-			md_eq_length = 0;
-
-			exactAlignmentLength += length;
-
-			break;
-		case CIGAR_EQ:
-			cigar_m_length += length;
-			md_eq_length += length;
-			ref_index += length;
-			matches += length;
-
-			overallMatchCount += length;
-
-			for (int k = 0; k < length; ++k) {
-				buffer = buffer << 1;
-//				Yi = std::max(0, Yi - 1);
-				Yi = NumberOfSetBits(buffer);
-				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
-			}
-
-			exactAlignmentLength += length;
-
-			break;
-		case CIGAR_D:
-			if (cigar_m_length > 0) {
-				cigar_offset += printCigarElement('M', cigar_m_length,
-						result.pRef + cigar_offset);
-				finalCigarLength += cigar_m_length;
-				cigar_m_length = 0;
-			}
-			cigar_offset += printCigarElement('D', length,
-					result.pRef + cigar_offset);
-
-			md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
-			md_eq_length = 0;
-			result.pQry[md_offset++] = '^';
-
-			for (int k = 0; k < length; ++k) {
-				result.pQry[md_offset++] = refSeq[ref_index++];
-				buffer = buffer << 1;
-				if (k < maxIndelLength) {
-					buffer = buffer | 1;
-					Yi = std::max(0, Yi + 1);
-				}
-				addPosition(result, nmIndex, posInRef++, posInRead, Yi);
-			}
-
-			exactAlignmentLength += length;
-
-			break;
-		case CIGAR_I:
-			if (cigar_m_length > 0) {
-				cigar_offset += printCigarElement('M', cigar_m_length,
-						result.pRef + cigar_offset);
-				finalCigarLength += cigar_m_length;
-				cigar_m_length = 0;
-			}
-			cigar_offset += printCigarElement('I', length,
-					result.pRef + cigar_offset);
-			finalCigarLength += length;
-
-			for (int k = 0; k < length; ++k) {
-				buffer = buffer << 1;
-				if (k < maxIndelLength) {
-					buffer = buffer | 1;
-					Yi = std::max(0, Yi + 1);
-				}
-//				addPosition(result, nmIndex, posInRef++, posInRead, Yi);
-				posInRead += 1;
-			}
-
-			exactAlignmentLength += length;
-
-			break;
-		default:
-			fprintf(stderr, "Invalid cigar string: %d\n", op);
-//			std::cerr << "Offset: " << gpuCigarOffset << std::endl;
-//			for (int x = 0; x < alignmentLength * 2; ++x) {
-//				std::cerr << gpuCigar[x] << " ";
-//			}
-//			std::cerr << std::endl;
-			throw 1;
-		}
-
-		//*********************//
-		// Stats for inversion detection
-		//*********************//
-//		int mmPerWindow = NumberOfSetBits(buffer);
-//		result.nmPerPosition[nmIndex].readPosition = posInRead;
-//		result.nmPerPosition[nmIndex].refPosition = posInRef;
-//		result.nmPerPosition[nmIndex].nm = walk;
-//		result.nmPerPosition[nmIndex].nm = mmPerWindow;
-//		nmIndex += 1;
-
-//		perWindowSum += mmPerWindow;
-//		windowNumber += 1;
-	}
-	//*********************//
-	//Print last element
-	//*********************//
-	md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
-	if (cigar_m_length > 0) {
-		cigar_offset += printCigarElement('M', cigar_m_length,
-				result.pRef + cigar_offset);
-		finalCigarLength += cigar_m_length;
-		cigar_m_length = 0;
-	}
-
-	//*********************//
-	//Set QEnd
-	//*********************//
-	if (((gpuCigar[maxBinaryCigarLength - 1] >> 4) + QEnd) > 0) {
-		if (pacbioDebug) {
-			fprintf(stderr, "Adding %d to QEnd\n", QEnd);
-		}
-		result.QEnd = (gpuCigar[maxBinaryCigarLength - 1] >> 4) + QEnd;
-		cigar_offset += printCigarElement('S', result.QEnd,
-				result.pRef + cigar_offset);
-		finalCigarLength += result.QEnd;
-
-	}
-	//
-	result.Identity = matches * 1.0f / total;
-	result.pRef[cigar_offset] = '\0';
-	result.pQry[md_offset] = '\0';
-//	result.NM = perWindowSum * 1.0f / windowNumber;
-	result.alignmentLength = exactAlignmentLength;
-
-	if (nmPerPositionLength < exactAlignmentLength) {
-		fprintf(stderr, "Alignmentlength (%d) < exactAlingmentlength (%d)\n",
-				nmPerPositionLength, exactAlignmentLength);
-		exit(-1);
-	}
-//	fprintf(stderr, "\n==== Matches: %d of %d ====\n", overallMatchCount,
-//			posInRead);
-
-	//Positions in read and ref for end of alignment
-	result.lastPosition.refPosition = posInRef;
-	result.lastPosition.readPosition = posInRead;
-//	extData[edIndex++] = posInRef;
-//	extData[edIndex++] = posInRead; //QEnd of aligned sequence, but not for full read (like result.QEnd)
-
-	return finalCigarLength;
-}
-
-bool ConvexAlign::Backtracking_CIGAR(char const * const scaff,
-		char const * const read, int *& fwdResults, int *& alignments,
-		int corr_length, int read_length, int alignment_length,
-		MatrixElement * mat_pointer, int readId) {
-
-	bool valid = true;
-
-	MatrixElement * matrix = mat_pointer;
-
-	int best_read_index = fwdResults[param_best_read_index];
-	int best_ref_index = fwdResults[param_best_ref_index];
-
-	int cigarLenth = 0;
-	int cigarLengthCheck = 0;
-
-	int totalDelLength = 0;
-	int totalINsLength = 0;
-
-	int minCorridor = corr_length * 0.01f;
-	int maxCorridor = corr_length - minCorridor;
-
-	/*
-	 * Debug output corridor + backtrace path
-	 */
-	int readPosition = best_read_index;
-	int refPosition = best_read_index + best_ref_index;
-
-	if (best_read_index > 0) {
-		matrix += (((corr_length + 1) * (best_read_index + 1)));
-
-		int abs_ref_index = best_ref_index + best_read_index;
-//		int alignment_index = alignment_length - 1;
-		int alignment_index = maxBinaryCigarLength - 1;
-
-		int pointer = CIGAR_STOP;
-		int cigar_element = CIGAR_S;
-		int cigar_length = fwdResults[qend];
-		cigarLenth += fwdResults[qend];
-		while ((pointer = matrix[(best_ref_index + 1)].direction) != CIGAR_STOP) {
-//			Log.Message("Best ref index: %d (%d)", best_ref_index + 1, (corr_length + 1));
-//			printf("%s\t%d\t%d\t%d\t%d\n", (char *) cur_align.ExtendedData,
-//					cur_align.NM, best_read_index, best_ref_index + 1,
-//					corr_length + 1);
-			if (best_ref_index <= minCorridor
-					|| best_ref_index >= maxCorridor) {
-				if (pacbioDebug)
-					fprintf(stderr, "Corridor probably too small\n");
-				valid = false;
-//				getchar();
-			}
-
-			if (pointer == CIGAR_X || pointer == CIGAR_EQ) {
-				matrix -= ((corr_length + 1));
-				best_read_index -= 1;
-				abs_ref_index -= 1;
-
-				cigarLenth += 1;
-			} else if (pointer == CIGAR_I) {
-				matrix -= ((corr_length + 1));
-				best_read_index -= 1;
-				best_ref_index += 1;
-
-				cigarLenth += 1;
-			} else if (pointer == CIGAR_D) {
-				best_ref_index -= 1;
-				abs_ref_index -= 1;
-
-			} else {
-				fprintf(stderr,
-						"Error in backtracking. Invalid CIGAR operation found\n");
-				exit(1);
-
-			}
-			printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, abs_ref_index,
-					best_read_index, 2);
-
-			if (pointer == cigar_element) {
-				cigar_length += 1;
-			} else {
-				alignments[alignment_index--] = (cigar_length << 4
-						| cigar_element);
-				if (cigar_element != CIGAR_D) {
-					cigarLengthCheck += cigar_length;
-				}
-
-				cigar_element = pointer;
-				cigar_length = 1;
-			}
-
-			if (alignment_index < 10) {
-				fprintf(stderr,
-						"Error in backtracking. Binary cigar array not long enough.\n");
-				throw 1;
-			}
-		}
-		alignments[alignment_index--] = (cigar_length << 4 | cigar_element);
-		if (cigar_element != CIGAR_D) {
-			cigarLengthCheck += cigar_length;
-		}
-
-		alignments[alignment_index] = ((best_read_index + 1) << 4 | CIGAR_S);
-		cigarLengthCheck += (best_read_index + 1);
-		cigarLenth += (best_read_index + 1);
-		fwdResults[ref_position] = abs_ref_index + 1;
-		fwdResults[qstart] = best_read_index + 1;
-		//qend was set by "forward" kernel
-		fwdResults[alignment_offset] = alignment_index;
-
-		if (cigarLenth != cigarLengthCheck) {
-			fprintf(stderr, "Error in CIGAR length: %d vs %d\n", cigarLenth,
-					cigarLengthCheck);
-		} else {
-			if (read_length != cigarLenth) {
-				fprintf(stderr, "Error read length != cigar length: %d vs %d\n",
-						read_length, cigarLenth);
-				exit(1);
-			}
-		}
-		if (pacbioDebug) {
-			fprintf(stderr, "Read length: %d, CIGAR length: %d\n", read_length,
-					cigarLenth);
-		}
-	}
-	return valid;
-}
-
-int ConvexAlign::GetScoreBatchSize() const {
-	return 0;
-}
-int ConvexAlign::GetAlignBatchSize() const {
-	return 0;
-}
-
-int ConvexAlign::BatchAlign(int const mode, int const batchSize,
-		char const * const * const refSeqList,
-		char const * const * const qrySeqList, Align * const results,
-		void * extData) {
-
-	throw "Not implemented";
-
-	fprintf(stderr, "Unsupported alignment mode %i\n", mode);
-	return 0;
-}
-
-void ConvexAlign::print_matrix(int alignment_length, const char* const refSeq,
-		int read_length, const char* const qrySeq, int corr_length,
-		MatrixElement* mat_pointer) {
-
-	printf("    - ");
-	for (int x = 0; x < alignment_length - 1; ++x) {
-		printf(" %c ", refSeq[x]);
-	}
-	printf("\n");
-	for (size_t row = 0; row < read_length + 1; ++row) {
-		if (row == 0) {
-			printf("-: ");
-		} else {
-			printf("%c: ", qrySeq[row - 1]);
-		}
-		for (int x = 0; x < row; ++x) {
-			printf("   ");
-		}
-		for (size_t col = 0; col < corr_length + 1; ++col) {
-			MatrixElement* cell = mat_pointer + (row * (corr_length + 1) + col);
-			printf("%*d ", 2, cell->indelRun);
-		}
-		printf("\n");
-	}
-
-	printf("    - ");
-	for (int x = 0; x < alignment_length - 1; ++x) {
-		printf(" %c ", refSeq[x]);
-	}
-	printf("\n");
-	for (size_t row = 0; row < read_length + 1; ++row) {
-		if (row == 0) {
-			printf("-: ");
-		} else {
-			printf("%c: ", qrySeq[row - 1]);
-		}
-		for (int x = 0; x < row; ++x) {
-			printf("   ");
-		}
-		for (size_t col = 0; col < corr_length + 1; ++col) {
-			MatrixElement* cell = mat_pointer + (row * (corr_length + 1) + col);
-			printf("%*d ", 2, cell->direction);
-		}
-		printf("\n");
-	}
-
-	printf("    - ");
-	for (int x = 0; x < alignment_length - 1; ++x) {
-		printf(" %c ", refSeq[x]);
-	}
-	printf("\n");
-	for (size_t row = 0; row < read_length + 1; ++row) {
-		if (row == 0) {
-			printf("-: ");
-		} else {
-			printf("%c: ", qrySeq[row - 1]);
-		}
-		for (int x = 0; x < row; ++x) {
-			printf("   ");
-		}
-		for (size_t col = 0; col < corr_length + 1; ++col) {
-			MatrixElement* cell = mat_pointer + (row * (corr_length + 1) + col);
-			printf("%*.*f ", 2, 0, cell->score);
-		}
-		printf("\n");
-	}
-}
-
-int ConvexAlign::SingleAlign(int const mode, int const corridor,
-		char const * const refSeq, char const * const qrySeq, Align & align,
-		void * extData) {
-
-//	Log.Message("Aligning: ");
-//	Log.Message("%s", refSeq);
-//	Log.Message("%s", qrySeq);
-
-	bool realoc = false;
-	ulong read_length = strlen(qrySeq);
-	ulong extReadLength = read_length * 1.1f;
-	ulong lcorridor = corridor + 2;
-
-	ulong maxMemory = 6000000000ll;
-
-	ulong matrixLength = extReadLength * lcorridor;
-
-	ulong memUsage = matrixLength * sizeof(MatrixElement);
-
-//	fprintf(stderr, "%llu > %llu == %d && %llu > %llu == %d\n", memUsage,
-//			maxAlignMatrixLen, memUsage > maxAlignMatrixLen, memUsage,
-//			maxMemory, memUsage > maxMemory);
-	if (matrixLength > maxAlignMatrixLen) {
-
-		if (memUsage > maxMemory) {
-			return -2;
-		}
-		delete[] alignMatrix;
-		if (pacbioDebug) {
-			fprintf(stderr, "%llu * %llu * %d\n", extReadLength, lcorridor,
-					sizeof(MatrixElement));
-			fprintf(stderr, "Reallocationg: %llu\n\n", memUsage);
-		}
-		alignMatrix = new MatrixElement[matrixLength];
-		realoc = true;
-	}
-
-	cur_align = align;
-
-	int * clipping = 0;
-	if (extData == 0) {
-		clipping = new int[2];
-		clipping[0] = 0;
-		clipping[1] = 0;
-	} else {
-		clipping = (int *) extData;
-	}
-
-	if (pacbioDebug) {
-		fprintf(stderr, "Read length (single align) is %d\n", read_length);
-	}
-//	align.pBuffer1 = new char[read_length * 4];
-//	align.pBuffer2 = new char[read_length * 4];
-	//align.pBuffer2 = new char[1];
-	align.pBuffer2[0] = '\0';
-
-	int finalCigarLength = 0;
-
-	int corr_length = corridor;
-	//int alignment_length = (corr_length + read_length + 1);
-
-	int * fwdResults = new int[result_number];
-
-	printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, read_length + corr_length,
-			read_length, -1);
-
-	Score score = SW_Score(refSeq, qrySeq, fwdResults, corr_length, alignMatrix,
-			mode);
-
-//	print_matrix(alignment_length, refSeq, read_length, qrySeq, corr_length,
-//			alignMatrix);
-//	Log.Message("%d, %d, %d, %d", fwdResults[0], fwdResults[1], fwdResults[2], fwdResults[3]);
-
-//	bool valid = false;
-	bool valid = Backtracking_CIGAR(refSeq, qrySeq, fwdResults, binaryCigar,
-			corr_length, read_length, 0, alignMatrix, mode);
-
-	if (valid) {
-		int binaryCigarLength = maxBinaryCigarLength - fwdResults[3];
-		finalCigarLength = computeCigarMD(align, fwdResults[3], binaryCigar,
-				refSeq + fwdResults[0], corr_length, read_length, clipping[0],
-				clipping[1]);
-		align.PositionOffset = fwdResults[0];
-		align.Score = score;
-	}
-
-	delete[] fwdResults;
-	fwdResults = 0;
-
-	if (extData == 0) {
-		delete[] clipping;
-		clipping = 0;
-	}
-
-	if (!valid) {
-		finalCigarLength = -1;
-	}
-
-	if (realoc) {
-		delete[] alignMatrix;
-		alignMatrix = new MatrixElement[maxAlignMatrixLen];
-	}
-
-	printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, (int)score,
-				finalCigarLength, -3);
-
-	alignmentId += 1;
-	return finalCigarLength;
-
 }
 
 int ConvexAlign::BatchScore(int const mode, int const batchSize,
@@ -805,3 +610,35 @@ int ConvexAlign::BatchScore(int const mode, int const batchSize,
 }
 
 }
+
+// g++ -I ../include/ ConvexAlign.cpp -o ConvexAlign && ./ConvexAlign
+//int main(int argc, char **argv) {
+//
+//	IAlignment * aligner = new Convex::ConvexAlign(0);
+//
+//	char const * qry =
+//			"TCAAGATGCCATTGTCCCCCCGGCCTCCTGCTGCTGCTGCTCTCCGGGGCCACGGCCACCGCTGCTCCTGCC";
+////	char const * qry =
+////			"TCAAGATGCCAATTGTCCCCCGGCCCCCCTGCTGCTGCTGCTCTCCGGGGCCACGGCCACCGCTGCCCTGCC";
+//	char const * ref =
+//				"CGGGGCCACGGCCACCGCTGCCCTGCC";
+//
+//	fprintf(stderr, "Ref:  %s\n", ref);
+//	fprintf(stderr, "Read: %s\n", qry);
+//
+//	Align align;
+//
+//	align.pBuffer1 = new char[strlen(ref) * 4];
+//	align.pBuffer2 = new char[strlen(ref) * 4];
+//
+//	int result = aligner->SingleAlign(0, 200, ref, qry, align, 0);
+//	fprintf(stderr, "Alignment terminated with: %d\n", result);
+//	fprintf(stderr, "Cigar: %s\n", align.pBuffer1);
+//	fprintf(stderr, "MD: %s\n", align.pBuffer2);
+//
+//	delete aligner;
+//	aligner = 0;
+//
+//	return 0;
+//}
+
