@@ -213,9 +213,14 @@ Align AlignmentBuffer::computeAlignment(uloc const position, int corridor,
 
 		int mode = 0;
 		try {
+			Timer algnTimer;
+			algnTimer.ST();
 			cigarLength = aligner->SingleAlign(read->ReadId, corridor,
 					(char const * const ) refSeq, (char const * const ) readSeq,
 					align, clipping);
+			if (pacbioDebug) {
+				Log.Message("Aligning took %f seconds", algnTimer.ET());
+			}
 		} catch (...) {
 			delete[] refSeq;
 			refSeq = 0;
@@ -1827,7 +1832,7 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 		}
 	}
 
-	if(mappedSegements.size() > 0) {
+	if (mappedSegements.size() > 0) {
 		read->Alignments[mappedSegements[0].value->id].primary = true;
 	}
 
