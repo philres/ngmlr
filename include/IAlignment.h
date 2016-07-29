@@ -3,7 +3,8 @@
 
 struct PositionNM {
 
-	PositionNM() : refPosition(0), readPosition(0), nm(0) {
+	PositionNM() :
+			refPosition(0), readPosition(0), nm(0) {
 
 	}
 
@@ -13,11 +14,17 @@ struct PositionNM {
 
 };
 
+struct CorridorLine {
+	int offset;
+	int length;
+	unsigned long offsetInMatrix;
+};
+
 struct Align {
 	Align() :
-			pBuffer1(0), pBuffer2(0), nmPerPosition(0), ExtendedData(0), alignmentLength(0), PositionOffset(
-					0), QStart(0), QEnd(0), Score(0.0f), Identity(0.0f), NM(0), MQ(
-					0), skip(false), primary(false), svType(0) {
+			pBuffer1(0), pBuffer2(0), nmPerPosition(0), ExtendedData(0), alignmentLength(
+					0), PositionOffset(0), QStart(0), QEnd(0), Score(0.0f), Identity(
+					0.0f), NM(0), MQ(0), skip(false), primary(false), svType(0) {
 	}
 	char * pBuffer1; // = pCigar = pRef
 	char * pBuffer2; // = pMD = pQry
@@ -69,6 +76,12 @@ public:
 	virtual int SingleAlign(int const mode, int const corridor,
 			char const * const refSeq, char const * const qrySeq,
 			Align & result, void * extData) {
+		return 0;
+	}
+
+	virtual int SingleAlign(int const mode, CorridorLine * corridor,
+			int const corridorHeight, char const * const refSeq,
+			char const * const qrySeq, Align & result, void * extData) {
 		return 0;
 	}
 

@@ -110,6 +110,7 @@ private:
 	bool stdoutErrorProfile;
 	bool printInvCandidateFa;
 	bool stdoutPrintMappedSegments;
+	bool stdoutPrintAlignCorridor;
 
 	IntervalTree::IntervalTree<int> * readCoordsTree;
 
@@ -204,9 +205,10 @@ public:
 	Align computeAlignment(MappedRead* read, int const scoreId,
 			int const corridor);
 
-	Align computeAlignment(uloc const onRefStart, uloc const onRefStop, int const corridor,
-			char * const readSeq, size_t const readLength, int const QStart,
-			int const QEnd, int fullReadLength, MappedRead const * const read);
+	Align computeAlignment(Interval const interval,
+			int const corridor, char * const readSeq, size_t const readLength,
+			int const QStart, int const QEnd, int fullReadLength,
+			MappedRead const * const read);
 
 	int estimateCorridor(const Interval & interval);
 	char * const extractReadSeq(const size_t& readSeqLen, Interval & interval,
@@ -242,10 +244,9 @@ public:
 			char * readPartSeq, Interval & leftOfInv, Interval & rightOfInv,
 			MappedRead * read);
 
-	int checkForSV(Align const align, Interval const interval,
-			int startInv, int stopInv, int startInvRead, int stopInvRead,
-			char * fullReadSeq, Interval & leftOfInv,
-			Interval & rightOfInv, MappedRead * read);
+	int checkForSV(Align const align, Interval const interval, int startInv,
+			int stopInv, int startInvRead, int stopInvRead, char * fullReadSeq,
+			Interval & leftOfInv, Interval & rightOfInv, MappedRead * read);
 
 //	bool inversionDetectionArndt(Align const align, Interval const interval, int const length,
 //			char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv, Interval & inv, char const * const readName);
@@ -342,6 +343,7 @@ public:
 		stdoutErrorProfile = Config.GetInt(STDOUT) == 3;
 		printInvCandidateFa = Config.GetInt(STDOUT) == 4;
 		stdoutPrintMappedSegments = Config.GetInt(STDOUT) == 5;
+		stdoutPrintAlignCorridor =						Config.GetInt(STDOUT) == 6;
 
 		Log.Verbose("Alignment batchsize = %i", batchSize);
 

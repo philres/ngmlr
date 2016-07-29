@@ -64,12 +64,6 @@ public:
 		}
 	};
 
-	struct CorridorLine {
-		int offset;
-		int length;
-		ulong offsetInMatrix;
-	};
-
 	AlignmentMatrix() :
 			STOP(CIGAR_STOP) {
 		privateMatrixHeight = 0;
@@ -77,8 +71,6 @@ public:
 		corridorLines = 0;
 
 		privateMatrixSize = (ulong) 30000 * (ulong) 9000;
-		fprintf(stderr, "Allocating %lu elements\n", privateMatrixSize);
-//		privateMatrix = new MatrixElement[privateMatrixSize];
 		directionMatrix = new char[privateMatrixSize];
 		currentLine = 0;
 		lastLine = 0;
@@ -251,6 +243,14 @@ public:
 		return true;
 	}
 
+	bool validPath(int const x, int const y) {
+		int width = corridorLines[y].length;
+		int minCorridor = corridorLines[y].offset + 0.1f * width;
+		int maxCorridor = minCorridor + width - 0.1f * width;
+
+		return x > minCorridor && x < maxCorridor;
+	}
+
 private:
 
 	int privateMatrixHeight;
@@ -300,6 +300,11 @@ public:
 	virtual int SingleAlign(int const mode, int const corridor,
 			char const * const refSeq, char const * const qrySeq,
 			Align & result, void * extData);
+
+	virtual int SingleAlign(int const mode, CorridorLine * corridor,
+			int const corridorHeight, char const * const refSeq,
+			char const * const qrySeq, Align & result, void * extData);
+
 private:
 
 	struct FwdResults {
@@ -330,6 +335,8 @@ private:
 	int const maxBinaryCigarLength;
 
 	bool const pacbioDebug;
+
+	bool const stdoutPrintAlignCorridor;
 
 	int printCigarElement(char const op, int const length, char * cigar);
 

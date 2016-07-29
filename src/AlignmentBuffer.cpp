@@ -161,9 +161,54 @@ void AlignmentBuffer::DoRun() {
 	}
 }
 
-Align AlignmentBuffer::computeAlignment(uloc const onRefStart, uloc const onRefStop, int corridor,
+CorridorLine * getCorridorLinear(int const corridor, char const * readSeq,
+		int & corridorHeight) {
+	int corridorWidth = corridor;
+	int const qryLen = strlen(readSeq);
+
+	corridorHeight = qryLen;
+	CorridorLine * corridorLines = new CorridorLine[corridorHeight];
+
+	for (int i = 0; i < corridorHeight; ++i) {
+		corridorLines[i].offset = i - corridorWidth / 2;
+		corridorLines[i].length = corridorWidth;
+	}
+	return corridorLines;
+}
+
+CorridorLine * getCorridorEndpoints(Interval const interval, int const corridor,
+		char const * refSeq, char const * readSeq, int & corridorHeight) {
+	int corridorWidth = corridor / 2;
+	int const qryLen = strlen(readSeq);
+	int const refLen = strlen(refSeq);
+
+	corridorHeight = qryLen;
+	CorridorLine * corridorLines = new CorridorLine[corridorHeight];
+
+//	int startMidpointX = 0;
+//	int startMidpointY = 0;
+//	int stopMidPointX = refLen;
+//	int stopMidPointY = qryLen;
+
+	float k = qryLen * 1.0f / refLen;
+	float d = corridorWidth / 2.0f;
+
+	for (int i = 0; i < corridorHeight; ++i) {
+//		x1 = (y - d1) / k;
+		corridorLines[i].offset = (i - d) / k;
+//		corridorLines[i].offset = i - corridorWidth / 2;
+		corridorLines[i].length = corridorWidth;
+	}
+
+	return corridorLines;
+}
+
+Align AlignmentBuffer::computeAlignment(Interval const interval, int corridor,
 		char * const readSeq, size_t const readLength, int const QStart,
 		int const QEnd, int fullReadLength, MappedRead const * const read) {
+
+	uloc const onRefStart = interval.onRefStart;
+	uloc const onRefStop = interval.onRefStop;
 
 	Align align;
 
@@ -186,10 +231,11 @@ Align AlignmentBuffer::computeAlignment(uloc const onRefStart, uloc const onRefS
 
 	int maxTries = 5;
 
-	while (cigarLength == -1) {
+	size_t const refSeqLen = onRefStop - onRefStart + 1;
+	while (cigarLength == -1 && corridor < refSeqLen && maxTries > 0) {
 
 //		size_t const refSeqLen = readLength + corridor + 1;
-		size_t const refSeqLen = onRefStop - onRefStart + 1;
+
 		//TODO: check why decoded/SequenceProvider writes outside of refSeqLen
 		//This makes + 100 necessary
 		char * refSeq = new char[refSeqLen + 100];
@@ -215,21 +261,38 @@ Align AlignmentBuffer::computeAlignment(uloc const onRefStart, uloc const onRefS
 
 		int mode = 0;
 		try {
+
+			int corridorHeight = 0;
+//			CorridorLine * corridorLines = getCorridorLinear(corridor, readSeq,
+//					corridorHeight);
+			CorridorLine * corridorLines = getCorridorEndpoints(interval, corridor, refSeq, readSeq,
+								corridorHeight);
+
+
 			Timer algnTimer;
 			algnTimer.ST();
-			cigarLength = aligner->SingleAlign(read->ReadId, corridor,
-					(char const * const ) refSeq, (char const * const ) readSeq,
-					align, clipping);
-			if(pacbioDebug) {
+
+//			cigarLength = aligner->SingleAlign(read->ReadId, corridor,
+//					(char const * const ) refSeq, (char const * const ) readSeq,
+//					align, clipping);
+
+			cigarLength = aligner->SingleAlign(read->ReadId, corridorLines,
+					corridorHeight, (char const * const ) refSeq,
+					(char const * const ) readSeq, align, clipping);
+
+			if (pacbioDebug) {
 				Log.Message("Aligning took %f seconds", algnTimer.ET());
 			}
+			delete[] corridorLines;
+			corridorLines = 0;
+
 		} catch (...) {
 			delete[] refSeq;
 			refSeq = 0;
 			delete[] clipping;
 			clipping = 0;
-			Log.Error("Error while computing alignment.");
-			throw 1;
+//			Log.Error("Error while computing alignment for read %s.", read->name);
+//			throw 1;
 		}
 
 		if (pacbioDebug) {
@@ -282,7 +345,7 @@ Align AlignmentBuffer::computeAlignment(uloc const onRefStart, uloc const onRefS
 
 	if (cigarLength != fullReadLength) {
 		if (cigarLength != -2) {
-			Log.Error("CIGAR string invalid: seq len: %d, cigar len: %d", fullReadLength,
+			Log.Error("CIGAR string invalid for read %s: seq len: %d, cigar len: %d", read->name, fullReadLength,
 					cigarLength);
 		}
 		throw 1;
@@ -1336,8 +1399,8 @@ Align AlignmentBuffer::alignInterval(MappedRead const * const read_,
 	}
 
 	try {
-		align = computeAlignment(interval.onRefStart, interval.onRefStop, corridor, readSeq,
-				readSeqLen, QStart, QEnd, read_->length, read_);
+		align = computeAlignment(interval, corridor, readSeq, readSeqLen,
+				QStart, QEnd, read_->length, read_);
 	} catch (int e) {
 		Log.Error("Error occurred while aligning read %s", read_->name);
 //		Fatal();
@@ -1835,7 +1898,7 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 		}
 	}
 
-	if(mappedSegements.size() > 0) {
+	if (mappedSegements.size() > 0) {
 		read->Alignments[mappedSegements[0].value->id].primary = true;
 	}
 
