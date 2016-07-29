@@ -70,7 +70,25 @@ public:
 		ulong offsetInMatrix;
 	};
 
-	AlignmentMatrix(int const width, int const height, CorridorLine * corridor,
+	AlignmentMatrix() :
+			STOP(CIGAR_STOP) {
+		privateMatrixHeight = 0;
+		privateMatrixWidth = 0;
+		corridorLines = 0;
+
+		privateMatrixSize = (ulong) 30000 * (ulong) 9000;
+		fprintf(stderr, "Allocating %lu elements\n", privateMatrixSize);
+//		privateMatrix = new MatrixElement[privateMatrixSize];
+		directionMatrix = new char[privateMatrixSize];
+		currentLine = 0;
+		lastLine = 0;
+
+		lastY = 0;
+		currentY = 0;
+
+	}
+
+	void prepare(int const width, int const height, CorridorLine * corridor,
 			int const corridorHeight) {
 		privateMatrixHeight = height;
 		privateMatrixWidth = width;
@@ -78,18 +96,38 @@ public:
 		corridorLines = corridor;
 
 		ulong matrixSize = 0;
+		int maxCorridorLength = 0;
 		for (int i = 0; i < corridorHeight; ++i) {
 			corridorLines[i].offsetInMatrix = matrixSize;
 			matrixSize += corridorLines[i].length;
+			maxCorridorLength = std::max(maxCorridorLength,
+					corridorLines[i].length);
 		}
-		privateMatrix = new MatrixElement[matrixSize];
+		if (matrixSize > privateMatrixSize) {
+			fprintf(stderr, "Reallocating matrix for alignment\n");
+			delete[] directionMatrix;
+			directionMatrix = 0;
+			directionMatrix = new char[matrixSize];
+			privateMatrixSize = matrixSize;
+		}
+
+		currentLine = new MatrixElement[maxCorridorLength];
+		lastLine = new MatrixElement[maxCorridorLength];
 
 	}
 
 	virtual ~AlignmentMatrix() {
-		if (privateMatrix != 0) {
-			delete[] privateMatrix;
-			privateMatrix = 0;
+		if (directionMatrix != 0) {
+			delete[] directionMatrix;
+			directionMatrix = 0;
+		}
+		if (currentLine != 0) {
+			delete[] currentLine;
+			currentLine = 0;
+		}
+		if (lastLine != 0) {
+			delete[] lastLine;
+			lastLine = 0;
 		}
 	}
 
@@ -107,7 +145,7 @@ public:
 				fprintf(stderr, "%c: ", qrySeg[y]);
 			}
 			for (int x = -1; x < privateMatrixWidth; ++x) {
-				fprintf(stderr, "%*d ", 3, (int) getScore(x, y));
+				fprintf(stderr, "%*d ", 3, (int) *getDirection(x, y));
 			}
 
 			fprintf(stderr, "\n");
@@ -116,41 +154,101 @@ public:
 	}
 
 	Score getScore(int const x, int const y) {
-		MatrixElement * tmp = getElement(x, y);
-		return tmp->score;
-//		return (tmp == 0) ? 0.0f : tmp->score;
+		return getElement(x, y)->score;
 	}
 
-	int getCorridorOffset(int const y) {
+	int getCorridorOffset(int const y) const {
 		return corridorLines[y].offset;
 	}
 
-	int getCorridorLength(int const y) {
+	int getCorridorLength(int const y) const {
 		return corridorLines[y].length;
 	}
 
-	int getHeight() {
+	int getHeight() const {
 		return privateMatrixHeight;
 	}
 
-	int getWidth() {
+	int getWidth() const {
 		return privateMatrixWidth;
 	}
 
 	MatrixElement * getElement(int const x, int const y) {
-		if (x < 0 || y < 0 || x > (privateMatrixWidth - 1)
-				|| y > (privateMatrixHeight - 1)) {
-//			empty.score = 0.0f;
+		if (y < 0 || x < 0) {
 			return &empty;
 		}
-		if (x < corridorLines[y].offset
-				|| x >= (corridorLines[y].offset + corridorLines[y].length)) {
-//			empty.score = 0.0f;
-			return &empty;
+		if (y != currentY && y != lastY) {
+			fprintf(stderr, "Index not found\n");
+			throw "Index not found";
+		} else if (y == currentY) {
+			if (x < currentCorridor.offset
+					|| x >= (currentCorridor.offset + currentCorridor.length)) {
+				return &empty;
+			}
+			return currentLine + (x - currentCorridor.offset);
+		} else { // y == lastY
+			if (x < lastCorridor.offset
+					|| x >= (lastCorridor.offset + lastCorridor.length)) {
+				return &empty;
+			}
+			return lastLine + (x - lastCorridor.offset);
+		}
+		return 0;
+	}
+
+	MatrixElement * getElementEdit(int const x, int const y) {
+		if (y < 0 || x < 0) {
+			fprintf(stderr, "Element not found in alignment matrix.\n");
+			throw "";
+		}
+		if (y != currentY && y != lastY) {
+			fprintf(stderr, "Index not found\n");
+			throw "Index not found";
+		} else if (y == currentY) {
+			if (x < currentCorridor.offset
+					|| x >= (currentCorridor.offset + currentCorridor.length)) {
+				fprintf(stderr, "Element not found in alignment matrix.\n");
+				throw "";
+			}
+			return currentLine + (x - currentCorridor.offset);
+		} else { // y == lastY
+			if (x < lastCorridor.offset
+					|| x >= (lastCorridor.offset + lastCorridor.length)) {
+				fprintf(stderr, "Element not found in alignment matrix.\n");
+				throw "";
+			}
+			return lastLine + (x - lastCorridor.offset);
 		}
 
-		return privateMatrix + corridorLines[y].offsetInMatrix
-				+ (x - corridorLines[y].offset);
+		return 0;
+	}
+
+	char * getDirection(int const x, int const y) {
+		if (y < 0 || y > (privateMatrixHeight - 1) || x < 0) {
+			return &STOP;
+		} else {
+			CorridorLine line = corridorLines[y];
+			if (x < line.offset || x >= (line.offset + line.length)) {
+				return &STOP;
+			}
+			return directionMatrix + line.offsetInMatrix + (x - line.offset);
+		}
+	}
+
+	bool prepareLine(int const y) {
+		if (y < 0 || y > getHeight()) {
+			return false;
+		}
+		MatrixElement * tmp = lastLine;
+
+		lastLine = currentLine;
+		lastY = currentY;
+		lastCorridor = currentCorridor;
+
+		currentLine = tmp;
+		currentY = y;
+		currentCorridor = corridorLines[currentY];
+		return true;
 	}
 
 private:
@@ -159,27 +257,32 @@ private:
 
 	int privateMatrixWidth;
 
-	MatrixElement * privateMatrix;
+	ulong privateMatrixSize;
+
+	MatrixElement * currentLine;
+
+	CorridorLine currentCorridor;
+
+	int currentY;
+
+	MatrixElement * lastLine;
+
+	CorridorLine lastCorridor;
+
+	int lastY;
+
+	char * directionMatrix;
 
 	MatrixElement empty;
+
+	char STOP;
 
 	CorridorLine * corridorLines;
 
 };
 
-//const char trans[256] = { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-//		4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-//		4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0,
-//		4, 1, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4,
-//		4, 4, 4, 4, 4, 4, 4, 0, 4, 1, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 5, 4, 4, 4,
-//		4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-//		4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-//		4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-//		4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-//		4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-//		4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 };
-
 class ConvexAlign: public IAlignment {
+
 public:
 	ConvexAlign(int gpu_id);
 	virtual ~ConvexAlign();
@@ -209,8 +312,6 @@ private:
 		int alignment_offset;
 	};
 
-	//bool cigar;
-	//short scores[6][6];
 	AlignmentMatrix::Score mat;
 	AlignmentMatrix::Score mis;
 	AlignmentMatrix::Score gap_open_read;
@@ -221,8 +322,6 @@ private:
 
 	AlignmentMatrix * matrix;
 
-//	long long maxAlignMatrixLen;
-//	MatrixElement * alignMatrix;
 	int * binaryCigar;
 
 	//meta info
@@ -239,8 +338,7 @@ private:
 			int const externalQEnd);
 
 	AlignmentMatrix::Score fwdFillMatrix(char const * const refSeq,
-			char const * const qrySeq, FwdResults & fwdResults,
-			int readId);
+			char const * const qrySeq, FwdResults & fwdResults, int readId);
 
 	bool revBacktrack(char const * const refSeq, char const * const qrySeq,
 			FwdResults & fwdResults, int readId);

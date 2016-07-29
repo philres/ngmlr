@@ -7,8 +7,9 @@
 
 #include "ConvexAlign.h"
 
-#include <cmath>
+#include "Timing.h"
 
+#include <cmath>
 #include <stdint.h>
 
 namespace Convex {
@@ -36,13 +37,17 @@ ConvexAlign::ConvexAlign(int gpu_id) :
 	gap_decay = 0.15f;
 	gap_ext_min = -1.0f;
 
-	matrix = 0;
+	matrix = new AlignmentMatrix();
 
 	binaryCigar = new int[maxBinaryCigarLength];
 
 }
 
 ConvexAlign::~ConvexAlign() {
+
+	delete matrix;
+	matrix = 0;
+
 	delete[] binaryCigar;
 	binaryCigar = 0;
 }
@@ -294,30 +299,32 @@ bool ConvexAlign::revBacktrack(char const * const refSeq,
 	int x = fwdResults.best_ref_index;
 	int y = fwdResults.best_read_index;
 
-	AlignmentMatrix::MatrixElement currentElement;
+//	AlignmentMatrix::MatrixElement currentElement;
 
-	while ((currentElement = *matrix->getElement(x, y)).direction != CIGAR_STOP) {
+	char currentElement = 0;
 
-		if (x < 0 || y < 0 || x > matrix->getWidth()
-				|| y > matrix->getHeight()) {
-			fprintf(stderr, "Error in backtracking. x, y indexing error.\n");
-			return false;
-		}
+//	while ((currentElement = matrix->getElement(x, y)->direction) != CIGAR_STOP) {
+	while ((currentElement = *matrix->getDirection(x, y)) != CIGAR_STOP) {
+
+//		if (x < 0 || y < 0 || x > matrix->getWidth()
+//				|| y > matrix->getHeight()) {
+//			fprintf(stderr, "Error in backtracking. x, y indexing error.\n");
+//			return false;
+//		}
 
 		//TODO: add corridor check. backtracking path too close to corridor end
 
-		printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, x, y, 2);
+//		printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, x, y, 2);
 
-		if (currentElement.direction == CIGAR_X
-				|| currentElement.direction == CIGAR_EQ) {
+		if (currentElement == CIGAR_X || currentElement == CIGAR_EQ) {
 			y -= 1;
 			x -= 1;
 
 			cigarStringLength += 1;
-		} else if (currentElement.direction == CIGAR_I) {
+		} else if (currentElement == CIGAR_I) {
 			y -= 1;
 			cigarStringLength += 1;
-		} else if (currentElement.direction == CIGAR_D) {
+		} else if (currentElement == CIGAR_D) {
 			x -= 1;
 		} else {
 			fprintf(stderr,
@@ -326,19 +333,19 @@ bool ConvexAlign::revBacktrack(char const * const refSeq,
 
 		}
 
-		if (currentElement.direction == cigar_element) {
+		if (currentElement == cigar_element) {
 			cigar_element_length += 1;
 		} else {
 			binaryCigar[binaryCigarIndex--] = (cigar_element_length << 4
 					| cigar_element);
 
-			if (binaryCigarIndex < 0) {
-				fprintf(stderr,
-						"Error in backtracking. CIGAR buffer not long enough\n");
-				throw "";
-			}
+//			if (binaryCigarIndex < 0) {
+//				fprintf(stderr,
+//						"Error in backtracking. CIGAR buffer not long enough\n");
+//				throw "";
+//			}
 
-			cigar_element = currentElement.direction;
+			cigar_element = currentElement;
 			cigar_element_length = 1;
 		}
 	}
@@ -407,14 +414,13 @@ int ConvexAlign::SingleAlign(int const mode, int const corridor,
 			new AlignmentMatrix::CorridorLine[corridorHeight];
 
 	for (int i = 0; i < corridorHeight; ++i) {
+//		corridorLines[i].offset = std::max(0, i - corridorWidth / 2);
+//		corridorLines[i].length = std::min(corridorWidth, corridorWidth + (i - corridorWidth / 2)) ;
 		corridorLines[i].offset = i - corridorWidth / 2;
 		corridorLines[i].length = corridorWidth;
 	}
 
-	matrix = new AlignmentMatrix(refLen, qryLen, corridorLines, corridorHeight);
-
-//	matrix->printMatrix(refSeq, qrySeq);
-//	getchar();
+	matrix->prepare(refLen, qryLen, corridorLines, corridorHeight);
 
 	int * clipping = 0;
 	if (extData == 0) {
@@ -432,27 +438,34 @@ int ConvexAlign::SingleAlign(int const mode, int const corridor,
 	FwdResults fwdResults;
 
 	// Debug: rscript convex-align-vis.r
-	printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, refLen, qryLen, -1);
+//	printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, refLen, qryLen, -1);
 
+//	Timer t1;
+//	t1.ST();
 	AlignmentMatrix::Score score = fwdFillMatrix(refSeq, qrySeq, fwdResults,
 			mode);
+//	fprintf(stderr, "Fill took %f\n", t1.ET());
 
 //	matrix->printMatrix(refSeq, qrySeq);
+//	fprintf(stderr, "Best y: %d, Best x: %d, Score: %d, QEnd: %d\n",
+//			fwdResults.best_read_index, fwdResults.best_ref_index,
+//			fwdResults.max_score, fwdResults.qend);
 
-	fprintf(stderr, "Best y: %d, Best x: %d, Score: %d, QEnd: %d\n",
-			fwdResults.best_read_index, fwdResults.best_ref_index,
-			fwdResults.max_score, fwdResults.qend);
-
+//	Timer t2;
+//	t2.ST();
 	bool validAlignment = revBacktrack(refSeq, qrySeq, fwdResults, mode);
+//	fprintf(stderr, "Backt took %f\n", t2.ET());
 
 	if (validAlignment) {
 
-		fprintf(stderr, "QStart: %d, Ref offset: %d, Binary cigar offset: %d\n",
-				fwdResults.qstart, fwdResults.ref_position,
-				fwdResults.alignment_offset);
-
+//		fprintf(stderr, "QStart: %d, Ref offset: %d, Binary cigar offset: %d\n",
+//				fwdResults.qstart, fwdResults.ref_position,
+//				fwdResults.alignment_offset);
+//		Timer t3;
+//		t3.ST();
 		finalCigarLength = convertCigar(refSeq, align, fwdResults, clipping[0],
 				clipping[1]);
+//		fprintf(stderr, "Conv took %f\n", t3.ET());
 
 		align.PositionOffset = fwdResults.ref_position;
 		align.Score = score;
@@ -466,13 +479,10 @@ int ConvexAlign::SingleAlign(int const mode, int const corridor,
 		clipping = 0;
 	}
 
-	printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, (int) score,
-			finalCigarLength, -3);
+//	printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, (int) score,
+//			finalCigarLength, -3);
 
 	alignmentId += 1;
-
-	delete matrix;
-	matrix = 0;
 
 	delete[] corridorLines;
 	corridorLines = 0;
@@ -487,14 +497,16 @@ AlignmentMatrix::Score ConvexAlign::fwdFillMatrix(char const * const refSeq,
 
 	for (int y = 0; y < matrix->getHeight(); ++y) {
 
+		matrix->prepareLine(y);
+
 		int xOffset = matrix->getCorridorOffset(y);
 
 		// Debug: rscript convex-align-vis.r
-		printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, xOffset, y, 0);
-		printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId,
-				xOffset + matrix->getCorridorLength(y), y, 1);
+//		printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, xOffset, y, 0);
+//		printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId,
+//				xOffset + matrix->getCorridorLength(y), y, 1);
 
-		char read_char_cache = qrySeq[y];
+		char const read_char_cache = qrySeq[y];
 
 		for (int x = xOffset; x < (xOffset + matrix->getCorridorLength(y));
 				++x) {
@@ -502,15 +514,17 @@ AlignmentMatrix::Score ConvexAlign::fwdFillMatrix(char const * const refSeq,
 				continue;
 			}
 
-			AlignmentMatrix::MatrixElement const diag = *matrix->getElement(
-					x - 1, y - 1);
-			AlignmentMatrix::MatrixElement const up = *matrix->getElement(x,
+//			AlignmentMatrix::MatrixElement const & diag =
+//					matrix->getElementConst(x - 1, y - 1);
+			AlignmentMatrix::Score diag_score = matrix->getScore(x - 1, y - 1);
+			AlignmentMatrix::MatrixElement const & up = *matrix->getElement(x,
 					y - 1);
-			AlignmentMatrix::MatrixElement const left = *matrix->getElement(
+			AlignmentMatrix::MatrixElement const & left = *matrix->getElement(
 					x - 1, y);
 
-			bool eq = read_char_cache == refSeq[x];
-			AlignmentMatrix::Score diag_cell = diag.score + ((eq) ? mat : mis);
+			bool const eq = read_char_cache == refSeq[x];
+			AlignmentMatrix::Score const diag_cell = diag_score
+					+ ((eq) ? mat : mis);
 
 			AlignmentMatrix::Score up_cell = 0;
 			AlignmentMatrix::Score left_cell = 0;
@@ -550,36 +564,44 @@ AlignmentMatrix::Score ConvexAlign::fwdFillMatrix(char const * const refSeq,
 			max_cell = max(diag_cell, max_cell);
 			max_cell = max(up_cell, max_cell);
 
-			AlignmentMatrix::MatrixElement & current = *matrix->getElement(x,
-					y);
+			AlignmentMatrix::MatrixElement * current = matrix->getElementEdit(x, y);
+			char & currentDirection = *matrix->getDirection(x, y);
+
 			if (del_run > 0 && max_cell == left_cell) {
-				current.score = max_cell;
-				current.direction = CIGAR_D;
-				current.indelRun = del_run + 1;
+				current->score = max_cell;
+				current->direction = CIGAR_D;
+				currentDirection = CIGAR_D;
+				current->indelRun = del_run + 1;
 			} else if (ins_run > 0 && max_cell == up_cell) {
-				current.score = max_cell;
-				current.direction = CIGAR_I;
-				current.indelRun = ins_run + 1;
+				current->score = max_cell;
+				current->direction = CIGAR_I;
+				currentDirection = CIGAR_I;
+				current->indelRun = ins_run + 1;
 			} else if (max_cell == diag_cell) {
-				current.score = max_cell;
+				current->score = max_cell;
 				if (eq) {
-					current.direction = CIGAR_EQ;
+					current->direction = CIGAR_EQ;
+					currentDirection = CIGAR_EQ;
 				} else {
-					current.direction = CIGAR_X;
+					current->direction = CIGAR_X;
+					currentDirection = CIGAR_X;
 				}
-				current.indelRun = 0;
+				current->indelRun = 0;
 			} else if (max_cell == left_cell) {
-				current.score = max_cell;
-				current.direction = CIGAR_D;
-				current.indelRun = 1;
+				current->score = max_cell;
+				current->direction = CIGAR_D;
+				currentDirection = CIGAR_D;
+				current->indelRun = 1;
 			} else if (max_cell == up_cell) {
-				current.score = max_cell;
-				current.direction = CIGAR_I;
-				current.indelRun = 1;
+				current->score = max_cell;
+				current->direction = CIGAR_I;
+				currentDirection = CIGAR_I;
+				current->indelRun = 1;
 			} else {
-				current.score = 0;
-				current.direction = CIGAR_STOP;
-				current.indelRun = 0;
+				current->score = 0;
+				current->direction = CIGAR_STOP;
+				currentDirection = CIGAR_STOP;
+				current->indelRun = 0;
 			}
 
 			if (max_cell > curr_max) {
@@ -616,11 +638,11 @@ int ConvexAlign::BatchScore(int const mode, int const batchSize,
 //
 //	IAlignment * aligner = new Convex::ConvexAlign(0);
 //
-//	char const * qry =
+//	char const * ref =
 //			"TCAAGATGCCATTGTCCCCCCGGCCTCCTGCTGCTGCTGCTCTCCGGGGCCACGGCCACCGCTGCTCCTGCC";
 ////	char const * qry =
 ////			"TCAAGATGCCAATTGTCCCCCGGCCCCCCTGCTGCTGCTGCTCTCCGGGGCCACGGCCACCGCTGCCCTGCC";
-//	char const * ref =
+//	char const * qry =
 //				"CGGGGCCACGGCCACCGCTGCCCTGCC";
 //
 //	fprintf(stderr, "Ref:  %s\n", ref);
@@ -631,7 +653,7 @@ int ConvexAlign::BatchScore(int const mode, int const batchSize,
 //	align.pBuffer1 = new char[strlen(ref) * 4];
 //	align.pBuffer2 = new char[strlen(ref) * 4];
 //
-//	int result = aligner->SingleAlign(0, 200, ref, qry, align, 0);
+//	int result = aligner->SingleAlign(0, 20, ref, qry, align, 0);
 //	fprintf(stderr, "Alignment terminated with: %d\n", result);
 //	fprintf(stderr, "Cigar: %s\n", align.pBuffer1);
 //	fprintf(stderr, "MD: %s\n", align.pBuffer2);
@@ -641,4 +663,4 @@ int ConvexAlign::BatchScore(int const mode, int const batchSize,
 //
 //	return 0;
 //}
-
+//
