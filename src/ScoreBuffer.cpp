@@ -64,7 +64,8 @@ void ScoreBuffer::debugScoresFinished(MappedRead * read) {
 			int refNameLength = 0;
 			Log.Debug(64, "READ_%d\tSCORES_RESULTS\tCMR_%d\t%f\t%llu\t%s", read->ReadId, i, score.Score.f, loc.m_Location, SequenceProvider.GetRefName(loc.getrefId(), refNameLength));
 		}
-
+		delete[] tmpScores;
+		tmpScores = 0;
 	}
 
 #ifdef _DEBUGCMRS

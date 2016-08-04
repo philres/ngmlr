@@ -462,6 +462,7 @@ void _NGM::MainLoop() {
 	int processed = 0;
 	float runTime = 0.0f;
 	float readsPerSecond = 0.0f;
+	float alignSuccessRatio = 0.0f;
 
 	while (Running()) {
 		Sleep(2000);
@@ -470,8 +471,9 @@ void _NGM::MainLoop() {
 
 			runTime = tmr.ET();
 			readsPerSecond = processed / runTime;
+			alignSuccessRatio = NGM.Stats->alignmentCount * 1.0f / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
 			//Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Reads: %d (%d)", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->readsInProcess, MappedRead::sInstanceCount);
-			Log.Progress("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
+			Log.Progress("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f, Align ratio: %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio);
 		}
 	}
 
@@ -479,7 +481,8 @@ void _NGM::MainLoop() {
 		processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
 		runTime = tmr.ET();
 		readsPerSecond = processed / runTime;
-		Log.Message("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime);
+		alignSuccessRatio = NGM.Stats->alignmentCount * 1.0f / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
+		Log.Message("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f, Align ratio: %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio);
 	}
 }
 

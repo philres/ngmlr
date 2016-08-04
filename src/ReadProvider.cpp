@@ -374,8 +374,8 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 				Fatal();
 			}
 		}
-		//delete read;
-		//read = 0;
+		delete read;
+		read = 0;
 	} catch (char * ex) {
 		Log.Error("%s", ex);
 		Fatal();

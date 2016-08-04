@@ -74,8 +74,8 @@ int bitwise_alignment(char * s1, char* s2, int words){
 	unsigned long long int highone = one << (wordsize - 1);
 	unsigned long long int initval;
 	char * iterate;
-	int score;
-	int maxscore;
+	int score = 0;
+	int maxscore = 0;
 	int counter = 0, w = 0;
 
 	n = strlen (s1);

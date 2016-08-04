@@ -21,11 +21,29 @@ struct CorridorLine {
 };
 
 struct Align {
+
+public:
 	Align() :
 			pBuffer1(0), pBuffer2(0), nmPerPosition(0), ExtendedData(0), alignmentLength(
 					0), PositionOffset(0), QStart(0), QEnd(0), Score(0.0f), Identity(
 					0.0f), NM(0), MQ(0), skip(false), primary(false), svType(0) {
 	}
+
+	virtual ~Align() {
+//		if (pBuffer1 != 0) {
+//			delete[] pBuffer1;
+//			pBuffer1 = 0;
+//		}
+//		if (pBuffer2 != 0) {
+//			delete[] pBuffer2;
+//			pBuffer2 = 0;
+//		}
+//		if (nmPerPosition != 0) {
+//			delete[] nmPerPosition;
+//			nmPerPosition = 0;
+//		}
+	}
+
 	char * pBuffer1; // = pCigar = pRef
 	char * pBuffer2; // = pMD = pQry
 	PositionNM * nmPerPosition;
@@ -43,6 +61,10 @@ struct Align {
 	bool skip;
 	bool primary;
 	int svType;
+
+//private:
+//	Align(const Align & src);
+
 };
 
 static int const cCookie = 0x10201130;
@@ -81,7 +103,8 @@ public:
 
 	virtual int SingleAlign(int const mode, CorridorLine * corridor,
 			int const corridorHeight, char const * const refSeq,
-			char const * const qrySeq, Align & result, void * extData) {
+			char const * const qrySeq, Align & result, int const externalQStart,
+			int const externalQEnd, void * extData) {
 		return 0;
 	}
 

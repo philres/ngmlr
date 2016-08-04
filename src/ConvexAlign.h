@@ -27,12 +27,6 @@ using std::max;
 #define short_min -16000
 #define result_number 4
 #define line_end '\0'
-//#define ref_position 0
-//#define qstart 1
-//#define qend 2
-//#define alignment_offset 3
-//#define param_best_read_index 0
-//#define param_best_ref_index 1
 
 #define CIGAR_M 0
 #define CIGAR_I 1
@@ -65,12 +59,12 @@ public:
 	};
 
 	AlignmentMatrix() :
-			STOP(CIGAR_STOP) {
+			STOP(CIGAR_STOP), defaultMatrixSize((ulong) 30000 * (ulong) 9000) {
 		privateMatrixHeight = 0;
 		privateMatrixWidth = 0;
 		corridorLines = 0;
 
-		privateMatrixSize = (ulong) 30000 * (ulong) 9000;
+		privateMatrixSize = defaultMatrixSize;
 		directionMatrix = new char[privateMatrixSize];
 		currentLine = 0;
 		lastLine = 0;
@@ -106,6 +100,22 @@ public:
 		currentLine = new MatrixElement[maxCorridorLength];
 		lastLine = new MatrixElement[maxCorridorLength];
 
+	}
+
+	void clean() {
+		if (currentLine != 0) {
+			delete[] currentLine;
+			currentLine = 0;
+		}
+		if (lastLine != 0) {
+			delete[] lastLine;
+			lastLine = 0;
+		}
+		if(privateMatrixSize > defaultMatrixSize) {
+			delete[] directionMatrix;
+			privateMatrixSize = defaultMatrixSize;
+			directionMatrix = new char[privateMatrixSize];
+		}
 	}
 
 	virtual ~AlignmentMatrix() {
@@ -253,6 +263,8 @@ public:
 
 private:
 
+	ulong const defaultMatrixSize;
+
 	int privateMatrixHeight;
 
 	int privateMatrixWidth;
@@ -303,7 +315,8 @@ public:
 
 	virtual int SingleAlign(int const mode, CorridorLine * corridor,
 			int const corridorHeight, char const * const refSeq,
-			char const * const qrySeq, Align & result, void * extData);
+			char const * const qrySeq, Align & result, int const externalQStart,
+			int const externalQEnd, void * extData);
 
 private:
 

@@ -536,7 +536,7 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("sensitivity", 0.8f);
 		Default("corridor", 40);
 
-		Default(READ_PART_LENGTH, 256);
+		Default(READ_PART_LENGTH, 128);
 //		Default("qry_max_len", 264);
 //		Default("qry_avg_len", 264);
 

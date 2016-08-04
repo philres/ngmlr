@@ -405,67 +405,76 @@ int ConvexAlign::BatchAlign(int const mode, int const batchSize,
 
 int ConvexAlign::SingleAlign(int const mode, CorridorLine * corridorLines,
 		int const corridorHeight, char const * const refSeq,
-		char const * const qrySeq, Align & align, void * extData) {
+		char const * const qrySeq, Align & align, int const externalQStart,
+		int const externalQEnd, void * extData) {
 
-	int const refLen = strlen(refSeq);
-	int const qryLen = strlen(qrySeq);
+	alignmentId = align.svType;
 
-	matrix->prepare(refLen, qryLen, corridorLines, corridorHeight);
-
-	int * clipping = 0;
-	if (extData == 0) {
-		clipping = new int[2];
-		clipping[0] = 0;
-		clipping[1] = 0;
-	} else {
-		clipping = (int *) extData;
-	}
-
-	align.pBuffer2[0] = '\0';
+	align.Score = -1.0f;
+//	return 0;
 
 	int finalCigarLength = -1;
 
-	FwdResults fwdResults;
+	try {
 
-	// Debug: rscript convex-align-vis.r
-	if (stdoutPrintAlignCorridor) {
-		printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, refLen, qryLen, -1);
+		int const refLen = strlen(refSeq);
+		int const qryLen = strlen(qrySeq);
+
+		matrix->prepare(refLen, qryLen, corridorLines, corridorHeight);
+
+		align.pBuffer2[0] = '\0';
+
+		FwdResults fwdResults;
+
+		// Debug: rscript convex-align-vis.r
+		if (stdoutPrintAlignCorridor) {
+			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, refLen, qryLen,
+					-1);
+		}
+//
+////	Timer t1;
+////	t1.ST();
+		AlignmentMatrix::Score score = fwdFillMatrix(refSeq, qrySeq, fwdResults,
+				mode);
+////	fprintf(stderr, "fill: %f\n", t1.ET());
+//
+//		//	matrix->printMatrix(refSeq, qrySeq);
+//		//	fprintf(stderr, "Best y: %d, Best x: %d, Score: %d, QEnd: %d\n",
+//		//			fwdResults.best_read_index, fwdResults.best_ref_index,
+//		//			fwdResults.max_score, fwdResults.qend);
+//
+////	Timer t2;
+////	t2.ST();
+		bool validAlignment = revBacktrack(refSeq, qrySeq, fwdResults, mode);
+////	fprintf(stderr, "fill: %f\n", t2.ET());
+//
+		if (validAlignment) {
+//
+////		Timer t3;
+////		t3.ST();
+//			//		fprintf(stderr, "QStart: %d, Ref offset: %d, Binary cigar offset: %d\n",
+//			//				fwdResults.qstart, fwdResults.ref_position,
+//			//				fwdResults.alignment_offset);
+			finalCigarLength = convertCigar(refSeq, align, fwdResults,
+					externalQStart, externalQEnd);
+//
+			align.PositionOffset = fwdResults.ref_position;
+			align.Score = score;
+////		fprintf(stderr, "conv: %f\n", t3.ET());
+		}
+//
+		if (stdoutPrintAlignCorridor) {
+			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, (int) score,
+					finalCigarLength, -3);
+		}
+	} catch (...) {
+		align.Score = -1.0f;
+		finalCigarLength = -1;
 	}
 
-	AlignmentMatrix::Score score = fwdFillMatrix(refSeq, qrySeq, fwdResults,
-			mode);
-
-	//	matrix->printMatrix(refSeq, qrySeq);
-	//	fprintf(stderr, "Best y: %d, Best x: %d, Score: %d, QEnd: %d\n",
-	//			fwdResults.best_read_index, fwdResults.best_ref_index,
-	//			fwdResults.max_score, fwdResults.qend);
-
-	bool validAlignment = revBacktrack(refSeq, qrySeq, fwdResults, mode);
-
-	if (validAlignment) {
-
-		//		fprintf(stderr, "QStart: %d, Ref offset: %d, Binary cigar offset: %d\n",
-		//				fwdResults.qstart, fwdResults.ref_position,
-		//				fwdResults.alignment_offset);
-		finalCigarLength = convertCigar(refSeq, align, fwdResults, clipping[0],
-				clipping[1]);
-
-		align.PositionOffset = fwdResults.ref_position;
-		align.Score = score;
-	}
-
-	if (extData == 0) {
-		delete[] clipping;
-		clipping = 0;
-	}
-
-	if (stdoutPrintAlignCorridor) {
-		printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, (int) score,
-				finalCigarLength, -3);
-	}
-
-	alignmentId += 1;
-
+	matrix->clean();
+//	alignmentId += 1;
+//	align.Score = -1.0f;
 	return finalCigarLength;
 }
 
@@ -473,23 +482,25 @@ int ConvexAlign::SingleAlign(int const mode, int const corridor,
 		char const * const refSeq, char const * const qrySeq, Align & align,
 		void * extData) {
 
-	int corridorWidth = corridor;
-	int const qryLen = strlen(qrySeq);
-
-	int corridorHeight = qryLen;
-	CorridorLine * corridorLines = new CorridorLine[corridorHeight];
-
-	for (int i = 0; i < corridorHeight; ++i) {
-		corridorLines[i].offset = i - corridorWidth / 2;
-		corridorLines[i].length = corridorWidth;
-	}
-
-	int returnValue = SingleAlign(mode, corridorLines, corridorHeight, refSeq,
-			qrySeq, align, extData);
-	delete[] corridorLines;
-	corridorLines = 0;
-
-	return returnValue;
+//	int corridorWidth = corridor;
+//	int const qryLen = strlen(qrySeq);
+//
+//	int corridorHeight = qryLen;
+//	CorridorLine * corridorLines = new CorridorLine[corridorHeight];
+//
+//	for (int i = 0; i < corridorHeight; ++i) {
+//		corridorLines[i].offset = i - corridorWidth / 2;
+//		corridorLines[i].length = corridorWidth;
+//	}
+//
+//	int returnValue = SingleAlign(mode, corridorLines, corridorHeight, refSeq,
+//			qrySeq, align, extData);
+//	delete[] corridorLines;
+//	corridorLines = 0;
+//
+//	return returnValue;
+	fprintf(stderr, "SingleAlign not implemented");
+	throw "Not implemented";
 }
 
 AlignmentMatrix::Score ConvexAlign::fwdFillMatrix(char const * const refSeq,
@@ -643,13 +654,17 @@ int ConvexAlign::BatchScore(int const mode, int const batchSize,
 //
 //	IAlignment * aligner = new Convex::ConvexAlign(0);
 //
+////	char const * ref =
+////			"TCAAGATGCCATTGTCCCCCCGGCCTCCTGCTGCTGCTGCTCTCCGGGGCCACGGCCACCGCTGCTCCTGCC";
 //	char const * ref =
-//			"TCAAGATGCCATTGTCCCCCCGGCCTCCTGCTGCTGCTGCTCTCCGGGGCCACGGCCACCGCTGCTCCTGCC";
+//			"AGATACATTGTTACTAACTAAGGCCCTACACCAGCAAAGATACATTGTTACTAAGTAAGGCCCTGCACCAACACAG";
+//////	char const * qry =
+//////			"TCAAGATGCCAATTGTCCCCCGGCCCCCCTGCTGCTGCTGCTCTCCGGGGCCACGGCCACCGCTGCCCTGCC";
 ////	char const * qry =
-////			"TCAAGATGCCAATTGTCCCCCGGCCCCCCTGCTGCTGCTGCTCTCCGGGGCCACGGCCACCGCTGCCCTGCC";
+////				"CGGGGCCACGGCCACCGCTGCCCTGCC";
+////
 //	char const * qry =
-//				"CGGGGCCACGGCCACCGCTGCCCTGCC";
-//
+//			"CCAGAGCAAGTTCCCGGGGGGTGGCGCATAGATGCAGCGGTCTGGGTTCTGTGGCTGGGGGAGTTGGCTTGGGGTCCGTGGCTTGGGTCAGTCTTCAAGAGCCACCCTGGGTGGCACTCCAGGTTCTCTTGGTCTGGGGGGAATTACCCTGACCCCAGCGGTTTCACGGCCTCCTCCCCACTCAGCCTGGGGGAGAGTCCAGGGTCGGCCTGTCCCCCTCCCCCCACTCCTGTCACTATCAGTCCCCTGTGCTCAGCTTACTGGCAGGGTTCCTCCTGGCTGTCCCCTCCTGCCTCCAGCGCTCTTTCCTCAGGTGTCCACGAGCTCGTCCTCATCCCTTTCTGGTCCTGCTCAGATGCCGCCTGAGGCTCCCAAAACAGGGTCTCACTCTGTCACCCAGGGTGGAGTGCAGTGGTGCAATCCAGCTCACTGCATCCTTGACCTCCCAGGCTCAAGCGACCTCTGCCAGCGAGCTTGTTCAATTCCTGCACCAACACGATACATTGTTCTAACTAGGCCCTACACACAGCAAAGATACATTGTACTTAAGTAAGGGCCCTGCACCAACACAGATACATTGTTACTAAGTAGAGGCCCTGCACCAACACACGATACACTTGTTACTAACTAAGGCCCTGCACCAACACAGATACGTTAGTTACTAAGTAAGGCCCTGCACCAACACAGATACGTTGTTACTAAATAAGGCCCTGTACCAACACAGATACATTGTTACTAACTAAGGCCCTGCACCAACACAGATACTTGTTACTAAGTAAGGCCCTGCTACCAACACAGATACATTGTTACTAACTAAGCCCTGCACCAGCCACAGATACATTGTTACTAAGGGCCCTACACCAGCACAGATACATTGTTACTAAGGCCCTGCACCAACACAGATACGTTGTTACTAAGTGAGCCCTGCACCAACACAGATACATTGTTACTAAGTAAGGCCCTGCACCAGCACGAGATACATTGTTACTAAGGCCCTACACCAGCACAGGATAACATTGTCTACTAACTAAGGCCCTGCACGCAACAAAGATACGTATGTTACTAAGTAAGGCCCTGCACCAACACAGATACATTGTTACTAACTAAGGCCCCATGCACCAACACAGATAATTGTTACAAGGCCCTGCACCAACACAGATACATTGTTACTAACTAAGGCCCTGCACCAACACAGATACGTTGTTACTAAGTAAGGCCCTTGCACCAACACAATACATTGTTACTAAATAAGGCCCTGTACCAACATTCAGATACATTGTTACTAACTAAGGCCTGCACCAACACAGATACGTTGTTACTAAGTAAGGCCCTGTACCAACCAGGACTACATTGTTACTAACTAAGGCCCTGCACCACACAGATCGTTGTTTACTAAGTAAGGCCCTGGCACCAACACAGATACATTGTTACTAACTAAGGCCCTGCACAACACAATACATTGTTACTAAGGCCCTGCACCAACACAGATACATTGTTACTAAGTAAGGCCCTGCACCAACACGATACATTGTTACTACTAAGGCCCTGCACCAACACAAATACGTTCTTACTAAGTAAGGCCCTGCACCAACACAGATACATTGTACTAACTAAGGCCCTGTACAACACAGATACGTTGTTACTAAGTAAGGCCCTGCACCAACACAGACTACATTGTTACTAGGCCCTGCACCAAACACAGATACATTGTACTAAGTAAGGCCCTGCAGCCAACTACCAGATGACATTGTTACTAACTAAGGCCCTGCACCAGCACAGATATATTGTTACTAAAGGCCCTGCACCAACCTACAGATACATTGTTACTAACTAAGGCCTGCACCAACAAGATATGTTGTTACTAAGGCCCTGCACTCACACAGATACATTGTTACTAAGTAAGGGCCCTGCACCAACACAGATACATTGTTACTAACTAAAGGCCCCTGCACCAACACAGATAGTTGTTACTAAGTATGGCCCTCACCAACACAGATACATTGTTACTAAGGCCCTGCACCAACACAGATACATGTTACTAAGTAAGGCCCTTGCACCAACACAGATACATTTGTTACTAACTAAGGCCCTGCACCAACACAGATACATTGTACTAAGGCCCTACACCGAGAATGGATACATTGTCACATGGTTACCTAAAGCCTTGCACCAACATGGACACATCATTACTAAACTAAGGCCCTGCACCAACACAGATACATTGTTACTAAGGCCCTGCACCAACACAGATACATTGTTACTAAGATAAGAGCCCTGCACCAACACAGAGTACATTGTTACTAACAAGGCCCTCACCAGCACAGATATATTGTTACTAAGGCCCTGACTCAACACAGATAATTGTTACTAACTCAAGGCCCTGCACCAACCAGATATGTTGTTACTAAGGCCCTGCACCCCAACACAGATACATTGTTACTAAGGCCCGCACCAACACAAGATACATTGTTACTAAGTAAGGCCCTGCACCAACACAGATACGTTGTTACTAACTAAGGCCCTGCACCAACACAGATACGTTGTTACTCGAAGTAAGGCCCTGCACCAATCACAATACATTGTTACTAAGGCCCTGCACCAAACAGATACATTGTTACTAAGTAAGGCCCTGCACCATACACAGATGCATTTTAGCTAACTAAGGCCCTGTACCAACACAGATACATTGTTACTAGCTAAGGCCCTGCACCAACACAAGATACATTGTTACTAAGTAAGGCCCTGTACCAACACAGATATATTGTTACTAACTAAGGCCCTGCACCAACACAGATACGGTTGTTACTAAGTAAGGC";
 //	fprintf(stderr, "Ref:  %s\n", ref);
 //	fprintf(stderr, "Read: %s\n", qry);
 //
@@ -660,6 +675,7 @@ int ConvexAlign::BatchScore(int const mode, int const batchSize,
 //
 //	int result = aligner->SingleAlign(0, 20, ref, qry, align, 0);
 //	fprintf(stderr, "Alignment terminated with: %d\n", result);
+//	fprintf(stderr, "Score: %f\n", align.Score);
 //	fprintf(stderr, "Cigar: %s\n", align.pBuffer1);
 //	fprintf(stderr, "MD: %s\n", align.pBuffer2);
 //
@@ -668,4 +684,4 @@ int ConvexAlign::BatchScore(int const mode, int const batchSize,
 //
 //	return 0;
 //}
-//
+
