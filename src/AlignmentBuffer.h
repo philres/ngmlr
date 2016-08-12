@@ -116,13 +116,13 @@ private:
 	uloc const refMaxLen;
 	int const min_mq;
 
-	Alignment * reads;
+//	Alignment * reads;
 	int nReads;
-	char const * * qryBuffer;
-	char const * * refBuffer;
-	char * m_DirBuffer;
+//	char const * * qryBuffer;
+//	char const * * refBuffer;
+//	char * m_DirBuffer;
 	int dbLen;
-	Align * alignBuffer;
+//	Align * alignBuffer;
 	char * dBuffer;
 	char * dummy;
 
@@ -150,6 +150,7 @@ private:
 	bool printInvCandidateFa;
 	bool stdoutPrintMappedSegments;
 	bool stdoutPrintAlignCorridor;
+	bool stdoutPrintScores;
 
 	IntervalTree::IntervalTree<int> * readCoordsTree;
 
@@ -191,7 +192,7 @@ public:
 	// algorithm
 	// TODO: remove fixed length!
 	struct MappedSegment {
-		Interval * list[100];
+		Interval * list[1000];
 		size_t length;
 
 		MappedSegment() {
@@ -220,23 +221,23 @@ public:
 	Align computeAlignment(MappedRead* read, int const scoreId,
 			int const corridor);
 
-	Align computeAlignment(Interval const * interval, int const corridor,
+	Align * computeAlignment(Interval const * interval, int const corridor,
 			char * const readSeq, size_t const readLength, int const QStart,
 			int const QEnd, int fullReadLength, MappedRead const * const read,
-			bool const realign);
+			bool const realign, bool const shortRead);
 
 	int estimateCorridor(Interval const * interval);
 	char * const extractReadSeq(const size_t& readSeqLen,
 			Interval const * interval, MappedRead* read);
 
-	Align alignInterval(MappedRead const * const read,
+	Align * alignInterval(MappedRead const * const read,
 			Interval const * interval, char * const readSeq,
 			size_t const readSeqLen, bool const realign);
 	void alignSingleOrMultipleIntervals(MappedRead * read,
 			Interval const * const interval, LocationScore * tmp, Align * tmpAling,
 			int & alignIndex);
 
-	int realign(int svType, Interval const * interval, Interval * leftOfInv,
+	int realign(int const svType, Interval const * interval, Interval * leftOfInv,
 			Interval * rightOfInv, MappedRead * read, Align * tmpAling,
 			int & alignIndex, LocationScore * tmp, int mq);
 
@@ -257,11 +258,11 @@ public:
 	void consolidateSegment(Interval * interval, int & intervalsIndex,
 			MappedSegment segment);
 
-	int detectMisalignment(Align const align, Interval const * interval,
+	int detectMisalignment(Align const * const align, Interval const * interval,
 			char * readPartSeq, Interval * leftOfInv, Interval * rightOfInv,
 			MappedRead * read);
 
-	int checkForSV(Align const align, Interval const * interval, int startInv,
+	int checkForSV(Align const * const align, Interval const * interval, int startInv,
 			int stopInv, int startInvRead, int stopInvRead, char * fullReadSeq,
 			Interval * leftOfInv, Interval * rightOfInv, MappedRead * read);
 
@@ -270,6 +271,7 @@ public:
 
 	void processLongRead(ReadGroup * group);
 	void processLongReadLIS(ReadGroup * group);
+	void processShortRead(MappedRead * read);
 
 	int computeMappingQuality(Align const & alignment, int readLength);
 
@@ -289,7 +291,7 @@ public:
 			corridor(Config.GetInt("corridor")),
 			refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
 			min_mq(Config.GetInt(MIN_MQ)),
-			aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(Config.GetInt(PACBIOLOG) == 1), readCoordsTree(0), readPartLength(Config.GetInt(READ_PART_LENGTH)), maxIntervalNumber(8) {
+			aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(Config.GetInt(PACBIOLOG) == 1), readCoordsTree(0), readPartLength(Config.GetInt(READ_PART_LENGTH)), maxIntervalNumber(10) {
 		pairInsertSum = 0;
 		pairInsertCount = 0;
 		brokenPairs = 0;
@@ -325,18 +327,18 @@ public:
 			first = false;
 		}
 
-		reads = new Alignment[batchSize];
+//		reads = new Alignment[batchSize];
 
-		qryBuffer = new char const *[batchSize];
-		refBuffer = new char const *[batchSize];
+//		qryBuffer = new char const *[batchSize];
+//		refBuffer = new char const *[batchSize];
 
-		for (int i = 0; i < batchSize; ++i) {
-			refBuffer[i] = new char[refMaxLen];
-		}
+//		for (int i = 0; i < batchSize; ++i) {
+//			refBuffer[i] = new char[refMaxLen];
+//		}
+//
+//		m_DirBuffer = new char[batchSize];
 
-		m_DirBuffer = new char[batchSize];
-
-		alignBuffer = new Align[batchSize];
+//		alignBuffer = new Align[batchSize];
 		dbLen = std::max(1, Config.GetInt("qry_max_len")) * 8;
 		dBuffer = new char[dbLen];
 
@@ -361,6 +363,7 @@ public:
 		printInvCandidateFa = Config.GetInt(STDOUT) == 4;
 		stdoutPrintMappedSegments = Config.GetInt(STDOUT) == 5;
 		stdoutPrintAlignCorridor =						Config.GetInt(STDOUT) == 6;
+		stdoutPrintScores =		Config.GetInt(STDOUT) == 7;
 
 		Log.Verbose("Alignment batchsize = %i", batchSize);
 
@@ -371,21 +374,21 @@ public:
 
 	virtual ~AlignmentBuffer() {
 		delete m_Writer;
-		delete[] m_DirBuffer;
-		m_DirBuffer = 0;
+//		delete[] m_DirBuffer;
+//		m_DirBuffer = 0;
 
 		delete[] dummy;
 		dummy = 0;
 
-		for (int i = 0; i < batchSize; ++i) {
-			delete[] refBuffer[i];
-			refBuffer[i] = 0;
-		}
-		delete[] qryBuffer;
-		delete[] refBuffer;
-		delete[] alignBuffer;
-
-		delete[] reads;
+//		for (int i = 0; i < batchSize; ++i) {
+//			delete[] refBuffer[i];
+//			refBuffer[i] = 0;
+//		}
+//		delete[] qryBuffer;
+//		delete[] refBuffer;
+//		delete[] alignBuffer;
+//
+//		delete[] reads;
 		delete[] dBuffer;
 
 		delete[] intervalBuffer;

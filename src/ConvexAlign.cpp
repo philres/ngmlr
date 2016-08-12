@@ -8,10 +8,9 @@
 #include "ConvexAlign.h"
 
 #include "Config.h"
-#include "Timing.h"
-
 #include <cmath>
 #include <stdint.h>
+#include "misc/Timing.h"
 
 namespace Convex {
 

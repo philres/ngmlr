@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sstream>
+#include "../../../src/misc/Timing.h"
 
-#include "Timing.h"
 #include "OclHost.h"
 
 #include "oclSwAlignment.h"

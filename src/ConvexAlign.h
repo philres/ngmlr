@@ -90,7 +90,7 @@ public:
 					corridorLines[i].length);
 		}
 		if (matrixSize > privateMatrixSize) {
-			fprintf(stderr, "Reallocating matrix for alignment\n");
+			//fprintf(stderr, "Reallocating matrix for alignment\n");
 			delete[] directionMatrix;
 			directionMatrix = 0;
 			directionMatrix = new char[matrixSize];

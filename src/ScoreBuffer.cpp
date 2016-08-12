@@ -31,6 +31,10 @@ bool sortLocationScore(LocationScore a, LocationScore b) {
 	return a.Score.f > b.Score.f;
 }
 
+bool sortLocationScoreLocation(LocationScore a, LocationScore b) {
+	return a.Location.m_Location < b.Location.m_Location;
+}
+
 int ScoreBuffer::computeMQ(float bestScore, float secondBestScore) {
 	int mq = ceil(MAX_MQ * (bestScore - secondBestScore) / bestScore);
 	return mq;
@@ -77,15 +81,17 @@ void ScoreBuffer::debugScoresFinished(MappedRead * read) {
 
 ReadGroup* ScoreBuffer::updateGroupInfo(MappedRead* cur_read) {
 	ReadGroup* group = cur_read->group;
-	//TODO: make atomic, parts from a group can end up in different threads!
-	group->readsFinished += 1;
-	//				Log.Message("Scorecount for %s (%d): %d - %d", cur_read->name, cur_read->ReadId, cur_read->numScores(), cur_read->Calculated);
-	if (cur_read->Scores[0].Location.isReverse()) {
-		group->reverseMapped += 1;
-	} else {
-		group->fwdMapped += 1;
+	if (group != 0) {
+		//TODO: make atomic, parts from a group can end up in different threads!
+		group->readsFinished += 1;
+		//				Log.Message("Scorecount for %s (%d): %d - %d", cur_read->name, cur_read->ReadId, cur_read->numScores(), cur_read->Calculated);
+		if (cur_read->Scores[0].Location.isReverse()) {
+			group->reverseMapped += 1;
+		} else {
+			group->fwdMapped += 1;
+		}
+		group->bestScoreSum += (int) (cur_read->Scores[0].Score.f);
 	}
-	group->bestScoreSum += (int) (cur_read->Scores[0].Score.f);
 	return group;
 }
 
@@ -166,13 +172,15 @@ void ScoreBuffer::DoRun() {
 
 				topNSE(cur_read);
 
-
 				ReadGroup* group = updateGroupInfo(cur_read);
-
-				//If all reads from group are finished
-				if(group->readsFinished == group->readNumber) {
-					out->processLongReadLIS(group);
+				if(group != 0) {
+					//If all reads from group are finished
+					if(group->readsFinished == group->readNumber) {
+						out->processLongReadLIS(group);
 //					out->WriteRead(group->fullRead, false);
+					}
+				} else {
+					out->processShortRead(cur_read);
 				}
 
 			}
@@ -263,7 +271,7 @@ void ScoreBuffer::topNSE(MappedRead* read) {
 
 		//numScores alignments will be computed in the next step
 		read->Calculated = numScores;
-		read->Alignments = new Align[read->Calculated];
+//		read->Alignments = new Align[read->Calculated];
 
 //		//Submit reads to alignment computation
 //		out->addRead(read, 0);
@@ -479,6 +487,74 @@ void ScoreBuffer::addRead(MappedRead * read, int count) {
 			iScores = 0;
 		}
 	}
+}
+
+void ScoreBuffer::scoreShortRead(MappedRead * read) {
+	IAlignment * aligner = new StrippedSW();
+
+	static int const readPartLength = Config.GetInt(READ_PART_LENGTH);
+
+	// Remove redundant candidates (CMRs in close proximity)
+	LocationScore * tmpScore = new LocationScore[read->numScores()];
+	int tmpScoreIndex = 0;
+
+	std::sort(read->Scores, read->Scores + read->numScores(), sortLocationScoreLocation);
+
+	uloc lastLocation = 0;
+
+	for (int i = 0; i < read->numScores(); ++i) {
+		if(llabs(lastLocation - read->Scores[i].Location.m_Location) > readPartLength) {
+			tmpScore[tmpScoreIndex++] = read->Scores[i];
+		}
+		lastLocation = read->Scores[i].Location.m_Location;
+	}
+
+	delete[] read->Scores;
+	read->Scores = 0;
+
+	read->AllocScores(tmpScore, tmpScoreIndex);
+
+	delete[] tmpScore;
+	tmpScore = 0;
+
+	for (int i = 0; i < read->numScores(); ++i) {
+
+		int corridor = read->length * 0.3 + 256;
+
+		char * qrySeq = 0;
+		char * refSeq = new char[read->length + corridor + 10];
+		memset(refSeq, '\0', read->length + corridor + 10);
+		if (read->Scores[i].Location.isReverse()) {
+			read->computeReverseSeq();
+			qrySeq = read->RevSeq;
+		} else {
+			qrySeq = read->Seq;
+		}
+
+		//decode reference sequence
+		if (!SequenceProvider.DecodeRefSequence(refSeq, 0,
+				read->Scores[i].Location.m_Location - (corridor >> 1), read->length + corridor)) {
+			//							loc.m_Location - (corridor >> 1), cur_read->length + corridor)) {
+//			Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", loc.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
+			//Log.Warning("Read sequence: %s", cur_read->Seq);
+			memset(refSeq, 'N', read->length + corridor);
+		}
+		float score = 0.0f;
+		aligner->SingleScore(0, corridor, refSeq, qrySeq, score, 0);
+		read->Scores[i].Score.f = score;
+
+		delete[] refSeq;
+		refSeq = 0;
+	}
+
+
+	std::sort(read->Scores, read->Scores + read->numScores(), sortLocationScore);
+
+	computeMQ(read);
+
+	out->processShortRead(read);
+
+	delete aligner;
 }
 
 void ScoreBuffer::flush() {

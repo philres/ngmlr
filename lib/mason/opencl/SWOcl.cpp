@@ -11,10 +11,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sstream>
+#include "../../../src/misc/Timing.h"
 
-#include "Timing.h"
-
-//OpenCL source code
 #include "oclDefines.h"
 #include "oclSwScore.h"
 #include "oclEndFreeScore.h"

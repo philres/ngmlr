@@ -80,6 +80,7 @@ public:
 
 	void InitQuit();
 	void StartThreads();
+	void StopThreads();
 	void MainLoop();
 
 	void * getWriter();

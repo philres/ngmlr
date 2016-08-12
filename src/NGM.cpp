@@ -261,10 +261,11 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 		eof = !NGM.GetReadProvider()->GenerateRead(m_CurStart + i * idJump, read1, 0, read1);
 		i += 1;
 		if (!eof) {
-			for (int j = 0; j < read1->group->readNumber; ++j) {
-				count += 1;
-				list.push_back(read1->group->reads[j]);
-			}
+//			for (int j = 0; j < read1->group->readNumber; ++j) {
+			count += 1;
+//				list.push_back(read1->group->reads[j]);
+			list.push_back(read1);
+//			}
 		}
 
 	}
@@ -370,6 +371,10 @@ bool _NGM::ThreadActive(int tid, int stage) {
 		NGMUnlock(&m_SchedulerMutex);
 	}
 	return true;
+}
+
+void _NGM::StopThreads() {
+
 }
 
 void _NGM::StartThreads() {

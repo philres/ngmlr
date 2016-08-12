@@ -158,6 +158,42 @@ int StrippedSW::BatchScore(int const mode, int const batchSize,
 	return batchSize;
 }
 
+int StrippedSW::SingleScore(int const mode, int const corridor,
+		char const * const refSeq, char const * const qrySeq, float & resultScore,
+		void * extData) {
+	char const * const ref_seq = refSeq;
+	char const * const read_seq = qrySeq;
+
+	//Log.Message("Ref:  %s", ref_seq);
+	//Log.Message("Read: %s", read_seq);
+
+	int read_len = strlen(read_seq) + 1;
+	int ref_len = strlen(ref_seq) + 1;
+
+	s_profile* profile;
+	s_align * result;
+
+	for (int32_t m = 0; m < read_len; ++m)
+		num[m] = nt_table[(int) read_seq[m]];
+	num[read_len] = nt_table[(int) '\0'];
+
+	profile = ssw_init(num, read_len, mat, 5, 1);
+	for (int32_t m = 0; m < ref_len; ++m)
+		ref_num[m] = nt_table[(int) ref_seq[m]];
+	ref_num[ref_len] = nt_table[(int) '\0'];
+
+	// Only the 8 bit of the flag is setted. ssw_align will always return the best alignment beginning position and cigar.
+	result = ssw_align(profile, ref_num, ref_len, gap_open, gap_extension, 0, 0,
+			0, 0);
+	//ssw_write(result, ref_seq, read_seq, nt_table);
+	//fprintf(stderr, "%d\n", result->score1);
+	resultScore = result->score1;
+
+	align_destroy(result);
+	init_destroy(profile);
+
+}
+
 int StrippedSW::SingleAlign(int const mode, int const corridor,
 		char const * const refSeq, char const * const qrySeq, Align & results,
 		void * extData) {

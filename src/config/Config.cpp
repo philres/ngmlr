@@ -519,12 +519,13 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default(MAX_READ_LENGTH, 0);
 
 		//NGM-LR defaults
-		Default(BIN_SIZE, 4);
+		Default(BIN_SIZE, 6);
 
 		Default(READ_OFFSET, 0);
 		Default(READ_NUMBER, -1);
 
 		Default(NOINVERSIONS, 0);
+		Default(NOLOWQUALSPLIT, 0);
 		Default(PACBIOLOG, 0);
 
 		if (Exists(ARGOS)) {
@@ -536,7 +537,7 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default("sensitivity", 0.8f);
 		Default("corridor", 40);
 
-		Default(READ_PART_LENGTH, 128);
+		Default(READ_PART_LENGTH, 256);
 //		Default("qry_max_len", 264);
 //		Default("qry_avg_len", 264);
 

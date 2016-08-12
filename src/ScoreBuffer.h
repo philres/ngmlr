@@ -152,6 +152,8 @@ public:
 
 	void addRead(MappedRead * read, int count);
 
+	void scoreShortRead(MappedRead * read);
+
 	void flush();
 
 	float getTime() {

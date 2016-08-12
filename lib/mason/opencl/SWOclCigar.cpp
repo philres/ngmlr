@@ -11,9 +11,9 @@
 #include <string.h>
 #include <sstream>
 
-#include "Timing.h"
 #include "OclHost.h"
 #include <pthread.h>
+#include "../../../src/misc/Timing.h"
 
 pthread_mutex_t mutext_batch_align;
 

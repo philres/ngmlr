@@ -82,6 +82,8 @@ protected:
 	void FilterScore(LocationScore* score);
 	void CheckFallback();
 	virtual int RunBatch(ScoreBuffer * sw, AlignmentBuffer * out);
+	int RunRead(MappedRead * currentRead, PrefixIterationFn pFunc,
+			ScoreBuffer * sw, AlignmentBuffer * out);
 	void SendToBuffer(MappedRead* read, ScoreBuffer * sw,
 			AlignmentBuffer * out);
 
@@ -109,7 +111,7 @@ protected:
 	}
 
 	inline void SetSearchTableBitLen(int bitLen) {
-		if(bitLen >= 24) {
+		if (bitLen >= 24) {
 			Log.Message("SearchTable exceeded length.");
 			Fatal();
 		}
@@ -132,7 +134,6 @@ private:
 	int tmpSize;
 	IAlignment * oclAligner;
 	AlignmentBuffer * alignmentBuffer;
-
 
 public:
 

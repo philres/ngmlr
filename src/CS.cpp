@@ -31,7 +31,7 @@ int x_SrchTableBitLen = 24;
 //Default batch size
 //int const cBatchSize = 1800000;
 // Reduced batch size (for low read number PacBio samples)
-int const cBatchSize = 1000;
+int const cBatchSize = 10;
 //int const cBatchSize =   10000;
 uint const cPrefixBaseSkip = 0;
 
@@ -318,29 +318,128 @@ void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 		return;
 
 	int count = read->numScores();
-
-	if (count == 0) {
-		read->Calculated = 0;
-		read->group->readsFinished += 1;
-		if (read->group->readsFinished == read->group->readNumber) {
-			//			out->processLongReadLIS(group);
-			out->WriteRead(read->group->fullRead, false);
-		}
+	if (read->group != 0) {
+		if (count == 0) {
+			read->Calculated = 0;
+			read->group->readsFinished += 1;
+			if (read->group->readsFinished == read->group->readNumber) {
+				//			out->processLongReadLIS(group);
+				out->WriteRead(read->group->fullRead, false);
+			}
 //		out->addRead(read, -1);
-	} else {
-		read->Calculated = 0;
-		sw->addRead(read, count);
-		++m_WrittenReads;
+		} else {
+			read->Calculated = 0;
+			sw->addRead(read, count);
+			++m_WrittenReads;
 //		read->group->readsFinished += 1;
 //		if (read->group->readsFinished == read->group->readNumber) {
 //			//			out->processLongReadLIS(group);
 //			out->WriteRead(read->group->fullRead, false);
 //		}
+		}
+	} else {
+		if (count == 0) {
+			out->WriteRead(read, false);
+		} else {
+			read->Calculated = 0;
+			//out->processShortRead(read);
+			sw->scoreShortRead(read);
+			++m_WrittenReads;
+		}
 	}
 }
 
 void CS::Cleanup() {
 	NGM.ReleaseWriter();
+}
+
+int CS::RunRead(MappedRead * currentRead, PrefixIterationFn pFunc,
+		ScoreBuffer * sw, AlignmentBuffer * out) {
+
+	int nScoresSum = 0;
+
+	m_CurrentSeq = currentRead->ReadId;
+	//m_CurrentSeq = i;
+
+	//currentState = 2 * i;
+	currentState++;
+	rListLength = 0;
+	maxHitNumber = 0.0f;
+	currentThresh = 0.0f;
+	//weightSum = 0.0f;
+	kCount = 0;
+
+	ulong mutateFrom;
+	ulong mutateTo;
+	static bool const isPaired = Config.GetInt("paired") > 0;
+	if (isPaired && (currentRead->ReadId & 1)) {
+		//Second mate
+		mutateFrom = 0x0;
+		mutateTo = 0x3;
+	} else {
+		//First mate
+		mutateFrom = 0x2;
+		mutateTo = 0x1;
+	}
+
+	m_CurrentReadLength = currentRead->length;
+
+	++m_ProcessedReads;
+	bool fallback = m_Fallback;
+
+	char const * const qrySeq = currentRead->Seq;
+	uloc qryLen = currentRead->length;
+
+	//		SetSearchTableBitLen(24);
+
+	if (!fallback) {
+		try {
+			hpoc = c_SrchTableLen * 0.333f;
+			PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this,
+					m_PrefixBaseSkip);
+			int nScores = CollectResultsStd(currentRead);
+			nScoresSum += nScores;
+		} catch (int overflow) {
+			++m_Overflows;
+
+			// Initiate fallback
+			fallback = true;
+		}
+	}
+	if (fallback) {
+		int c_SrchTableBitLenBackup = c_SrchTableBitLen;
+		int x = 2;
+		while (fallback && (c_SrchTableBitLenBackup + x) <= 20) {
+			fallback = false;
+			try {
+
+				SetSearchTableBitLen(c_SrchTableBitLenBackup + x);
+
+				rListLength = 0;
+				//currentState = 2 * i + 1;
+				currentState++;
+				maxHitNumber = 0.0f;
+				currentThresh = 0.0f;
+
+				hpoc = c_SrchTableLen * 0.777f;
+				PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo,
+						this, m_PrefixBaseSkip);
+				nScoresSum += CollectResultsStd(currentRead);
+
+			} catch (int overflow) {
+				//					Log.Message("Overflow in fallback for read %s!", currentRead->name);
+				fallback = true;
+				x += 1;
+			}
+		}
+		if (fallback) {
+			Log.Message("Couldn't find candidate for read %s (too many candidates)", currentRead->name);
+		}
+		SetSearchTableBitLen(c_SrchTableBitLenBackup);
+	}
+
+	SendToBuffer(currentRead, sw, out);
+	return nScoresSum;
 }
 
 int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
@@ -352,90 +451,16 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 
 	for (size_t i = 0; i < m_CurrentBatch.size(); ++i) {
 
-		m_CurrentSeq = m_CurrentBatch[i]->ReadId;
-		//m_CurrentSeq = i;
-
-		//currentState = 2 * i;
-		currentState++;
-		rListLength = 0;
-		maxHitNumber = 0.0f;
-		currentThresh = 0.0f;
-		//weightSum = 0.0f;
-		kCount = 0;
-
-		ulong mutateFrom;
-		ulong mutateTo;
-		static bool const isPaired = Config.GetInt("paired") > 0;
-		if (isPaired && (m_CurrentBatch[i]->ReadId & 1)) {
-			//Second mate
-			mutateFrom = 0x0;
-			mutateTo = 0x3;
+		MappedRead * currentRead = m_CurrentBatch[i];
+		if (currentRead->group != 0) {
+			for (int j = 0; j < currentRead->group->readNumber; ++j) {
+				nScoresSum += RunRead(currentRead->group->reads[j], pFunc, sw,
+						out);
+			}
 		} else {
-			//First mate
-			mutateFrom = 0x2;
-			mutateTo = 0x1;
+			nScoresSum += RunRead(currentRead, pFunc, sw, out);
 		}
-
-		m_CurrentReadLength = m_CurrentBatch[i]->length;
-
-		++m_ProcessedReads;
-		bool fallback = m_Fallback;
-
-		char const * const qrySeq = m_CurrentBatch[i]->Seq;
-		uloc qryLen = m_CurrentBatch[i]->length;
-
-//		SetSearchTableBitLen(24);
-
-		if (!fallback) {
-			try {
-				hpoc = c_SrchTableLen * 0.333f;
-				PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo,
-						this, m_PrefixBaseSkip);
-				int nScores = CollectResultsStd(m_CurrentBatch[i]);
-				nScoresSum += nScores;
-			} catch (int overflow) {
-				++m_Overflows;
-
-				// Initiate fallback
-				fallback = true;
-			}
-		}
-		if (fallback) {
-			int c_SrchTableBitLenBackup = c_SrchTableBitLen;
-			int x = 2;
-			while (fallback && (c_SrchTableBitLenBackup + x) <= 20) {
-				fallback = false;
-				try {
-
-					SetSearchTableBitLen(c_SrchTableBitLenBackup + x);
-
-					rListLength = 0;
-					//currentState = 2 * i + 1;
-					currentState++;
-					maxHitNumber = 0.0f;
-					currentThresh = 0.0f;
-
-					hpoc = c_SrchTableLen * 0.777f;
-					PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo,
-							this, m_PrefixBaseSkip);
-					nScoresSum += CollectResultsStd(m_CurrentBatch[i]);
-
-				} catch (int overflow) {
-//					Log.Message("Overflow in fallback for read %s!", m_CurrentBatch[i]->name);
-					fallback = true;
-					x += 1;
-				}
-			}
-			if (fallback) {
-				Log.Message("Couldn't find candidate for read %s (too many candidates)", m_CurrentBatch[i]->name);
-			}
-			SetSearchTableBitLen(c_SrchTableBitLenBackup);
-		}
-
-		SendToBuffer(m_CurrentBatch[i], sw, out);
-
 	}
-
 	return nScoresSum;
 }
 
@@ -587,9 +612,9 @@ void CS::Init() {
 
 CS::CS(bool useBuffer) :
 		m_CSThreadID((useBuffer) ? (AtomicInc(&s_ThreadCount) - 1) : -1), m_BatchSize(
-				cBatchSize), m_ProcessedReads(0), m_WrittenReads(
-				0), m_DiscardedReads(0), m_EnableBS(false), m_Overflows(0), m_entry(
-				0), m_PrefixBaseSkip(0), m_Fallback(false) // cTableLen <= 0 means always use fallback
+				cBatchSize), m_ProcessedReads(0), m_WrittenReads(0), m_DiscardedReads(
+				0), m_EnableBS(false), m_Overflows(0), m_entry(0), m_PrefixBaseSkip(
+				0), m_Fallback(false) // cTableLen <= 0 means always use fallback
 {
 
 	SetSearchTableBitLen(

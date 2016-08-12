@@ -220,6 +220,8 @@ int main(int argc, char * argv[]) {
 					Log.Message("Done (%i reads mapped (%.2f%%), %i reads not mapped, %i lines written)(elapsed: %ds, %d r/s)", NGM.GetMappedReadCount(), (float)NGM.GetMappedReadCount() * 100.0f / (float)(std::max(1, NGM.GetMappedReadCount()+NGM.GetUnmappedReadCount())),NGM.GetUnmappedReadCount(),NGM.GetWrittenReadCount(), (int) tmr.ET(), (int)(NGM.GetMappedReadCount() * 1.0f / tmr.ET()));
 				}
 
+				NGM.StopThreads();
+
 			} catch (...) {
 				Log.Error("Unhandled exception in control thread.");
 			}

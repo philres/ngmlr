@@ -12,6 +12,8 @@ volatile int MappedRead::sInstanceCount = 0;
 volatile int LocationScore::sInstanceCount = 0;
 #endif
 
+//volatile int Align::sInstanceCount = 0;
+
 MappedRead::MappedRead(int const readid, int const qrymaxlen) :
 		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), numTopScores(1), Scores(
 				0), Alignments(0), iScores(0), Paired(0), Status(0), mappingQlty(

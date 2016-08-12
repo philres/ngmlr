@@ -355,7 +355,12 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 			Log.Debug(2, "READ_%d\tINPUT\t%s", id, read->name);
 			Log.Debug(16384, "READ_%d\tINPUT_DETAILS\t%s\t%s\t%s\t%s", id, read->Seq, read->qlty, read->AdditionalInfo);
 
-			splitRead(read);
+			if(l > readPartLength * 4) {
+				splitRead(read);
+			} else {
+				read->group = 0;
+			}
+
 			NGM.AddReadRead(read->ReadId);
 
 			NGM.Stats->readsInProcess += 1;

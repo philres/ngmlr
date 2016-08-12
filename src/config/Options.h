@@ -99,6 +99,7 @@ static const struct option long_options[] =
 		{ "read-offset",               	required_argument,       0, 0 },
 		{ "read-number",               	required_argument,       0, 0 },
 		{ "no-inversions",             	no_argument,       0, 0 },
+		{ "no-lowqualsplit",	             	no_argument,       0, 0 },
 		{ PACBIOLOG,             		no_argument,       0, 0 },
 		{ STDOUT,             			required_argument,       0, 0 },
 	0 };
