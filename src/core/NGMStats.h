@@ -15,6 +15,8 @@ struct NGMStats
 	int csOverflows;
 	int avgnCRMS;
 
+	long long corridorLen;
+
 	float validPairs;
 	float insertSize;
 
@@ -35,6 +37,8 @@ public:
 		csLength = 0;
 		csOverflows = 0;
 		avgnCRMS = 0;
+
+		corridorLen = 0;
 
 		validPairs = 0.0f;
 		insertSize = 0.0f;

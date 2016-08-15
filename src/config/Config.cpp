@@ -439,42 +439,24 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 			}
 		}
 
-		if (GetInt("bs_mapping") != 1) {
-			if (GetInt("affine")) {
-//				Default(MATCH_BONUS, 10);
-//				Default(MISMATCH_PENALTY, 15);
-//				Default(GAP_READ_PENALTY, 33);
-//				Default(GAP_REF_PENALTY, 33);
-//				Default(GAP_EXTEND_PENALTY, 3);
-				Default(MATCH_BONUS, 1);
-				Default(MISMATCH_PENALTY, 4);
-				Default(GAP_READ_PENALTY, 2);
-				Default(GAP_REF_PENALTY, 2);
-				Default(GAP_EXTEND_PENALTY, 1);
-			} else {
-				Default(MATCH_BONUS, 1);
-				Default(MISMATCH_PENALTY, 4);
-				Default(GAP_READ_PENALTY, 2);
-				Default(GAP_REF_PENALTY, 2);
-				Default(GAP_EXTEND_PENALTY, 1);
-			}
-		} else {
-			Log.Message("Using bs-mapping scoring scheme");
-			if(GetInt("affine")) {
-				Log.Error("'--bs-mapping' and '--affine' can't be used at the same time!");
-				Fatal();
-			}
-			if(Exists(ENDTOEND)) {
-				Log.Error("'--bs-mapping' and '--e/--end-to-end' can't be used at the same time!");
-				Fatal();
-			}
-
-			Default(MATCH_BONUS, 4);
-			Default(MISMATCH_PENALTY, 2);
-			Default(GAP_READ_PENALTY, 10);
-			Default(GAP_REF_PENALTY, 10);
-			Default(GAP_EXTEND_PENALTY, 2);
+		if(!Exists(ONT)) {
+			Default(ONT, 0);
 		}
+
+		if (GetInt(ONT) != 1) {
+			Default(MATCH_BONUS, 1);
+			Default(MISMATCH_PENALTY, 4);
+			Default(GAP_READ_PENALTY, 2);
+			Default(GAP_REF_PENALTY, 2);
+			Default(GAP_EXTEND_PENALTY, 1);
+		} else {
+			Default(MATCH_BONUS, 1);
+			Default(MISMATCH_PENALTY, 1);
+			Default(GAP_READ_PENALTY, 1);
+			Default(GAP_REF_PENALTY, 1);
+			Default(GAP_EXTEND_PENALTY, 1);
+		}
+
 		Default(MATCH_BONUS_TT, 4);
 		Default(MATCH_BONUS_TC, 4);
 
@@ -519,13 +501,18 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		Default(MAX_READ_LENGTH, 0);
 
 		//NGM-LR defaults
-		Default(BIN_SIZE, 6);
+		Default(BIN_SIZE, 4);
 
 		Default(READ_OFFSET, 0);
 		Default(READ_NUMBER, -1);
 
-		Default(NOINVERSIONS, 0);
-		Default(NOLOWQUALSPLIT, 0);
+		if (GetInt(ONT) != 1) {
+			Default(NOINVERSIONS, 0);
+			Default(NOLOWQUALSPLIT, 0);
+		} else {
+			Default(NOINVERSIONS, 1);
+			Default(NOLOWQUALSPLIT, 1);
+		}
 		Default(PACBIOLOG, 0);
 
 		if (Exists(ARGOS)) {

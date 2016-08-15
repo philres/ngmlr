@@ -452,14 +452,7 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 	for (size_t i = 0; i < m_CurrentBatch.size(); ++i) {
 
 		MappedRead * currentRead = m_CurrentBatch[i];
-		if (currentRead->group != 0) {
-			for (int j = 0; j < currentRead->group->readNumber; ++j) {
-				nScoresSum += RunRead(currentRead->group->reads[j], pFunc, sw,
-						out);
-			}
-		} else {
-			nScoresSum += RunRead(currentRead, pFunc, sw, out);
-		}
+		nScoresSum += RunRead(currentRead, pFunc, sw, out);
 	}
 	return nScoresSum;
 }

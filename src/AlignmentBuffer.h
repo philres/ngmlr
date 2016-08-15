@@ -57,6 +57,7 @@ public:
 	short id;
 	bool isReverse;
 	bool isProcessed;
+	bool isAssigned;
 
 	Interval() {
 		anchors = 0;
@@ -72,6 +73,7 @@ public:
 		id = 0;
 		isReverse = false;
 		isProcessed = false;
+		isAssigned = false;
 
 	}
 
@@ -117,7 +119,7 @@ private:
 	int const min_mq;
 
 //	Alignment * reads;
-	int nReads;
+//	int nReads;
 //	char const * * qryBuffer;
 //	char const * * refBuffer;
 //	char * m_DirBuffer;
@@ -207,7 +209,11 @@ public:
 
 	int * cLIS(Anchor * anchors, int const anchorsLenght, int & lisLength);
 
+	void addAnchorAsInterval(Anchor const & anchor, MappedSegment & segment);
+	Interval * toInterval(Anchor const & anchor);
 	bool isCompatible(Interval const * a, Interval const * b);
+	bool isCompatible(Anchor const & anchor, MappedSegment const & segment);
+	bool isCompatible(Anchor const & anchor, Interval const * interval);
 	bool isContained(Interval const * a, Interval const * b);
 //	bool isContainedOnRead(Interval a, Interval b);
 	bool isSameDirection(Interval const * a, Interval const * b);
@@ -234,12 +240,12 @@ public:
 			Interval const * interval, char * const readSeq,
 			size_t const readSeqLen, bool const realign);
 	void alignSingleOrMultipleIntervals(MappedRead * read,
-			Interval const * const interval, LocationScore * tmp, Align * tmpAling,
-			int & alignIndex);
+			Interval const * const interval, LocationScore * tmp,
+			Align * tmpAling, int & alignIndex);
 
-	int realign(int const svType, Interval const * interval, Interval * leftOfInv,
-			Interval * rightOfInv, MappedRead * read, Align * tmpAling,
-			int & alignIndex, LocationScore * tmp, int mq);
+	int realign(int const svType, Interval const * interval,
+			Interval * leftOfInv, Interval * rightOfInv, MappedRead * read,
+			Align * tmpAling, int & alignIndex, LocationScore * tmp, int mq);
 
 //	bool constructMappedSegements(Interval * intervals,
 //			Interval interval, int & intervalsIndex);
@@ -262,9 +268,10 @@ public:
 			char * readPartSeq, Interval * leftOfInv, Interval * rightOfInv,
 			MappedRead * read);
 
-	int checkForSV(Align const * const align, Interval const * interval, int startInv,
-			int stopInv, int startInvRead, int stopInvRead, char * fullReadSeq,
-			Interval * leftOfInv, Interval * rightOfInv, MappedRead * read);
+	int checkForSV(Align const * const align, Interval const * interval,
+			int startInv, int stopInv, int startInvRead, int stopInvRead,
+			char * fullReadSeq, Interval * leftOfInv, Interval * rightOfInv,
+			MappedRead * read);
 
 //	bool inversionDetectionArndt(Align const align, Interval const interval, int const length,
 //			char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv, Interval & inv, char const * const readName);
@@ -296,7 +303,7 @@ public:
 		pairInsertCount = 0;
 		brokenPairs = 0;
 		m_Writer = 0;
-		nReads = 0;
+//		nReads = 0;
 
 		m_EnableBS = false;
 		m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
@@ -368,7 +375,7 @@ public:
 		Log.Verbose("Alignment batchsize = %i", batchSize);
 
 		intervalBufferIndex = 0;
-		intervalBuffer = new Interval *[maxIntervalNumber];
+		intervalBuffer = new Interval *[1000];
 
 	}
 

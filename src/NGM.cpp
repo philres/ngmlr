@@ -261,22 +261,21 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 		eof = !NGM.GetReadProvider()->GenerateRead(m_CurStart + i * idJump, read1, 0, read1);
 		i += 1;
 		if (!eof) {
-//			for (int j = 0; j < read1->group->readNumber; ++j) {
-			count += 1;
-//				list.push_back(read1->group->reads[j]);
-			list.push_back(read1);
-//			}
+			if (read1 != 0) {
+				count += 1;
+				if (read1->group == 0) {
+					// Short read found: not split into read group
+					list.push_back(read1);
+				} else {
+					// Long read found: push subreads
+					for (int j = 0; j < read1->group->readNumber; ++j) {
+						list.push_back(read1->group->reads[j]);
+					}
+				}
+			}
 		}
 
 	}
-
-//	for (int i = 0; i < desBatchSize && !eof; i = i + 2) {
-//		MappedRead * read1 = 0;
-//		eof = !NGM.GetReadProvider()->GenerateRead(m_CurStart + i * idJump, read1, 0, read1);
-//		if (read1 != 0) {
-//
-//		}
-//	}
 
 	m_CurStart += count;
 	m_CurCount -= desBatchSize;
@@ -468,6 +467,7 @@ void _NGM::MainLoop() {
 	float runTime = 0.0f;
 	float readsPerSecond = 0.0f;
 	float alignSuccessRatio = 0.0f;
+	int avgCorridor = 0;
 
 	while (Running()) {
 		Sleep(2000);
@@ -476,9 +476,12 @@ void _NGM::MainLoop() {
 
 			runTime = tmr.ET();
 			readsPerSecond = processed / runTime;
-			alignSuccessRatio = NGM.Stats->alignmentCount * 1.0f / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
+			if((NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount) > 0) {
+				avgCorridor = NGM.Stats->corridorLen / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
+				alignSuccessRatio = NGM.Stats->alignmentCount * 1.0f / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
+			}
 			//Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Reads: %d (%d)", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->readsInProcess, MappedRead::sInstanceCount);
-			Log.Progress("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f, Align ratio: %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio);
+			Log.Progress("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f, Align ratio: %.2f, Corridor: %d", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio, avgCorridor);
 		}
 	}
 
@@ -486,8 +489,11 @@ void _NGM::MainLoop() {
 		processed = std::max(1, NGM.GetMappedReadCount() + NGM.GetUnmappedReadCount());
 		runTime = tmr.ET();
 		readsPerSecond = processed / runTime;
-		alignSuccessRatio = NGM.Stats->alignmentCount * 1.0f / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
-		Log.Message("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f, Align ratio: %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio);
+		if((NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount) > 0) {
+			alignSuccessRatio = NGM.Stats->alignmentCount * 1.0f / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
+			avgCorridor = NGM.Stats->corridorLen / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
+		}
+		Log.Message("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f, Align ratio: %.2f, Corridor: %d", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio, avgCorridor);
 	}
 }
 

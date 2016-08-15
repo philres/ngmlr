@@ -59,6 +59,8 @@ static char const * const READ_PART_LENGTH = "read_part_length";
 
 static char const * const STDOUT = "stdout";
 
+static char const * const ONT = "ont";
+
 static char const * const PROGRESS = "progress";
 
 #ifdef DEBUGLOG

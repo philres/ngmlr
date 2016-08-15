@@ -517,8 +517,8 @@ void ScoreBuffer::scoreShortRead(MappedRead * read) {
 	delete[] tmpScore;
 	tmpScore = 0;
 
-	for (int i = 0; i < read->numScores(); ++i) {
 
+	for (int i = 0; i < read->numScores(); ++i) {
 		int corridor = read->length * 0.3 + 256;
 
 		char * qrySeq = 0;
@@ -550,6 +550,10 @@ void ScoreBuffer::scoreShortRead(MappedRead * read) {
 
 	std::sort(read->Scores, read->Scores + read->numScores(), sortLocationScore);
 
+//	Log.Message("Read: %s", read->name);
+//	for (int i = 0; i < read->numScores(); ++i) {
+//		Log.Message("Score %d: %f", i, read->Scores[i].Score.f);
+//	}
 	computeMQ(read);
 
 	out->processShortRead(read);
@@ -561,6 +565,6 @@ void ScoreBuffer::flush() {
 	//Force submitting remaining computation from buffer to CPU/GPU
 	DoRun();
 	iScores = 0;
-	out->flush();
+//	out->flush();
 }
 

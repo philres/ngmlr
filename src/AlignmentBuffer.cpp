@@ -15,7 +15,7 @@ bool AlignmentBuffer::first = true;
 
 void AlignmentBuffer::flush() {
 //	DoRun();
-	nReads = 0;
+//	nReads = 0;
 }
 
 void AlignmentBuffer::debugAlgnFinished(MappedRead * read) {
@@ -169,6 +169,7 @@ CorridorLine * getCorridorOriginal(int const corridor, char const * readSeq,
 	corridorHeight = qryLen;
 	CorridorLine * corridorLines = new CorridorLine[corridorHeight];
 
+	NGM.Stats->corridorLen += corridorWidth;
 	for (int i = 0; i < corridorHeight; ++i) {
 		corridorLines[i].offset = i; // - corridorWidth / 2;
 		corridorLines[i].length = corridorWidth;
@@ -184,6 +185,7 @@ CorridorLine * getCorridorLinear(int const corridor, char const * readSeq,
 	corridorHeight = qryLen;
 	CorridorLine * corridorLines = new CorridorLine[corridorHeight];
 
+	NGM.Stats->corridorLen += corridorWidth;
 	for (int i = 0; i < corridorHeight; ++i) {
 		corridorLines[i].offset = i - corridorWidth / 2;
 		corridorLines[i].length = corridorWidth;
@@ -204,6 +206,7 @@ CorridorLine * getCorridorEndpoints(Interval const * interval,
 	float k = qryLen * 1.0f / refLen;
 	float d = corridorWidth / 2.0f;
 
+	NGM.Stats->corridorLen += corridorWidth;
 	for (int i = 0; i < corridorHeight; ++i) {
 		corridorLines[i].offset = (i - d) / k;
 		corridorLines[i].length = corridorWidth;
@@ -271,6 +274,7 @@ CorridorLine * getCorridorEndpointsWithAnchors(Interval const * interval,
 	corridorRight = corridorRight * corridorMultiplier;
 
 	int corridorWidth = corridorLeft + corridorRight;
+	NGM.Stats->corridorLen += corridorWidth;
 	for (int i = 0; i < corridorHeight; ++i) {
 		corridorLines[i].offset = ((i - d_align) / k_align) - corridorRight;
 		corridorLines[i].length = corridorWidth;
@@ -534,6 +538,28 @@ bool AlignmentBuffer::isSameDirection(Interval const * a, Interval const * b) {
 	return a->isReverse == b->isReverse;
 }
 
+bool isAnchorInCorridor(REAL k, REAL d, REAL corridor, Anchor const & testee) {
+
+	loc onRefStart = testee.onRef;
+
+	bool inCorridor = false;
+	REAL y = testee.onRead;
+	loc upperRefStart = (loc) round((y - (d + corridor)) / k);
+	loc lowerRefStart = (loc) round((y - (d - corridor)) / k);
+
+	if (upperRefStart < lowerRefStart) {
+		REAL tmp = upperRefStart;
+		upperRefStart = lowerRefStart;
+		lowerRefStart = tmp;
+	}
+
+	inCorridor = inCorridor
+			|| (onRefStart <= upperRefStart && onRefStart >= lowerRefStart);
+//	Log.Message("Start: %llu <= %llu <= %llu", testee.onRefStart, lowerRefStart, upperRefStart);
+
+	return inCorridor;
+}
+
 bool isIntervalInCorridor(REAL k, REAL d, REAL corridor,
 		Interval const * testee, bool const switched) {
 
@@ -578,6 +604,73 @@ bool isIntervalInCorridor(REAL k, REAL d, REAL corridor,
 
 	return inCorridor;
 }
+
+Interval * AlignmentBuffer::toInterval(Anchor const & anchor) {
+	if (intervalBufferIndex >= 1000) {
+		return 0;
+	}
+
+	Interval * interval = new Interval();
+
+	intervalBuffer[intervalBufferIndex++] = interval;
+
+	interval->isReverse = anchor.isReverse;
+	interval->score = anchor.score;
+	interval->onReadStart = interval->onReadStop = anchor.onRead;
+	interval->onRefStart = interval->onRefStop = anchor.onRef;
+
+	interval->anchorLength = 1;
+	interval->anchors = new Anchor[interval->anchorLength];
+	interval->anchors[0] = anchor;
+
+	// To avoid that single anchor intervals that didn't pass cLIS
+	// start a new mapped segment
+	interval->isAssigned = true;
+
+	return interval;
+}
+
+void AlignmentBuffer::addAnchorAsInterval(Anchor const & anchor,
+		MappedSegment & segment) {
+	if (segment.length < 1000) {
+		Interval * interval = toInterval(anchor);
+		if (interval != 0) {
+			segment.list[segment.length++] = interval;
+		}
+	}
+}
+
+bool AlignmentBuffer::isCompatible(Anchor const & anchor,
+		Interval const * interval) {
+	bool isCompatible = false;
+
+	REAL corridorSize = 512;
+
+	if (anchor.isReverse == interval->isReverse) {
+//		isCompatible = (anchor.onRead < interval->onReadStart
+//				|| anchor.onRead > interval->onReadStop)
+//				&& (anchor.onRef < interval->onRefStart
+//						|| anchor.onRef > interval->onRefStop);
+
+		isCompatible = isAnchorInCorridor(interval->m, interval->b,
+				corridorSize, anchor);
+	}
+
+	return isCompatible;
+}
+
+bool AlignmentBuffer::isCompatible(Anchor const & anchor,
+		MappedSegment const & segment) {
+	bool compatible = false;
+
+	for (int i = 0; i < segment.length && !compatible; ++i) {
+
+		compatible = isCompatible(anchor, segment.list[i]);
+	}
+
+	return compatible;
+}
+
 // Checks whether a is compatible (is located in the "corridor"
 // of b.
 bool AlignmentBuffer::isCompatible(Interval const * a, Interval const * b) {
@@ -678,6 +771,8 @@ Interval * AlignmentBuffer::mergeIntervals(Interval * a, Interval * b) {
 	a->anchorLength = anchorCount;
 	delete[] tmpA;
 	tmpA = 0;
+
+	a->isAssigned = a->isAssigned && b->isAssigned;
 
 	return a;
 }
@@ -817,12 +912,19 @@ Interval * * AlignmentBuffer::consolidateSegments(MappedSegment * segments,
 					&& !isDuplication(currentInterval, 0, lastInterval)) {
 				lastInterval = mergeIntervals(currentInterval, lastInterval);
 			} else {
-				//Add lastInterval
-				intervals[intervalsIndex++] = lastInterval;
-				lastInterval = currentInterval;
+				//If not single assigned index
+				if(!currentInterval->isAssigned) {
+					//Add lastInterval
+					if(!lastInterval->isAssigned) {
+						intervals[intervalsIndex++] = lastInterval;
+					}
+					lastInterval = currentInterval;
+				}
 			}
 		}
-		intervals[intervalsIndex++] = lastInterval;
+		if(!lastInterval->isAssigned) {
+			intervals[intervalsIndex++] = lastInterval;
+		}
 
 	}
 	if (pacbioDebug) {
@@ -874,7 +976,7 @@ Interval * * AlignmentBuffer::infereCMRsfromAnchors(int & intervalsIndex,
 			int lisLength = 0;
 			int * lis = cLIS(allFwdAnchors, allFwdAnchorsLength, lisLength);
 
-			if(lisLength > 1) {
+			if(lisLength >= 1) {
 				int minOnRead = 999999;
 				int maxOnRead = 0;
 
@@ -1071,7 +1173,7 @@ Interval * * AlignmentBuffer::infereCMRsfromAnchors(int & intervalsIndex,
 			delete[] lis;
 
 			cLISRunNumber += 1;
-			if (cLISRunNumber == maxcLISRunNumber || maxIntervalNumber <= 1) {
+			if (cLISRunNumber == maxcLISRunNumber) {
 				// Max number of runs reached
 				// TODO: find better stop criteria!
 				finished = true;
@@ -1079,6 +1181,40 @@ Interval * * AlignmentBuffer::infereCMRsfromAnchors(int & intervalsIndex,
 		} else {
 			// If no unprocessed anchors are found anymore
 			finished = true;
+		}
+	}
+
+	if (allFwdAnchorsLength > 0) {
+
+		Timer anchorTimer;
+		anchorTimer.ST();
+		if (pacbioDebug) {
+			Log.Message("Unassigned anchors (%d):", allFwdAnchorsLength);
+			std::cerr << "Elements: (i:onRead:onref:isReverse) ";
+			for (int i = 0; i < allFwdAnchorsLength; ++i) {
+				std::cerr << i << ":" << allFwdAnchors[i].onRead << ":"
+				<< allFwdAnchors[i].onRef << ":"
+				<< allFwdAnchors[i].isReverse << ", ";
+			}
+			std::cerr << std::endl;
+		}
+
+		int assigned = 0;
+		for(int i = 0; i < allFwdAnchorsLength; ++i) {
+			bool added = false;
+			for(int j = 0; j < segementsIndex && !added; ++j) {
+				if(isCompatible(allFwdAnchors[i], segments[j])) {
+					//Add anchor to segement
+					added = true;
+					assigned += 1;
+					addAnchorAsInterval(allFwdAnchors[i], segments[j]);
+				}
+				//allFwdAnchors[i]
+			}
+		}
+
+		if(pacbioDebug) {
+			Log.Message("Assigned anchors: %d (took %fs", assigned, anchorTimer.ET());
 		}
 	}
 
@@ -1093,8 +1229,15 @@ Interval * * AlignmentBuffer::infereCMRsfromAnchors(int & intervalsIndex,
 
 		// If possible add 512 bp to start end end
 		// min to avoid extending beyond the ends of the read
-		int addStart = std::min(readPartLength, interval->onReadStart);
-		int addEnd = std::min(readPartLength, read->length - interval->onReadStop);
+		int addStart = std::min(1 * readPartLength, interval->onReadStart);
+		int addEnd = std::min(1 * readPartLength, read->length - interval->onReadStop);
+
+		// Try to align full read, only possible if one fragment, otherwise might align through SVs
+		// Could be extended to > 1 fragment: only extend left most and right most fragement into one direction
+		if(intervalsIndex == 1) {
+			addStart = interval->onReadStart - 1;
+			addEnd = read->length - interval->onReadStop - 1;
+		}
 
 		// Try to match the slope of the interval when extending
 		double lengthRatio = (interval->onReadStop - interval->onReadStart) * 1.0f / llabs(interval->onRefStop - interval->onRefStart) * 1.0f;
@@ -1218,10 +1361,10 @@ int AlignmentBuffer::alignmentCheckForInversion(int const inversionLength,
 		IAlignment* aligner = new EndToEndAffine();
 		float scoreFwd = 0.0f;
 		float scoreRev = 0.0f;
-//		static const float minScore = Config.GetFloat(MATCH_BONUS) * 1.0f
-//				* readCheckLength / 4.0f;
+		static const float minScore = Config.GetFloat(MATCH_BONUS) * 1.0f
+				* readCheckLength / 4.0f;
 		//Formula from Moritz -> p-val > 0.05 for Match:1, mismacth: -4, gap open: -2, gap extend -1
-		const float minScore = 10.0f;
+//		const float minScore = 10.0f;
 		aligner->SingleScore(10, 0, refSeq, readSeq, scoreFwd, 0);
 		aligner->SingleScore(10, 0, refSeq, revreadSeq, scoreRev, 0);
 		delete aligner;
@@ -2225,7 +2368,7 @@ void AlignmentBuffer::processShortRead(MappedRead * read) {
 		int alignIndex = 0;
 
 		int lastScore = 0;
-		for (int k = 0; k < read->numScores() && (int) read->Scores[k].Score.f >= lastScore; ++k) {
+		for (int k = 0; k < read->numScores() && ((int) read->Scores[k].Score.f >= lastScore || alignIndex < 2); ++k) {
 			LocationScore loc = read->Scores[k];
 
 			lastScore = read->Scores[k].Score.f;
@@ -2263,7 +2406,16 @@ void AlignmentBuffer::processShortRead(MappedRead * read) {
 
 			if (align != 0 && align->Score > 0.0f) {
 				align->clearNmPerPosition();
+
+				align->MQ = read->mappingQlty;
+				loc.Location.m_Location = interval->onRefStart
+				+ align->PositionOffset;//- (corridor >> 1); handled in computeAlingment
+				loc.Location.setReverse(interval->isReverse);
+				loc.Score.f = align->Score;
+
 				read->Alignments[alignIndex] = *align;
+
+				read->Calculated += 1;
 				delete align;
 				align = 0;
 				tmpScore[alignIndex] = loc;
@@ -2297,6 +2449,7 @@ void AlignmentBuffer::processShortRead(MappedRead * read) {
 		tmpScore = 0;
 
 		if (alignIndex > 0) {
+			read->Alignments[0].primary = true;
 			WriteRead(read, true);
 		} else {
 			WriteRead(read, false);
@@ -2323,8 +2476,8 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			Log.Message("Processing LongReadLIS: %d - %s (lenght %d)", group->fullRead->ReadId, group->fullRead->name, group->fullRead->length);
 		}
 
-		float avgGroupScore = group->bestScoreSum * 1.0f / group->readsFinished;
-		float minGroupScore = avgGroupScore * 0.5f;
+//		float avgGroupScore = (group->bestScoreSum * 1.0f / group->readsFinished) / readPartLength;
+//		float minGroupScore = avgGroupScore * 0.5f;
 
 		// TODO: remove fixed length and don't allocate and delete for
 		// every read
@@ -2347,9 +2500,9 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 			// Min score required to consider an anchor for the candidate search
 			float minScore =
-					(part->numScores() > 0) ?
-							part->Scores[0].Score.f * 0.8 : 0.0f;
-			minScore = std::max(minScore, minGroupScore);
+					((part->numScores() > 0) ?
+							part->Scores[0].Score.f * 0.9 : 0.0f) / readPartLength;
+//			minScore = std::max(minScore, minGroupScore);
 //		minScore = 0.0f;
 
 			// Get all mapping positions from anchors (non overlapping 512bp parts of reads)
@@ -2364,7 +2517,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 				// If anchor has to many mapping positions -> ignore
 				if (part->numScores() < maxCandidatesPerReadPart) {
-					if (part->Scores[k].Score.f > minScore) {
+					if ((part->Scores[k].Score.f / readPartLength) > minScore) {
 						// Anchor is valid and will be used
 						if (anchorFwdIndex >= (maxAnchorNumber - 1)) {
 							Log.Message("Anchor array too small - reallocating.");

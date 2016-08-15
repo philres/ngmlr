@@ -101,6 +101,7 @@ static const struct option long_options[] =
 		{ "no-inversions",             	no_argument,       0, 0 },
 		{ "no-lowqualsplit",	             	no_argument,       0, 0 },
 		{ PACBIOLOG,             		no_argument,       0, 0 },
+		{ ONT,             		no_argument,       0, 0 },
 		{ STDOUT,             			required_argument,       0, 0 },
 	0 };
 
