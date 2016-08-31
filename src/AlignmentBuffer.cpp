@@ -400,10 +400,10 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 
 				for(int x = 0; x < interval->anchorLength; ++x) {
 					if(interval->anchors[x].isReverse) {
-						printf("%d\t%d\t%d\t%d\t%d\n", alignmentId, read->ReadId, interval->anchors[x].onRef - interval->onRefStart,
+						printf("%d\t%d\t%lld\t%d\t%d\n", alignmentId, read->ReadId, interval->anchors[x].onRef - interval->onRefStart,
 								fullReadLength - interval->anchors[x].onRead - (readPartLength) - externalQStart, 3);
 					} else {
-						printf("%d\t%d\t%d\t%d\t%d\n", alignmentId, read->ReadId, interval->anchors[x].onRef - interval->onRefStart,
+						printf("%d\t%d\t%lld\t%d\t%d\n", alignmentId, read->ReadId, interval->anchors[x].onRef - interval->onRefStart,
 								interval->anchors[x].onRead - externalQStart, 3);
 					}
 				}

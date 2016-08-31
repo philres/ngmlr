@@ -1,6 +1,7 @@
 #include "AlignmentMatrix.h"
 
 #include <iostream>
+#include <stdio.h>
 
 using std::cerr;
 

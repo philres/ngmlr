@@ -1,15 +1,10 @@
-/*
- * SWCPU.cpp
- *
- *  Created on: Jun 15, 2011
- *      Author: fritz
- */
-
 #include "ConvexAlign.h"
 
-#include "Config.h"
 #include <cmath>
 #include <stdint.h>
+#include <string.h>
+
+#include "Config.h"
 #include "misc/Timing.h"
 
 //TODO: remove
