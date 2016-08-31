@@ -14,8 +14,8 @@
 #include "BAMWriter.h"
 #include "Timing.h"
 
-#include "OclHost.h"
-#include "SWOclCigar.h"
+//#include "OclHost.h"
+//#include "SWOclCigar.h"
 #include "seqan/EndToEndAffine.h"
 #include "BitpalAligner.h"
 
