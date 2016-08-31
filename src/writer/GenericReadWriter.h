@@ -111,7 +111,8 @@ public:
 						if (iTable.find(read->Scores[i].Location) == iTable.end()) {
 							iTable[read->Scores[i].Location] = true;
 							Log.Debug(4, "READ_%d\tOUTPUT\tWriting alignment CRM_%d", read->ReadId, i);
-							if(!read->Alignments[i].skip) {
+							static const bool printAll = Config.GetInt(PRINTALL);
+							if(!read->Alignments[i].skip || printAll) {
 								DoWriteRead(read, i);
 							}
 						} else {

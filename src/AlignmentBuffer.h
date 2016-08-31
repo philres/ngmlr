@@ -230,15 +230,15 @@ public:
 	Align * computeAlignment(Interval const * interval, int const corridor,
 			char * const readSeq, size_t const readLength, int const QStart,
 			int const QEnd, int fullReadLength, MappedRead const * const read,
-			bool const realign, bool const shortRead);
+			bool const realign, bool const fullAlignment, bool const shortRead);
 
 	int estimateCorridor(Interval const * interval);
 	char * const extractReadSeq(const size_t& readSeqLen,
-			Interval const * interval, MappedRead* read);
+			Interval const * interval, MappedRead* read, bool const revComp);
 
 	Align * alignInterval(MappedRead const * const read,
 			Interval const * interval, char * const readSeq,
-			size_t const readSeqLen, bool const realign);
+			size_t const readSeqLen, bool const realign, bool const fullAlignment);
 	void alignSingleOrMultipleIntervals(MappedRead * read,
 			Interval const * const interval, LocationScore * tmp,
 			Align * tmpAling, int & alignIndex);

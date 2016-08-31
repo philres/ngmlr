@@ -442,6 +442,7 @@ _Config::_Config(int argc, char * argv[], bool praseArgs) {
 		if(!Exists(ONT)) {
 			Default(ONT, 0);
 		}
+		Default(PRINTALL, 0);
 
 		if (GetInt(ONT) != 1) {
 			Default(MATCH_BONUS, 1);

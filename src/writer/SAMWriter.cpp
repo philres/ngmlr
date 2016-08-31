@@ -190,9 +190,9 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 	}
 
 	if(read->Calculated > 1) {
-		Print("SA:Z:");
+		bool first = true;
 		for(int i = 0; i < read->Calculated; ++i) {
-			if(i != scoreID) {
+			if(i != scoreID && !read->Alignments[i].skip) {
 				int refnamelen = 0;
 				char const * refname = SequenceProvider.GetRefName(read->Scores[i].Location.getrefId(), refnamelen);
 
@@ -200,11 +200,16 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 				if (read->Scores[i].Location.isReverse()) {
 					strand = '-';
 				}
-
+				if(first) {
+					Print("SA:Z:");
+					first = false;
+				}
 				Print("%.*s,%d,%c,%s,%d,%d;", refnamelen, refname, read->Scores[i].Location.m_Location + report_offset, strand, read->Alignments[i].pBuffer1, read->Alignments[i].MQ, read->Alignments[i].NM);
 			}
 		}
-		Print("\t");
+		if(!first) {
+			Print("\t");
+		}
 	}
 
 	Print("QS:i:%d\t", read->Alignments[scoreID].QStart);

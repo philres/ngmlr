@@ -61,6 +61,8 @@ static char const * const STDOUT = "stdout";
 
 static char const * const ONT = "ont";
 
+static char const * const PRINTALL = "print_all";
+
 static char const * const PROGRESS = "progress";
 
 #ifdef DEBUGLOG
