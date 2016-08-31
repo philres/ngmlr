@@ -20,6 +20,7 @@ include_directories (.)
 configure_file( Version.h.in ${CMAKE_SOURCE_DIR}/src/Version.h )
  	
 add_executable(ngm-core
+                    AlignmentMatrix.cpp
 					../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
 					parser/BamParser.cpp
 					writer/BAMWriter.cpp
@@ -48,7 +49,6 @@ add_executable(ngm-core
 					OutputReadBuffer.cpp	
 					ScoreBuffer.cpp
 					StrippedSW.cpp
-					SWCPU.cpp
 					core/unix.cpp
 					core/unix_threads.cpp
 					core/windows_threads.cpp
@@ -67,6 +67,7 @@ add_definitions(-D _BAM)
 
 
 add_executable(ngm-core-debug
+                    AlignmentMatrix.cpp
 					../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
 					parser/BamParser.cpp
 					writer/BAMWriter.cpp
@@ -95,7 +96,6 @@ add_executable(ngm-core-debug
 					OutputReadBuffer.cpp				
 					ScoreBuffer.cpp
 					StrippedSW.cpp
-					SWCPU.cpp
 					core/unix.cpp
 					core/unix_threads.cpp
 					core/windows_threads.cpp

@@ -12,6 +12,10 @@
 #include <stdint.h>
 #include "misc/Timing.h"
 
+//TODO: remove
+#define pRef pBuffer1
+#define pQry pBuffer2
+
 namespace Convex {
 
 int alignmentId = 0;
@@ -27,8 +31,6 @@ int NumberOfSetBits(uint32_t i) {
 ConvexAlign::ConvexAlign(int gpu_id) :
 		maxBinaryCigarLength(200000), pacbioDebug(false), stdoutPrintAlignCorridor(
 		Config.GetInt(STDOUT) == 6) {
-
-	batch_size = 1;
 
 	mat = 2.0f;
 	mis = -5.0f;
@@ -574,9 +576,9 @@ AlignmentMatrix::Score ConvexAlign::fwdFillMatrix(char const * const refSeq,
 
 			//find max
 			AlignmentMatrix::Score max_cell = 0;
-			max_cell = max(left_cell, max_cell);
-			max_cell = max(diag_cell, max_cell);
-			max_cell = max(up_cell, max_cell);
+			max_cell = std::max(left_cell, max_cell);
+			max_cell = std::max(diag_cell, max_cell);
+			max_cell = std::max(up_cell, max_cell);
 
 			AlignmentMatrix::MatrixElement * current = matrix->getElementEdit(x,
 					y);

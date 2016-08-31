@@ -9,7 +9,6 @@
 #include "Debug.h"
 #include "AlignmentBuffer.h"
 
-#include "SWCPU.h"
 #include "ConvexAlign.h"
 
 #undef module_name
