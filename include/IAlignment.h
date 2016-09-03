@@ -119,6 +119,13 @@ public:
 		return 0;
 	}
 
+	virtual int FastSingleAlign(int const mode, CorridorLine * corridor,
+			int const corridorHeight, char const * const refSeq,
+			char const * const qrySeq, Align & result, int const externalQStart,
+			int const externalQEnd, void * extData){
+		return 0;
+	}
+
 	virtual int SingleScore(int const mode, int const corridor,
 			char const * const refSeq, char const * const qrySeq,
 			float & result, void * extData) {

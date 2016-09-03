@@ -54,6 +54,11 @@ public:
 			char const * const qrySeq, Align & result, int const externalQStart,
 			int const externalQEnd, void * extData);
 
+	virtual int FastSingleAlign(int const mode, CorridorLine * corridor,
+			int const corridorHeight, char const * const refSeq,
+			char const * const qrySeq, Align & result, int const externalQStart,
+			int const externalQEnd, void * extData);
+
 private:
 
 	/**
@@ -118,6 +123,9 @@ private:
 	 * Fills directionMatrix
 	 */
 	AlignmentMatrix::Score fwdFillMatrix(char const * const refSeq,
+				char const * const qrySeq, FwdResults & fwdResults, int readId);
+
+	AlignmentMatrix::Score FastfwdFillMatrix(char const * const refSeq,
 				char const * const qrySeq, FwdResults & fwdResults, int readId);
 
 	/**

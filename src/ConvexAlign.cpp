@@ -4,8 +4,11 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "Config.h"
-#include "misc/Timing.h"
+#include <algorithm>
+#include <stdio.h>
+
+//#include "Config.h"
+//#include "misc/Timing.h"
 
 //TODO: remove
 #define pRef pBuffer1
@@ -25,7 +28,8 @@ int NumberOfSetBits(uint32_t i) {
 
 ConvexAlign::ConvexAlign(int gpu_id) :
 		maxBinaryCigarLength(200000), pacbioDebug(false), stdoutPrintAlignCorridor(
-		Config.GetInt(STDOUT) == 6) {
+		//Config.GetInt(STDOUT) == 6) {
+		0) {
 
 	mat = 2.0f;
 	mis = -5.0f;
@@ -411,7 +415,7 @@ int ConvexAlign::SingleAlign(int const mode, CorridorLine * corridorLines,
 
 	int finalCigarLength = -1;
 
-	try {
+	//try {
 
 		int const refLen = strlen(refSeq);
 		int const qryLen = strlen(qrySeq);
@@ -431,6 +435,82 @@ int ConvexAlign::SingleAlign(int const mode, CorridorLine * corridorLines,
 ////	Timer t1;
 ////	t1.ST();
 		AlignmentMatrix::Score score = fwdFillMatrix(refSeq, qrySeq, fwdResults,
+				mode);
+////	fprintf(stderr, "fill: %f\n", t1.ET());
+//
+//		//	matrix->printMatrix(refSeq, qrySeq);
+//		//	fprintf(stderr, "Best y: %d, Best x: %d, Score: %d, QEnd: %d\n",
+//		//			fwdResults.best_read_index, fwdResults.best_ref_index,
+//		//			fwdResults.max_score, fwdResults.qend);
+//
+////	Timer t2;
+////	t2.ST();
+		bool validAlignment = revBacktrack(refSeq, qrySeq, fwdResults, mode);
+
+////	fprintf(stderr, "fill: %f\n", t2.ET());
+//
+		if (validAlignment) {
+//
+////		Timer t3;
+////		t3.ST();
+//			//		fprintf(stderr, "QStart: %d, Ref offset: %d, Binary cigar offset: %d\n",
+//			//				fwdResults.qstart, fwdResults.ref_position,
+//			//				fwdResults.alignment_offset);
+			finalCigarLength = convertCigar(refSeq, align, fwdResults,
+					externalQStart, externalQEnd);
+//
+			align.PositionOffset = fwdResults.ref_position;
+			align.Score = score;
+////		fprintf(stderr, "conv: %f\n", t3.ET());
+		}
+//
+		if (stdoutPrintAlignCorridor) {
+			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, (int) score,
+					finalCigarLength, -3);
+		}
+	//} catch (...) {
+	//	align.Score = -1.0f;
+	//	finalCigarLength = -1;
+	//}
+
+	matrix->clean();
+//	alignmentId += 1;
+//	align.Score = -1.0f;
+	return finalCigarLength;
+}
+
+int ConvexAlign::FastSingleAlign(int const mode, CorridorLine * corridorLines,
+		int const corridorHeight, char const * const refSeq,
+		char const * const qrySeq, Align & align, int const externalQStart,
+		int const externalQEnd, void * extData) {
+
+	alignmentId = align.svType;
+
+	align.Score = -1.0f;
+//	return 0;
+
+	int finalCigarLength = -1;
+
+	try {
+
+		int const refLen = strlen(refSeq);
+		int const qryLen = strlen(qrySeq);
+
+		matrix->prepare(refLen, qryLen, corridorLines, corridorHeight);
+
+		align.pBuffer2[0] = '\0';
+
+		FwdResults fwdResults;
+
+		// Debug: rscript convex-align-vis.r
+		if (stdoutPrintAlignCorridor) {
+			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, refLen, qryLen,
+					-1);
+		}
+//
+////	Timer t1;
+////	t1.ST();
+		AlignmentMatrix::Score score = FastfwdFillMatrix(refSeq, qrySeq, fwdResults,
 				mode);
 ////	fprintf(stderr, "fill: %f\n", t1.ET());
 //
@@ -578,6 +658,130 @@ AlignmentMatrix::Score ConvexAlign::fwdFillMatrix(char const * const refSeq,
 			AlignmentMatrix::MatrixElement * current = matrix->getElementEdit(x,
 					y);
 			char & currentDirection = *matrix->getDirection(x, y);
+
+			if (del_run > 0 && max_cell == left_cell) {
+				current->score = max_cell;
+				current->direction = CIGAR_D;
+				currentDirection = CIGAR_D;
+				current->indelRun = del_run + 1;
+			} else if (ins_run > 0 && max_cell == up_cell) {
+				current->score = max_cell;
+				current->direction = CIGAR_I;
+				currentDirection = CIGAR_I;
+				current->indelRun = ins_run + 1;
+			} else if (max_cell == diag_cell) {
+				current->score = max_cell;
+				if (eq) {
+					current->direction = CIGAR_EQ;
+					currentDirection = CIGAR_EQ;
+				} else {
+					current->direction = CIGAR_X;
+					currentDirection = CIGAR_X;
+				}
+				current->indelRun = 0;
+			} else if (max_cell == left_cell) {
+				current->score = max_cell;
+				current->direction = CIGAR_D;
+				currentDirection = CIGAR_D;
+				current->indelRun = 1;
+			} else if (max_cell == up_cell) {
+				current->score = max_cell;
+				current->direction = CIGAR_I;
+				currentDirection = CIGAR_I;
+				current->indelRun = 1;
+			} else {
+				current->score = 0;
+				current->direction = CIGAR_STOP;
+				currentDirection = CIGAR_STOP;
+				current->indelRun = 0;
+			}
+
+			if (max_cell > curr_max) {
+				curr_max = max_cell;
+				fwdResult.best_ref_index = x;
+				fwdResult.best_read_index = y;
+				fwdResult.max_score = curr_max;
+			}
+
+		}
+
+	}
+	fwdResult.qend = (matrix->getHeight() - fwdResult.best_read_index) - 1;
+	if (matrix->getHeight() == 0) {
+		fwdResult.best_read_index = fwdResult.best_ref_index = 0;
+	}
+
+	return curr_max;
+}
+
+AlignmentMatrix::Score ConvexAlign::FastfwdFillMatrix(char const * const refSeq,
+		char const * const qrySeq, FwdResults & fwdResult, int readId) {
+
+	AlignmentMatrix::Score curr_max = -1.0f;
+
+	for (int y = 0; y < matrix->getHeight(); ++y) {
+
+		matrix->prepareLine(y);
+
+		int xOffset = matrix->getCorridorOffset(y);
+
+		char const read_char_cache = qrySeq[y];
+
+		int xMax=std::min(xOffset + matrix->getCorridorLength(y),matrix->getWidth());
+
+		for (int x = xOffset; x < xMax; ++x) {
+
+			//MISSING: Check if x negative
+
+			AlignmentMatrix::Score diag_score = matrix->getElementUp(x - 1, y - 1)->score;
+			AlignmentMatrix::MatrixElement const & up = *matrix->getElementUp(x,y - 1);
+			AlignmentMatrix::MatrixElement const & left = *matrix->getElementCurr(x - 1, y);
+
+			bool const eq = read_char_cache == refSeq[x];
+			AlignmentMatrix::Score const diag_cell = diag_score
+					+ ((eq) ? mat : mis);
+
+			AlignmentMatrix::Score up_cell = 0;
+			AlignmentMatrix::Score left_cell = 0;
+
+			int ins_run = 0;
+			int del_run = 0;
+
+			if (up.direction == CIGAR_I) {
+				ins_run = up.indelRun;
+				if (up.score == 0) {
+					up_cell = 0;
+				} else {
+					up_cell = up.score
+							+ std::min(gap_ext_min,
+									gap_ext + ins_run * gap_decay);
+				}
+			} else {
+				up_cell = up.score + gap_open_read;
+			}
+
+			if (left.direction == CIGAR_D) {
+				del_run = left.indelRun;
+				if (left.score == 0) {
+					left_cell = 0;
+				} else {
+					left_cell = left.score
+							+ std::min(gap_ext_min,
+									gap_ext + del_run * gap_decay);
+				}
+			} else {
+				left_cell = left.score + gap_open_ref;
+			}
+
+			//find max
+			AlignmentMatrix::Score max_cell = 0;
+			max_cell = std::max(left_cell, max_cell);
+			max_cell = std::max(diag_cell, max_cell);
+			max_cell = std::max(up_cell, max_cell);
+
+			AlignmentMatrix::MatrixElement * current = matrix->getElementEditCurr(x,y);
+
+			char & currentDirection = *matrix->getDirectionCurr(x, y);
 
 			if (del_run > 0 && max_cell == left_cell) {
 				current->score = max_cell;
