@@ -48,6 +48,7 @@ public:
 		read_name = "NOT SET";
 		mq = -1;
 		mapped_flag = 4; //read is not mapped
+		pair_number = 0;
 	}
 	~SAMRecord() {
 

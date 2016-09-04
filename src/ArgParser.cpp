@@ -45,7 +45,33 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 
 	TCLAP::ValueArg<int> threadsArg("t", "threads", "Number of threads", false, 1, "int");
 
+	TCLAP::ValueArg<int> binSizeArg("", "bin-size", "Sets the size of the grid NextgenMap uses during CMR search to: 2^n (default: 4)", false, binSize, "int");
+	TCLAP::ValueArg<int> kmerLengthArg("k", "kmer-length", "Kmer length in bases. (default: 13)", false, kmerLength, "10-15");
+	TCLAP::ValueArg<int> kmerSkipArg("", "kmer-skip", "Number of k-mers to skip when building the lookup table from the reference (default: 2)", false, kmerSkip, "int");
+	TCLAP::ValueArg<int> scoreMatchArg("", "match", "Match score", false, scoreMatch, "int");
+	TCLAP::ValueArg<int> scoreMismatchArg("", "mismatch", "Mismatch score", false, scoreMismatch, "int");
+	TCLAP::ValueArg<int> scoreGapOpenArg("", "gap-open", "Gap open score", false, scoreGapOpen, "int");
+	TCLAP::ValueArg<int> scoreGapExtendArg("", "gap-extend", "Gap open extend", false, scoreGapExtend, "int");
+	TCLAP::ValueArg<int> stdoutArg("", "stdout", "Debug mode", false, stdoutMode, "0-7");
+	TCLAP::ValueArg<int> readpartLengthArg("", "subread-length", "Length of fragments reads are split to", false, readPartLength, "int");
+	TCLAP::ValueArg<int> readpartCorridorArg("", "subread-corridor", "Length of corridor sub-reads are aligned with", false, readPartCorridor, "int");
+	//csSearchTableLength = 0;
+	//logLevel = 0; //16383, 255
+	//minKmerHits = 0;
+	//maxCMRs = INT_MAX;
+
 	TCLAP::SwitchArg noprogressArg("", "no-progress", "Don't print progress info while mapping", cmd, false);
+	TCLAP::SwitchArg verboseArg("", "verbose", "Debug output", cmd, false);
+	//bam = false;
+	TCLAP::SwitchArg colorArg("", "color", "Colored command line output", cmd, false);
+	//hardClip = false;
+	//log = false;
+	TCLAP::SwitchArg nolowqualitysplitArg("", "no-lowqualitysplit", "Don't split alignments with poor quality", cmd, false);
+	TCLAP::SwitchArg nosmallInversionArg("", "no-smallinv", "Don't detect small inversions", cmd, false);
+	TCLAP::SwitchArg printAllAlignmentsArg("", "print-all", "Print all alignments. Disable filtering. (debug)", cmd, false);
+	//skipSave = false;
+	//updateCheck = false;
+	//writeUnmapped = true;
 
 	cmd.add(queryArg);
 	cmd.add(refArg);
@@ -67,8 +93,24 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	minIdentity = minIdentityArg.getValue();
 	minResidues = minResiduesArg.getValue();
 
+	binSize = binSizeArg.getValue();
+	kmerLength = kmerLengthArg.getValue();
 	threads = threadsArg.getValue();
+	kmerSkip = kmerSkipArg.getValue();
+	scoreMatch = scoreMatchArg.getValue();
+	scoreMismatch = scoreMismatchArg.getValue();
+	scoreGapOpen = scoreGapOpenArg.getValue();
+	scoreGapExtend = scoreGapExtendArg.getValue();
+	stdoutMode = stdoutArg.getValue();
+	readPartCorridor = readpartCorridorArg.getValue();
+	readPartLength = readpartLengthArg.getValue();
+
 	progress = !noprogressArg.getValue();
+	color = colorArg.getValue();
+	verbose = verboseArg.getValue();
+	lowQualitySplit = !nolowqualitysplitArg.getValue();
+	smallInversionDetection = !nosmallInversionArg.getValue();
+	printAllAlignments = printAllAlignmentsArg.getValue();
 
 	std::stringstream fullCmd;
 	fullCmd << std::string(argv[0]);

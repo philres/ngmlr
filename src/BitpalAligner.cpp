@@ -143,7 +143,7 @@ int bitwise_alignment(char * s1, char* s2, int words){
 			OverFlow0 = sum >> wordsizem1;
 
 			//set RemainingDHneg1
-			RemainDHneg1 = DHneg1temp ^ (INITpos2s) & sixtythreebitmask;
+			RemainDHneg1 = DHneg1temp ^ ((INITpos2s) & sixtythreebitmask);
 			//combine 2s and Matches
 			DVpos2shiftorMatch = DVpos2shift | Matches;
 
