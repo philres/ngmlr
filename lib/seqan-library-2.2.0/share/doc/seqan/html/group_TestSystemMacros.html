@@ -1,0 +1,795 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="group_testsystemmacros" data-page="TestSystemMacros">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Test System Macros - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="group" data-pimped="true">
+  <a href="page_LanguageEntities.html#group">Group</a> <span>Test System Macros
+  <div><div>Macros for the test system.</div></div></span>
+</h1>
+
+<!--
+ =============================================================================
+  Grouped Overview
+ =============================================================================
+-->
+
+<!-- Grouped Tags Overview -->
+
+
+
+
+
+<!-- Grouped Tags Overview -->
+
+<div class="overview grouped_macros" data-lang-entity-container="macro">
+<h2 data-lang-entity="macro">Grouped Macros Overview</h2>
+
+<table width="100%">
+  
+  <tr>
+    
+    <td><code><a href="#TestSystemMacros%23SEQAN_BEGIN_TESTSUITE"><div>SEQAN_BEGIN_TESTSUITE(name)</div></a></code> <div>Expand to a test suite beginning.</div></td>
+    
+  </tr>
+  
+  <tr>
+    
+    <td><code><a href="#TestSystemMacros%23SEQAN_CALL_TEST"><div>SEQAN_CALL_TEST(test_name);</div></a></code> <div>Expand to calling a test.</div></td>
+    
+  </tr>
+  
+  <tr>
+    
+    <td><code><a href="#TestSystemMacros%23SEQAN_DEFINE_TEST"><div>SEQAN_DEFINE_TEST(test_name)</div></a></code> <div>Expand to test definition.</div></td>
+    
+  </tr>
+  
+  <tr>
+    
+    <td><code><a href="#TestSystemMacros%23SEQAN_ENABLE_DEBUG"><div>SEQAN_ENABLE_DEBUG</div></a></code> <div>Indicates whether debugging is enabled.</div></td>
+    
+  </tr>
+  
+  <tr>
+    
+    <td><code><a href="#TestSystemMacros%23SEQAN_ENABLE_TESTING"><div>SEQAN_ENABLE_TESTING</div></a></code> <div>Indicates whether testing is enabled.</div></td>
+    
+  </tr>
+  
+  <tr>
+    
+    <td><code><a href="#TestSystemMacros%23SEQAN_END_TESTSUITE"><div>SEQAN_END_TESTSUITE</div></a></code> <div>Expand to test suite ending.</div></td>
+    
+  </tr>
+  
+  <tr>
+    
+    <td><code><a href="#TestSystemMacros%23SEQAN_SKIP_TEST"><div>SEQAN_SKIP_TEST;</div></a></code> <div>Force the test to return without failing and mark it as skipped.</div></td>
+    
+  </tr>
+  
+  <tr>
+    
+    <td><code><a href="#TestSystemMacros%23SEQAN_TYPEDEF_FOR_DEBUG"><div>SEQAN_TYPEDE_FOR_DEBUG</div></a></code> <div>When using typedefs that are only used in debug mode then they have to be marked with macro.</div></td>
+    
+  </tr>
+  
+</table>
+</div>
+
+
+
+
+<!-- Grouped Functions Overview -->
+
+ 
+
+
+<!-- Grouped Metafunctions Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Grouped Details
+ =============================================================================
+-->
+
+<!-- Grouped Tags Details -->
+
+
+
+
+<!-- Grouped macros Details -->
+
+<div class="details grouped_macros" data-lang-entity-container="grouped_macro">
+<h2 data-lang-entity="grouped_macro">Grouped Macros Detail</h2>
+
+
+<h3 data-toc="hidden" id="TestSystemMacros#SEQAN_BEGIN_TESTSUITE">
+  TestSystemMacros#SEQAN_BEGIN_TESTSUITE
+</h3>
+
+
+<dl>
+  <dt>Defined in</dt>
+  <dd>
+    &lt;seqan/basic.h&gt;
+    
+  </dd>
+</dl>
+
+
+<code>SEQAN_BEGIN_TESTSUITE(name)
+</code>
+
+<div class="brief"><div>Expand to a test suite beginning.</div></div>
+
+<dl>
+
+  <dt>Parameters</dt>
+
+  
+  <dd>
+    <code>name</code>
+    
+    (in)
+     -
+    The name of the test suite.
+  </dd>
+  
+
+
+
+
+
+
+
+
+
+  <dt>Data Races</dt>
+  <dd>
+    Thread safety unknown!
+  </dd>
+
+
+
+</dl>
+
+
+<div><p>This macro expands to a <tt>main()</tt> function and some initialization code that sets up the test system.</p><h4>Examples</h4><div data-src-path="None"><pre class="code">#include &lt;seqan/basic.h&gt;
+
+SEQAN_BEGIN_TESTSUITE(test_foo)
+{
+   SEQAN_CALL_TEST(test_foo_my_test);
+}
+SEQAN_END_TESTSUITE</pre></div></div>
+
+
+
+<h3 data-toc="hidden" id="TestSystemMacros#SEQAN_CALL_TEST">
+  TestSystemMacros#SEQAN_CALL_TEST
+</h3>
+
+
+<dl>
+  <dt>Defined in</dt>
+  <dd>
+    &lt;seqan/basic.h&gt;
+    
+  </dd>
+</dl>
+
+
+<code>SEQAN_CALL_TEST(test_name);
+</code>
+
+<div class="brief"><div>Expand to calling a test.</div></div>
+
+<dl>
+
+
+
+
+
+
+
+
+
+  <dt>Data Races</dt>
+  <dd>
+    Thread safety unknown!
+  </dd>
+
+
+
+</dl>
+
+
+<div><p>This expects the test to be defined with SEQAN_DEFINE_TEST. This macro will expand to code that calls the code
+inside a try/catch block. Use this macro within a test suite, only.</p><h4>Examples</h4><div data-src-path="None"><pre class="code">// Within a test suite.
+SEQAN_CALL_TEST(test_name);</pre></div></div>
+
+
+
+<h3 data-toc="hidden" id="TestSystemMacros#SEQAN_DEFINE_TEST">
+  TestSystemMacros#SEQAN_DEFINE_TEST
+</h3>
+
+
+<dl>
+  <dt>Defined in</dt>
+  <dd>
+    &lt;seqan/basic.h&gt;
+    
+  </dd>
+</dl>
+
+
+<code>SEQAN_DEFINE_TEST(test_name)
+</code>
+
+<div class="brief"><div>Expand to test definition.</div></div>
+
+<dl>
+
+
+
+
+
+
+
+
+
+  <dt>Data Races</dt>
+  <dd>
+    Thread safety unknown!
+  </dd>
+
+
+
+</dl>
+
+
+<div><p>This macro expands to the definition of a $void$ function with <tt>SEQAN_TEST_ + test_name</tt> as its name.</p><h4>Example</h4><div data-src-path="None"><pre class="code">SEQAN_DEFINE_TEST(test_name)
+{
+    SEQAN_ASSERT_LT(0, 3);
+}</pre></div></div>
+
+
+
+<h3 data-toc="hidden" id="TestSystemMacros#SEQAN_ENABLE_DEBUG">
+  TestSystemMacros#SEQAN_ENABLE_DEBUG
+</h3>
+
+
+<dl>
+  <dt>Defined in</dt>
+  <dd>
+    &lt;seqan/basic.h&gt;
+    
+  </dd>
+</dl>
+
+
+<code>SEQAN_ENABLE_DEBUG
+</code>
+
+<div class="brief"><div>Indicates whether debugging is enabled.</div></div>
+
+<dl>
+
+
+
+
+
+
+
+
+
+  <dt>Data Races</dt>
+  <dd>
+    Thread safety unknown!
+  </dd>
+
+
+
+  <dt>See Also</dt>
+  <dd>
+  
+  <dd><a href="group_TestSystemMacros.html#TestSystemMacros#SEQAN_ENABLE_TESTING" data-lang-entity="grouped_macro">SEQAN_ENABLE_TESTING</a></dd>
+  
+  </dd>
+
+</dl>
+
+
+<div><p>When enabled (set to 1) then debugging is enabled. This means the assertion macros are expanded to actual test code.
+If debugging (and testing) is disabled then the SeqAn assertion macros expand to no instructions.</p><p>Note that <tt>NDEBUG</tt> is set undefined if <tt>SEQAN_ENABLE_DEBUG</tt> = 1
+and <tt>NDEBUG</tt> is set to 1 if <tt>SEQAN_ENABLE_DEBUG</tt> = 0.</p><p>If you want to change this value then you have to define this value before including any SeqAn header.</p><p>Force-enabled if SEQAN_ENABLE_TESTING is set to 1.</p></div>
+
+
+
+<h3 data-toc="hidden" id="TestSystemMacros#SEQAN_ENABLE_TESTING">
+  TestSystemMacros#SEQAN_ENABLE_TESTING
+</h3>
+
+
+<dl>
+  <dt>Defined in</dt>
+  <dd>
+    &lt;seqan/basic.h&gt;
+    
+  </dd>
+</dl>
+
+
+<code>SEQAN_ENABLE_TESTING
+</code>
+
+<div class="brief"><div>Indicates whether testing is enabled.</div></div>
+
+<dl>
+
+
+
+
+
+
+
+
+
+  <dt>Data Races</dt>
+  <dd>
+    Thread safety unknown!
+  </dd>
+
+
+
+  <dt>See Also</dt>
+  <dd>
+  
+  <dd><a href="group_TestSystemMacros.html#TestSystemMacros#SEQAN_ENABLE_DEBUG" data-lang-entity="grouped_macro">SEQAN_ENABLE_DEBUG</a></dd>
+  
+  </dd>
+
+</dl>
+
+
+<div><p>When set to 1, testing is enabled. If it is undefined or set to 0, testing is disabled. This means the macros for
+the tests (SEQAN_BEGIN_TESTSUITE, SEQAN_DEFINE_TEST, SEQAN_CALL_TEST, and SEQAN_END_TESTSUITE) will be enabled. This
+makes failing assertions raise exceptions instead of calling <tt>abort()</tt> (which terminates the program).</p><p>By default, this is set to 0.</p><p>If you want to change this value in your C++ program code you have to define this value before including any SeqAn header!</p><p>If set to 1 then <a href="group_TestSystemMacros.html#TestSystemMacros#SEQAN_ENABLE_DEBUG" data-lang-entity="grouped_macro">SEQAN_ENABLE_DEBUG</a> is forced to 1 as well.</p></div>
+
+
+
+<h3 data-toc="hidden" id="TestSystemMacros#SEQAN_END_TESTSUITE">
+  TestSystemMacros#SEQAN_END_TESTSUITE
+</h3>
+
+
+<dl>
+  <dt>Defined in</dt>
+  <dd>
+    &lt;seqan/basic.h&gt;
+    
+  </dd>
+</dl>
+
+
+<code>SEQAN_END_TESTSUITE
+</code>
+
+<div class="brief"><div>Expand to test suite ending.</div></div>
+
+<dl>
+
+
+
+
+
+
+
+
+
+  <dt>Data Races</dt>
+  <dd>
+    Thread safety unknown!
+  </dd>
+
+
+
+</dl>
+
+
+<div><p>This macro expands to finalization code for a test suite.</p><h4>Examples</h4><div data-src-path="None"><pre class="code">#include &lt;seqan/basic.h&gt;
+
+SEQAN_BEGIN_TESTSUITE(test_foo)
+{
+    SEQAN_CALL_TEST(test_foo_my_test);
+}
+SEQAN_END_TESTSUITE</pre></div></div>
+
+
+
+<h3 data-toc="hidden" id="TestSystemMacros#SEQAN_SKIP_TEST">
+  TestSystemMacros#SEQAN_SKIP_TEST
+</h3>
+
+
+<dl>
+  <dt>Defined in</dt>
+  <dd>
+    &lt;seqan/basic.h&gt;
+    
+  </dd>
+</dl>
+
+
+<code>SEQAN_SKIP_TEST;
+</code>
+
+<div class="brief"><div>Force the test to return without failing and mark it as skipped.</div></div>
+
+<dl>
+
+
+
+
+
+
+
+
+
+  <dt>Data Races</dt>
+  <dd>
+    Thread safety unknown!
+  </dd>
+
+
+
+</dl>
+
+
+<div><h4>Examples</h4><div data-src-path="None"><pre class="code">SEQAN_DEFINE_TEST(test_skipped)
+{
+    SEQAN_SKIP_TEST;
+}</pre></div></div>
+
+
+
+<h3 data-toc="hidden" id="TestSystemMacros#SEQAN_TYPEDEF_FOR_DEBUG">
+  TestSystemMacros#SEQAN_TYPEDEF_FOR_DEBUG
+</h3>
+
+
+<dl>
+  <dt>Defined in</dt>
+  <dd>
+    &lt;seqan/basic.h&gt;
+    
+  </dd>
+</dl>
+
+
+<code>SEQAN_TYPEDE_FOR_DEBUG
+</code>
+
+<div class="brief"><div>When using typedefs that are only used in debug mode then they have to be marked with macro.</div></div>
+
+<dl>
+
+
+
+
+
+
+
+
+
+  <dt>Data Races</dt>
+  <dd>
+    Thread safety unknown!
+  </dd>
+
+
+
+</dl>
+
+
+<div><h4>Examples</h4><div data-src-path="None"><pre class="code">typedef int TInt SEQAN_TYPEDEF_FOR_DEBUG;</pre></div></div>
+
+
+
+
+</div>
+
+
+
+<!-- Grouped Functions Details -->
+
+
+
+
+<!-- Grouped Metafunctions Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @defgroup TestSystemMacros Test System Macros
+ * 
+ * @brief Macros for the test system.
+ * 
+ * @macro TestSystemMacros#SEQAN_ENABLE_TESTING
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Indicates whether testing is enabled.
+ * 
+ * @signature SEQAN_ENABLE_TESTING
+ * 
+ * When set to 1, testing is enabled. If it is undefined or set to 0, testing is
+ * disabled. This means the macros for the tests (SEQAN_BEGIN_TESTSUITE,
+ * SEQAN_DEFINE_TEST, SEQAN_CALL_TEST, and SEQAN_END_TESTSUITE) will be enabled.
+ * This makes failing assertions raise exceptions instead of calling
+ * &lt;tt&gt;abort()&lt;/tt&gt; (which terminates the program).
+ * 
+ * By default, this is set to 0.
+ * 
+ * If you want to change this value in your C++ program code you have to define
+ * this value before including any SeqAn header!
+ * 
+ * If set to 1 then @link TestSystemMacros#SEQAN_ENABLE_DEBUG @endlink is forced
+ * to 1 as well.
+ * 
+ * @see TestSystemMacros#SEQAN_ENABLE_DEBUG
+ * 
+ * @macro TestSystemMacros#SEQAN_ENABLE_DEBUG
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Indicates whether debugging is enabled.
+ * 
+ * @signature SEQAN_ENABLE_DEBUG
+ * 
+ * When enabled (set to 1) then debugging is enabled. This means the assertion
+ * macros are expanded to actual test code. If debugging (and testing) is
+ * disabled then the SeqAn assertion macros expand to no instructions.
+ * 
+ * Note that &lt;tt&gt;NDEBUG&lt;/tt&gt; is set undefined if &lt;tt&gt;SEQAN_ENABLE_DEBUG&lt;/tt&gt; = 1
+ * and &lt;tt&gt;NDEBUG&lt;/tt&gt; is set to 1 if &lt;tt&gt;SEQAN_ENABLE_DEBUG&lt;/tt&gt; = 0.
+ * 
+ * If you want to change this value then you have to define this value before
+ * including any SeqAn header.
+ * 
+ * Force-enabled if SEQAN_ENABLE_TESTING is set to 1.
+ * 
+ * @see TestSystemMacros#SEQAN_ENABLE_TESTING
+ * 
+ * @macro TestSystemMacros#SEQAN_TYPEDEF_FOR_DEBUG
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief When using typedefs that are only used in debug mode then they have to
+ *        be marked with macro.
+ * 
+ * @signature SEQAN_TYPEDE_FOR_DEBUG
+ * 
+ * @section Examples
+ * 
+ * @code{.cpp}
+ * typedef int TInt SEQAN_TYPEDEF_FOR_DEBUG;
+ * @endcode
+ * 
+ * 
+ * @macro TestSystemMacros#SEQAN_DEFINE_TEST
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Expand to test definition.
+ * 
+ * @signature SEQAN_DEFINE_TEST(test_name)
+ * 
+ * This macro expands to the definition of a $void$ function with
+ * &lt;tt&gt;SEQAN_TEST_ + test_name&lt;/tt&gt; as its name.
+ * 
+ * @section Example
+ * 
+ * @code{.cpp}
+ * SEQAN_DEFINE_TEST(test_name)
+ * {
+ *     SEQAN_ASSERT_LT(0, 3);
+ * }
+ * @endcode
+ * 
+ * 
+ * @macro TestSystemMacros#SEQAN_BEGIN_TESTSUITE
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Expand to a test suite beginning.
+ * 
+ * @signature SEQAN_BEGIN_TESTSUITE(name)
+ * 
+ * @param[in] name The name of the test suite.
+ * 
+ * This macro expands to a &lt;tt&gt;main()&lt;/tt&gt; function and some initialization code
+ * that sets up the test system.
+ * 
+ * @section Examples
+ * 
+ * @code{.cpp}
+ * #include &lt;seqan/basic.h&gt;
+ * 
+ * SEQAN_BEGIN_TESTSUITE(test_foo)
+ * {
+ *    SEQAN_CALL_TEST(test_foo_my_test);
+ * }
+ * SEQAN_END_TESTSUITE
+ * @endcode
+ * 
+ * 
+ * @macro TestSystemMacros#SEQAN_END_TESTSUITE
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Expand to test suite ending.
+ * 
+ * @signature SEQAN_END_TESTSUITE
+ * 
+ * This macro expands to finalization code for a test suite.
+ * 
+ * @section Examples
+ * 
+ * @code{.cpp}
+ * #include &lt;seqan/basic.h&gt;
+ * 
+ * SEQAN_BEGIN_TESTSUITE(test_foo)
+ * {
+ *     SEQAN_CALL_TEST(test_foo_my_test);
+ * }
+ * SEQAN_END_TESTSUITE
+ * @endcode
+ * 
+ * 
+ * @macro TestSystemMacros#SEQAN_CALL_TEST
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Expand to calling a test.
+ * 
+ * @signature SEQAN_CALL_TEST(test_name);
+ * 
+ * This expects the test to be defined with SEQAN_DEFINE_TEST. This macro will
+ * expand to code that calls the code inside a try/catch block. Use this macro
+ * within a test suite, only.
+ * 
+ * @section Examples
+ * 
+ * @code{.cpp}
+ * // Within a test suite.
+ * SEQAN_CALL_TEST(test_name);
+ * @endcode
+ * 
+ * 
+ * @macro TestSystemMacros#SEQAN_SKIP_TEST
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Force the test to return without failing and mark it as skipped.
+ * 
+ * @signature SEQAN_SKIP_TEST;
+ * 
+ * @section Examples
+ * 
+ * @code{.cpp}
+ * SEQAN_DEFINE_TEST(test_skipped)
+ * {
+ *     SEQAN_SKIP_TEST;
+ * }
+ * @endcode
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_depthfirstsearch" data-page="depthFirstSearch">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>depthFirstSearch - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>depthFirstSearch<div><div>Implements a depth-first search on a graph.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/graph_algorithms.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>void depthFirstSearch(predecessor, discovery, finish, g);
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+<h2>Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">predecessor</code>
+            
+        
+        </th>
+        <td>A property map.Predecessor subgraph produced by the depth-first search.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">discovery</code>
+            
+        
+        </th>
+        <td>A property map.The discovery time of a vertex v.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">finish</code>
+            
+        
+        </th>
+        <td>A property map.The time when v's adjacency list has been fully explored.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">g</code>
+            
+        
+        </th>
+        <td>A graph. Types: Undirected Graph, Directed Graph</td>
+    </tr>
+
+</table>
+
+
+
+
+<!-- @tparam -->
+
+
+
+
+
+<!-- @returns -->
+
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>In contrast to a breadth-first search the depth-first search is repeated from multiple sources if the graph is not
+connected. Hence, depth-first search produces a depth-first forest. To ensure each vertex ends up in exactly one
+tree we need not just a distance but a discovery and finishing time.</p><h3>Example</h3><div data-src-path="demos/dox/graph_algorithms/depth_first_search.cpp"><pre class="code">#include &lt;iostream&gt;
+#include &lt;seqan/graph_algorithms.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    typedef Graph&lt;Directed&lt;&gt; &gt; TGraph;
+    typedef VertexDescriptor&lt;TGraph&gt;::Type TVertexDescriptor;
+    typedef Size&lt;TGraph&gt;::Type TSize;
+
+    // Create graph with 8 directed edges (0,3), (0,1), ...
+    TSize numEdges = 8;
+    TVertexDescriptor edges[] = {0, 3, 0, 1, 1, 4, 2, 4, 2, 5, 3, 1, 4, 3, 5, 5};
+    TGraph g;
+    addEdges(g, edges, numEdges);
+    // Print graph.
+    std::cout &lt;&lt; g &lt;&lt; "\n";
+
+    // Create external property map for the vertex names and assign to graph.
+    char names[] = {'u', 'v', 'w', 'x', 'y', 'z'};
+    String&lt;char&gt; nameMap;
+    assignVertexMap(nameMap, g, names);
+
+    // Perform a DFS search.
+    String&lt;unsigned int&gt; predMap;
+    String&lt;unsigned int&gt; discoveryTimeMap;
+    String&lt;unsigned int&gt; finishingTimeMap;
+    depthFirstSearch(predMap, discoveryTimeMap, finishingTimeMap, g);
+
+    // Write the result to stdout.
+    std::cout &lt;&lt; "Depth-First search: \n";
+    typedef Iterator&lt;Graph&lt;&gt;, VertexIterator&gt;::Type TVertexIterator;
+    TVertexIterator it(g);
+    while (!atEnd(it))
+    {
+        std::cout &lt;&lt; "Vertex " &lt;&lt; getProperty(nameMap, getValue(it)) &lt;&lt; ": ";
+        std::cout &lt;&lt; "Discovery time = " &lt;&lt; getProperty(discoveryTimeMap, getValue(it)) &lt;&lt; ",";
+        std::cout &lt;&lt; "Finishing time = " &lt;&lt; getProperty(finishingTimeMap, getValue(it)) &lt;&lt; ",";
+        typedef Value&lt;String&lt;unsigned int&gt; &gt;::Type TPredVal;
+        TPredVal pre = getProperty(predMap, getValue(it));
+        if (pre != getNil&lt;TVertexDescriptor&gt;())
+            std::cout &lt;&lt; "Predecessor = " &lt;&lt; getProperty(nameMap, pre) &lt;&lt; "\n";
+        else
+            std::cout &lt;&lt; "Predecessor = nil" &lt;&lt; "\n";
+        goNext(it);
+    }
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/graph_algorithms/depth_first_search.cpp" target="_top">demos/dox/graph_algorithms/depth_first_search.cpp</a></div></div><pre class="console" data-src-path="demos/dox/graph_algorithms/depth_first_search.cpp.stdout">Adjacency list:
+0 -&gt; 1,3,
+1 -&gt; 4,
+2 -&gt; 5,4,
+3 -&gt; 1,
+4 -&gt; 3,
+5 -&gt; 5,
+Edge list:
+Source: 0,Target: 1 (Id: 1)
+Source: 0,Target: 3 (Id: 0)
+Source: 1,Target: 4 (Id: 2)
+Source: 2,Target: 5 (Id: 4)
+Source: 2,Target: 4 (Id: 3)
+Source: 3,Target: 1 (Id: 5)
+Source: 4,Target: 3 (Id: 6)
+Source: 5,Target: 5 (Id: 7)
+
+Depth-First search: 
+Vertex u: Discovery time = 1,Finishing time = 8,Predecessor = nil
+Vertex v: Discovery time = 2,Finishing time = 7,Predecessor = u
+Vertex w: Discovery time = 9,Finishing time = 12,Predecessor = nil
+Vertex x: Discovery time = 4,Finishing time = 5,Predecessor = y
+Vertex y: Discovery time = 3,Finishing time = 6,Predecessor = v
+Vertex z: Discovery time = 10,Finishing time = 11,Predecessor = w
+</pre></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="global_function_breadthFirstSearch.html" data-lang-entity="global_function">breadthFirstSearch</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn depthFirstSearch
+ * 
+ * @headerfile &lt;seqan/graph_algorithms.h&gt;
+ * 
+ * @brief Implements a depth-first search on a graph.
+ * 
+ * @signature void depthFirstSearch(predecessor, discovery, finish, g);
+ * 
+ * @param[out] predecessor A property map.Predecessor subgraph produced by the
+ *                         depth-first search.
+ * @param[out] discovery A property map.The discovery time of a vertex v.
+ * @param[out] finish A property map.The time when v&#39;s adjacency list has been
+ *                    fully explored.
+ * @param[in] g A graph. Types: Undirected Graph, Directed Graph
+ * 
+ * In contrast to a breadth-first search the depth-first search is repeated from
+ * multiple sources if the graph is not connected. Hence, depth-first search
+ * produces a depth-first forest. To ensure each vertex ends up in exactly one
+ * tree we need not just a distance but a discovery and finishing time.
+ * 
+ * @section Example
+ * 
+ * @include demos/dox/graph_algorithms/depth_first_search.cpp
+ * 
+ * @include demos/dox/graph_algorithms/depth_first_search.cpp.stdout
+ * 
+ * @see breadthFirstSearch
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

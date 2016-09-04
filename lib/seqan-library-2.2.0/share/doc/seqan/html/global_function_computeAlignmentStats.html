@@ -1,0 +1,431 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_computealignmentstats" data-page="computeAlignmentStats">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>computeAlignmentStats - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>computeAlignmentStats<div><div>Compute alignment statistics.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/align.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>TScoreVal computeAlignmentStats(stats, align, scoringScheme);
+TScoreVal computeAlignmentStats(stats, row0, row1, scoringScheme);
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+<h2>Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">stats</code>
+            
+        
+        </th>
+        <td>The <a href="class_AlignmentStats.html" data-lang-entity="class">AlignmentStats</a> object to store alignment statistics in.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">align</code>
+            
+        
+        </th>
+        <td>The <a href="class_Align.html" data-lang-entity="class">Align</a> object to score.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">row0</code>
+            
+        
+        </th>
+        <td>The first row (<a href="class_Gaps.html" data-lang-entity="class">Gaps</a> object).</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">row1</code>
+            
+        
+        </th>
+        <td>The second row (<a href="class_Gaps.html" data-lang-entity="class">Gaps</a> object).</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">score</code>
+            
+        
+        </th>
+        <td>The <a href="class_Score.html" data-lang-entity="class">Score</a> object to use for the scoring scheme.</td>
+    </tr>
+
+</table>
+
+
+
+
+<!-- @tparam -->
+
+
+
+
+
+<!-- @returns -->
+
+
+<h2>Return Values</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>TScoreVal</code></th>
+        <td>The score value of the alignment, of the same type as the value type of <tt>scoringScheme</tt></td>
+    </tr>
+
+</table>
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><h3>Examples</h3><div data-src-path="demos/dox/align/compute_alignment_stats.cpp"><pre class="code">#include &lt;iostream&gt;
+
+#include &lt;seqan/align.h&gt;
+#include &lt;seqan/sequence.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    // Create an alignment between subject and query.
+    Peptide subject =
+        "MGLSDGEWQLVLNVWGKVEADIPGHGQEVLIRLFKGHPETLEKFDKFKHLKSEDEMKASE"
+        "DLKKHGATVLTALGGILKKKGHHEAEIKPLAQSHATKHKIPVKYLEFISECIIQVLQSKH"
+        "PGDFGADAQGAMNKALELFRKDMASNYK";
+    Peptide query =
+        "MSLTKTERTIIVSMWAKISTQADTIGTETLERLFLSHPQTKTYFPHFDLHPGSA"
+        "QLRAHGSKVVAAVGDAVKSIDDIGGALSKLSELHAYILRVDPVNFKLLSHCLLVTLAARF"
+        "PADFTAEAHAAWDKFLSVTEKYR";
+
+    Align&lt;Peptide&gt; align;
+    resize(rows(align), 2);
+    setSource(row(align, 0), subject);
+    setSource(row(align, 1), query);
+
+    Blosum62 scoringScheme(-1, -12);
+    globalAlignment(align, scoringScheme);
+
+    // Compute the statistics of the alignment.
+    AlignmentStats stats;
+    computeAlignmentStats(stats, align, scoringScheme);
+    std::cout &lt;&lt; align
+              &lt;&lt; "score:               " &lt;&lt; stats.alignmentScore &lt;&lt; "\n"
+              &lt;&lt; "gap opens:           " &lt;&lt; stats.numGapOpens &lt;&lt; "\n"
+              &lt;&lt; "gap extensions:      " &lt;&lt; stats.numGapExtensions &lt;&lt; "\n"
+              &lt;&lt; "num insertions:      " &lt;&lt; stats.numInsertions &lt;&lt; "\n"
+              &lt;&lt; "num deletions:       " &lt;&lt; stats.numDeletions &lt;&lt; "\n"
+              &lt;&lt; "num matches:         " &lt;&lt; stats.numMatches &lt;&lt; "\n"
+              &lt;&lt; "num mismatches:      " &lt;&lt; stats.numMismatches &lt;&lt; "\n"
+              &lt;&lt; "num positive scores: " &lt;&lt; stats.numPositiveScores &lt;&lt; "\n"
+              &lt;&lt; "num negative scores: " &lt;&lt; stats.numNegativeScores &lt;&lt; "\n"
+              &lt;&lt; "percent similarity:  " &lt;&lt; stats.alignmentSimilarity &lt;&lt; "\n"
+              &lt;&lt; "percent identity:    " &lt;&lt; stats.alignmentIdentity &lt;&lt; "\n\n\n";
+
+    // Clip alignment rows and compute score of this view.
+    setClippedEndPosition(row(align, 0), 100);
+    setClippedEndPosition(row(align, 1), 100);
+    setClippedBeginPosition(row(align, 0), 5);
+    setClippedBeginPosition(row(align, 1), 5);
+
+    computeAlignmentStats(stats, align, scoringScheme);
+    std::cout &lt;&lt; "Clipping alignment to (5, 100)\n"
+              &lt;&lt; align
+              &lt;&lt; "score:               " &lt;&lt; stats.alignmentScore &lt;&lt; "\n"
+              &lt;&lt; "gap opens:           " &lt;&lt; stats.numGapOpens &lt;&lt; "\n"
+              &lt;&lt; "gap extensions:      " &lt;&lt; stats.numGapExtensions &lt;&lt; "\n"
+              &lt;&lt; "num insertions:      " &lt;&lt; stats.numInsertions &lt;&lt; "\n"
+              &lt;&lt; "num deletions:       " &lt;&lt; stats.numDeletions &lt;&lt; "\n"
+              &lt;&lt; "num matches:         " &lt;&lt; stats.numMatches &lt;&lt; "\n"
+              &lt;&lt; "num mismatches:      " &lt;&lt; stats.numMismatches &lt;&lt; "\n"
+              &lt;&lt; "num positive scores: " &lt;&lt; stats.numPositiveScores &lt;&lt; "\n"
+              &lt;&lt; "num negative scores: " &lt;&lt; stats.numNegativeScores &lt;&lt; "\n"
+              &lt;&lt; "percent similarity:  " &lt;&lt; stats.alignmentSimilarity &lt;&lt; "\n"
+              &lt;&lt; "percent identity:    " &lt;&lt; stats.alignmentIdentity &lt;&lt; "\n";
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/align/compute_alignment_stats.cpp" target="_top">demos/dox/align/compute_alignment_stats.cpp</a></div></div><p>The output is as follows:</p><pre class="console" data-src-path="demos/dox/align/compute_alignment_stats.cpp.stdout">      0     .    :    .    :    .    :    .    :    .    : 
+        MGLSDGEWQLVLNVWGKVEADIPGHGQEVLIRLFKGHPETLEKFDKFKHL
+        | |   |       | |        | | | |||  || |   |  |   
+        MSLTKTERTIIVSMWAKISTQADTIGTETLERLFLSHPQTKTYFPHF---
+
+     50     .    :    .    :    .    :    .    :    .    : 
+        KSEDEMKASEDLKKHGATVLTALGGILKKKGHHEAEIKPLAQSHATKHKI
+           |    |  |  ||  |  | |   |           |   ||     
+        ---DLHPGSAQLRAHGSKVVAAVGDAVKSIDDIGGALSKLSELHAYILRV
+
+    100     .    :    .    :    .    :    .    :    .    
+        PVKYLEFISECIIQVLQSKHPGDFGADAQGAMNKALELFRKDMASNYK
+                | |    |    | || | |  |  | |    |     | 
+        DPVNFKLLSHCLLVTLAARFPADFTAEAHAAWDKFLSVTEK-----YR
+
+
+score:               159
+gap opens:           2
+gap extensions:      9
+num insertions:      11
+num deletions:       0
+num matches:         41
+num mismatches:      96
+num positive scores: 69
+num negative scores: 68
+percent similarity:  46.6216
+percent identity:    27.7027
+
+
+Clipping alignment to (5, 100)
+      0     .    :    .    :    .    :    .    :    .    : 
+        GEWQLVLNVWGKVEADIPGHGQEVLIRLFKGHPETLEKFDKFKHLKSEDE
+         |       | |        | | | |||  || |   |  |      | 
+        TERTIIVSMWAKISTQADTIGTETLERLFLSHPQTKTYFPHF------DL
+
+     50     .    :    .    :    .    :    .    :    . 
+        MKASEDLKKHGATVLTALGGILKKKGHHEAEIKPLAQSHATKHKI
+           |  |  ||  |  | |   |           |   ||     
+        HPGSAQLRAHGSKVVAAVGDAVKSIDDIGGALSKLSELHAYILRV
+
+
+score:               99
+gap opens:           1
+gap extensions:      5
+num insertions:      6
+num deletions:       0
+num matches:         26
+num mismatches:      63
+num positive scores: 43
+num negative scores: 46
+percent similarity:  45.2632
+percent identity:    27.3684
+</pre></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="class_AlignmentStats.html" data-lang-entity="class">AlignmentStats</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn computeAlignmentStats
+ * 
+ * @headerfile &lt;seqan/align.h&gt;
+ * 
+ * @brief Compute alignment statistics.
+ * 
+ * @signature TScoreVal computeAlignmentStats(stats, align, scoringScheme);
+ * @signature TScoreVal computeAlignmentStats(stats, row0, row1, scoringScheme);
+ * 
+ * @param[out] stats The @link AlignmentStats @endlink object to store alignment
+ *                   statistics in.
+ * @param[in] align The @link Align @endlink object to score.
+ * @param[in] row0 The first row (@link Gaps @endlink object).
+ * @param[in] row1 The second row (@link Gaps @endlink object).
+ * @param[in] score The @link Score @endlink object to use for the scoring
+ *                  scheme.
+ * 
+ * @return TScoreVal The score value of the alignment, of the same type as the
+ *                   value type of &lt;tt&gt;scoringScheme&lt;/tt&gt;
+ * 
+ * @section Examples
+ * 
+ * @include demos/dox/align/compute_alignment_stats.cpp
+ * 
+ * The output is as follows:
+ * 
+ * @include demos/dox/align/compute_alignment_stats.cpp.stdout
+ * 
+ * 
+ * 
+ * @see AlignmentStats
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

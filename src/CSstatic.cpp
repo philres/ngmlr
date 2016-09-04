@@ -1,10 +1,3 @@
-/*
- * CSstatic.cpp
- *
- *  Created on: Jan 30, 2014
- *      Author: philipp_
- */
-
 #include "CS.h"
 
 

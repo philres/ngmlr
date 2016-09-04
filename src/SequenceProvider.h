@@ -6,13 +6,9 @@
 
 #include "Types.h"
 #include "NGMThreads.h"
-
 #include "SequenceLocation.h"
 #include "MappedRead.h"
 
-/*
- *  SequenceProvider: Schnittstelle zu den Sequenz-Daten
- */
 class _SequenceProvider {
 public:
 	static _SequenceProvider & Instance();
@@ -69,16 +65,9 @@ private:
 	std::string refFileName;
 	std::string refBaseFileName;
 
-	uloc refFileLen;
-	uloc refCplFileLen;
-
-	uloc refBaseFileLen;
-
 	uloc binRefSize;
 
 	int refCount;
-
-	bool m_EnableBS;
 
 	uloc * refStartPos;
 

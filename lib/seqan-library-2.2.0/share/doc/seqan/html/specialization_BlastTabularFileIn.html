@@ -1,0 +1,995 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="specialization_blasttabularfilein" data-page="BlastTabularFileIn">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>BlastTabularFileIn - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#specialization">Spec</a>
+<span>BlastTabularFileIn<div><div>FormattedFileIn abstraction for <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a></div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+  <tr>
+    <th>Extends</th>
+    <td>
+      <a href="specialization_FormattedFileIn.html" data-lang-entity="specialization">FormattedFileIn</a>
+      
+    </td>
+  </tr>
+  
+
+  
+
+  
+  <tr>
+    <th>All Extended</dt>
+    <td>
+    <a href="class_FormattedFile.html" data-lang-entity="class">FormattedFile</a>, 
+    <a href="specialization_FormattedFileIn.html" data-lang-entity="specialization">FormattedFileIn</a>
+    
+    </td>
+  </tr>
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/blast.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>template &lt;typename TBlastIOContext&gt;
+using BlastTabularFileIn = FormattedFile&lt;BlastTabular, Input, TBlastIOContext&gt;;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+
+
+
+
+<h3 data-toc="hidden">Member Functions Inherited From <a href="class_FormattedFile.html" data-lang-entity="class">FormattedFile</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile::getFileExtensions" data-lang-entity="member_function">getFileExtensions</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile::operatorTDependentContext" data-lang-entity="member_function">operatorTDependentContext</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastTabularFileIn%23onRecord" title="#BlastTabularFileIn#onRecord (interface function)" data-lang-entity="interface_function">bool onRecord(blastTabularIn);</a></code></span>
+    <span class="summary_desc"><div>Returns whether the currently buffered line looks like the start of a record.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastTabularFileIn%23readFooter" title="#BlastTabularFileIn#readFooter (interface function)" data-lang-entity="interface_function">void readFooter(blastTabularIn);</a></code></span>
+    <span class="summary_desc"><div>Read the footer (bottom-most section) of a BlastTabular file.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastTabularFileIn%23readHeader" title="#BlastTabularFileIn#readHeader (interface function)" data-lang-entity="interface_function">void readHeader(blastTabularIn);</a></code></span>
+    <span class="summary_desc"><div>Read the header (top-most section) of a BlastTabular file.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastTabularFileIn%23readRecord" title="#BlastTabularFileIn#readRecord (interface function)" data-lang-entity="interface_function">void readRecord(blastRecord, blastTabularIn);</a></code></span>
+    <span class="summary_desc"><div>Read a record from a file in BlastTabular format.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="class_FormattedFile.html" data-lang-entity="class">FormattedFile</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#atEnd" data-lang-entity="interface_function">atEnd</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#close" data-lang-entity="interface_function">close</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#context" data-lang-entity="interface_function">context</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#format" data-lang-entity="interface_function">format</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#FormattedFile" data-lang-entity="interface_function">FormattedFile</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#getFileExtensions" data-lang-entity="interface_function">getFileExtensions</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#guessFormat" data-lang-entity="interface_function">guessFormat</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#open" data-lang-entity="interface_function">open</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#setFormat" data-lang-entity="interface_function">setFormat</a></code></span></li>
+  
+</ul>
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="specialization_FormattedFileIn.html" data-lang-entity="specialization">FormattedFileIn</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="specialization_FormattedFileIn.html#FormattedFileIn#readHeader" data-lang-entity="interface_function">readHeader</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="specialization_FormattedFileIn.html#FormattedFileIn#readRecord" data-lang-entity="interface_function">readRecord</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+
+
+<div data-lang-entity-container="interface_metafunction">
+<h2 data-lang-entity="interface_metafunction">Interface  Metafunction Overview</h2>
+
+
+
+
+
+<h3 data-toc="hidden">Interface Metafunctions Inherited From <a href="class_FormattedFile.html" data-lang-entity="class">FormattedFile</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#FileFormat" data-lang-entity="interface_metafunction">FileFormat</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#FormattedFileContext" data-lang-entity="interface_metafunction">FormattedFileContext</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>This is a <a href="class_FormattedFile.html" data-lang-entity="class">FormattedFile</a> specialization for reading <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a> formats. For details
+on how to influence the reading of files and how to differentiate between the tabular format without comment lines
+and the one with comment lines, see <a href="class_BlastIOContext.html" data-lang-entity="class">BlastIOContext</a>.
+Please note that you have specify the type of the context as a template parameter to BlastTabularFileIn.</p><h3>Overview</h3><p><ul>
+<li> open <a href="specialization_BlastTabularFileIn.html" data-lang-entity="specialization">BlastTabularFileIn</a></li>
+<li> <a href="specialization_BlastTabularFileIn.html#BlastTabularFileIn#readHeader" data-lang-entity="interface_function">readHeader</a> </li>
+<li> while <a href="specialization_BlastTabularFileIn.html#BlastTabularFileIn#onRecord" data-lang-entity="interface_function">onRecord</a> </li>
+<ul><li> <a href="specialization_BlastTabularFileIn.html#BlastTabularFileIn#readRecord" data-lang-entity="interface_function">readRecord</a></li></ul>
+<li> <a href="specialization_BlastTabularFileIn.html#BlastTabularFileIn#readFooter" data-lang-entity="interface_function">readFooter</a> </li>
+</ul></p><p>For a detailed example have a look at the
+<a href="http://seqan.readthedocs.io/en/develop/Tutorial/BlastIO.html">Blast IO tutorial</a>.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="class_BlastRecord.html" data-lang-entity="class">BlastRecord</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="BlastTabularFileIn#onRecord" class="signature first" data-lang-entity="interface_function">
+      <code>bool onRecord(blastTabularIn);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns whether the currently buffered line looks like the start of a record.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastTabularIn</code>
+            
+        
+      </th>
+      <td>A <a href="specialization_BlastTabularFileIn.html" data-lang-entity="specialization">BlastTabularFileIn</a> formattedFile.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>bool</code></th>
+        <td>true or false</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  <h4>Thrown Exceptions</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>IOError</code></th>
+        <td>On low-level I/O errors.</td>
+    </tr>
+    
+    <tr>
+        <th><code>ParseError</code></th>
+        <td>On high-level file format errors.</td>
+    </tr>
+    
+  </table>
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastTabularFileIn#readFooter" class="signature" data-lang-entity="interface_function">
+      <code>void readFooter(blastTabularIn);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Read the footer (bottom-most section) of a BlastTabular file.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastTabularIn</code>
+            
+        
+      </th>
+      <td>A <a href="specialization_BlastTabularFileIn.html" data-lang-entity="specialization">BlastTabularFileIn</a> formattedFile.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  <h4>Thrown Exceptions</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>IOError</code></th>
+        <td>On low-level I/O errors.</td>
+    </tr>
+    
+    <tr>
+        <th><code>ParseError</code></th>
+        <td>On high-level file format errors.</td>
+    </tr>
+    
+  </table>
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastTabularFileIn#readHeader" class="signature" data-lang-entity="interface_function">
+      <code>void readHeader(blastTabularIn);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Read the header (top-most section) of a BlastTabular file.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastTabularIn</code>
+            
+        
+      </th>
+      <td>A <a href="specialization_BlastTabularFileIn.html" data-lang-entity="specialization">BlastTabularFileIn</a> formattedFile.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  <h4>Thrown Exceptions</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>IOError</code></th>
+        <td>On low-level I/O errors.</td>
+    </tr>
+    
+    <tr>
+        <th><code>ParseError</code></th>
+        <td>On high-level file format errors.</td>
+    </tr>
+    
+  </table>
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastTabularFileIn#readRecord" class="signature" data-lang-entity="interface_function">
+      <code>void readRecord(blastRecord, blastTabularIn);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Read a record from a file in BlastTabular format.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">blastRecord</code>
+            
+        
+      </th>
+      <td>A <a href="class_BlastRecord.html" data-lang-entity="class">BlastRecord</a> to hold all information related to one query sequence.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastTabularIn</code>
+            
+        
+      </th>
+      <td>A <a href="specialization_BlastTabularFileIn.html" data-lang-entity="specialization">BlastTabularFileIn</a> formattedFile.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>This function will read an entire record from a blast tabular file, i.e. it will read the comment lines
+(if the format is <a href="enum_BlastTabularSpec.html#BlastTabularSpec::COMMENTS">COMMENTS</a>) and 0-n <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>es belonging
+to one query.</p><p>Please note that if there are no comment lines in the file the boundary
+between records is inferred from the indentity of the first field, i.e.
+non-standard field configurations must also have Q_SEQ_ID as their first <a href="class_BlastMatchField.html" data-lang-entity="class">BlastMatchField</a>.</p><h5>Comment lines</h5><p>The <a href="class_BlastRecord.html#BlastRecord::qId" data-lang-entity="member_variable">qId</a> member of the record is read from the comment lines and the
+<a href="class_BlastRecord.html#BlastRecord::matches" data-lang-entity="member_variable">matches</a> are resized to the expected number of matches succeeding the comments.</p><p>This function also sets many properties of blastTabularIn's <a href="class_BlastIOContext.html" data-lang-entity="class">BlastIOContext</a>, including these members:
+<li> <a href="class_BlastIOContext.html#BlastIOContext::versionString" data-lang-entity="member_variable">versionString</a>: version string of the program.</li>
+<li> <a href="class_BlastIOContext.html#BlastIOContext::dbName" data-lang-entity="member_variable">dbName</a>: name of the database.</li>
+<li> <a href="class_BlastIOContext.html#BlastIOContext::fields" data-lang-entity="member_variable">fields</a>: descriptors for the columns.</li>
+<li> <a href="class_BlastIOContext.html#BlastIOContext::fieldsAsStrings" data-lang-entity="member_variable">fieldsAsStrings</a>: labels of the columns
+as they appear in the file.</li>
+<li> <a href="class_BlastIOContext.html#BlastIOContext::conformancyErrors" data-lang-entity="member_variable">conformancyErrors</a>: if this StringSet is not empty, then there are issues in the
+comments.</li>
+<li> <a href="class_BlastIOContext.html#BlastIOContext::otherLines" data-lang-entity="member_variable">otherLines</a>: any lines that cannot be interpreted; these always also imply
+conformancyErrors.</li>
+<li><a href="class_BlastIOContext.html#BlastIOContext::legacyFormat" data-lang-entity="member_variable">legacyFormat</a>: whether the record (and likely the entire file) is in
+legacyFormat.</li></p><p>It also sets the blast program run-time parameter of the context depending on the information found in the comments. If
+the compile time parameter was set on the context and they are different this will result in a critical error.</p><p>Please note that for <a href="class_BlastIOContext.html#BlastIOContext::legacyFormat" data-lang-entity="member_variable">legacyFormat</a> the <a href="class_BlastIOContext.html#BlastIOContext::fields" data-lang-entity="member_variable">fields</a> member
+is always ignored, however <a href="class_BlastIOContext.html#BlastIOContext::fieldsAsStrings" data-lang-entity="member_variable">fieldsAsStrings</a> is still read from the comments, in case
+you want to process it.</p><p>In case you do not wish the <a href="class_BlastIOContext.html#BlastIOContext::fields" data-lang-entity="member_variable">fields</a> to be read from the comments, you can set
+context.<a href="class_BlastIOContext.html#BlastIOContext::ignoreFieldsInComments" data-lang-entity="member_variable">ignoreFieldsInComments</a> to true. This will be prevent it from being read and will
+allow you to specify it manually which might be relevant for reading the match lines.</p><p>If the format is <a href="enum_BlastTabularSpec.html#BlastTabularSpec::NO_COMMENTS">NO_COMMENTS</a> none of the above happens and
+<a href="class_BlastRecord.html#BlastRecord::qId" data-lang-entity="member_variable">qId</a> is derived from the first match.</p><h5>Matches</h5><p>A match line contains 1 - n columns or fields, 12 by default.
+The <a href="class_BlastIOContext.html#BlastIOContext::fields" data-lang-entity="member_variable">fields</a> member of the context is considered when reading these fields. It is
+usually extracted from the comment lines but can also be set by yourself if there are no comments or if you want
+to overwrite the comments' information (see above).
+You may specify less
+fields than are actually present, in this case the additional fields will be
+discarded. The parameter is ignored if <a href="class_BlastIOContext.html#BlastIOContext::legacyFormat" data-lang-entity="member_variable">legacyFormat</a> is set.</p><p>To differentiate between members of a <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a> that were read from the file and those that have
+not been set (e.g. both could be 0), the latter are initialized to their respective max-values.</p><p>Please note that the only transformations made to the data are the following:</p><p><li> computation of the number of identities (from the percentage) [default]</li>
+<li> computation of the number of positives (from the percentage) [if given]</li>
+<li> number of gaps computed from other values [default]</li></p><p>In contrast to <a href="specialization_BlastTabularFileOut.html#BlastTabularFileOut#writeRecord" data-lang-entity="interface_function">writeRecord</a> no other transformations
+are made, e.g. the positions are still one-indexed and
+flipped for reverse strand matches. This is due to the required fields for
+retransformation (sequence lengths, frames) not being available in the
+default columns.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  <h4>Thrown Exceptions</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>IOError</code></th>
+        <td>On low-level I/O errors.</td>
+    </tr>
+    
+    <tr>
+        <th><code>ParseError</code></th>
+        <td>On high-level file format errors.</td>
+    </tr>
+    
+  </table>
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class BlastTabularFileIn
+ * 
+ * @extends FormattedFileIn
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief FormattedFileIn abstraction for @link BlastTabular @endlink
+ * 
+ * @signature template &lt;typename TBlastIOContext&gt; using BlastTabularFileIn =
+ *            FormattedFile&lt;BlastTabular, Input, TBlastIOContext&gt;;
+ * 
+ * This is a @link FormattedFile @endlink specialization for reading @link
+ * BlastTabular @endlink formats. For details on how to influence the reading of
+ * files and how to differentiate between the tabular format without comment
+ * lines and the one with comment lines, see @link BlastIOContext @endlink.
+ * Please note that you have specify the type of the context as a template
+ * parameter to BlastTabularFileIn.
+ * 
+ * @section Overview
+ * 
+ * &lt;ul&gt; &lt;li&gt; open @link BlastTabularFileIn @endlink&lt;/li&gt; &lt;li&gt; @link
+ * BlastTabularFileIn#readHeader @endlink &lt;/li&gt; &lt;li&gt; while @link
+ * BlastTabularFileIn#onRecord @endlink &lt;/li&gt; &lt;ul&gt;&lt;li&gt; @link
+ * BlastTabularFileIn#readRecord @endlink&lt;/li&gt;&lt;/ul&gt; &lt;li&gt; @link
+ * BlastTabularFileIn#readFooter @endlink &lt;/li&gt; &lt;/ul&gt;
+ * 
+ * For a detailed example have a look at the &lt;a
+ * href=&#34;http://seqan.readthedocs.io/en/develop/Tutorial/BlastIO.html&#34;&gt;Blast IO
+ * tutorial&lt;/a&gt;.
+ * 
+ * @see BlastRecord
+ * 
+ * @fn BlastTabularFileIn#onRecord
+ * 
+ * @headerfile seqan/blast.h
+ * 
+ * @brief Returns whether the currently buffered line looks like the start of a
+ *        record.
+ * 
+ * @signature bool onRecord(blastTabularIn);
+ * 
+ * @param[in,out] blastTabularIn A @link BlastTabularFileIn @endlink
+ *                               formattedFile.
+ * 
+ * @return bool true or false
+ * 
+ * @throw IOError On low-level I/O errors.
+ * @throw ParseError On high-level file format errors.
+ * 
+ * @fn BlastTabularFileIn#readRecord
+ * 
+ * @headerfile seqan/blast.h
+ * 
+ * @brief Read a record from a file in BlastTabular format.
+ * 
+ * @signature void readRecord(blastRecord, blastTabularIn);
+ * 
+ * @param[out] blastRecord A @link BlastRecord @endlink to hold all information
+ *                         related to one query sequence.
+ * @param[in,out] blastTabularIn A @link BlastTabularFileIn @endlink
+ *                               formattedFile.
+ * 
+ * @throw IOError On low-level I/O errors.
+ * @throw ParseError On high-level file format errors.
+ * 
+ * @section Remarks
+ * 
+ * This function will read an entire record from a blast tabular file, i.e. it
+ * will read the comment lines (if the format is @link
+ * BlastTabularSpec::COMMENTS @endlink) and 0-n @link BlastMatch @endlinkes
+ * belonging to one query.
+ * 
+ * Please note that if there are no comment lines in the file the boundary
+ * between records is inferred from the indentity of the first field, i.e. non-
+ * standard field configurations must also have Q_SEQ_ID as their first @link
+ * BlastMatchField @endlink.
+ * 
+ * @subsection Comment lines
+ * 
+ * The @link BlastRecord::qId @endlink member of the record is read from the
+ * comment lines and the @link BlastRecord::matches @endlink are resized to the
+ * expected number of matches succeeding the comments.
+ * 
+ * This function also sets many properties of blastTabularIn&#39;s @link
+ * BlastIOContext @endlink, including these members: &lt;li&gt; @link
+ * BlastIOContext::versionString @endlink: version string of the program.&lt;/li&gt;
+ * &lt;li&gt; @link BlastIOContext::dbName @endlink: name of the database.&lt;/li&gt; &lt;li&gt;
+ * @link BlastIOContext::fields @endlink: descriptors for the columns.&lt;/li&gt; &lt;li&gt;
+ * @link BlastIOContext::fieldsAsStrings @endlink: labels of the columns as they
+ * appear in the file.&lt;/li&gt; &lt;li&gt; @link BlastIOContext::conformancyErrors
+ * @endlink: if this StringSet is not empty, then there are issues in the
+ * comments.&lt;/li&gt; &lt;li&gt; @link BlastIOContext::otherLines @endlink: any lines that
+ * cannot be interpreted; these always also imply conformancyErrors.&lt;/li&gt;
+ * &lt;li&gt;@link BlastIOContext::legacyFormat @endlink: whether the record (and
+ * likely the entire file) is in legacyFormat.&lt;/li&gt;
+ * 
+ * It also sets the blast program run-time parameter of the context depending on
+ * the information found in the comments. If the compile time parameter was set
+ * on the context and they are different this will result in a critical error.
+ * 
+ * Please note that for @link BlastIOContext::legacyFormat @endlink the @link
+ * BlastIOContext::fields @endlink member is always ignored, however @link
+ * BlastIOContext::fieldsAsStrings @endlink is still read from the comments, in
+ * case you want to process it.
+ * 
+ * In case you do not wish the @link BlastIOContext::fields @endlink to be read
+ * from the comments, you can set context.@link
+ * BlastIOContext::ignoreFieldsInComments @endlink to true. This will be prevent
+ * it from being read and will allow you to specify it manually which might be
+ * relevant for reading the match lines.
+ * 
+ * If the format is @link BlastTabularSpec::NO_COMMENTS @endlink none of the
+ * above happens and @link BlastRecord::qId @endlink is derived from the first
+ * match.
+ * 
+ * @subsection Matches
+ * 
+ * A match line contains 1 - n columns or fields, 12 by default. The @link
+ * BlastIOContext::fields @endlink member of the context is considered when
+ * reading these fields. It is usually extracted from the comment lines but can
+ * also be set by yourself if there are no comments or if you want to overwrite
+ * the comments&#39; information (see above). You may specify less fields than are
+ * actually present, in this case the additional fields will be discarded. The
+ * parameter is ignored if @link BlastIOContext::legacyFormat @endlink is set.
+ * 
+ * To differentiate between members of a @link BlastMatch @endlink that were
+ * read from the file and those that have not been set (e.g. both could be 0),
+ * the latter are initialized to their respective max-values.
+ * 
+ * Please note that the only transformations made to the data are the following:
+ * 
+ * &lt;li&gt; computation of the number of identities (from the percentage)
+ * [default]&lt;/li&gt; &lt;li&gt; computation of the number of positives (from the
+ * percentage) [if given]&lt;/li&gt; &lt;li&gt; number of gaps computed from other values
+ * [default]&lt;/li&gt;
+ * 
+ * In contrast to @link BlastTabularFileOut#writeRecord @endlink no other
+ * transformations are made, e.g. the positions are still one-indexed and
+ * flipped for reverse strand matches. This is due to the required fields for
+ * retransformation (sequence lengths, frames) not being available in the
+ * default columns.
+ * 
+ * @fn BlastTabularFileIn#readHeader
+ * 
+ * @headerfile seqan/blast.h
+ * 
+ * @brief Read the header (top-most section) of a BlastTabular file.
+ * 
+ * @signature void readHeader(blastTabularIn);
+ * 
+ * @param[in,out] blastTabularIn A @link BlastTabularFileIn @endlink
+ *                               formattedFile.
+ * 
+ * @throw IOError On low-level I/O errors.
+ * @throw ParseError On high-level file format errors.
+ * 
+ * @fn BlastTabularFileIn#readFooter
+ * 
+ * @headerfile seqan/blast.h
+ * 
+ * @brief Read the footer (bottom-most section) of a BlastTabular file.
+ * 
+ * @signature void readFooter(blastTabularIn);
+ * 
+ * @param[in,out] blastTabularIn A @link BlastTabularFileIn @endlink
+ *                               formattedFile.
+ * 
+ * @throw IOError On low-level I/O errors.
+ * @throw ParseError On high-level file format errors.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_metafunction_is" data-page="Is">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Is - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="metafunction" data-pimped="true">
+  <a href="page_LanguageEntities.html#metafunction">Fn<></a> <span>Is<div><div>Returns whether a concept is fulfilled.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/basic.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>Is&lt;TConcept&gt;::Type
+Is&lt;TConcept&gt;::VALUE
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+
+
+<!-- @tparam -->
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>TConcept</code></th>
+        <td>A concept that is specialized with type(s) that should be
+tested for fulfilling the concept.</td>
+    </tr>
+
+</table>
+
+</div>
+
+
+
+<!-- @returns -->
+
+
+<h2>Return Values</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>Type</code></th>
+        <td><a href="group_LogicalValuesTags.html#LogicalValuesTags#True" data-lang-entity="grouped_tag">True</a>/<tt>true</tt> if
+<tt>TConcept</tt> is a fulfilled concept, otherwise <a href="group_LogicalValuesTags.html#LogicalValuesTags#False" data-lang-entity="grouped_tag">False</a>/<tt>false</tt>.</td>
+    </tr>
+
+</table>
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>The <a href="global_metafunction_Is.html" data-lang-entity="global_metafunction">Is</a>-metafunction can be used to test types for fulfilling a concept without causing compilation
+errors. If <tt>True</tt> or <tt>true</tt> is returned, <tt>TConcept</tt> must pass the concept test via <a href="group_ConceptChecking.html#ConceptChecking#SEQAN_CONCEPT_ASSERT" data-lang-entity="grouped_macro">SEQAN_CONCEPT_ASSERT</a>. It can be used to switch between different implementations
+depending on the concept of a type, or in combination with <a href="group_EnableIfFunctionality.html#EnableIfFunctionality#SEQAN_FUNC_ENABLE_IF" data-lang-entity="grouped_macro">SEQAN_FUNC_ENABLE_IF</a> to make a function only visible to types of certain concepts.</p><h3>Examples</h3><div data-src-path="None"><pre class="code">Is&lt;StringConcept&lt;TSeq&gt; &gt;::Type
+IfC&lt;Is&lt;ContainerConcept&lt;TSeq&gt; &gt;::VALUE, T1, T2&gt;::Type
+
+std::cout &lt;&lt; Is&lt;IntegerConcept&lt;int&gt; &gt;::VALUE &lt;&lt; std::endl;     // 1
+std::cout &lt;&lt; Is&lt;IntegerConcept&lt;double&gt; &gt;::VALUE &lt;&lt; std::endl;  // 0</pre></div><p>Define a hierarchy of concepts and two models <tt>Alice</tt> and <tt>Bob</tt>
+that implements some of them. <a href="global_metafunction_Is.html" data-lang-entity="global_metafunction">Is</a> determines which concepts are
+explicitly or implicitly fulfilled.</p><div data-src-path="None"><pre class="code">struct Alice {};
+struct Bob {};
+
+SEQAN_CONCEPT(ConceptA, (T)) {};
+SEQAN_CONCEPT(ConceptB, (T)) {};
+SEQAN_CONCEPT_REFINE(ConceptC, (T), (ConceptA)(ConceptB)) {};
+SEQAN_CONCEPT_REFINE(ConceptD, (T), (ConceptC)) {};
+
+template&lt;&gt;   // Alice has no template arguments
+SEQAN_CONCEPT_IMPL(Alice, (ConceptA)(ConceptB));
+
+template&lt;&gt;   // Bob has no template arguments
+SEQAN_CONCEPT_IMPL(Bob, (ConceptC));
+
+std::cout &lt;&lt; Is&lt; ConceptA&lt;Alice&gt; &gt;::VALUE &lt;&lt; std::endl; // 1
+std::cout &lt;&lt; Is&lt; ConceptB&lt;Alice&gt; &gt;::VALUE &lt;&lt; std::endl; // 1
+std::cout &lt;&lt; Is&lt; ConceptC&lt;Alice&gt; &gt;::VALUE &lt;&lt; std::endl; // 0
+std::cout &lt;&lt; Is&lt; ConceptD&lt;Alice&gt; &gt;::VALUE &lt;&lt; std::endl; // 0
+
+std::cout &lt;&lt; Is&lt; ConceptA&lt;Bob&gt; &gt;::VALUE &lt;&lt; std::endl;   // 1
+std::cout &lt;&lt; Is&lt; ConceptB&lt;Bob&gt; &gt;::VALUE &lt;&lt; std::endl;   // 1
+std::cout &lt;&lt; Is&lt; ConceptC&lt;Bob&gt; &gt;::VALUE &lt;&lt; std::endl;   // 1
+std::cout &lt;&lt; Is&lt; ConceptD&lt;Bob&gt; &gt;::VALUE &lt;&lt; std::endl;   // 0</pre></div></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="group_ConceptChecking.html#ConceptChecking#SEQAN_CONCEPT_ASSERT" data-lang-entity="grouped_macro">SEQAN_CONCEPT_ASSERT</a></li>
+  
+  <li><a href="group_EnableIfFunctionality.html#EnableIfFunctionality#SEQAN_FUNC_ENABLE_IF" data-lang-entity="grouped_macro">SEQAN_FUNC_ENABLE_IF</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @mfn Is
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Returns whether a concept is fulfilled.
+ * 
+ * @signature Is&lt;TConcept&gt;::Type
+ * @signature Is&lt;TConcept&gt;::VALUE
+ * 
+ * @tparam TConcept A concept that is specialized with type(s) that should be
+ *                  tested for fulfilling the concept.
+ * 
+ * @return Type @link LogicalValuesTags#True @endlink/&lt;tt&gt;true&lt;/tt&gt; if
+ *              &lt;tt&gt;TConcept&lt;/tt&gt; is a fulfilled concept, otherwise @link
+ *              LogicalValuesTags#False @endlink/&lt;tt&gt;false&lt;/tt&gt;.
+ * 
+ * The @link Is @endlink-metafunction can be used to test types for fulfilling a
+ * concept without causing compilation errors. If &lt;tt&gt;True&lt;/tt&gt; or &lt;tt&gt;true&lt;/tt&gt;
+ * is returned, &lt;tt&gt;TConcept&lt;/tt&gt; must pass the concept test via @link
+ * ConceptChecking#SEQAN_CONCEPT_ASSERT @endlink. It can be used to switch
+ * between different implementations depending on the concept of a type, or in
+ * combination with @link EnableIfFunctionality#SEQAN_FUNC_ENABLE_IF @endlink to
+ * make a function only visible to types of certain concepts.
+ * 
+ * @section Examples
+ * 
+ * @code{.cpp}
+ * Is&lt;StringConcept&lt;TSeq&gt; &gt;::Type
+ * IfC&lt;Is&lt;ContainerConcept&lt;TSeq&gt; &gt;::VALUE, T1, T2&gt;::Type
+ * 
+ * std::cout &lt;&lt; Is&lt;IntegerConcept&lt;int&gt; &gt;::VALUE &lt;&lt; std::endl;     // 1
+ * std::cout &lt;&lt; Is&lt;IntegerConcept&lt;double&gt; &gt;::VALUE &lt;&lt; std::endl;  // 0
+ * @endcode
+ *  Define a hierarchy of concepts and two models &lt;tt&gt;Alice&lt;/tt&gt; and
+ * &lt;tt&gt;Bob&lt;/tt&gt; that implements some of them. @link Is @endlink determines which
+ * concepts are explicitly or implicitly fulfilled.
+ * 
+ * @code{.cpp}
+ * struct Alice {};
+ * struct Bob {};
+ * 
+ * SEQAN_CONCEPT(ConceptA, (T)) {};
+ * SEQAN_CONCEPT(ConceptB, (T)) {};
+ * SEQAN_CONCEPT_REFINE(ConceptC, (T), (ConceptA)(ConceptB)) {};
+ * SEQAN_CONCEPT_REFINE(ConceptD, (T), (ConceptC)) {};
+ * 
+ * template&lt;&gt;   // Alice has no template arguments
+ * SEQAN_CONCEPT_IMPL(Alice, (ConceptA)(ConceptB));
+ * 
+ * template&lt;&gt;   // Bob has no template arguments
+ * SEQAN_CONCEPT_IMPL(Bob, (ConceptC));
+ * 
+ * std::cout &lt;&lt; Is&lt; ConceptA&lt;Alice&gt; &gt;::VALUE &lt;&lt; std::endl; // 1
+ * std::cout &lt;&lt; Is&lt; ConceptB&lt;Alice&gt; &gt;::VALUE &lt;&lt; std::endl; // 1
+ * std::cout &lt;&lt; Is&lt; ConceptC&lt;Alice&gt; &gt;::VALUE &lt;&lt; std::endl; // 0
+ * std::cout &lt;&lt; Is&lt; ConceptD&lt;Alice&gt; &gt;::VALUE &lt;&lt; std::endl; // 0
+ * 
+ * std::cout &lt;&lt; Is&lt; ConceptA&lt;Bob&gt; &gt;::VALUE &lt;&lt; std::endl;   // 1
+ * std::cout &lt;&lt; Is&lt; ConceptB&lt;Bob&gt; &gt;::VALUE &lt;&lt; std::endl;   // 1
+ * std::cout &lt;&lt; Is&lt; ConceptC&lt;Bob&gt; &gt;::VALUE &lt;&lt; std::endl;   // 1
+ * std::cout &lt;&lt; Is&lt; ConceptD&lt;Bob&gt; &gt;::VALUE &lt;&lt; std::endl;   // 0
+ * @endcode
+ * 
+ * 
+ * @see EnableIfFunctionality#SEQAN_FUNC_ENABLE_IF
+ * @see ConceptChecking#SEQAN_CONCEPT_ASSERT
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

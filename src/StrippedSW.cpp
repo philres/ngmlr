@@ -1,15 +1,9 @@
-/*
- * EndToEndAffine.cpp
- *
- *  Created on: Oct 22, 2013
- *      Author: philipp_
- */
-
 #include "StrippedSW.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+
 #include "ssw.h"
 
 //	Print the BLAST like output.
@@ -192,6 +186,7 @@ int StrippedSW::SingleScore(int const mode, int const corridor,
 	align_destroy(result);
 	init_destroy(profile);
 
+	return 1;
 }
 
 int StrippedSW::SingleAlign(int const mode, int const corridor,

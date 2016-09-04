@@ -1,0 +1,477 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="concept_equalitycomparableconcept" data-page="EqualityComparableConcept">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>EqualityComparableConcept - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="concept" data-pimped="true">
+  <a href="page_LanguageEntities.html#concept">Concept</a> <span>EqualityComparableConcept<div><div>A type that can be equality compared.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+  <tr>
+    <th>All Subcl's</dt>
+    <td>
+    <a href="concept_BidirectionalIteratorConcept.html" data-lang-entity="concept">BidirectionalIteratorConcept</a>, 
+    <a href="concept_ComparableConcept.html" data-lang-entity="concept">ComparableConcept</a>, 
+    <a href="concept_FiniteOrderedAlphabetConcept.html" data-lang-entity="concept">FiniteOrderedAlphabetConcept</a>, 
+    <a href="concept_ForwardIteratorConcept.html" data-lang-entity="concept">ForwardIteratorConcept</a>, 
+    <a href="concept_InputIteratorConcept.html" data-lang-entity="concept">InputIteratorConcept</a>, 
+    <a href="concept_IntegerConcept.html" data-lang-entity="concept">IntegerConcept</a>, 
+    <a href="concept_MutableBidirectionalIteratorConcept.html" data-lang-entity="concept">MutableBidirectionalIteratorConcept</a>, 
+    <a href="concept_MutableForwardIteratorConcept.html" data-lang-entity="concept">MutableForwardIteratorConcept</a>, 
+    <a href="concept_MutableRandomAccessIteratorConcept.html" data-lang-entity="concept">MutableRandomAccessIteratorConcept</a>, 
+    <a href="concept_MutableRootedIteratorConcept.html" data-lang-entity="concept">MutableRootedIteratorConcept</a>, 
+    <a href="concept_MutableRootedRandomAccessIteratorConcept.html" data-lang-entity="concept">MutableRootedRandomAccessIteratorConcept</a>, 
+    <a href="concept_OrderedAlphabetConcept.html" data-lang-entity="concept">OrderedAlphabetConcept</a>, 
+    <a href="concept_RandomAccessIteratorConcept.html" data-lang-entity="concept">RandomAccessIteratorConcept</a>, 
+    <a href="concept_RootedIteratorConcept.html" data-lang-entity="concept">RootedIteratorConcept</a>, 
+    <a href="concept_RootedRandomAccessIteratorConcept.html" data-lang-entity="concept">RootedRandomAccessIteratorConcept</a>, 
+    <a href="concept_SignedIntegerConcept.html" data-lang-entity="concept">SignedIntegerConcept</a>, 
+    <a href="concept_UnsignedIntegerConcept.html" data-lang-entity="concept">UnsignedIntegerConcept</a>
+    
+    </td>
+  </tr>
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/basic.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>EqualityComparable&lt;T&gt;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><h3>Remarks</h3><p>Expects instances of type <tt>T</tt> to be comparable via <tt>operator==</tt>
+and <tt>operator!=</tt>. Comparison operators must return boolean convertible
+values. <tt>operator==</tt> must be an equivalence relation.</p><h3>Examples</h3><p>Valid expressions:</p><div data-src-path="None"><pre class="code">a == b;
+a != b;</pre></div><p>Invariants:</p><p><ul>
+<li><tt>(a == a)</tt> (reflexivity)</li>
+<li><tt>(a == b)</tt> =&gt; <tt> (b == a)</tt> (symmetry)</li>
+<li> <tt>(a == b) &amp;&amp;(b == c)</tt> =&gt; <tt>(a == c)</tt> (transitivity)</li>
+</ul></p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="concept_ComparableConcept.html" data-lang-entity="concept">ComparableConcept</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#EqualityComparableConcept%3A%3Aoperator%21%3D" title="#EqualityComparableConcept::operator!= (interface function)" data-lang-entity="member_function">bool T::operator!=(T const & other) const;</a></code></span>
+    <span class="summary_desc"><div>Operator to compare for inequality.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#EqualityComparableConcept%3A%3Aoperator%3D%3D" title="#EqualityComparableConcept::operator== (interface function)" data-lang-entity="member_function">bool T::operator==(T const & other) const;</a></code></span>
+    <span class="summary_desc"><div>Operator to compare for equality.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+ 
+
+
+<!-- Interface Metafunctions Overview -->
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+<div class="member_function_details" data-lang-entity-container="member_function">
+  <h2 data-lang-entity="member_function">Member Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="EqualityComparableConcept::operator!=" class="signature first" data-lang-entity="member_function">
+      <code>bool T::operator!=(T const & other) const;</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Operator to compare for inequality.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>The inequality operator can be implemented as a member or as a global function.</p><p>Usually, the inequality operator is implemented as <tt>!operator==(a, b)</tt>.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  <h4>See Also</h4>
+  <ul>
+    
+    <li><a href="concept_EqualityComparableConcept.html#EqualityComparableConcept::operator==" data-lang-entity="member_function">operator==</a></li>
+    
+  </ul>
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="EqualityComparableConcept::operator==" class="signature" data-lang-entity="member_function">
+      <code>bool T::operator==(T const & other) const;</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Operator to compare for equality.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>The equality operator can be implemented as a member or as a global function.</p><p>Usually, there is an implementation of <tt>operator==()</tt> for custom data
+types and then <tt>operator!=()</tt> uses <tt>operator==()</tt>.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  <h4>See Also</h4>
+  <ul>
+    
+    <li><a href="concept_EqualityComparableConcept.html#EqualityComparableConcept::operator==" data-lang-entity="member_function">operator==</a></li>
+    
+  </ul>
+  
+  
+
+</div>
+
+
+
+
+<!-- Interface Functions Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @concept EqualityComparableConcept
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief A type that can be equality compared.
+ * 
+ * @signature EqualityComparable&lt;T&gt;
+ * 
+ * @section Remarks
+ * 
+ * Expects instances of type &lt;tt&gt;T&lt;/tt&gt; to be comparable via &lt;tt&gt;operator==&lt;/tt&gt;
+ * and &lt;tt&gt;operator!=&lt;/tt&gt;. Comparison operators must return boolean convertible
+ * values. &lt;tt&gt;operator==&lt;/tt&gt; must be an equivalence relation.
+ * 
+ * @section Examples
+ * 
+ * Valid expressions:
+ * 
+ * @code{.cpp}
+ * a == b;
+ * a != b;
+ * @endcode
+ * 
+ * 
+ * Invariants:
+ * 
+ * &lt;ul&gt; &lt;li&gt;&lt;tt&gt;(a == a)&lt;/tt&gt; (reflexivity)&lt;/li&gt; &lt;li&gt;&lt;tt&gt;(a == b)&lt;/tt&gt; =&gt; &lt;tt&gt;
+ * (b == a)&lt;/tt&gt; (symmetry)&lt;/li&gt; &lt;li&gt; &lt;tt&gt;(a == b) &amp;amp;&amp;amp;(b == c)&lt;/tt&gt; =&gt;
+ * &lt;tt&gt;(a == c)&lt;/tt&gt; (transitivity)&lt;/li&gt; &lt;/ul&gt;
+ * 
+ * @see ComparableConcept
+ * 
+ * @fn EqualityComparableConcept::operator==
+ * 
+ * @brief Operator to compare for equality.
+ * 
+ * @signature bool T::operator==(T const &amp; other) const;
+ * 
+ * The equality operator can be implemented as a member or as a global function.
+ * 
+ * Usually, there is an implementation of &lt;tt&gt;operator==()&lt;/tt&gt; for custom data
+ * types and then &lt;tt&gt;operator!=()&lt;/tt&gt; uses &lt;tt&gt;operator==()&lt;/tt&gt;.
+ * 
+ * @see EqualityComparableConcept::operator==
+ * 
+ * @fn EqualityComparableConcept::operator!=
+ * 
+ * @brief Operator to compare for inequality.
+ * 
+ * @signature bool T::operator!=(T const &amp; other) const;
+ * 
+ * The inequality operator can be implemented as a member or as a global
+ * function.
+ * 
+ * Usually, the inequality operator is implemented as &lt;tt&gt;!operator==(a,
+ * b)&lt;/tt&gt;.
+ * 
+ * @see EqualityComparableConcept::operator==
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

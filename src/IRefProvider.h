@@ -16,6 +16,8 @@ struct RefEntry {
 	//static int MaxRefsPerEntry; //UNUSED
 
 	RefEntry(int locs = 0) {
+		ref = 0;
+		offset = 0;
 		reverse = false;
 		weight = 0.0f;
 		refCount = 0;

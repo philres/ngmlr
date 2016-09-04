@@ -15,12 +15,12 @@ volatile int LocationScore::sInstanceCount = 0;
 //volatile int Align::sInstanceCount = 0;
 
 MappedRead::MappedRead(int const readid, int const qrymaxlen) :
-		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), numTopScores(1), Scores(
-				0), Alignments(0), iScores(0), Paired(0), Status(0), mappingQlty(
-				255), s(0), length(0), RevSeq(0), Seq(0), qlty(0), name(0), AdditionalInfo(
+		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), Scores(
+				0), Alignments(0), iScores(0), Status(0), mappingQlty(
+				255), s(0), length(0), RevSeq(0), Seq(0), qlty(0), name(0), group(0), AdditionalInfo(
 				0) {
 //#ifdef INSTANCE_COUNTING
-	AtomicInc(&sInstanceCount);
+//	AtomicInc(&sInstanceCount);
 //	maxSeqCount = std::max(sInstanceCount, maxSeqCount);
 //#endif
 

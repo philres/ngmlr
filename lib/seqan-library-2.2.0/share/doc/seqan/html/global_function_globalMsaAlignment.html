@@ -1,0 +1,272 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_globalmsaalignment" data-page="globalMsaAlignment">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>globalMsaAlignment - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>globalMsaAlignment<div><div>Compute a global multiple sequence alignment.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/graph_msa.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>void globalMsaAlignment(align, score);
+void globalMsaAlignment(gAlign, score[, options]);
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+<h2>Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">gAlign</code>
+            
+        
+        </th>
+        <td>An <a href="specialization_AlignmentGraph.html" data-lang-entity="specialization">AlignmentGraph</a> containing two or more sequences.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">align</code>
+            
+        
+        </th>
+        <td>A <a href="class_Align.html" data-lang-entity="class">Align</a> object with two or more sequences to align.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">score</code>
+            
+        
+        </th>
+        <td>The <a href="class_Score.html" data-lang-entity="class">Score</a> to use for computing the alignment.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">options</code>
+            
+        
+        </th>
+        <td>The <a href="class_MsaOptions.html" data-lang-entity="class">MsaOptions</a> to use for the configuration.</td>
+    </tr>
+
+</table>
+
+
+
+
+<!-- @tparam -->
+
+
+
+
+
+<!-- @returns -->
+
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>The resulting alignment is stored in <tt>align</tt>/<tt>gAlign</tt>.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn globalMsaAlignment
+ * 
+ * @headerfile &lt;seqan/graph_msa.h&gt;
+ * 
+ * @brief Compute a global multiple sequence alignment.
+ * 
+ * @signature void globalMsaAlignment(align, score);
+ * @signature void globalMsaAlignment(gAlign, score[, options]);
+ * 
+ * @param[in,out] gAlign An @link AlignmentGraph @endlink containing two or more
+ *                       sequences.
+ * @param[in,out] align A @link Align @endlink object with two or more sequences
+ *                      to align.
+ * @param[in] score The @link Score @endlink to use for computing the alignment.
+ * @param[in] options The @link MsaOptions @endlink to use for the
+ *                    configuration.
+ * 
+ * The resulting alignment is stored in &lt;tt&gt;align&lt;/tt&gt;/&lt;tt&gt;gAlign&lt;/tt&gt;.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

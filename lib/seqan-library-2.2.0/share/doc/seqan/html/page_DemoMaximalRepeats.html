@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="page_demomaximalrepeats" data-page="DemoMaximalRepeats">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Maximal Repeats - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<div id="filecontents">
+<h1 data-lang-entity="page" data-pimped="true">
+  <a href="page_LanguageEntities.html#page">Page</a> <span>Maximal Repeats</span>
+</h1>
+
+<div class="docstring">
+  <div class="discussion">
+    <!-- @brief -->
+    <div>Example for using the <a href="specialization_MaxRepeatsIterator.html" data-lang-entity="specialization">MaxRepeatsIterator</a>.</div>
+    
+    <!-- paragraphs -->
+    
+<div><p>Given a sequences, a repeat is a substring that occurs at at least 2 different positions.
+A maximal repeat is a repeat that cannot be extended to the left or to right to a longer repeat. The following
+example demonstrates how to iterate over all maximal repeats and output them.</p><div data-src-path="demos/dox/index/maxrepeats.cpp"><pre class="code">#include &lt;iostream&gt;
+#include &lt;seqan/index.h&gt;
+
+using namespace seqan;
+</pre><div class="path_label"><span class="label">Snippet from:</span> <a href="demos/dox/index/maxrepeats.cpp" target="_top">demos/dox/index/maxrepeats.cpp</a></div></div><p>We begin with a @Class.String@ to store our sequence. Then we create an @Class.Index@ of this <a href="class_StringSet.html" data-lang-entity="class">StringSet</a>.</p><p>Afterwards we initialize a string with the sequence and build an index over it</p><div data-src-path="demos/dox/index/maxrepeats.cpp"><pre class="code">int main()
+{
+
+    String&lt;char&gt; myString = "How many wood would a woodchuck chuck.";
+
+    typedef Index&lt;String&lt;char&gt; &gt; TMyIndex;
+    TMyIndex myIndex(myString);
+</pre><div class="path_label"><span class="label">Snippet from:</span> <a href="demos/dox/index/maxrepeats.cpp" target="_top">demos/dox/index/maxrepeats.cpp</a></div></div><p>To find maximal repeats, we use SeqAn's <a href="specialization_MaxRepeatsIterator.html" data-lang-entity="specialization">MaxRepeatsIterator</a> and set the minimum repeat length to 3.</p><div data-src-path="demos/dox/index/maxrepeats.cpp"><pre class="code">    typedef Iterator&lt;TMyIndex, MaxRepeats&gt;::Type TMaxRepeatIterator;
+    TMaxRepeatIterator myRepeatIterator(myIndex, 3);
+
+    while (!atEnd(myRepeatIterator))
+    {
+        Iterator&lt;TMaxRepeatIterator&gt;::Type myRepeatPair(myRepeatIterator);
+        while (!atEnd(myRepeatPair))
+        {
+            std::cout &lt;&lt; *myRepeatPair &lt;&lt; ", ";
+            ++myRepeatPair;
+        }
+
+        std::cout &lt;&lt; repLength(myRepeatIterator) &lt;&lt; "   ";
+        std::cout &lt;&lt; "\t\"" &lt;&lt; representative(myRepeatIterator) &lt;&lt; '\"' &lt;&lt; std::endl;
+
+        ++myRepeatIterator;
+    }
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Snippet from:</span> <a href="demos/dox/index/maxrepeats.cpp" target="_top">demos/dox/index/maxrepeats.cpp</a></div></div><p>A repeat can be represented by its length and positions it occurs at.
+$myRepeatIterator$ iterates over all repeat strings.
+Please note that in contrast to supermaximal repeats, given a maximal repeat string,
+not all pairs of its occurrences are maximal repeats.
+So we need an iterator to iterate over all maximal pairs of this repeat string.
+The @Spec.MaxRepeats Iterator@ can be seen as a container and be iterated for itself.</p><pre class="console" data-src-path="None">weese@tanne:~/seqan$ cd ../build
+weese@tanne:~/build$ make demo_index_maxrepeats
+weese@tanne:~/build$ ./bin/demo_index_maxrepeats
+&lt; 8 , 21 &gt;, 5           " wood"
+&lt; 21 , 13 &gt;, &lt; 8 , 13 &gt;, 3      " wo"
+&lt; 26 , 32 &gt;, 5          "chuck"
+weese@tanne:~/seqan/demos$</pre></div>
+
+  </div>
+</div>
+
+<!-- @see -->
+
+</div>
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>@page DemoMaximalRepeats Maximal Repeats
+
+@brief Example for using the @link MaxRepeatsIterator @endlink.
+
+Given a sequences, a repeat is a substring that occurs at at least 2
+different positions. A maximal repeat is a repeat that cannot be extended to
+the left or to right to a longer repeat. The following example demonstrates
+how to iterate over all maximal repeats and output them.
+
+@snippet demos/dox/index/maxrepeats.cpp includes
+
+We begin with a @Class.String@ to store our sequence. Then we create an
+@Class.Index@ of this @link StringSet @endlink.
+
+Afterwards we initialize a string with the sequence and build an index over
+it
+
+@snippet demos/dox/index/maxrepeats.cpp init
+
+To find maximal repeats, we use SeqAn&#39;s @link MaxRepeatsIterator @endlink and
+set the minimum repeat length to 3.
+
+@snippet demos/dox/index/maxrepeats.cpp iteration
+
+A repeat can be represented by its length and positions it occurs at.
+$myRepeatIterator$ iterates over all repeat strings. Please note that in
+contrast to supermaximal repeats, given a maximal repeat string, not all
+pairs of its occurrences are maximal repeats. So we need an iterator to
+iterate over all maximal pairs of this repeat string. The @Spec.MaxRepeats
+Iterator@ can be seen as a container and be iterated for itself.
+
+@code{.console}
+weese@tanne:~/seqan$ cd ../build
+weese@tanne:~/build$ make demo_index_maxrepeats
+weese@tanne:~/build$ ./bin/demo_index_maxrepeats
+&lt; 8 , 21 &gt;, 5           &#34; wood&#34;
+&lt; 21 , 13 &gt;, &lt; 8 , 13 &gt;, 3      &#34; wo&#34;
+&lt; 26 , 32 &gt;, 5          &#34;chuck&#34;
+weese@tanne:~/seqan/demos$
+@endcode
+
+
+</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

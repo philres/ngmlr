@@ -1,0 +1,741 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_tabixindex" data-page="TabixIndex">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>TabixIndex - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>TabixIndex<div><div>Access to Tabix indexed files.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/tabix_io.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>class TabixIndex;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#TabixIndex%3A%3ATabixIndex" title="#TabixIndex::TabixIndex (interface function)" data-lang-entity="member_function">TabixIndex::TabixIndex();</a></code></span>
+    <span class="summary_desc"><div>Constructor.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#TabixIndex%23getUnalignedCount" title="#TabixIndex#getUnalignedCount (interface function)" data-lang-entity="interface_function">uint64_t getUnalignedCount(index);</a></code></span>
+    <span class="summary_desc"><div>Query index for number of unaligned reads.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#TabixIndex%23jumpToRegion" title="#TabixIndex#jumpToRegion (interface function)" data-lang-entity="interface_function">bool jumpToRegion(fileIn, hasEntries, refName, posBeg, posEnd, index[, firstMatch]);</a></code></span>
+    <span class="summary_desc"><div>Seek in a tab-separated genome related file using a Tabix index.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#TabixIndex%23open" title="#TabixIndex#open (interface function)" data-lang-entity="interface_function">bool open(index, filename);</a></code></span>
+    <span class="summary_desc"><div>Load a Tabix index from file.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+<div class="member_function_details" data-lang-entity-container="member_function">
+  <h2 data-lang-entity="member_function">Member Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="TabixIndex::TabixIndex" class="signature first" data-lang-entity="member_function">
+      <code>TabixIndex::TabixIndex();</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Constructor.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>Only the default constructor is provided.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="TabixIndex#getUnalignedCount" class="signature first" data-lang-entity="interface_function">
+      <code>uint64_t getUnalignedCount(index);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Query index for number of unaligned reads.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">index</code>
+            
+        
+      </th>
+      <td>Index to query.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>uint64_t</code></th>
+        <td>The number of unaligned reads.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="TabixIndex#jumpToRegion" class="signature" data-lang-entity="interface_function">
+      <code>bool jumpToRegion(fileIn, hasEntries, refName, posBeg, posEnd, index[, firstMatch]);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Seek in a tab-separated genome related file using a Tabix index.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">fileIn</code>
+            
+        
+      </th>
+      <td>The <a href="specialization_VcfFileIn.html" data-lang-entity="specialization">VcfFileIn</a>, <a href="specialization_GffFileIn.html" data-lang-entity="specialization">GffFileIn</a>, or <a href="specialization_BedFileIn.html" data-lang-entity="specialization">BedFileIn</a> to jump with.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">hasEntries</code>
+            
+        
+      </th>
+      <td>A <tt>bool</tt> that is set true if the region <tt>[posBeg, posEnd)</tt> has any
+entries.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">refName</code>
+            
+        
+      </th>
+      <td>The reference name to jump to.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">posBeg</code>
+            
+        
+      </th>
+      <td>The begin of the region to jump to (<tt>int32_t</tt>).</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">posEnd</code>
+            
+        
+      </th>
+      <td>The end of the region to jump to (<tt>int32_t</tt>).</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">index</code>
+            
+        
+      </th>
+      <td>The <a href="class_TabixIndex.html" data-lang-entity="class">TabixIndex</a> to use for the jumping.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">firstMatch</code>
+            
+        
+      </th>
+      <td>A <tt>bool</tt>, if <tt>true</tt> (default) this function seeks to the first
+overlapping record. Otherwise, the function potentially stops before the first
+overlapping record.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>bool</code></th>
+        <td>true if seeking was successful, false if not.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>You provide a region <tt>[posBeg, posEnd)</tt> on the contig <tt>refName</tt> that you want to jump to and the function
+jumps to the first entry in this region, if any.</p><h4>Remarks</h4><p>This function fails if <tt>refName</tt>/<tt>pos</tt> wasn't found.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="TabixIndex#open" class="signature" data-lang-entity="interface_function">
+      <code>bool open(index, filename);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Load a Tabix index from file.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">index</code>
+            
+        
+      </th>
+      <td>Target data structure.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">filename</code>
+            
+        
+      </th>
+      <td>Path to file to load. Types: char const *</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>bool</code></th>
+        <td>Returns <tt>true</tt> on success, false otherwise.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class TabixIndex
+ * 
+ * @headerfile &lt;seqan/tabix_io.h&gt;
+ * 
+ * @brief Access to Tabix indexed files.
+ * 
+ * @signature class TabixIndex;
+ * 
+ * @fn TabixIndex::TabixIndex
+ * 
+ * @brief Constructor.
+ * 
+ * @signature TabixIndex::TabixIndex();
+ * 
+ * @section Remarks
+ * 
+ * Only the default constructor is provided.
+ * 
+ * @fn TabixIndex#jumpToRegion
+ * 
+ * @brief Seek in a tab-separated genome related file using a Tabix index.
+ * 
+ * @signature bool jumpToRegion(fileIn, hasEntries, refName, posBeg, posEnd,
+ *            index[, firstMatch]);
+ * 
+ * @param[in,out] fileIn The @link VcfFileIn @endlink, @link GffFileIn @endlink,
+ *                       or @link BedFileIn @endlink to jump with.
+ * @param[out] hasEntries A &lt;tt&gt;bool&lt;/tt&gt; that is set true if the region
+ *                        &lt;tt&gt;[posBeg, posEnd)&lt;/tt&gt; has any entries.
+ * @param[in] refName The reference name to jump to.
+ * @param[in] posBeg The begin of the region to jump to (&lt;tt&gt;int32_t&lt;/tt&gt;).
+ * @param[in] posEnd The end of the region to jump to (&lt;tt&gt;int32_t&lt;/tt&gt;).
+ * @param[in] index The @link TabixIndex @endlink to use for the jumping.
+ * @param[in] firstMatch A &lt;tt&gt;bool&lt;/tt&gt;, if &lt;tt&gt;true&lt;/tt&gt; (default) this
+ *                       function seeks to the first overlapping record.
+ *                       Otherwise, the function potentially stops before the
+ *                       first overlapping record.
+ * 
+ * @return bool true if seeking was successful, false if not.
+ * 
+ * You provide a region &lt;tt&gt;[posBeg, posEnd)&lt;/tt&gt; on the contig &lt;tt&gt;refName&lt;/tt&gt;
+ * that you want to jump to and the function jumps to the first entry in this
+ * region, if any.
+ * 
+ * @section Remarks
+ * 
+ * This function fails if &lt;tt&gt;refName&lt;/tt&gt;/&lt;tt&gt;pos&lt;/tt&gt; wasn&#39;t found.
+ * 
+ * @fn TabixIndex#getUnalignedCount
+ * 
+ * @brief Query index for number of unaligned reads.
+ * 
+ * @signature uint64_t getUnalignedCount(index);
+ * 
+ * @param[in] index Index to query.
+ * 
+ * @return uint64_t The number of unaligned reads.
+ * 
+ * @fn TabixIndex#open
+ * 
+ * @brief Load a Tabix index from file.
+ * 
+ * @signature bool open(index, filename);
+ * 
+ * @param[in,out] index Target data structure.
+ * @param[in] filename Path to file to load. Types: char const *
+ * 
+ * @return bool Returns &lt;tt&gt;true&lt;/tt&gt; on success, false otherwise.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

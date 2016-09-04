@@ -1,0 +1,400 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="concept_forwardcontainerconcept" data-page="ForwardContainerConcept">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>ForwardContainerConcept - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="concept" data-pimped="true">
+  <a href="page_LanguageEntities.html#concept">Concept</a> <span>ForwardContainerConcept<div><div>A forward container is a Container whose elements follow a strict linear ordering.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+  <tr>
+    <th>Extends</th>
+    <td>
+      <a href="concept_ContainerConcept.html" data-lang-entity="concept">ContainerConcept</a>
+      
+    </td>
+  </tr>
+  
+
+  
+
+  
+  <tr>
+    <th>All Extended</dt>
+    <td>
+    <a href="concept_AssignableConcept.html" data-lang-entity="concept">AssignableConcept</a>, 
+    <a href="concept_ContainerConcept.html" data-lang-entity="concept">ContainerConcept</a>, 
+    <a href="concept_DestructibleConcept.html" data-lang-entity="concept">DestructibleConcept</a>
+    
+    </td>
+  </tr>
+  
+
+  
+  <tr>
+    <th>All Subcl's</dt>
+    <td>
+    <a href="concept_RandomAccessContainerConcept.html" data-lang-entity="concept">RandomAccessContainerConcept</a>, 
+    <a href="concept_ReversibleContainerConcept.html" data-lang-entity="concept">ReversibleContainerConcept</a>, 
+    <a href="concept_StringConcept.html" data-lang-entity="concept">StringConcept</a>
+    
+    </td>
+  </tr>
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/basic.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>ForwardContainerConcept&lt;T&gt;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>The order of the elements will not change spontaneously from iteration to iteration. The linear iteration of
+elements allows the ForwardContainer to define a lexical ordering if its elements have the
+<a href="concept_LessThanComparableConcept.html" data-lang-entity="concept">LessThanComparableConcept</a> concept.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+
+
+
+
+<h3 data-toc="hidden">Member Functions Inherited From <a href="concept_AssignableConcept.html" data-lang-entity="concept">AssignableConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AssignableConcept.html#AssignableConcept::operator=" data-lang-entity="member_function">operator=</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_AssignableConcept.html" data-lang-entity="concept">AssignableConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AssignableConcept.html#AssignableConcept#assign" data-lang-entity="interface_function">assign</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AssignableConcept.html#AssignableConcept#move" data-lang-entity="interface_function">move</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AssignableConcept.html#AssignableConcept#set" data-lang-entity="interface_function">set</a></code></span></li>
+  
+</ul>
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_ContainerConcept.html" data-lang-entity="concept">ContainerConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#append" data-lang-entity="interface_function">append</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#appendValue" data-lang-entity="interface_function">appendValue</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#begin" data-lang-entity="interface_function">begin</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#directionIterator" data-lang-entity="interface_function">directionIterator</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#empty" data-lang-entity="interface_function">empty</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#end" data-lang-entity="interface_function">end</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#getObjectId" data-lang-entity="interface_function">getObjectId</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#length" data-lang-entity="interface_function">length</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#moveValue" data-lang-entity="interface_function">moveValue</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#shrinkToFit" data-lang-entity="interface_function">shrinkToFit</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#swap" data-lang-entity="interface_function">swap</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#write" data-lang-entity="interface_function">write</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#writeValue" data-lang-entity="interface_function">writeValue</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Interface Metafunctions Overview -->
+
+
+
+<div data-lang-entity-container="interface_metafunction">
+<h2 data-lang-entity="interface_metafunction">Interface  Metafunction Overview</h2>
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Metafunctions Inherited From <a href="concept_ContainerConcept.html" data-lang-entity="concept">ContainerConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#DefaultGetIteratorSpec" data-lang-entity="interface_metafunction">DefaultGetIteratorSpec</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#DefaultIteratorSpec" data-lang-entity="interface_metafunction">DefaultIteratorSpec</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#Difference" data-lang-entity="interface_metafunction">Difference</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#DirectionIterator" data-lang-entity="interface_metafunction">DirectionIterator</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#GetValue" data-lang-entity="interface_metafunction">GetValue</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#Iterator" data-lang-entity="interface_metafunction">Iterator</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#Position" data-lang-entity="interface_metafunction">Position</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#Reference" data-lang-entity="interface_metafunction">Reference</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#Size" data-lang-entity="interface_metafunction">Size</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_ContainerConcept.html#ContainerConcept#Value" data-lang-entity="interface_metafunction">Value</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @concept ForwardContainerConcept
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @extends ContainerConcept
+ * 
+ * @brief A forward container is a Container whose elements follow a strict
+ *        linear ordering.
+ * 
+ * @signature ForwardContainerConcept&lt;T&gt;
+ * 
+ * The order of the elements will not change spontaneously from iteration to
+ * iteration. The linear iteration of elements allows the ForwardContainer to
+ * define a lexical ordering if its elements have the @link
+ * LessThanComparableConcept @endlink concept.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

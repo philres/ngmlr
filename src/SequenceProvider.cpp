@@ -1,19 +1,21 @@
 #include "SequenceProvider.h"
-//#include "NGM.h"
-#include "IConfig.h"
-#include "Log.h"
 
 #include <vector>
 #include <map>
 #include <string>
 #include <cmath>
-
 #include <string.h>
 #include <limits.h>
-
-#include "Debug.h"
-
 #include <iostream>
+#include <stdio.h>
+#include <zlib.h>
+
+#include "IConfig.h"
+#include "Log.h"
+#include "Timing.h"
+#include "kseq.h"
+
+KSEQ_INIT(gzFile, gzread)
 
 #undef module_name
 #define module_name "SEQPROV"
@@ -31,39 +33,12 @@ _SequenceProvider & _SequenceProvider::Instance() {
 static int const maxRefCount = 2147483647;
 static uint const refEncCookie = 0x74656;
 
-//const size_t _SequenceProvider::MAX_REF_NAME_LENGTH = 150;
-
-//bool checkChar(char c) {
-//	return (c == 'A') | (c == 'C') | (c == 'T') | (c == 'G');
-//}
-//
-//// checked die sequence seq auf ACGT, liefert das erste auftreten eines von diesen
-//// buchstaben unterschiedlichen zeichens ...4-basen-worte (32bit) verwenden?
-//int checkSequence(char * seq, uint len) {
-//	for (uint n = 0; n < len; ++n) {
-//		if (!checkChar(*(seq + n)))
-//			return n;
-//		++n;
-//	}
-//	return -1;
-//}
-
 std::string CheckFile(std::string filename, char const * const name) {
 	if (!FileExists(filename.c_str())) {
 		Log.Error("%s file not found (%s)", name, filename.c_str());
-		Fatal();
 	}
 	return filename;
 }
-
-#include <stdio.h>
-#include <zlib.h>
-
-#include "Timing.h"
-
-#include "kseq.h"
-
-KSEQ_INIT(gzFile, gzread)
 
 //static inline char enc4(char c) {
 //	c = toupper(c);
@@ -168,14 +143,9 @@ bool _SequenceProvider::convert(SequenceLocation & m_Location) {
 	if ((*upper - loc.m_Location) < 1000) {
 		Log.Verbose("Read start position < chromosome start!");
 		Log.Verbose("Loc: %u (%d) < %u < %u (%d)", (uloc)*(upper-1), ((upper - 2) - refStartPos) * ((DualStrand) ? 2 : 1), loc.m_Location, (uint)*(upper), ((upper - 1) - refStartPos) * ((DualStrand) ? 2 : 1));
-		if(Config.Exists(ARGOS)) {
-			//Set mapping position to start position of chromosome
-			loc.m_Location = (uloc) *upper;
-			upper += 1;
-		} else {
-			//Report read/position as unmapped (only happens for --end-to-end)
-			return false;
-		}
+
+		//Report read/position as unmapped (only happens for --end-to-end)
+		return false;
 	}
 
 	//Compute actual start position
@@ -208,20 +178,16 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName,
 	read = fread(&encRefSize, sizeof(uloc), 1, fp);
 	if (cookie != refEncCookie) {
 		fclose(fp);
-		Log.Error("Invalid encoded reference file found: %s.", fileName);
-		Log.Error("Please delete it and run NGM again.");
-		Fatal();
+		Log.Error("Invalid encoded reference file found: %s. Please delete it and run NGM again.", fileName);
 	}
 	if(refCount > maxRefCount) {
 		Log.Error("Currently NextGenMap can't handle more than %d reference sequences.", maxRefCount);
-		Fatal();
 	}
 	if((encRefSize * 2) > maxLen) {
-		Log.Error("Size of reference is %llu Mbp.", encRefSize * 2 / 1000 / 1000);
-		Log.Error("With a bin size of 2^%d NextGenMap can only handle a max. reference size of %llu Mbp", Config.GetInt(BIN_SIZE), maxLen / 1000 / 1000);
-		Log.Error("Please increase --bin-size");
+		Log.Message("Size of reference is %llu Mbp.", encRefSize * 2 / 1000 / 1000);
+		Log.Message("With a bin size of 2^%d NextGenMap can only handle a max. reference size of %llu Mbp", Config.getBinSize(), maxLen / 1000 / 1000);
+		Log.Message("Please increase --bin-size");
 		Log.Error("Max genome size equals 4 GB * 2^bin_size. E.g. with bin size 4 it is 4 GB * 2^4 = 64 GB");
-		Fatal();
 	}
 	binRefIdx = new RefIdx[refCount];
 	read = fread(binRefIdx, sizeof(RefIdx), refCount, fp);
@@ -236,7 +202,7 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName,
 
 void _SequenceProvider::writeEncRefToFile(char const * fileName,
 		uint const refCount, uloc const encRefSize) {
-	if (!Config.GetInt("skip_save")) {
+	if (!Config.getSkipSave()) {
 		Timer wtmr;
 		wtmr.ST();
 		Log.Message("Writing encoded reference to %s", fileName);
@@ -258,7 +224,7 @@ void _SequenceProvider::writeEncRefToFile(char const * fileName,
 uloc getSize(char const * const file) {
 	gzFile gzfp;
 	kseq_t *seq;
-	gzfp = gzopen(Config.GetString("ref"), "r");
+	gzfp = gzopen(Config.getReferenceFile(), "r");
 	seq = kseq_init(gzfp);
 	int l = 0;
 	//1000 -> padding at beginning
@@ -276,22 +242,12 @@ uloc getSize(char const * const file) {
 void _SequenceProvider::Init(bool dualstrand) {
 	DualStrand = dualstrand;
 	Log.Verbose("Init sequence provider.");
-	if (!Config.Exists("ref")) {
-		Log.Error("No reference file specified.");
-		Fatal();
-	}
-//	if (NGM.Paired() && !Config.Exists("pqry")) {
-//		Log.Error("No paired query file specified.");
-//		Fatal();
-//	}
 
-	CheckFile(refBaseFileName = Config.GetString("ref"), "RefBase");
-
-	refFileName = Config.GetString("ref") + std::string("-enc.2.ngm");
+	refFileName = std::string(Config.getReferenceFile()) + std::string("-enc.2.ngm");
 
 	//uint64 used everywhere but in CS rTable, there GetBin division increases range
 	const uloc REF_LEN_MAX = UINT_MAX
-			* std::max(1.0, pow(2.0, Config.GetInt(BIN_SIZE)));
+			* std::max(1.0, pow(2.0, Config.getBinSize()));
 
 	if (FileExists(refFileName.c_str())) {
 		//Read
@@ -300,27 +256,25 @@ void _SequenceProvider::Init(bool dualstrand) {
 		Log.Message("Encoding reference sequence.");
 		std::map<int, RefIdx> binRefMap;
 
-		uloc size = getSize(Config.GetString("ref"));
-		refFileLen = size;
+		uloc size = getSize(Config.getReferenceFile());
 
 		Log.Message("Size of reference genome %llu Mbp (max. %llu Mbp)", size / 1000 / 1000, REF_LEN_MAX / 1000 / 1000);
 
 		//Theoretical limit would be uloc max (INT64_MAX), but for speed reasons uint is used in CSTableEntry for bin
 		//positions
 		if (size > REF_LEN_MAX) {
-			Log.Error("With a bin size of 2^%d NextGenMap can only handle a max. reference size of %llu Mbp", Config.GetInt(BIN_SIZE), REF_LEN_MAX / 1000 / 1000);
-			Log.Error("Please increase --bin-size to handle larger genomes.");
+			Log.Message("With a bin size of 2^%d NextGenMap can only handle a max. reference size of %llu Mbp", Config.getBinSize(), REF_LEN_MAX / 1000 / 1000);
+			Log.Message("Please increase --bin-size to handle larger genomes.");
 			Log.Error("Max genome size equals 4 GB * 2^bin_size. E.g. with bin size 4 it is 4 GB * 2^4 = 64 GB");
-			Fatal();
 		}
 
 		uloc const binRefSize = ((size / 2) | 1) + 1;
-		Log.Message("Allocating %llu (%llu) bytes for the reference.", binRefSize, FileSize(Config.GetString("ref")));
+		Log.Message("Allocating %llu (%llu) bytes for the reference.", binRefSize, FileSize(Config.getReferenceFile()));
 		binRef = new char[binRefSize];
 
 		gzFile gzfp;
 		kseq_t *seq;
-		gzfp = gzopen(Config.GetString("ref"), "r");
+		gzfp = gzopen(Config.getReferenceFile(), "r");
 		seq = kseq_init(gzfp);
 
 		Timer tt;
@@ -340,7 +294,6 @@ void _SequenceProvider::Init(bool dualstrand) {
 		while ((l = kseq_read(seq)) >= 0) {
 			if(j >= maxRefCount) {
 				Log.Error("Currently NextGenMap can't handle more than %d reference sequences.", maxRefCount);
-				Fatal();
 			}
 			if(seq->seq.l > minRefSeqLen) {
 				binRefMap[j].SeqStart = binRefIndex * 2;
@@ -384,7 +337,6 @@ void _SequenceProvider::Init(bool dualstrand) {
 
 		if (binRefMap.size() != (size_t) refCount) {
 			Log.Error("Error while building ref index.");
-			Fatal();
 		}
 		binRefIdx = new RefIdx[refCount];
 		for (int i = 0; i < refCount; ++i) {
@@ -394,7 +346,6 @@ void _SequenceProvider::Init(bool dualstrand) {
 				//binRefIdx[i].SeqLen = 2 * binRefIndex - 1;
 			} else {
 				Log.Error("Error while building ref index.");
-				Fatal();
 			}
 		}
 		writeEncRefToFile(refFileName.c_str(), (uint) refCount, binRefSize);
@@ -492,7 +443,7 @@ uloc _SequenceProvider::decode(uloc startPosition, uloc endPosition,
 bool _SequenceProvider::DecodeRefSequenceExact(char * const sequence,
 		uloc startPosition, uloc sequenceLength, int corridor) {
 
-	if (startPosition >= GetConcatRefLen() || startPosition < 0) {
+	if (startPosition >= GetConcatRefLen()) {
 		Log.Verbose("Invalid reference location. Offset: %d", startPosition);
 		return false;
 	}
@@ -609,9 +560,8 @@ bool _SequenceProvider::DecodeRefSequence(char * const sequence, int refId,
 	}
 
 	if (codedIndex > bufferLength) {
-		Log.Error("nCount: %d, position: %d, len: %d (%d), seqlen: %d, end: %d, start: %d, index: %d", 0, position, bufferLength, (len+1)/2, binRefIdx[refId].SeqLen, end, start, codedIndex);
+		Log.Message("nCount: %d, position: %d, len: %d (%d), seqlen: %d, end: %d, start: %d, index: %d", 0, position, bufferLength, (len+1)/2, binRefIdx[refId].SeqLen, end, start, codedIndex);
 		Log.Error("%.*s", bufferLength, sequence);
-		Fatal();
 	}
 
 	for (uint i = codedIndex; i < bufferLength; ++i) {
@@ -662,17 +612,18 @@ int _SequenceProvider::GetRefCount() const {
 bool _SequenceProvider::CheckRefNr(int n) const {
 	if (n >= refCount || n < 0) {
 		Log.Error("Tried to access invalid reference sequence (%i %x).", n, n);
-		throw "Problem";
-		//Fatal();
 		return false;
 	}
 	return true;
 }
 
 _SequenceProvider::_SequenceProvider() :
-		binRef(0), refStartPos(0), refCount(0), m_EnableBS(false) {
+		binRef(0), refStartPos(0), refCount(0) {
 
 	binRefIndex = 0;
+	binRefSize = 0;
+	binRefIdx = 0;
+	DualStrand = true;
 }
 
 _SequenceProvider::~_SequenceProvider() {

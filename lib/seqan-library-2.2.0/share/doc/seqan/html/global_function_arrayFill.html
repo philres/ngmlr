@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_arrayfill" data-page="arrayFill">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>arrayFill - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>arrayFill<div><div>Assigns one object to each element of a range.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/basic.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>void arrayFill(begin, end, value[, parallelTag]);
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+<h2>Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">begin</code>
+            
+        
+        </th>
+        <td>Iterator to the begin of the range that is to be filled.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">end</code>
+            
+        
+        </th>
+        <td>Iterator behind the end of the range.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">value</code>
+            
+        
+        </th>
+        <td>Argument that is assigned to all <tt>count</tt> objects in <tt>array</tt>.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">parallelTag</code>
+            
+        
+        </th>
+        <td>Tag to enable/disable parallelism. Types: Serial, Parallel</td>
+    </tr>
+
+</table>
+
+
+
+
+<!-- @tparam -->
+
+
+
+
+
+<!-- @returns -->
+
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>All objects <tt>target_begin[0]</tt> to <tt>target_begin[count-1]</tt> are set to <tt>value</tt>.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn arrayFill
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Assigns one object to each element of a range.
+ * 
+ * @signature void arrayFill(begin, end, value[, parallelTag]);
+ * 
+ * @param[in] begin Iterator to the begin of the range that is to be filled.
+ * @param[in] end Iterator behind the end of the range.
+ * @param[in] value Argument that is assigned to all &lt;tt&gt;count&lt;/tt&gt; objects in
+ *                  &lt;tt&gt;array&lt;/tt&gt;.
+ * @param[in] parallelTag Tag to enable/disable parallelism. Types: Serial,
+ *                        Parallel
+ * 
+ * All objects &lt;tt&gt;target_begin[0]&lt;/tt&gt; to &lt;tt&gt;target_begin[count-1]&lt;/tt&gt; are
+ * set to &lt;tt&gt;value&lt;/tt&gt;.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

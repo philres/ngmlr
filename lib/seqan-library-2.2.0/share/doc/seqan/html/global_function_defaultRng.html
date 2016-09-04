@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_defaultrng" data-page="defaultRng">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>defaultRng - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>defaultRng<div><div>Return the default random number generator object of a given type.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/random.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>TRng defaultRng&lt;TRng&gt;();
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+
+
+<!-- @tparam -->
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>TRng</code></th>
+        <td>The random number generator type to construct.</td>
+    </tr>
+
+</table>
+
+</div>
+
+
+
+<!-- @returns -->
+
+
+<h2>Return Values</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>TRng</code></th>
+        <td>Default random number generator of the given type TRng.</td>
+    </tr>
+
+</table>
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><h3>Remarks</h3><p>The random number generator will be default constructed, i.e. with the default seed.</p><p>This function is NOT thread-safe! Also, data structures and functions using defaultRng are not thread-safe. Data
+structures using global random number generator state should use pointers. This way, the random number generator
+state to be used can be set to be thread-local.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="global_metafunction_GetDefaultRng.html" data-lang-entity="global_metafunction">GetDefaultRng</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn defaultRng
+ * 
+ * @headerfile &lt;seqan/random.h&gt;
+ * 
+ * @brief Return the default random number generator object of a given type.
+ * 
+ * @signature TRng defaultRng&lt;TRng&gt;();
+ * 
+ * @tparam TRng The random number generator type to construct.
+ * 
+ * @return TRng Default random number generator of the given type TRng.
+ * 
+ * @section Remarks
+ * 
+ * The random number generator will be default constructed, i.e. with the
+ * default seed.
+ * 
+ * This function is NOT thread-safe! Also, data structures and functions using
+ * defaultRng are not thread-safe. Data structures using global random number
+ * generator state should use pointers. This way, the random number generator
+ * state to be used can be set to be thread-local.
+ * 
+ * @see GetDefaultRng
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

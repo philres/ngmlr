@@ -1,0 +1,2247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_deltamap" data-page="DeltaMap">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>DeltaMap - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>DeltaMap<div><div>Stores delta information and maps them to a common coordinate system.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/journaled_string_tree.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>template &lt;typename TConfig&gt;
+class DeltaMap
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TConfig</a></code></th>
+        <td>A config type to set the types for the different delta values.</td>
+    </tr>
+
+</table>
+</div>
+
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23begin" title="#DeltaMap#begin (interface function)" data-lang-entity="interface_function">TIterator begin(deltaMap, tag)</a></code></span>
+    <span class="summary_desc"><div>Returns an iterator pointing to the beginning of the map.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23clear" title="#DeltaMap#clear (interface function)" data-lang-entity="interface_function">clear(deltaMap)</a></code></span>
+    <span class="summary_desc"><div>Clears the delta map.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23count" title="#DeltaMap#count (interface function)" data-lang-entity="interface_function">TSize count(deltaMap, pos, type)</a></code></span>
+    <span class="summary_desc"><div>Counts the number of elements that compare equal to the specified key.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23empty" title="#DeltaMap#empty (interface function)" data-lang-entity="interface_function">bool empty(deltaMap)</a></code></span>
+    <span class="summary_desc"><div>Checks if the delta map is empty.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23end" title="#DeltaMap#end (interface function)" data-lang-entity="interface_function">TIterator end(deltaMap, tag)</a></code></span>
+    <span class="summary_desc"><div>Returns an iterator pointing to the end of the map.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23equalRange" title="#DeltaMap#equalRange (interface function)" data-lang-entity="interface_function">Pair&lt;TIterator&gt; equalRange(deltaMap, pos, type)</a></code></span>
+    <span class="summary_desc"><div>Returns the range over all elements comparing equal to the specified key.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23erase" title="#DeltaMap#erase (interface function)" data-lang-entity="interface_function">bool erase(deltaMap, pos, type);</a></code></span>
+    <span class="summary_desc"><div>Erases an existing delta entry.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23find" title="#DeltaMap#find (interface function)" data-lang-entity="interface_function">TIterator find(deltaMap, pos, type)</a></code></span>
+    <span class="summary_desc"><div>Finds the element specified by the given delta position and delta type.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23insert" title="#DeltaMap#insert (interface function)" data-lang-entity="interface_function">bool insert(deltaMap, pos, val, cov, type);</a></code></span>
+    <span class="summary_desc"><div>Inserts a new delta entry.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23lowerBound" title="#DeltaMap#lowerBound (interface function)" data-lang-entity="interface_function">TIterator lowerBound(deltaMap, pos, type)</a></code></span>
+    <span class="summary_desc"><div>Finds the first element that compares not less than the specified key.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23maxSize" title="#DeltaMap#maxSize (interface function)" data-lang-entity="interface_function">TSize size(deltaMap)</a></code></span>
+    <span class="summary_desc"><div>Returns the number of mapped delta events.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23size" title="#DeltaMap#size (interface function)" data-lang-entity="interface_function">TSize size(deltaMap)</a></code></span>
+    <span class="summary_desc"><div>Returns the number of mapped delta events.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23upperBound" title="#DeltaMap#upperBound (interface function)" data-lang-entity="interface_function">TIterator upperBound(deltaMap, pos, type)</a></code></span>
+    <span class="summary_desc"><div>Finds the first element that compares not less or equal to the specified key.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+
+
+<div data-lang-entity-container="interface_metafunction">
+<h2 data-lang-entity="interface_metafunction">Interface  Metafunction Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23DeltaCoverage" title="#DeltaMap#DeltaCoverage (interface function)" data-lang-entity="interface_metafunction">DeltaCoverage&lt;TDeltaMap&gt;::Type</a></code></span>
+    <span class="summary_desc"><div>Returns coverage type for a delta map.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23DeltaValue" title="#DeltaMap#DeltaValue (interface function)" data-lang-entity="interface_metafunction">DeltaValue&lt;TDeltaMap, TType&gt;::Type</a></code></span>
+    <span class="summary_desc"><div>Returns value type for a specific delta.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23Iterator" title="#DeltaMap#Iterator (interface function)" data-lang-entity="interface_metafunction">Iterator&lt;TDeltaMap, Standard&gt;::Type</a></code></span>
+    <span class="summary_desc"><div>Returns iterator type for a delta map.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23Size" title="#DeltaMap#Size (interface function)" data-lang-entity="interface_metafunction">Size&lt;TDeltaMap&gt;::Type</a></code></span>
+    <span class="summary_desc"><div>Returns size type for a delta map.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#DeltaMap%23Value" title="#DeltaMap#Value (interface function)" data-lang-entity="interface_metafunction">Value&lt;TDeltaMap&gt;::Type</a></code></span>
+    <span class="summary_desc"><div>Returns value type for the delta map.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>This map stores delta events, i.e. replacements, insertions and deletions, for multiple sequences
+based on a common reference sequence. A bitvector is used to store the coverage of a delta.
+The types of the corresponding delta values must be set with the <tt>TConfig&lt;\tt&gt; object, which can be any
+object which defines the following types:</tt></p><p><tt>TDeltaPos&lt;\tt&gt;: The value type used to store the position of the delta within the reference.
+<tt>TDeltaSnp&lt;\tt&gt;: The value type used to store SNPs.
+<tt>TDeltaDel&lt;\tt&gt;: The value type used to store deletions.
+<tt>TDeltaIns&lt;\tt&gt;: The value type used to store insertions.
+<tt>TDeltaSV&lt;\tt&gt;: The value type used to store structural variants.</tt></tt></tt></tt></tt></p><p>The delta values are stored in a multi-container. To access a delta value at any given iterator position
+of the delta map the delta type (see <a href="group_DeltaTypeTags.html" data-lang-entity="group">DeltaTypeTags</a>) must be known.
+The function <a href="specialization_DeltaMapIterator.html#DeltaMapIterator#deltaType" data-lang-entity="interface_function">deltaType</a> can be used to access the id of the corresponding delta event.
+Given the delta type the function <a href="specialization_DeltaMapIterator.html#DeltaMapIterator#deltaValue" data-lang-entity="interface_function">deltaValue</a> can be used to access the corresponding
+value.</p><p>The delta map implements the interfaces of the <b>AssociativeContainerConcept&lt;\b&gt; and is a multi-map.</b></p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="DeltaMap#begin" class="signature first" data-lang-entity="interface_function">
+      <code>TIterator begin(deltaMap, tag)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns an iterator pointing to the beginning of the map.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">deltaMap</code>
+            
+        
+      </th>
+      <td>The map to get the iterator for.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">tag</code>
+            
+        
+      </th>
+      <td>The iterator tag. Of type <a href="group_ContainerIteratorTags.html" data-lang-entity="group">ContainerIteratorTags</a>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TIterator</code></th>
+        <td>An iterator of type <a href="class_DeltaMap.html#DeltaMap#Iterator" data-lang-entity="interface_metafunction">Iterator</a> pointing to the beginning of the map.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="DeltaMap#clear" class="signature" data-lang-entity="interface_function">
+      <code>clear(deltaMap)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Clears the delta map.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">deltaMap</code>
+            
+        
+      </th>
+      <td>The map to be cleared.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="DeltaMap#count" class="signature" data-lang-entity="interface_function">
+      <code>TSize count(deltaMap, pos, type)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Counts the number of elements that compare equal to the specified key.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">deltaMap</code>
+            
+        
+      </th>
+      <td>The delta map that is searched for the element.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">pos</code>
+            
+        
+      </th>
+      <td>The delta position to be searched for.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">type</code>
+            
+        
+      </th>
+      <td>The type of the delta operation. Must be of type <a href="group_DeltaTypeTags.html" data-lang-entity="group">DeltaTypeTags</a>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TSize</code></th>
+        <td>the number of elements with the specified key. Of type <a href="class_DeltaMap.html#DeltaMap#Size" data-lang-entity="interface_metafunction">Size</a>.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>@remark The runtime is logarithmic in the size of the map.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="DeltaMap#empty" class="signature" data-lang-entity="interface_function">
+      <code>bool empty(deltaMap)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Checks if the delta map is empty.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">deltaMap</code>
+            
+        
+      </th>
+      <td>The map to be checked for.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>bool</code></th>
+        <td><tt>true</tt> if empty, otherwise <tt>false</tt></td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="DeltaMap#end" class="signature" data-lang-entity="interface_function">
+      <code>TIterator end(deltaMap, tag)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns an iterator pointing to the end of the map.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">deltaMap</code>
+            
+        
+      </th>
+      <td>The map to get the iterator for.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">tag</code>
+            
+        
+      </th>
+      <td>The iterator tag. Of type <a href="group_ContainerIteratorTags.html" data-lang-entity="group">ContainerIteratorTags</a>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TIterator</code></th>
+        <td>An iterator of type <a href="class_DeltaMap.html#DeltaMap#Iterator" data-lang-entity="interface_metafunction">Iterator</a> pointing to the end of the map.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="DeltaMap#equalRange" class="signature" data-lang-entity="interface_function">
+      <code>Pair&lt;TIterator&gt; equalRange(deltaMap, pos, type)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns the range over all elements comparing equal to the specified key.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">deltaMap</code>
+            
+        
+      </th>
+      <td>The delta map that is searched for the element.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">pos</code>
+            
+        
+      </th>
+      <td>The delta position to be searched for.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">type</code>
+            
+        
+      </th>
+      <td>The type of the delta operation. Must be of type <a href="group_DeltaTypeTags.html" data-lang-entity="group">DeltaTypeTags</a>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>Pair&lt;TIterator&gt;</code></th>
+        <td>A <a href="class_Pair.html" data-lang-entity="class">Pair</a> of iterator types <a href="class_DeltaMap.html#DeltaMap#Iterator" data-lang-entity="interface_metafunction">Iterator</a>. The first value points
+to the first element that compares not less than the specified key or to the <a href="class_DeltaMap.html#DeltaMap#end" data-lang-entity="interface_function">end</a> if such an elment could not be found.
+The second value points to the first element that does not compare less than or equal to the specified key or to the <a href="class_DeltaMap.html#DeltaMap#end" data-lang-entity="interface_function">end</a> if such an elment could not be found.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>@remark The runtime is logarithmic in the size of the map.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="DeltaMap#erase" class="signature" data-lang-entity="interface_function">
+      <code>bool erase(deltaMap, pos, type);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Erases an existing delta entry.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">deltaMap</code>
+            
+        
+      </th>
+      <td>The map to erase the delta from. Of type <a href="class_DeltaMap.html" data-lang-entity="class">DeltaMap</a>.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">pos</code>
+            
+        
+      </th>
+      <td>The position of the targeted delta entry.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">type</code>
+            
+        
+      </th>
+      <td>The type of the targeted delta entry. One of <a href="group_DeltaTypeTags.html" data-lang-entity="group">DeltaTypeTags</a>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>bool</code></th>
+        <td><tt>false&lt;\tt&gt; if such an entry does not exist, <tt>true&lt;\tt&gt; otherwise.</tt></tt></td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>@remark The map is implemented as a vector and the insertion time is linear in worst case.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="DeltaMap#find" class="signature" data-lang-entity="interface_function">
+      <code>TIterator find(deltaMap, pos, type)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Finds the element specified by the given delta position and delta type.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">deltaMap</code>
+            
+        
+      </th>
+      <td>The delta map that is searched for the element.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">pos</code>
+            
+        
+      </th>
+      <td>The delta position to be searched for.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">type</code>
+            
+        
+      </th>
+      <td>The type of the delta operation. Must be of type <a href="group_DeltaTypeTags.html" data-lang-entity="group">DeltaTypeTags</a>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TIterator</code></th>
+        <td>An <a href="class_DeltaMap.html#DeltaMap#Iterator" data-lang-entity="interface_metafunction">Iterator</a> pointing to the corresponding element.
+If the key is not contained <a href="class_DeltaMap.html#DeltaMap#end" data-lang-entity="interface_function">end</a> is returned.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>@remark The runtime is logarithmic in the size of the map.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="DeltaMap#insert" class="signature" data-lang-entity="interface_function">
+      <code>bool insert(deltaMap, pos, val, cov, type);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Inserts a new delta entry.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">deltaMap</code>
+            
+        
+      </th>
+      <td>The map to insert the new delta operation. Of type <a href="class_DeltaMap.html" data-lang-entity="class">DeltaMap</a>.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">pos</code>
+            
+        
+      </th>
+      <td>The position of the inserted delta entry.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">deltaVal</code>
+            
+        
+      </th>
+      <td>The value of the delta operation.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">cov</code>
+            
+        
+      </th>
+      <td>The coverage of the delta operation.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">type</code>
+            
+        
+      </th>
+      <td>A specifier to select the correct delta type. One of <a href="group_DeltaTypeTags.html" data-lang-entity="group">DeltaTypeTags</a>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>@remark The map is implemented as a vector and the insertion time is linear in worst case.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="DeltaMap#lowerBound" class="signature" data-lang-entity="interface_function">
+      <code>TIterator lowerBound(deltaMap, pos, type)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Finds the first element that compares not less than the specified key.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">deltaMap</code>
+            
+        
+      </th>
+      <td>The delta map that is searched for the element.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">pos</code>
+            
+        
+      </th>
+      <td>The delta position to be searched for.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">type</code>
+            
+        
+      </th>
+      <td>The type of the delta operation. Must be of type <a href="group_DeltaTypeTags.html" data-lang-entity="group">DeltaTypeTags</a>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TIterator</code></th>
+        <td>An <a href="class_DeltaMap.html#DeltaMap#Iterator" data-lang-entity="interface_metafunction">Iterator</a> pointing to the corresponding element.
+If the key is not contained <a href="class_DeltaMap.html#DeltaMap#end" data-lang-entity="interface_function">end</a> is returned.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>@remark The runtime is logarithmic in the size of the map.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="DeltaMap#maxSize" class="signature" data-lang-entity="interface_function">
+      <code>TSize size(deltaMap)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns the number of mapped delta events.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">deltaMap</code>
+            
+        
+      </th>
+      <td>The map to get the size for.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TSize</code></th>
+        <td>The number of delta events stored in the map.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="DeltaMap#size" class="signature" data-lang-entity="interface_function">
+      <code>TSize size(deltaMap)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns the number of mapped delta events.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">deltaMap</code>
+            
+        
+      </th>
+      <td>The map to get the size for.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TSize</code></th>
+        <td>The number of delta events stored in the map.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="DeltaMap#upperBound" class="signature" data-lang-entity="interface_function">
+      <code>TIterator upperBound(deltaMap, pos, type)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Finds the first element that compares not less or equal to the specified key.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">deltaMap</code>
+            
+        
+      </th>
+      <td>The delta map that is searched for the element.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">pos</code>
+            
+        
+      </th>
+      <td>The delta position to be searched for.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">type</code>
+            
+        
+      </th>
+      <td>The type of the delta operation. Must be of type <a href="group_DeltaTypeTags.html" data-lang-entity="group">DeltaTypeTags</a>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TIterator</code></th>
+        <td>An <a href="class_DeltaMap.html#DeltaMap#Iterator" data-lang-entity="interface_metafunction">Iterator</a> pointing to the corresponding element.
+If the key is not contained <a href="class_DeltaMap.html#DeltaMap#end" data-lang-entity="interface_function">end</a> is returned.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>@remark The runtime is logarithmic in the size of the map.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+<div class="interface_metafunction_details" data-lang-entity-container="">
+<h2 data-lang-entity="interface_metafunction">Interface Metafunctions Detail</h2>
+
+
+<div class="method_details first">
+  <h3 data-toc="hidden" id="DeltaMap#DeltaCoverage" class="signature first" data-lang-entity="interface_metafunction">
+    <code>DeltaCoverage&lt;TDeltaMap&gt;::Type</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns coverage type for a delta map.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TDeltaMap</code></th>
+            <td>The type of the delta map.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="method_details">
+  <h3 data-toc="hidden" id="DeltaMap#DeltaValue" class="signature" data-lang-entity="interface_metafunction">
+    <code>DeltaValue&lt;TDeltaMap, TType&gt;::Type</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns value type for a specific delta.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TDeltaMap</code></th>
+            <td>The type of the delta map.</td>
+        </tr>
+    
+        <tr>
+            <th><code>TType</code></th>
+            <td>The type of the delta value. One of <a href="group_DeltaTypeTags.html" data-lang-entity="group">DeltaTypeTags</a>.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>The delta map stores four different delta events: SNPs, insertions, deletions and variable replacements.
+This metafunction returns the correct type for the specified event given the delta type tag.</p></div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="method_details">
+  <h3 data-toc="hidden" id="DeltaMap#Iterator" class="signature" data-lang-entity="interface_metafunction">
+    <code>Iterator&lt;TDeltaMap, Standard&gt;::Type</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns iterator type for a delta map.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TDeltaMap</code></th>
+            <td>The type to query the iterator type for.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TIterator</code></th>
+            <td>The iterator type to use for <tt>TDeltaMap</tt>. <a href="specialization_DeltaMapIterator.html" data-lang-entity="specialization">DeltaMapIterator</a>.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="method_details">
+  <h3 data-toc="hidden" id="DeltaMap#Size" class="signature" data-lang-entity="interface_metafunction">
+    <code>Size&lt;TDeltaMap&gt;::Type</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns size type for a delta map.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TDeltaMap</code></th>
+            <td>The type to query the size type for.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TSize</code></th>
+            <td>The size type to use for <tt>TDeltaMap</tt>.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="method_details">
+  <h3 data-toc="hidden" id="DeltaMap#Value" class="signature" data-lang-entity="interface_metafunction">
+    <code>Value&lt;TDeltaMap&gt;::Type</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns value type for the delta map.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TDeltaMap</code></th>
+            <td>The type to query the value type for.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TValue</code></th>
+            <td>The value type to use for <tt>TDeltaMap</tt>.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class DeltaMap
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Stores delta information and maps them to a common coordinate system.
+ * 
+ * @signature template &lt;typename TConfig&gt; class DeltaMap
+ * 
+ * @tparam TConfig A config type to set the types for the different delta
+ *                 values.
+ * 
+ * This map stores delta events, i.e. replacements, insertions and deletions,
+ * for multiple sequences based on a common reference sequence. A bitvector is
+ * used to store the coverage of a delta. The types of the corresponding delta
+ * values must be set with the &lt;tt&gt;TConfig&lt;\tt&gt; object, which can be any object
+ * which defines the following types:
+ * 
+ * &lt;tt&gt;TDeltaPos&lt;\tt&gt;: The value type used to store the position of the delta
+ * within the reference. &lt;tt&gt;TDeltaSnp&lt;\tt&gt;: The value type used to store SNPs.
+ * &lt;tt&gt;TDeltaDel&lt;\tt&gt;: The value type used to store deletions.
+ * &lt;tt&gt;TDeltaIns&lt;\tt&gt;: The value type used to store insertions.
+ * &lt;tt&gt;TDeltaSV&lt;\tt&gt;: The value type used to store structural variants.
+ * 
+ * The delta values are stored in a multi-container. To access a delta value at
+ * any given iterator position of the delta map the delta type (see @link
+ * DeltaTypeTags @endlink) must be known. The function @link
+ * DeltaMapIterator#deltaType @endlink can be used to access the id of the
+ * corresponding delta event. Given the delta type the function @link
+ * DeltaMapIterator#deltaValue @endlink can be used to access the corresponding
+ * value.
+ * 
+ * The delta map implements the interfaces of the
+ * &lt;b&gt;AssociativeContainerConcept&lt;\b&gt; and is a multi-map.
+ * 
+ * @mfn DeltaMap#Value
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns value type for the delta map.
+ * 
+ * @signature Value&lt;TDeltaMap&gt;::Type
+ * 
+ * @tparam TDeltaMap The type to query the value type for.
+ * 
+ * @return TValue The value type to use for &lt;tt&gt;TDeltaMap&lt;/tt&gt;.
+ * 
+ * @mfn DeltaMap#Size
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns size type for a delta map.
+ * 
+ * @signature Size&lt;TDeltaMap&gt;::Type
+ * 
+ * @tparam TDeltaMap The type to query the size type for.
+ * 
+ * @return TSize The size type to use for &lt;tt&gt;TDeltaMap&lt;/tt&gt;.
+ * 
+ * @mfn DeltaMap#Iterator
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns iterator type for a delta map.
+ * 
+ * @signature Iterator&lt;TDeltaMap, Standard&gt;::Type
+ * 
+ * @tparam TDeltaMap The type to query the iterator type for.
+ * 
+ * @return TIterator The iterator type to use for &lt;tt&gt;TDeltaMap&lt;/tt&gt;. @link
+ *                   DeltaMapIterator @endlink.
+ * 
+ * @mfn DeltaMap#DeltaValue
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns value type for a specific delta.
+ * 
+ * @signature DeltaValue&lt;TDeltaMap, TType&gt;::Type
+ * 
+ * @tparam TDeltaMap The type of the delta map.
+ * @tparam TType The type of the delta value. One of @link DeltaTypeTags
+ *               @endlink.
+ * 
+ * The delta map stores four different delta events: SNPs, insertions, deletions
+ * and variable replacements. This metafunction returns the correct type for the
+ * specified event given the delta type tag.
+ * 
+ * @mfn DeltaMap#DeltaCoverage
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns coverage type for a delta map.
+ * 
+ * @signature DeltaCoverage&lt;TDeltaMap&gt;::Type
+ * 
+ * @tparam TDeltaMap The type of the delta map.
+ * 
+ * @fn DeltaMap#lowerBound
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Finds the first element that compares not less than the specified key.
+ * 
+ * @signature TIterator lowerBound(deltaMap, pos, type)
+ * 
+ * @param[in] deltaMap The delta map that is searched for the element.
+ * @param[in] pos The delta position to be searched for.
+ * @param[in] type The type of the delta operation. Must be of type @link
+ *                 DeltaTypeTags @endlink.
+ * 
+ * @return TIterator An @link DeltaMap#Iterator @endlink pointing to the
+ *                   corresponding element. If the key is not contained @link
+ *                   DeltaMap#end @endlink is returned.
+ * 
+ * @remark The runtime is logarithmic in the size of the map.
+ * 
+ * @fn DeltaMap#upperBound
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Finds the first element that compares not less or equal to the
+ *        specified key.
+ * 
+ * @signature TIterator upperBound(deltaMap, pos, type)
+ * 
+ * @param[in] deltaMap The delta map that is searched for the element.
+ * @param[in] pos The delta position to be searched for.
+ * @param[in] type The type of the delta operation. Must be of type @link
+ *                 DeltaTypeTags @endlink.
+ * 
+ * @return TIterator An @link DeltaMap#Iterator @endlink pointing to the
+ *                   corresponding element. If the key is not contained @link
+ *                   DeltaMap#end @endlink is returned.
+ * 
+ * @remark The runtime is logarithmic in the size of the map.
+ * 
+ * @fn DeltaMap#find
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Finds the element specified by the given delta position and delta
+ *        type.
+ * 
+ * @signature TIterator find(deltaMap, pos, type)
+ * 
+ * @param[in] deltaMap The delta map that is searched for the element.
+ * @param[in] pos The delta position to be searched for.
+ * @param[in] type The type of the delta operation. Must be of type @link
+ *                 DeltaTypeTags @endlink.
+ * 
+ * @return TIterator An @link DeltaMap#Iterator @endlink pointing to the
+ *                   corresponding element. If the key is not contained @link
+ *                   DeltaMap#end @endlink is returned.
+ * 
+ * @remark The runtime is logarithmic in the size of the map.
+ * 
+ * @fn DeltaMap#count
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Counts the number of elements that compare equal to the specified key.
+ * 
+ * @signature TSize count(deltaMap, pos, type)
+ * 
+ * @param[in] deltaMap The delta map that is searched for the element.
+ * @param[in] pos The delta position to be searched for.
+ * @param[in] type The type of the delta operation. Must be of type @link
+ *                 DeltaTypeTags @endlink.
+ * 
+ * @return TSize the number of elements with the specified key. Of type @link
+ *               DeltaMap#Size @endlink.
+ * 
+ * @remark The runtime is logarithmic in the size of the map.
+ * 
+ * @fn DeltaMap#equalRange
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns the range over all elements comparing equal to the specified
+ *        key.
+ * 
+ * @signature Pair&lt;TIterator&gt; equalRange(deltaMap, pos, type)
+ * 
+ * @param[in] deltaMap The delta map that is searched for the element.
+ * @param[in] pos The delta position to be searched for.
+ * @param[in] type The type of the delta operation. Must be of type @link
+ *                 DeltaTypeTags @endlink.
+ * 
+ * @return Pair&lt;TIterator&gt; A @link Pair @endlink of iterator types @link
+ *                         DeltaMap#Iterator @endlink. The first value points to
+ *                         the first element that compares not less than the
+ *                         specified key or to the @link DeltaMap#end @endlink
+ *                         if such an elment could not be found. The second
+ *                         value points to the first element that does not
+ *                         compare less than or equal to the specified key or to
+ *                         the @link DeltaMap#end @endlink if such an elment
+ *                         could not be found.
+ * 
+ * @remark The runtime is logarithmic in the size of the map.
+ * 
+ * @fn DeltaMap#insert
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Inserts a new delta entry.
+ * 
+ * @signature bool insert(deltaMap, pos, val, cov, type);
+ * 
+ * @param[in,out] deltaMap The map to insert the new delta operation. Of type
+ *                         @link DeltaMap @endlink.
+ * @param[in] pos The position of the inserted delta entry.
+ * @param[in] deltaVal The value of the delta operation.
+ * @param[in] cov The coverage of the delta operation.
+ * @param[in] type A specifier to select the correct delta type. One of @link
+ *                 DeltaTypeTags @endlink.
+ * 
+ * @remark The map is implemented as a vector and the insertion time is linear
+ * in worst case.
+ * 
+ * @fn DeltaMap#erase
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Erases an existing delta entry.
+ * 
+ * @signature bool erase(deltaMap, pos, type);
+ * 
+ * @param[in,out] deltaMap The map to erase the delta from. Of type @link
+ *                         DeltaMap @endlink.
+ * @param[in] pos The position of the targeted delta entry.
+ * @param[in] type The type of the targeted delta entry. One of @link
+ *                 DeltaTypeTags @endlink.
+ * 
+ * @return bool &lt;tt&gt;false&lt;\tt&gt; if such an entry does not exist, &lt;tt&gt;true&lt;\tt&gt;
+ *              otherwise.
+ * 
+ * @remark The map is implemented as a vector and the insertion time is linear
+ * in worst case.
+ * 
+ * @fn DeltaMap#begin
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns an iterator pointing to the beginning of the map.
+ * 
+ * @signature TIterator begin(deltaMap, tag)
+ * 
+ * @param[in] deltaMap The map to get the iterator for.
+ * @param[in] tag The iterator tag. Of type @link ContainerIteratorTags
+ *                @endlink.
+ * 
+ * @return TIterator An iterator of type @link DeltaMap#Iterator @endlink
+ *                   pointing to the beginning of the map.
+ * 
+ * @fn DeltaMap#end
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns an iterator pointing to the end of the map.
+ * 
+ * @signature TIterator end(deltaMap, tag)
+ * 
+ * @param[in] deltaMap The map to get the iterator for.
+ * @param[in] tag The iterator tag. Of type @link ContainerIteratorTags
+ *                @endlink.
+ * 
+ * @return TIterator An iterator of type @link DeltaMap#Iterator @endlink
+ *                   pointing to the end of the map.
+ * 
+ * @fn DeltaMap#clear
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Clears the delta map.
+ * 
+ * @signature clear(deltaMap)
+ * 
+ * @param[in,out] deltaMap The map to be cleared.
+ * 
+ * @fn DeltaMap#empty
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Checks if the delta map is empty.
+ * 
+ * @signature bool empty(deltaMap)
+ * 
+ * @param[in] deltaMap The map to be checked for.
+ * 
+ * @return bool &lt;tt&gt;true&lt;/tt&gt; if empty, otherwise &lt;tt&gt;false&lt;/tt&gt;
+ * 
+ * @fn DeltaMap#size
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns the number of mapped delta events.
+ * 
+ * @signature TSize size(deltaMap)
+ * 
+ * @param[in] deltaMap The map to get the size for.
+ * 
+ * @return TSize The number of delta events stored in the map.
+ * 
+ * @fn DeltaMap#maxSize
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns the number of mapped delta events.
+ * 
+ * @signature TSize size(deltaMap)
+ * 
+ * @param[in] deltaMap The map to get the size for.
+ * 
+ * @return TSize The number of delta events stored in the map.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

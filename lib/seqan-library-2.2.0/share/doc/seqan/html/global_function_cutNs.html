@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_cutns" data-page="cutNs">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>cutNs - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>cutNs<div><div>Cut out all masked sequences from a Dna5String.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/alignment_free.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>void cutNs(sequenceCut, sequence);
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+<h2>Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">sequenceCut</code>
+            
+        
+        </th>
+        <td>Dna5String similar to sequence with all Ns cut out.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">sequence</code>
+            
+        
+        </th>
+        <td>Masked DNA sequence.</td>
+    </tr>
+
+</table>
+
+
+
+
+<!-- @tparam -->
+
+
+
+
+
+<!-- @returns -->
+
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>This function concatenates the nonmasked parts of the sequence, thereby changing the word content. If you want to
+remove the masked parts of a sequence without concatenation, use stringToStringSet.</p><h3>Examples</h3><p>Transform a masked DNA sequence into an unmasked sequences with all masked parts cut out</p><div data-src-path="None"><pre class="code">using namespace seqan;
+Dna5String sequenceMasked =
+    "NNNNNNTTTCCGAAAAGGTANNNNNGCAACTTTANNNCGTGATCAAAGTTTTCCCCGTCGAAATTGGGNNTG";
+Dna5String sequenceMaskedPartsRemoved;
+cutNs(sequenceMaskedPartsRemoved, sequenceMasked);
+// Print the masked sequence
+std::cout&lt;&lt;sequenceMasked&lt;&lt;"\n";
+// Print the sequence with the masked parts removed
+std::cout&lt;&lt;sequenceMaskedPartsRemoved&lt;&lt;"\n";
+// sequenceMasked =
+// "NNNNNNTTTCCGAAAAGGTANNNNNGCAACTTTANNNCGTGATCAAAGTTTTCCCCGTCGAAATTGGGNNTG"
+// sequenceMaskedPartsRemoved =
+// "TTTCCGAAAAGGTAGCAACTTTACGTGATCAAAGTTTTCCCCGTCGAAATTGGGTG"</pre></div></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="class_MarkovModel.html" data-lang-entity="class">MarkovModel</a></li>
+  
+  <li><a href="global_function_alignmentFreeComparison.html" data-lang-entity="global_function">alignmentFreeComparison</a></li>
+  
+  <li><a href="global_function_stringToStringSet.html" data-lang-entity="global_function">stringToStringSet</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn cutNs
+ * 
+ * @headerfile &lt;seqan/alignment_free.h&gt;
+ * 
+ * @brief Cut out all masked sequences from a Dna5String.
+ * 
+ * @signature void cutNs(sequenceCut, sequence);
+ * 
+ * @param[out] sequenceCut Dna5String similar to sequence with all Ns cut out.
+ * @param[in] sequence Masked DNA sequence.
+ * 
+ * This function concatenates the nonmasked parts of the sequence, thereby
+ * changing the word content. If you want to remove the masked parts of a
+ * sequence without concatenation, use stringToStringSet.
+ * 
+ * @section Examples
+ * 
+ * Transform a masked DNA sequence into an unmasked sequences with all masked
+ * parts cut out
+ * 
+ * @code{.cpp}
+ * using namespace seqan;
+ * Dna5String sequenceMasked =
+ *     &#34;NNNNNNTTTCCGAAAAGGTANNNNNGCAACTTTANNNCGTGATCAAAGTTTTCCCCGTCGAAATTGGGNNTG&#34;;
+ * Dna5String sequenceMaskedPartsRemoved;
+ * cutNs(sequenceMaskedPartsRemoved, sequenceMasked);
+ * // Print the masked sequence
+ * std::cout&lt;&lt;sequenceMasked&lt;&lt;&#34;\n&#34;;
+ * // Print the sequence with the masked parts removed
+ * std::cout&lt;&lt;sequenceMaskedPartsRemoved&lt;&lt;&#34;\n&#34;;
+ * // sequenceMasked =
+ * // &#34;NNNNNNTTTCCGAAAAGGTANNNNNGCAACTTTANNNCGTGATCAAAGTTTTCCCCGTCGAAATTGGGNNTG&#34;
+ * // sequenceMaskedPartsRemoved =
+ * // &#34;TTTCCGAAAAGGTAGCAACTTTACGTGATCAAAGTTTTCCCCGTCGAAATTGGGTG&#34;
+ * @endcode
+ * 
+ * 
+ * @see MarkovModel
+ * @see stringToStringSet
+ * @see alignmentFreeComparison
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

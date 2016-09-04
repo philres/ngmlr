@@ -1,0 +1,1398 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_blastmatch" data-page="BlastMatch">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>BlastMatch - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>BlastMatch<div><div>An data structure to hold a blast match, also known as high-scoring segment pair (HSP)</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+  <tr>
+    <th>Implements</dt>
+    <td>
+    <a href="concept_AssignableConcept.html" data-lang-entity="concept">AssignableConcept</a>, 
+    <a href="concept_CopyConstructibleConcept.html" data-lang-entity="concept">CopyConstructibleConcept</a>, 
+    <a href="concept_DefaultConstructibleConcept.html" data-lang-entity="concept">DefaultConstructibleConcept</a>, 
+    <a href="concept_EqualityComparableConcept.html" data-lang-entity="concept">EqualityComparableConcept</a>, 
+    <a href="concept_LessThanComparableConcept.html" data-lang-entity="concept">LessThanComparableConcept</a>
+    
+    </td>
+  </tr>
+  
+
+  
+
+  
+
+  
+  <tr>
+    <th>All Impl'd</dt>
+    <td>
+    <a href="concept_AssignableConcept.html" data-lang-entity="concept">AssignableConcept</a>, 
+    <a href="concept_CopyConstructibleConcept.html" data-lang-entity="concept">CopyConstructibleConcept</a>, 
+    <a href="concept_DefaultConstructibleConcept.html" data-lang-entity="concept">DefaultConstructibleConcept</a>, 
+    <a href="concept_EqualityComparableConcept.html" data-lang-entity="concept">EqualityComparableConcept</a>, 
+    <a href="concept_LessThanComparableConcept.html" data-lang-entity="concept">LessThanComparableConcept</a>
+    
+    </td>
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/blast.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>struct BlastMatch&lt;TAlign, TPos, TQId, TSId&gt; { ... };
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TAlignRow0</a></code></th>
+        <td>Type of the first alignment row, usually <a href="class_Gaps.html" data-lang-entity="class">Gaps</a></td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TAlignRow1</a></code></th>
+        <td>Type of the second alignment row, usually <a href="class_Gaps.html" data-lang-entity="class">Gaps</a></td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TPos</a></code></th>
+        <td>Position type of the sequences, defaults to <tt>uint32_t</tt></td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TQId</a></code></th>
+        <td>Type of qId, defaults to std::string</td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TSId</a></code></th>
+        <td>Type of sId, defaults to std::string</td>
+    </tr>
+
+</table>
+</div>
+
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3ABlastMatch%28%29" title="#BlastMatch::BlastMatch() (interface function)" data-lang-entity="member_function">BlastMatch::BlastMatch()
+BlastMatch::BlastMatch(qId, sId)</a></code></span>
+    <span class="summary_desc"><div>Constructor, can be called with arguments for qId and sId.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3Aoperator%3C" title="#BlastMatch::operator< (interface function)" data-lang-entity="member_function">bool BlastMatch::operator&lt; (BlastMatch const & bm2) const</a></code></span>
+    <span class="summary_desc"><div>The comparison operator (for sorting by bit-score).</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Member Functions Inherited From <a href="concept_AssignableConcept.html" data-lang-entity="concept">AssignableConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AssignableConcept.html#AssignableConcept::operator=" data-lang-entity="member_function">operator=</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Member Functions Inherited From <a href="concept_EqualityComparableConcept.html" data-lang-entity="concept">EqualityComparableConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_EqualityComparableConcept.html#EqualityComparableConcept::operator!=" data-lang-entity="member_function">operator!=</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_EqualityComparableConcept.html#EqualityComparableConcept::operator==" data-lang-entity="member_function">operator==</a></code></span></li>
+  
+</ul>
+
+
+
+<h3 data-toc="hidden">Member Functions Inherited From <a href="concept_LessThanComparableConcept.html" data-lang-entity="concept">LessThanComparableConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_LessThanComparableConcept.html#LessThanComparableConcept::operator<" data-lang-entity="member_function">operator&lt;</a></code></span></li>
+  
+</ul>
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastMatch%23computeAlignmentStats" title="#BlastMatch#computeAlignmentStats (interface function)" data-lang-entity="interface_function">void computeAlignmentStats(blastMatch, context);</a></code></span>
+    <span class="summary_desc"><div>Compute the <a href="class_BlastMatch.html#BlastMatch::alignStats" data-lang-entity="member_variable">alignStats</a> member of a <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastMatch%23computeBitScore" title="#BlastMatch#computeBitScore (interface function)" data-lang-entity="interface_function">double computeBitScore(blastMatch, context);</a></code></span>
+    <span class="summary_desc"><div>Compute the bit-score for a <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastMatch%23computeEValue" title="#BlastMatch#computeEValue (interface function)" data-lang-entity="interface_function">double computeEValue(blastMatch, context);</a></code></span>
+    <span class="summary_desc"><div>Compute the E-Value for a <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_AssignableConcept.html" data-lang-entity="concept">AssignableConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AssignableConcept.html#AssignableConcept#assign" data-lang-entity="interface_function">assign</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AssignableConcept.html#AssignableConcept#set" data-lang-entity="interface_function">set</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AssignableConcept.html#AssignableConcept#move" data-lang-entity="interface_function">move</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+  
+
+
+<!-- Member Variable Overview -->
+
+
+
+<div data-lang-entity-container="member_variable">
+<h2 data-lang-entity="member_variable">Member Variable Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AalignRow0" title="#BlastMatch::alignRow0 (interface function)" data-lang-entity="member_variable">
+        TAlign BlastMatch::alignRow0
+    </a></code></span>
+    <span class="summary_desc"><div>First alignment row (<a href="class_Gaps.html" data-lang-entity="class">Gaps</a> object).</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AalignRow1" title="#BlastMatch::alignRow1 (interface function)" data-lang-entity="member_variable">
+        TAlign BlastMatch::alignRow1
+    </a></code></span>
+    <span class="summary_desc"><div>Second alignment row (<a href="class_Gaps.html" data-lang-entity="class">Gaps</a> object).</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AalignStats" title="#BlastMatch::alignStats (interface function)" data-lang-entity="member_variable">
+        AlignmentStats BlastMatch::alignStats
+    </a></code></span>
+    <span class="summary_desc"><div>An <a href="class_AlignmentStats.html" data-lang-entity="class">AlignmentStats</a> object holding further stats of the alignment.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AbitScore" title="#BlastMatch::bitScore (interface function)" data-lang-entity="member_variable">
+        double BlastMatch::bitScore
+    </a></code></span>
+    <span class="summary_desc"><div>The bit-score of the alignment.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AeValue" title="#BlastMatch::eValue (interface function)" data-lang-entity="member_variable">
+        double BlastMatch::eValue
+    </a></code></span>
+    <span class="summary_desc"><div>The e-value of the alignment.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AqEnd" title="#BlastMatch::qEnd (interface function)" data-lang-entity="member_variable">
+        TPos BlastMatch::qEnd
+    </a></code></span>
+    <span class="summary_desc"><div>The end of the alignment on the (possibly translated) query sequence.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AqFrameShift" title="#BlastMatch::qFrameShift (interface function)" data-lang-entity="member_variable">
+        char BlastMatch::qFrameShift
+    </a></code></span>
+    <span class="summary_desc"><div>An indicator for query frame and query strand.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AqId" title="#BlastMatch::qId (interface function)" data-lang-entity="member_variable">
+        TQId BlastMatch::qId
+    </a></code></span>
+    <span class="summary_desc"><div>The verbose Id of the query.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AqLength" title="#BlastMatch::qLength (interface function)" data-lang-entity="member_variable">
+        TPos BlastMatch::qLength
+    </a></code></span>
+    <span class="summary_desc"><div>The length of the original query sequence (possibly before translation).</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AqStart" title="#BlastMatch::qStart (interface function)" data-lang-entity="member_variable">
+        TPos BlastMatch::qStart
+    </a></code></span>
+    <span class="summary_desc"><div>The start of the alignment on the (possibly translated) query sequence.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AsEnd" title="#BlastMatch::sEnd (interface function)" data-lang-entity="member_variable">
+        TPos BlastMatch::sEnd
+    </a></code></span>
+    <span class="summary_desc"><div>The end of the alignment on the (possibly translated) subject sequence.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AsFrameShift" title="#BlastMatch::sFrameShift (interface function)" data-lang-entity="member_variable">
+        char BlastMatch::sFrameShift
+    </a></code></span>
+    <span class="summary_desc"><div>An indicator for subject frame and subject strand.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AsId" title="#BlastMatch::sId (interface function)" data-lang-entity="member_variable">
+        TSId BlastMatch::sId
+    </a></code></span>
+    <span class="summary_desc"><div>The verbose Id of the subject.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AsLength" title="#BlastMatch::sLength (interface function)" data-lang-entity="member_variable">
+        TPos BlastMatch::sLength
+    </a></code></span>
+    <span class="summary_desc"><div>The length of the original subject sequence (possibly before translation).</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatch%3A%3AsStart" title="#BlastMatch::sStart (interface function)" data-lang-entity="member_variable">
+        TPos BlastMatch::sStart
+    </a></code></span>
+    <span class="summary_desc"><div>The start of the alignment on the (possibly translated) subject sequence.</div></span>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>You should set the following members manually: <a href="class_BlastMatch.html#BlastMatch::qId" data-lang-entity="member_variable">qId</a>, <a href="class_BlastMatch.html#BlastMatch::sId" data-lang-entity="member_variable">sId</a>,
+<a href="class_BlastMatch.html#BlastMatch::qLength" data-lang-entity="member_variable">qLength</a>, <a href="class_BlastMatch.html#BlastMatch::sLength" data-lang-entity="member_variable">sLength</a>,
+<a href="class_BlastMatch.html#BlastMatch::qFrameShift" data-lang-entity="member_variable">qFrameShift</a> and <a href="class_BlastMatch.html#BlastMatch::sFrameShift" data-lang-entity="member_variable">sFrameShift</a>.</p><p>If you then also set valid alignRow-members (<a href="class_BlastMatch.html#BlastMatch::alignRow0" data-lang-entity="member_variable">alignRow0</a>,
+<a href="class_BlastMatch.html#BlastMatch::alignRow1" data-lang-entity="member_variable">alignRow1</a>), you can let the other members be computed by
+<a href="class_BlastMatch.html#BlastMatch#computeAlignmentStats" data-lang-entity="interface_function">computeAlignmentStats</a> and
+<a href="class_BlastMatch.html#BlastMatch#computeBitScore" data-lang-entity="interface_function">computeBitScore</a>, <a href="class_BlastMatch.html#BlastMatch#computeEValue" data-lang-entity="interface_function">computeEValue</a>.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+<div class="member_function_details" data-lang-entity-container="member_function">
+  <h2 data-lang-entity="member_function">Member Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="BlastMatch::BlastMatch()" class="signature first" data-lang-entity="member_function">
+      <code>BlastMatch::BlastMatch()
+BlastMatch::BlastMatch(qId, sId)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Constructor, can be called with arguments for qId and sId.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastMatch::operator<" class="signature" data-lang-entity="member_function">
+      <code>bool BlastMatch::operator&lt; (BlastMatch const & bm2) const</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>The comparison operator (for sorting by bit-score).</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>To facilitate fast sorting of matches in a <a href="class_BlastRecord.html" data-lang-entity="class">BlastRecord</a>, only the bit-score is compared. Also
+large bit-score are sorted to front (i.e. operator&lt; on BlastMatch checks operator&gt;= on the bitScores).</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="BlastMatch#computeAlignmentStats" class="signature first" data-lang-entity="interface_function">
+      <code>void computeAlignmentStats(blastMatch, context);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Compute the <a href="class_BlastMatch.html#BlastMatch::alignStats" data-lang-entity="member_variable">alignStats</a> member of a <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastMatch</code>
+            
+        
+      </th>
+      <td>A <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a> that has a valid align member.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">context</code>
+            
+        
+      </th>
+      <td>A <a href="class_BlastIOContext.html" data-lang-entity="class">BlastIOContext</a> with parameters and buffers.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>The alignRow-members (<a href="class_BlastMatch.html#BlastMatch::alignRow0" data-lang-entity="member_variable">alignRow0</a>, <a href="class_BlastMatch.html#BlastMatch::alignRow1" data-lang-entity="member_variable">alignRow1</a>) are used as
+in-parameter to compute the <a href="class_BlastMatch.html#BlastMatch::alignStats" data-lang-entity="member_variable">alignStats</a> member. This includes the raw
+score, amount of gaps, mismatches et cetera. This is a prerequisite for printing a match to file or computing it's
+e-value.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastMatch#computeBitScore" class="signature" data-lang-entity="interface_function">
+      <code>double computeBitScore(blastMatch, context);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Compute the bit-score for a <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastMatch</code>
+            
+        
+      </th>
+      <td>A <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a> that has a valid align member.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">context</code>
+            
+        
+      </th>
+      <td>A <a href="class_BlastIOContext.html" data-lang-entity="class">BlastIOContext</a> with parameters and buffers.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>double</code></th>
+        <td>blastMatch.<a href="class_BlastMatch.html#BlastMatch::bitScore" data-lang-entity="member_variable">bitScore</a> after computation</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>This will compute the bit-score for a <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>. At least the following
+members need to be set before calling this function:
+<li> blastMatch.<a href="class_BlastMatch.html#BlastMatch::alignStats" data-lang-entity="member_variable">alignStats</a>.<a href="class_AlignmentStats.html#AlignmentStats::alignmentScore" data-lang-entity="member_variable">alignmentScore</a> (if you have valid
+alignRow-members (<a href="class_BlastMatch.html#BlastMatch::alignRow0" data-lang-entity="member_variable">alignRow0</a>, <a href="class_BlastMatch.html#BlastMatch::alignRow1" data-lang-entity="member_variable">alignRow1</a>), you can call
+<a href="class_BlastMatch.html#BlastMatch#computeAlignmentStats" data-lang-entity="interface_function">computeAlignmentStats</a> to compute the stats member). </li></p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastMatch#computeEValue" class="signature" data-lang-entity="interface_function">
+      <code>double computeEValue(blastMatch, context);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Compute the E-Value for a <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastMatch</code>
+            
+        
+      </th>
+      <td>A <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a> that has a valid align member.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">context</code>
+            
+        
+      </th>
+      <td>A <a href="class_BlastIOContext.html" data-lang-entity="class">BlastIOContext</a> with parameters and buffers.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>double</code></th>
+        <td>blastMatch.<a href="class_BlastMatch.html#BlastMatch::eValue" data-lang-entity="member_variable">eValue</a> after computation</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>This will compute the e-value for a <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>. At least the following
+members need to be set before calling this function:
+<li> blastMatch.<a href="class_BlastMatch.html#BlastMatch::alignStats" data-lang-entity="member_variable">alignStats</a>.<a href="class_AlignmentStats.html#AlignmentStats::alignmentScore" data-lang-entity="member_variable">alignmentScore</a> (if you have valid
+alignRow-members (<a href="class_BlastMatch.html#BlastMatch::alignRow0" data-lang-entity="member_variable">alignRow0</a>, <a href="class_BlastMatch.html#BlastMatch::alignRow1" data-lang-entity="member_variable">alignRow1</a>), you can call
+<a href="class_BlastMatch.html#BlastMatch#computeAlignmentStats" data-lang-entity="interface_function">computeAlignmentStats</a> to compute the stats member). </li>
+<li> blastMatch.<a href="class_BlastMatch.html#BlastMatch::qLength" data-lang-entity="member_variable">qLength</a> </li>
+<li> context.<a href="class_BlastIOContext.html#BlastIOContext::dbTotalLength" data-lang-entity="member_variable">dbTotalLength</a> </li></p><p>Note, that in contrast to the general interface (<a href="class_BlastScoringScheme.html#BlastScoringScheme#computeEValue" data-lang-entity="interface_function">computeEValue</a>), this interface
+caches some computation steps in the context and is therefore faster.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+<div class="member_variable_details" data-lang-entity-container="member_variable">
+  <h2 data-lang-entity="member_variable">Member Variables Detail</h2>
+
+  
+  <div class="member_variable_details first">
+    <h3 data-toc="hidden" id="BlastMatch::alignRow0" class="signature first" data-lang-entity="member_variable">
+      <code>TAlign BlastMatch::alignRow0</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>First alignment row (<a href="class_Gaps.html" data-lang-entity="class">Gaps</a> object).</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::alignRow1" class="signature" data-lang-entity="member_variable">
+      <code>TAlign BlastMatch::alignRow1</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Second alignment row (<a href="class_Gaps.html" data-lang-entity="class">Gaps</a> object).</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::alignStats" class="signature" data-lang-entity="member_variable">
+      <code>AlignmentStats BlastMatch::alignStats</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>An <a href="class_AlignmentStats.html" data-lang-entity="class">AlignmentStats</a> object holding further stats of the alignment.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::bitScore" class="signature" data-lang-entity="member_variable">
+      <code>double BlastMatch::bitScore</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The bit-score of the alignment.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::eValue" class="signature" data-lang-entity="member_variable">
+      <code>double BlastMatch::eValue</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The e-value of the alignment.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::qEnd" class="signature" data-lang-entity="member_variable">
+      <code>TPos BlastMatch::qEnd</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The end of the alignment on the (possibly translated) query sequence.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::qFrameShift" class="signature" data-lang-entity="member_variable">
+      <code>char BlastMatch::qFrameShift</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>An indicator for query frame and query strand.</div>
+        
+<div><p>one out of { -3, -2, -1, +1, +2, +3 } where the <tt>absolute value - 1</tt> is
+the shift of the translation frame and a negative sign indicates the reverse
+complement strand [query sequence, only applies for BlastFormatProgram ==
+BLASTX | TBLASTX]; -1 implies reverse complement for BLASTN.</p></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::qId" class="signature" data-lang-entity="member_variable">
+      <code>TQId BlastMatch::qId</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The verbose Id of the query.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::qLength" class="signature" data-lang-entity="member_variable">
+      <code>TPos BlastMatch::qLength</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The length of the original query sequence (possibly before translation).</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::qStart" class="signature" data-lang-entity="member_variable">
+      <code>TPos BlastMatch::qStart</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The start of the alignment on the (possibly translated) query sequence.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::sEnd" class="signature" data-lang-entity="member_variable">
+      <code>TPos BlastMatch::sEnd</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The end of the alignment on the (possibly translated) subject sequence.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::sFrameShift" class="signature" data-lang-entity="member_variable">
+      <code>char BlastMatch::sFrameShift</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>An indicator for subject frame and subject strand.</div>
+        
+<div><p>one out of { -3, -2, -1, +1, +2, +3 } where the <tt>absolute value - 1</tt> is
+the shift of the translation frame and a negative sign indicates the reverse
+complement strand [subject sequence, only applies for BlastFormatProgram ==
+TBLASTN | TBLASTX].</p></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::sId" class="signature" data-lang-entity="member_variable">
+      <code>TSId BlastMatch::sId</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The verbose Id of the subject.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::sLength" class="signature" data-lang-entity="member_variable">
+      <code>TPos BlastMatch::sLength</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The length of the original subject sequence (possibly before translation).</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatch::sStart" class="signature" data-lang-entity="member_variable">
+      <code>TPos BlastMatch::sStart</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The start of the alignment on the (possibly translated) subject sequence.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class BlastMatch
+ * 
+ * @implements AssignableConcept
+ * @implements CopyConstructibleConcept
+ * @implements DefaultConstructibleConcept
+ * @implements EqualityComparableConcept
+ * @implements LessThanComparableConcept
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief An data structure to hold a blast match, also known as high-scoring
+ *        segment pair (HSP)
+ * 
+ * @signature struct BlastMatch&lt;TAlign, TPos, TQId, TSId&gt; { ... };
+ * 
+ * @tparam TAlignRow0 Type of the first alignment row, usually @link Gaps
+ *                    @endlink
+ * @tparam TAlignRow1 Type of the second alignment row, usually @link Gaps
+ *                    @endlink
+ * @tparam TPos Position type of the sequences, defaults to &lt;tt&gt;uint32_t&lt;/tt&gt;
+ * @tparam TQId Type of qId, defaults to std::string
+ * @tparam TSId Type of sId, defaults to std::string
+ * 
+ * You should set the following members manually: @link BlastMatch::qId
+ * @endlink, @link BlastMatch::sId @endlink, @link BlastMatch::qLength @endlink,
+ * @link BlastMatch::sLength @endlink, @link BlastMatch::qFrameShift @endlink
+ * and @link BlastMatch::sFrameShift @endlink.
+ * 
+ * If you then also set valid alignRow-members (@link BlastMatch::alignRow0
+ * @endlink, @link BlastMatch::alignRow1 @endlink), you can let the other
+ * members be computed by @link BlastMatch#computeAlignmentStats @endlink and
+ * @link BlastMatch#computeBitScore @endlink, @link BlastMatch#computeEValue
+ * @endlink.
+ * 
+ * @fn BlastMatch::BlastMatch()
+ * 
+ * @brief Constructor, can be called with arguments for qId and sId.
+ * 
+ * @signature BlastMatch::BlastMatch() BlastMatch::BlastMatch(qId, sId)
+ * 
+ * @fn BlastMatch::operator&lt;
+ * 
+ * @brief The comparison operator (for sorting by bit-score).
+ * 
+ * @signature bool BlastMatch::operator&lt; (BlastMatch const &amp; bm2) const
+ * 
+ * To facilitate fast sorting of matches in a @link BlastRecord @endlink, only
+ * the bit-score is compared. Also large bit-score are sorted to front (i.e.
+ * operator&lt; on BlastMatch checks operator&gt;= on the bitScores).
+ * 
+ * @var TQId BlastMatch::qId;
+ * 
+ * @brief The verbose Id of the query.
+ * 
+ * @var TSId BlastMatch::sId;
+ * 
+ * @brief The verbose Id of the subject.
+ * 
+ * @var TPos BlastMatch::qStart;
+ * 
+ * @brief The start of the alignment on the (possibly translated) query
+ *        sequence.
+ * 
+ * @var TPos BlastMatch::qEnd;
+ * 
+ * @brief The end of the alignment on the (possibly translated) query sequence.
+ * 
+ * @var TPos BlastMatch::sStart;
+ * 
+ * @brief The start of the alignment on the (possibly translated) subject
+ *        sequence.
+ * 
+ * @var TPos BlastMatch::sEnd;
+ * 
+ * @brief The end of the alignment on the (possibly translated) subject
+ *        sequence.
+ * 
+ * @var TPos BlastMatch::qLength;
+ * 
+ * @brief The length of the original query sequence (possibly before
+ *        translation).
+ * 
+ * @var TPos BlastMatch::sLength;
+ * 
+ * @brief The length of the original subject sequence (possibly before
+ *        translation).
+ * 
+ * @var char BlastMatch::qFrameShift;
+ * 
+ * @brief An indicator for query frame and query strand.
+ * 
+ * one out of { -3, -2, -1, +1, +2, +3 } where the &lt;tt&gt;absolute value - 1&lt;/tt&gt;
+ * is the shift of the translation frame and a negative sign indicates the
+ * reverse complement strand [query sequence, only applies for
+ * BlastFormatProgram == BLASTX | TBLASTX]; -1 implies reverse complement for
+ * BLASTN.
+ * 
+ * @var char BlastMatch::sFrameShift;
+ * 
+ * @brief An indicator for subject frame and subject strand.
+ * 
+ * one out of { -3, -2, -1, +1, +2, +3 } where the &lt;tt&gt;absolute value - 1&lt;/tt&gt;
+ * is the shift of the translation frame and a negative sign indicates the
+ * reverse complement strand [subject sequence, only applies for
+ * BlastFormatProgram == TBLASTN | TBLASTX].
+ * 
+ * @var double BlastMatch::eValue;
+ * 
+ * @brief The e-value of the alignment.
+ * 
+ * @var double BlastMatch::bitScore;
+ * 
+ * @brief The bit-score of the alignment.
+ * 
+ * @var AlignmentStats BlastMatch::alignStats;
+ * 
+ * @brief An @link AlignmentStats @endlink object holding further stats of the
+ *        alignment.
+ * 
+ * @var TAlign BlastMatch::alignRow0;
+ * 
+ * @brief First alignment row (@link Gaps @endlink object).
+ * 
+ * @var TAlign BlastMatch::alignRow1;
+ * 
+ * @brief Second alignment row (@link Gaps @endlink object).
+ * 
+ * @fn BlastMatch#computeAlignmentStats
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Compute the @link BlastMatch::alignStats @endlink member of a @link
+ *        BlastMatch @endlink.
+ * 
+ * @signature void computeAlignmentStats(blastMatch, context);
+ * 
+ * @param[in,out] blastMatch A @link BlastMatch @endlink that has a valid align
+ *                           member.
+ * @param[in] context A @link BlastIOContext @endlink with parameters and
+ *                    buffers.
+ * 
+ * The alignRow-members (@link BlastMatch::alignRow0 @endlink, @link
+ * BlastMatch::alignRow1 @endlink) are used as in-parameter to compute the @link
+ * BlastMatch::alignStats @endlink member. This includes the raw score, amount
+ * of gaps, mismatches et cetera. This is a prerequisite for printing a match to
+ * file or computing it&#39;s e-value.
+ * 
+ * @fn BlastMatch#computeBitScore
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Compute the bit-score for a @link BlastMatch @endlink.
+ * 
+ * @signature double computeBitScore(blastMatch, context);
+ * 
+ * @param[in,out] blastMatch A @link BlastMatch @endlink that has a valid align
+ *                           member.
+ * @param[in] context A @link BlastIOContext @endlink with parameters and
+ *                    buffers.
+ * 
+ * @return double blastMatch.@link BlastMatch::bitScore @endlink after
+ *                computation
+ * 
+ * @section Remarks
+ * 
+ * This will compute the bit-score for a @link BlastMatch @endlink. At least the
+ * following members need to be set before calling this function: &lt;li&gt;
+ * blastMatch.@link BlastMatch::alignStats @endlink.@link
+ * AlignmentStats::alignmentScore @endlink (if you have valid alignRow-members
+ * (@link BlastMatch::alignRow0 @endlink, @link BlastMatch::alignRow1 @endlink),
+ * you can call @link BlastMatch#computeAlignmentStats @endlink to compute the
+ * stats member). &lt;/li&gt;
+ * 
+ * @fn BlastMatch#computeEValue
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Compute the E-Value for a @link BlastMatch @endlink.
+ * 
+ * @signature double computeEValue(blastMatch, context);
+ * 
+ * @param[in,out] blastMatch A @link BlastMatch @endlink that has a valid align
+ *                           member.
+ * @param[in,out] context A @link BlastIOContext @endlink with parameters and
+ *                        buffers.
+ * 
+ * @return double blastMatch.@link BlastMatch::eValue @endlink after computation
+ * 
+ * @section Remarks
+ * 
+ * This will compute the e-value for a @link BlastMatch @endlink. At least the
+ * following members need to be set before calling this function: &lt;li&gt;
+ * blastMatch.@link BlastMatch::alignStats @endlink.@link
+ * AlignmentStats::alignmentScore @endlink (if you have valid alignRow-members
+ * (@link BlastMatch::alignRow0 @endlink, @link BlastMatch::alignRow1 @endlink),
+ * you can call @link BlastMatch#computeAlignmentStats @endlink to compute the
+ * stats member). &lt;/li&gt; &lt;li&gt; blastMatch.@link BlastMatch::qLength @endlink &lt;/li&gt;
+ * &lt;li&gt; context.@link BlastIOContext::dbTotalLength @endlink &lt;/li&gt;
+ * 
+ * Note, that in contrast to the general interface (@link
+ * BlastScoringScheme#computeEValue @endlink), this interface caches some
+ * computation steps in the context and is therefore faster.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,1007 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="group_atomicprimitives" data-page="AtomicPrimitives">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Atomic Primitives - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="group" data-pimped="true">
+  <a href="page_LanguageEntities.html#group">Group</a> <span>Atomic Primitives
+  <div><div>Portable atomic operations.</div></div></span>
+</h1>
+
+<!--
+ =============================================================================
+  Grouped Overview
+ =============================================================================
+-->
+
+<!-- Grouped Tags Overview -->
+
+
+
+
+
+<!-- Grouped Tags Overview -->
+
+
+
+
+
+<!-- Grouped Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Grouped Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#AtomicPrimitives%23atomicAdd" title="#AtomicPrimitives#atomicAdd (interface function)" data-lang-entity="interface_function">TResult atomicAdd(x, y)</a></code></span>
+    <span class="summary_desc"><div>Atomically add an integer to another integer.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#AtomicPrimitives%23atomicCas" title="#AtomicPrimitives#atomicCas (interface function)" data-lang-entity="interface_function">TResult atomicCas(x, cmp, y)</a></code></span>
+    <span class="summary_desc"><div>Atomic ompare-and-Swap operation.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#AtomicPrimitives%23atomicDec" title="#AtomicPrimitives#atomicDec (interface function)" data-lang-entity="interface_function">TResult atomicDec(x);</a></code></span>
+    <span class="summary_desc"><div>Atomically decrement an integer.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#AtomicPrimitives%23atomicInc" title="#AtomicPrimitives#atomicInc (interface function)" data-lang-entity="interface_function">TResult atomicInc(x);</a></code></span>
+    <span class="summary_desc"><div>Atomically increment an integer.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#AtomicPrimitives%23atomicOr" title="#AtomicPrimitives#atomicOr (interface function)" data-lang-entity="interface_function">TResult atomicOr(x, y);</a></code></span>
+    <span class="summary_desc"><div>Atomically combine two integers with <tt>OR</tt> operation.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#AtomicPrimitives%23atomicXor" title="#AtomicPrimitives#atomicXor (interface function)" data-lang-entity="interface_function">TResult atomicXor(x, y);</a></code></span>
+    <span class="summary_desc"><div>Atomically combine two integers with <tt>XOR</tt> operation.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Grouped Metafunctions Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Grouped Details
+ =============================================================================
+-->
+
+<!-- Grouped Tags Details -->
+
+
+
+
+<!-- Grouped macros Details -->
+
+
+
+
+<!-- Grouped Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Grouped Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="AtomicPrimitives#atomicAdd" class="signature first" data-lang-entity="interface_function">
+      <code>TResult atomicAdd(x, y)</code>
+    </h3>
+  </div>
+
+  
+  <dl>
+    <dt>Defined in</dt>
+    <dd>
+      
+      &lt;seqan/parallel.h&gt;
+      
+      
+    </dd>
+  </dl>
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Atomically add an integer to another integer.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">x</code>
+            
+        
+      </th>
+      <td>Integer, by reference.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">y</code>
+            
+        
+      </th>
+      <td>Integer to add to <tt>x</tt>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TResult</code></th>
+        <td>The old value of <tt>x</tt>.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>This is equivalent to an atomic <tt>x += y</tt>.</p><p>Note that atomic fetch-and-add is limited to 32 bit and 64 bit with MSVC (64 bit is only available on 64 bit
+Windows).</p><p>You are responsible for correctly aligning <tt>x</tt> such that the atomic increment works on the hardware you
+target.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="AtomicPrimitives#atomicCas" class="signature" data-lang-entity="interface_function">
+      <code>TResult atomicCas(x, cmp, y)</code>
+    </h3>
+  </div>
+
+  
+  <dl>
+    <dt>Defined in</dt>
+    <dd>
+      
+      &lt;seqan/parallel.h&gt;
+      
+      
+    </dd>
+  </dl>
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Atomic ompare-and-Swap operation.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">x</code>
+            
+        
+      </th>
+      <td>Pointer to the integer to swap.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">cmp</code>
+            
+        
+      </th>
+      <td>Value to compare <tt>x</tt> with.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">y</code>
+            
+        
+      </th>
+      <td>Value to set <tt>x</tt> to if it is equal to <tt>cmp</tt>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TResult</code></th>
+        <td>Returns the original value of x.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>The pseudo code for this is as follows:</p><div data-src-path="None"><pre class="code">atomic {
+    T val = *(&amp;x);
+    if (val == cmp)
+        *(&amp;x) = y;
+    return val;
+}</pre></div><p>On Windows, atomic CAS is only available for 16, 32, and 64 bit integers, 64 bit is only available on 64 bit Windows.</p><p>You are responsible for correctly aligning <tt>x</tt> such that the atomic increment works on the hardware you
+target.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="AtomicPrimitives#atomicDec" class="signature" data-lang-entity="interface_function">
+      <code>TResult atomicDec(x);</code>
+    </h3>
+  </div>
+
+  
+  <dl>
+    <dt>Defined in</dt>
+    <dd>
+      
+      &lt;seqan/parallel.h&gt;
+      
+      
+    </dd>
+  </dl>
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Atomically decrement an integer.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">x</code>
+            
+        
+      </th>
+      <td>An integer, by reference.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TResult</code></th>
+        <td>The old value of $x$, <tt>TResult</tt> has the same type as <tt>x</tt>.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>This is equivalent to an atomic <tt>--x</tt>.</p><p>Note that atomic decrements are limited to 32 bit and 64 bit with MSVC (64 bit is only available on 64 bit Windows).</p><p>You are responsible for correctly aligning <tt>x</tt> such that the atomic decrement works on the hardware you
+target.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="AtomicPrimitives#atomicInc" class="signature" data-lang-entity="interface_function">
+      <code>TResult atomicInc(x);</code>
+    </h3>
+  </div>
+
+  
+  <dl>
+    <dt>Defined in</dt>
+    <dd>
+      
+      &lt;seqan/parallel.h&gt;
+      
+      
+    </dd>
+  </dl>
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Atomically increment an integer.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">x</code>
+            
+        
+      </th>
+      <td>An integer, by reference.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TResult</code></th>
+        <td>The old value of $x$, <tt>TResult</tt> has the same type as <tt>x</tt>.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>This is equivalent to an atomic <tt>++x</tt>.</p><p>Note that atomic increments are limited to 32 bit and 64 bit with MSVC (64 bit is only available on 64 bit Windows).</p><p>You are responsible for correctly aligning <tt>x</tt> such that the atomic increment works on the hardware you
+target.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="AtomicPrimitives#atomicOr" class="signature" data-lang-entity="interface_function">
+      <code>TResult atomicOr(x, y);</code>
+    </h3>
+  </div>
+
+  
+  <dl>
+    <dt>Defined in</dt>
+    <dd>
+      
+      &lt;seqan/parallel.h&gt;
+      
+      
+    </dd>
+  </dl>
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Atomically combine two integers with <tt>OR</tt> operation.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">x</code>
+            
+        
+      </th>
+      <td>Integer, by reference.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">y</code>
+            
+        
+      </th>
+      <td>Integer to combine with <tt>OR</tt> operation.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TResult</code></th>
+        <td>The old value of <tt>x</tt>, <tt>TResult</tt> is the type of <tt>x</tt>.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>This is equivalent to an atomic <tt>x |= y</tt>.</p><p>Atomic fetch-and-or for 64 bit integers is only available on 64 bit processors when targeting Intel.</p><p>Atomic fetch-and-or does not work in VS8 on 64 bit Windows, you can only use <tt>atomicOr()</tt> portably on 32 and
+64 bit integers.</p><p>You are responsible for correctly aligning <tt>x</tt> such that the atomic increment works on the hardware you
+target.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="AtomicPrimitives#atomicXor" class="signature" data-lang-entity="interface_function">
+      <code>TResult atomicXor(x, y);</code>
+    </h3>
+  </div>
+
+  
+  <dl>
+    <dt>Defined in</dt>
+    <dd>
+      
+      &lt;seqan/parallel.h&gt;
+      
+      
+    </dd>
+  </dl>
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Atomically combine two integers with <tt>XOR</tt> operation.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">x</code>
+            
+        
+      </th>
+      <td>Integer, by reference.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">y</code>
+            
+        
+      </th>
+      <td>Integer to combine with <tt>XOR</tt> operation.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TResult</code></th>
+        <td>The old value of <tt>x</tt>, <tt>TResult</tt> is the type of <tt>x</tt>.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>This is equivalent to an atomic <tt>x ^= y</tt>.</p><p>Atomic fetch-and-xor fxor 64 bit integers is only available on 64 bit processxors when targeting Intel.</p><p>Atomic fetch-and-xor does not wxork in VS8 on 64 bit Windows, you can only use <tt>atomicXor()</tt> pxortably on 32 and
+64 bit integers.</p><p>You are responsible fxor cxorrectly aligning <tt>x</tt> such that the atomic increment wxorks on the hardware you
+target.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Grouped Metafunctions Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @defgroup AtomicPrimitives Atomic Primitives
+ * 
+ * @brief Portable atomic operations.
+ * 
+ * @fn AtomicPrimitives#atomicInc
+ * 
+ * @headerfile &lt;seqan/parallel.h&gt;
+ * 
+ * @brief Atomically increment an integer.
+ * 
+ * @signature TResult atomicInc(x);
+ * 
+ * @param[in,out] x An integer, by reference.
+ * 
+ * @return TResult The old value of $x$, &lt;tt&gt;TResult&lt;/tt&gt; has the same type as
+ *                 &lt;tt&gt;x&lt;/tt&gt;.
+ * 
+ * @section Remarks
+ * 
+ * This is equivalent to an atomic &lt;tt&gt;++x&lt;/tt&gt;.
+ * 
+ * Note that atomic increments are limited to 32 bit and 64 bit with MSVC (64
+ * bit is only available on 64 bit Windows).
+ * 
+ * You are responsible for correctly aligning &lt;tt&gt;x&lt;/tt&gt; such that the atomic
+ * increment works on the hardware you target.
+ * 
+ * @fn AtomicPrimitives#atomicDec
+ * 
+ * @headerfile &lt;seqan/parallel.h&gt;
+ * 
+ * @brief Atomically decrement an integer.
+ * 
+ * @signature TResult atomicDec(x);
+ * 
+ * @param[in,out] x An integer, by reference.
+ * 
+ * @return TResult The old value of $x$, &lt;tt&gt;TResult&lt;/tt&gt; has the same type as
+ *                 &lt;tt&gt;x&lt;/tt&gt;.
+ * 
+ * @section Remarks
+ * 
+ * This is equivalent to an atomic &lt;tt&gt;--x&lt;/tt&gt;.
+ * 
+ * Note that atomic decrements are limited to 32 bit and 64 bit with MSVC (64
+ * bit is only available on 64 bit Windows).
+ * 
+ * You are responsible for correctly aligning &lt;tt&gt;x&lt;/tt&gt; such that the atomic
+ * decrement works on the hardware you target.
+ * 
+ * @fn AtomicPrimitives#atomicAdd
+ * 
+ * @headerfile &lt;seqan/parallel.h&gt;
+ * 
+ * @brief Atomically add an integer to another integer.
+ * 
+ * @signature TResult atomicAdd(x, y)
+ * 
+ * @param[in,out] x Integer, by reference.
+ * @param[in] y Integer to add to &lt;tt&gt;x&lt;/tt&gt;.
+ * 
+ * @return TResult The old value of &lt;tt&gt;x&lt;/tt&gt;.
+ * 
+ * @section Remarks
+ * 
+ * This is equivalent to an atomic &lt;tt&gt;x += y&lt;/tt&gt;.
+ * 
+ * Note that atomic fetch-and-add is limited to 32 bit and 64 bit with MSVC (64
+ * bit is only available on 64 bit Windows).
+ * 
+ * You are responsible for correctly aligning &lt;tt&gt;x&lt;/tt&gt; such that the atomic
+ * increment works on the hardware you target.
+ * 
+ * @fn AtomicPrimitives#atomicOr
+ * 
+ * @headerfile &lt;seqan/parallel.h&gt;
+ * 
+ * @brief Atomically combine two integers with &lt;tt&gt;OR&lt;/tt&gt; operation.
+ * 
+ * @signature TResult atomicOr(x, y);
+ * 
+ * @param[in,out] x Integer, by reference.
+ * @param[in] y Integer to combine with &lt;tt&gt;OR&lt;/tt&gt; operation.
+ * 
+ * @return TResult The old value of &lt;tt&gt;x&lt;/tt&gt;, &lt;tt&gt;TResult&lt;/tt&gt; is the type of
+ *                 &lt;tt&gt;x&lt;/tt&gt;.
+ * 
+ * @section Remarks
+ * 
+ * This is equivalent to an atomic &lt;tt&gt;x |= y&lt;/tt&gt;.
+ * 
+ * Atomic fetch-and-or for 64 bit integers is only available on 64 bit
+ * processors when targeting Intel.
+ * 
+ * Atomic fetch-and-or does not work in VS8 on 64 bit Windows, you can only use
+ * &lt;tt&gt;atomicOr()&lt;/tt&gt; portably on 32 and 64 bit integers.
+ * 
+ * You are responsible for correctly aligning &lt;tt&gt;x&lt;/tt&gt; such that the atomic
+ * increment works on the hardware you target.
+ * 
+ * @fn AtomicPrimitives#atomicXor
+ * 
+ * @headerfile &lt;seqan/parallel.h&gt;
+ * 
+ * @brief Atomically combine two integers with &lt;tt&gt;XOR&lt;/tt&gt; operation.
+ * 
+ * @signature TResult atomicXor(x, y);
+ * 
+ * @param[in,out] x Integer, by reference.
+ * @param[in] y Integer to combine with &lt;tt&gt;XOR&lt;/tt&gt; operation.
+ * 
+ * @return TResult The old value of &lt;tt&gt;x&lt;/tt&gt;, &lt;tt&gt;TResult&lt;/tt&gt; is the type of
+ *                 &lt;tt&gt;x&lt;/tt&gt;.
+ * 
+ * @section Remarks
+ * 
+ * This is equivalent to an atomic &lt;tt&gt;x ^= y&lt;/tt&gt;.
+ * 
+ * Atomic fetch-and-xor fxor 64 bit integers is only available on 64 bit
+ * processxors when targeting Intel.
+ * 
+ * Atomic fetch-and-xor does not wxork in VS8 on 64 bit Windows, you can only
+ * use &lt;tt&gt;atomicXor()&lt;/tt&gt; pxortably on 32 and 64 bit integers.
+ * 
+ * You are responsible fxor cxorrectly aligning &lt;tt&gt;x&lt;/tt&gt; such that the atomic
+ * increment wxorks on the hardware you target.
+ * 
+ * @fn AtomicPrimitives#atomicCas
+ * 
+ * @headerfile &lt;seqan/parallel.h&gt;
+ * 
+ * @brief Atomic ompare-and-Swap operation.
+ * 
+ * @signature TResult atomicCas(x, cmp, y)
+ * 
+ * @param[in,out] x Pointer to the integer to swap.
+ * @param[in,out] cmp Value to compare &lt;tt&gt;x&lt;/tt&gt; with.
+ * @param[in] y Value to set &lt;tt&gt;x&lt;/tt&gt; to if it is equal to &lt;tt&gt;cmp&lt;/tt&gt;.
+ * 
+ * @return TResult Returns the original value of x.
+ * 
+ * @section Remarks
+ * 
+ * The pseudo code for this is as follows:
+ * 
+ * @code{.cpp}
+ * atomic {
+ *     T val = *(&amp;x);
+ *     if (val == cmp)
+ *         *(&amp;x) = y;
+ *     return val;
+ * }
+ * @endcode
+ * 
+ * 
+ * On Windows, atomic CAS is only available for 16, 32, and 64 bit integers, 64
+ * bit is only available on 64 bit Windows.
+ * 
+ * You are responsible for correctly aligning &lt;tt&gt;x&lt;/tt&gt; such that the atomic
+ * increment works on the hardware you target.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

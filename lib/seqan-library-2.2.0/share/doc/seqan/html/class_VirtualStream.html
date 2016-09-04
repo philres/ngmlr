@@ -1,0 +1,997 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_virtualstream" data-page="VirtualStream">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>VirtualStream - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>VirtualStream<div><div>Provides seamless (de)compression for another <a href="concept_StreamConcept.html" data-lang-entity="concept">stream</a>.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+  <tr>
+    <th>Implements</dt>
+    <td>
+    <a href="concept_StreamConcept.html" data-lang-entity="concept">StreamConcept</a>
+    
+    </td>
+  </tr>
+  
+
+  
+
+  
+
+  
+  <tr>
+    <th>All Impl'd</dt>
+    <td>
+    <a href="concept_StreamConcept.html" data-lang-entity="concept">StreamConcept</a>
+    
+    </td>
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/stream.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>template &lt;typename TValue, typename TDirection, typename TTraits&gt;
+class VirtualStream;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TValue</a></code></th>
+        <td>The stream value type, e.g. <tt>char</tt>.</td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TDirection</a></code></th>
+        <td>The stream direction, one of <a href="group_DirectionTags.html" data-lang-entity="group">DirectionTags</a>.</td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TTraits</a></code></th>
+        <td>The stream traits, defaults to <tt>std::char_traits&lt;TValue&gt;</tt>.</td>
+    </tr>
+
+</table>
+</div>
+
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#VirtualStream%3A%3AgetFileExtensions" title="#VirtualStream::getFileExtensions (interface function)" data-lang-entity="member_function">TExtensionVector getFileExtensions()</a></code></span>
+    <span class="summary_desc"><div>Static function that returns a list of allowed file format extension.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#VirtualStream%3A%3AVirtualStream" title="#VirtualStream::VirtualStream (interface function)" data-lang-entity="member_function">VirtualStream::VirtualStream();, VirtualStream::VirtualStream(stream);, VirtualStream::VirtualStream(streamBuf);, VirtualStream::VirtualStream(fileName, openMode);</a></code></span>
+    <span class="summary_desc"><div>Default constructor and construction from stream, stream buffer, or filename.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#VirtualStream%23close" title="#VirtualStream#close (interface function)" data-lang-entity="interface_function">bool close(stream);</a></code></span>
+    <span class="summary_desc"><div>Close a VirtualStream.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#VirtualStream%23format" title="#VirtualStream#format (interface function)" data-lang-entity="interface_function">TFormat format(stream);</a></code></span>
+    <span class="summary_desc"><div>Return the format of a VirtualStream.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#VirtualStream%23open" title="#VirtualStream#open (interface function)" data-lang-entity="interface_function">bool open(stream, fileStream);, bool open(stream, fileName, openMode);</a></code></span>
+    <span class="summary_desc"><div>Open a VirtualStream.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_StreamConcept.html" data-lang-entity="concept">StreamConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_StreamConcept.html#StreamConcept#position" data-lang-entity="interface_function">position</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_StreamConcept.html#StreamConcept#setPosition" data-lang-entity="interface_function">setPosition</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_StreamConcept.html#StreamConcept#atEnd" data-lang-entity="interface_function">atEnd</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_StreamConcept.html#StreamConcept#directionIterator" data-lang-entity="interface_function">directionIterator</a></code></span></li>
+  
+</ul>
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+
+
+<div data-lang-entity-container="interface_metafunction">
+<h2 data-lang-entity="interface_metafunction">Interface  Metafunction Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#VirtualStream%23StreamFormat" title="#VirtualStream#StreamFormat (interface function)" data-lang-entity="interface_metafunction">StreamFormat&lt;TStream&gt;::Type;</a></code></span>
+    <span class="summary_desc"><div>Metafunction for retrieving the format type of a <a href="class_VirtualStream.html" data-lang-entity="class">VirtualStream</a>.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Metafunctions Inherited From <a href="concept_StreamConcept.html" data-lang-entity="concept">StreamConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_StreamConcept.html#StreamConcept#DirectionIterator" data-lang-entity="interface_metafunction">DirectionIterator</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_StreamConcept.html#StreamConcept#Position" data-lang-entity="interface_metafunction">Position</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_StreamConcept.html#StreamConcept#Size" data-lang-entity="interface_metafunction">Size</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_StreamConcept.html#StreamConcept#Value" data-lang-entity="interface_metafunction">Value</a></code></span></li>
+  
+</ul>
+
+
+
+
+</div>
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+<div class="member_function_details" data-lang-entity-container="member_function">
+  <h2 data-lang-entity="member_function">Member Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="VirtualStream::getFileExtensions" class="signature first" data-lang-entity="member_function">
+      <code>TExtensionVector getFileExtensions()</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Static function that returns a list of allowed file format extension.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TExtensionVector</code></th>
+        <td>A <tt>std::vector&lt;std::string&gt;</tt> with the allowed file extensions.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="VirtualStream::VirtualStream" class="signature" data-lang-entity="member_function">
+      <code>VirtualStream::VirtualStream();
+VirtualStream::VirtualStream(stream);
+VirtualStream::VirtualStream(streamBuf);
+VirtualStream::VirtualStream(fileName, openMode);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Default constructor and construction from stream, stream buffer, or filename.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">stream</code>
+            
+        
+      </th>
+      <td>The <a href="concept_StreamConcept.html" data-lang-entity="concept">stream</a> to attach to.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">streamBuf</code>
+            
+        
+      </th>
+      <td>The <a href="class_StreamBuffer.html" data-lang-entity="class">stream buffer</a> to attach to.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">fileName</code>
+            
+        
+      </th>
+      <td>Path to the file to open. Type: <tt>char const *</tt>.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">openMode</code>
+            
+        
+      </th>
+      <td>The open mode. Type: <tt>int</tt>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="VirtualStream#close" class="signature first" data-lang-entity="interface_function">
+      <code>bool close(stream);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Close a VirtualStream.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">stream</code>
+            
+        
+      </th>
+      <td>The VirtualStream to close.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>bool</code></th>
+        <td><tt>true</tt> in the case of success, <tt>false</tt> otherwise.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="VirtualStream#format" class="signature" data-lang-entity="interface_function">
+      <code>TFormat format(stream);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Return the format of a VirtualStream.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">stream</code>
+            
+        
+      </th>
+      <td>The VirtualStream to check.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TFormat</code></th>
+        <td>The type as returned from <a href="class_VirtualStream.html#VirtualStream#StreamFormat" data-lang-entity="interface_metafunction">StreamFormat</a>.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="VirtualStream#open" class="signature" data-lang-entity="interface_function">
+      <code>bool open(stream, fileStream);
+bool open(stream, fileName, openMode);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Open a VirtualStream.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">stream</code>
+            
+        
+      </th>
+      <td>The VirtualStream to open.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            <code>[</code>
+        
+      </th>
+      <td>in,out fileStream File stream to attach to. Type: <tt>std::fstream</tt>.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">fileName</code>
+            
+        
+      </th>
+      <td>Path to the file to open. Type: <tt>char const *</tt>.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">openMode</code>
+            
+        
+      </th>
+      <td>The open mode. Type: <tt>int</tt>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>bool</code></th>
+        <td><tt>true</tt> in the case of success, <tt>false</tt> otherwise.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+<div class="interface_metafunction_details" data-lang-entity-container="">
+<h2 data-lang-entity="interface_metafunction">Interface Metafunctions Detail</h2>
+
+
+<div class="method_details first">
+  <h3 data-toc="hidden" id="VirtualStream#StreamFormat" class="signature first" data-lang-entity="interface_metafunction">
+    <code>StreamFormat&lt;TStream&gt;::Type;</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Metafunction for retrieving the format type of a <a href="class_VirtualStream.html" data-lang-entity="class">VirtualStream</a>.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TStream</code></th>
+            <td>The stream file type to query for its file format type.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>Type</code></th>
+            <td>The resulting <a href="class_VirtualStream.html" data-lang-entity="class">VirtualStream</a> file formats type.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class VirtualStream
+ * 
+ * @implements StreamConcept
+ * 
+ * @headerfile &lt;seqan/stream.h&gt;
+ * 
+ * @brief Provides seamless (de)compression for another @link StreamConcept
+ *        stream @endlink.
+ * 
+ * @signature template &lt;typename TValue, typename TDirection, typename TTraits&gt;
+ *            class VirtualStream;
+ * 
+ * @tparam TValue The stream value type, e.g. &lt;tt&gt;char&lt;/tt&gt;.
+ * @tparam TDirection The stream direction, one of @link DirectionTags @endlink.
+ * @tparam TTraits The stream traits, defaults to
+ *                 &lt;tt&gt;std::char_traits&amp;lt;TValue&amp;gt;&lt;/tt&gt;.
+ * 
+ * @mfn VirtualStream#StreamFormat
+ * 
+ * @brief Metafunction for retrieving the format type of a @link VirtualStream
+ *        @endlink.
+ * 
+ * @signature StreamFormat&lt;TStream&gt;::Type;
+ * 
+ * @tparam TStream The stream file type to query for its file format type.
+ * 
+ * @return Type The resulting @link VirtualStream @endlink file formats type.
+ * 
+ * @fn VirtualStream::VirtualStream
+ * 
+ * @brief Default constructor and construction from stream, stream buffer, or
+ *        filename.
+ * 
+ * @signature VirtualStream::VirtualStream();
+ * @signature VirtualStream::VirtualStream(stream);
+ * @signature VirtualStream::VirtualStream(streamBuf);
+ * @signature VirtualStream::VirtualStream(fileName, openMode);
+ * 
+ * @param[in] stream The @link StreamConcept stream @endlink to attach to.
+ * @param[in] streamBuf The @link StreamBuffer stream buffer @endlink to attach
+ *                      to.
+ * @param[in] fileName Path to the file to open. Type: &lt;tt&gt;char const *&lt;/tt&gt;.
+ * @param[in] openMode The open mode. Type: &lt;tt&gt;int&lt;/tt&gt;.
+ * 
+ * @fn VirtualStream::getFileExtensions
+ * 
+ * @brief Static function that returns a list of allowed file format extension.
+ * 
+ * @signature TExtensionVector getFileExtensions()
+ * 
+ * @return TExtensionVector A &lt;tt&gt;std::vector&amp;lt;std::string&amp;gt;&lt;/tt&gt; with the
+ *                          allowed file extensions.
+ * 
+ * @fn VirtualStream#open
+ * 
+ * @brief Open a VirtualStream.
+ * 
+ * @signature bool open(stream, fileStream);
+ * @signature bool open(stream, fileName, openMode);
+ * 
+ * @param[in,out] stream The VirtualStream to open.
+ * @param [ in,out fileStream File stream to attach to. Type:
+ *          &lt;tt&gt;std::fstream&lt;/tt&gt;.
+ * @param[in] fileName Path to the file to open. Type: &lt;tt&gt;char const *&lt;/tt&gt;.
+ * @param[in] openMode The open mode. Type: &lt;tt&gt;int&lt;/tt&gt;.
+ * 
+ * @return bool &lt;tt&gt;true&lt;/tt&gt; in the case of success, &lt;tt&gt;false&lt;/tt&gt; otherwise.
+ * 
+ * @fn VirtualStream#close
+ * 
+ * @brief Close a VirtualStream.
+ * 
+ * @signature bool close(stream);
+ * 
+ * @param[in,out] stream The VirtualStream to close.
+ * 
+ * @return bool &lt;tt&gt;true&lt;/tt&gt; in the case of success, &lt;tt&gt;false&lt;/tt&gt; otherwise.
+ * 
+ * @fn VirtualStream#format
+ * 
+ * @brief Return the format of a VirtualStream.
+ * 
+ * @signature TFormat format(stream);
+ * 
+ * @param[in] stream The VirtualStream to check.
+ * 
+ * @return TFormat The type as returned from @link VirtualStream#StreamFormat
+ *                 @endlink.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

@@ -1,16 +1,9 @@
-/*
- * SWCPU.h
- *
- *  Created on: Jun 15, 2011
- *      Author: fritz
- */
-
 #ifndef CONVEXALIGN_H_
 #define CONVEXALIGN_H_
 
 #include "IAlignment.h"
 
-#include "core/Types.h"
+#include "Types.h"
 #include "AlignmentMatrix.h"
 
 namespace Convex {

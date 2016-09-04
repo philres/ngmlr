@@ -1,16 +1,11 @@
-/*
- * SAMrecord.h
- *
- *  Created on: Apr 4, 2014
- *      Author: fritz
- */
-
 #ifndef SAMRECORD_H_
 #define SAMRECORD_H_
+
 #include <string.h>
 #include <stdint.h>
+
 #include "api/BamMultiReader.h"
-//#include "api/BamWriter.h"
+
 using namespace BamTools;
 using namespace std;
 class SAMRecord {

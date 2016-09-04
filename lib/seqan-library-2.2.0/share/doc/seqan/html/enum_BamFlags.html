@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="enum_bamflags" data-page="BamFlags">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>BamFlags - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="enum" data-pimped="true">
+  <a href="page_LanguageEntities.html#enum">Enum</a> <span>BamFlags<div><div>Shortcuts to the bitmask flags for BAM/SAM files.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/bam_io.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>enum BamFlags;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+
+<div class="enum_value_details" data-lang-entity-container="enum">
+
+  <h2 data-lang-entity="enum">Enum Values</h2>
+
+  <table class="overview">
+    
+         <tr>
+            <th><code>BAM_FLAG_MULTIPLE = 0x0001</code></th>
+            <td>
+                <div>Template has multiple fragments in sequencing.</div>
+                
+<div></div>
+
+            </td>
+        </tr>
+    
+         <tr>
+            <th><code>BAM_FLAG_ALL_PROPER = 0x0002</code></th>
+            <td>
+                <div>All fragments in the template are properly mapped.</div>
+                
+<div></div>
+
+            </td>
+        </tr>
+    
+         <tr>
+            <th><code>BAM_FLAG_UNMAPPED = 0x0004</code></th>
+            <td>
+                <div>This fragment is unmapped.</div>
+                
+<div></div>
+
+            </td>
+        </tr>
+    
+         <tr>
+            <th><code>BAM_FLAG_NEXT_UNMAPPED = 0x0008</code></th>
+            <td>
+                <div>Next fragment in template is unmapped.</div>
+                
+<div></div>
+
+            </td>
+        </tr>
+    
+         <tr>
+            <th><code>BAM_FLAG_RC = 0x0010</code></th>
+            <td>
+                <div>Fragment is reverse-complemented.</div>
+                
+<div></div>
+
+            </td>
+        </tr>
+    
+         <tr>
+            <th><code>BAM_FLAG_NEXT_RC = 0x0020</code></th>
+            <td>
+                <div>Next fragment in template is reverse-complemented.</div>
+                
+<div></div>
+
+            </td>
+        </tr>
+    
+         <tr>
+            <th><code>BAM_FLAG_FIRST = 0x0040</code></th>
+            <td>
+                <div>This fragment is the first one in its template.</div>
+                
+<div></div>
+
+            </td>
+        </tr>
+    
+         <tr>
+            <th><code>BAM_FLAG_LAST = 0x0080</code></th>
+            <td>
+                <div>This fragment is the last one in its template (second in case of paired sequencing).</div>
+                
+<div></div>
+
+            </td>
+        </tr>
+    
+         <tr>
+            <th><code>BAM_FLAG_SECONDARY = 0x0100</code></th>
+            <td>
+                <div>Secondary alignment.</div>
+                
+<div></div>
+
+            </td>
+        </tr>
+    
+         <tr>
+            <th><code>BAM_FLAG_QC_NO_PASS = 0x0200</code></th>
+            <td>
+                <div>Does not pass quality controls.</div>
+                
+<div></div>
+
+            </td>
+        </tr>
+    
+         <tr>
+            <th><code>BAM_FLAG_DUPLICATE = 0x0400</code></th>
+            <td>
+                <div>PCR or optical duplicate.</div>
+                
+<div></div>
+
+            </td>
+        </tr>
+    
+  </table>
+</div>
+
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @enum BamFlags
+ * 
+ * @headerfile &lt;seqan/bam_io.h&gt;
+ * 
+ * @brief Shortcuts to the bitmask flags for BAM/SAM files.
+ * 
+ * @signature enum BamFlags;
+ * 
+ * @val BamFlags BAM_FLAG_MULTIPLE = 0x0001;
+ * 
+ * @brief Template has multiple fragments in sequencing.
+ * 
+ * @val BamFlags BAM_FLAG_ALL_PROPER = 0x0002;
+ * 
+ * @brief All fragments in the template are properly mapped.
+ * 
+ * @val BamFlags BAM_FLAG_UNMAPPED = 0x0004;
+ * 
+ * @brief This fragment is unmapped.
+ * 
+ * @val BamFlags BAM_FLAG_NEXT_UNMAPPED = 0x0008;
+ * 
+ * @brief Next fragment in template is unmapped.
+ * 
+ * @val BamFlags BAM_FLAG_RC = 0x0010;
+ * 
+ * @brief Fragment is reverse-complemented.
+ * 
+ * @val BamFlags BAM_FLAG_NEXT_RC = 0x0020;
+ * 
+ * @brief Next fragment in template is reverse-complemented.
+ * 
+ * @val BamFlags BAM_FLAG_FIRST = 0x0040;
+ * 
+ * @brief This fragment is the first one in its template.
+ * 
+ * @val BamFlags BAM_FLAG_LAST = 0x0080;
+ * 
+ * @brief This fragment is the last one in its template (second in case of
+ *        paired sequencing).
+ * 
+ * @val BamFlags BAM_FLAG_SECONDARY = 0x0100;
+ * 
+ * @brief Secondary alignment.
+ * 
+ * @val BamFlags BAM_FLAG_QC_NO_PASS = 0x0200;
+ * 
+ * @brief Does not pass quality controls.
+ * 
+ * @val BamFlags BAM_FLAG_DUPLICATE = 0x0400;
+ * 
+ * @brief PCR or optical duplicate.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

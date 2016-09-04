@@ -1,10 +1,3 @@
-/*
- * EndToEndAffine.h
- *
- *  Created on: Oct 22, 2013
- *      Author: philipp_
- */
-
 #ifndef STRIPPEDSW_H_
 #define STRIPPEDSW_H_
 
@@ -17,9 +10,7 @@
 class StrippedSW: public IAlignment {
 
 public:
-	StrippedSW() :
-			m_AlignMode(Config.GetInt(MODE, 0, 1)), lDiag(0), uDiag(
-			Config.GetInt("corridor")) {
+	StrippedSW() {
 
 		//scoringScheme = Score<float, Simple>(Config.GetFloat(MATCH_BONUS), Config.GetFloat(MISMATCH_PENALTY) * -1.0f, Config.GetFloat(GAP_EXTEND_PENALTY) * -1.0f, Config.GetFloat(GAP_READ_PENALTY) * -1.0f);
 		gap_open = 1;
@@ -81,9 +72,6 @@ public:
 			float & result, void * extData);
 
 private:
-	bool const m_AlignMode;
-	int const lDiag;
-	int const uDiag;
 
 	int8_t* mat;
 

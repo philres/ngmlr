@@ -1,0 +1,734 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="concept_alphabetwithqualitiesconcept" data-page="AlphabetWithQualitiesConcept">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>AlphabetWithQualitiesConcept - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="concept" data-pimped="true">
+  <a href="page_LanguageEntities.html#concept">Concept</a> <span>AlphabetWithQualitiesConcept<div><div>An alphabet where qualities can be attached to the characters.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+  <tr>
+    <th>Extends</th>
+    <td>
+      <a href="concept_AlphabetConcept.html" data-lang-entity="concept">AlphabetConcept</a>
+      
+    </td>
+  </tr>
+  
+
+  
+
+  
+  <tr>
+    <th>All Extended</dt>
+    <td>
+    <a href="concept_AlphabetConcept.html" data-lang-entity="concept">AlphabetConcept</a>, 
+    <a href="concept_AssignableConcept.html" data-lang-entity="concept">AssignableConcept</a>, 
+    <a href="concept_CopyConstructibleConcept.html" data-lang-entity="concept">CopyConstructibleConcept</a>, 
+    <a href="concept_DefaultConstructibleConcept.html" data-lang-entity="concept">DefaultConstructibleConcept</a>
+    
+    </td>
+  </tr>
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/basic.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code></code>
+    </td>
+  </tr>
+</table>
+
+
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Member Functions Inherited From <a href="concept_AssignableConcept.html" data-lang-entity="concept">AssignableConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AssignableConcept.html#AssignableConcept::operator=" data-lang-entity="member_function">operator=</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#AlphabetWithQualitiesConcept%23assignQualityValue" title="#AlphabetWithQualitiesConcept#assignQualityValue (interface function)" data-lang-entity="interface_function">void assignQualityValue(c, q);</a></code></span>
+    <span class="summary_desc"><div>Assigns quality to a character from an alphabet with integrated quality, e.g. to a specified element from a
+sequence.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#AlphabetWithQualitiesConcept%23getQualityValue" title="#AlphabetWithQualitiesConcept#getQualityValue (interface function)" data-lang-entity="interface_function">int getQualityValue(c);</a></code></span>
+    <span class="summary_desc"><div>Returns the quality of a character from an alphabet with integrated quality, e.g. the quality associated with
+a specified element from a sequence.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_AssignableConcept.html" data-lang-entity="concept">AssignableConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AssignableConcept.html#AssignableConcept#assign" data-lang-entity="interface_function">assign</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AssignableConcept.html#AssignableConcept#move" data-lang-entity="interface_function">move</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AssignableConcept.html#AssignableConcept#set" data-lang-entity="interface_function">set</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Interface Metafunctions Overview -->
+
+
+
+<div data-lang-entity-container="interface_metafunction">
+<h2 data-lang-entity="interface_metafunction">Interface  Metafunction Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#AlphabetWithQualitiesConcept%23HasQualities" title="#AlphabetWithQualitiesConcept#HasQualities (interface function)" data-lang-entity="interface_metafunction">HasQualities&lt;TAlphabet&gt;::VALUE;, HasQualities&lt;TAlphabet&gt;::Type;</a></code></span>
+    <span class="summary_desc"><div>Return whether the given type stores qualities besides the alphabet.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#AlphabetWithQualitiesConcept%23QualityValueSize" title="#AlphabetWithQualitiesConcept#QualityValueSize (interface function)" data-lang-entity="interface_metafunction">QualityValueSize&lt;TAlphabet&gt;::VALUE;</a></code></span>
+    <span class="summary_desc"><div>Return the number of quality values in characters from alphabet with qualities.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+<h3 data-toc="hidden">Interface Metafunctions Inherited From <a href="concept_AlphabetConcept.html" data-lang-entity="concept">AlphabetConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_AlphabetConcept.html#AlphabetConcept#BitsPerValue" data-lang-entity="interface_metafunction">BitsPerValue</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="AlphabetWithQualitiesConcept#assignQualityValue" class="signature first" data-lang-entity="interface_function">
+      <code>void assignQualityValue(c, q);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Assigns quality to a character from an alphabet with integrated quality, e.g. to a specified element from a
+sequence.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">c</code>
+            
+        
+      </th>
+      <td>Target character to assign quality to.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">q</code>
+            
+        
+      </th>
+      <td>Quality to assign to the character. The quality value is an integral value between 0 and 62
+(inclusive).</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>If <tt>q</tt> is a <tt>char</tt> then <tt>'!'</tt> is subtracted from <tt>q</tt>. This is useful for ASCII encoded
+PHRED scores.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  <h4>See Also</h4>
+  <ul>
+    
+    <li><a href="global_function_assignQualities.html" data-lang-entity="global_function">assignQualities</a></li>
+    
+    <li><a href="global_function_convertQuality.html" data-lang-entity="global_function">convertQuality</a></li>
+    
+    <li><a href="concept_AlphabetWithQualitiesConcept.html#AlphabetWithQualitiesConcept#getQualityValue" data-lang-entity="interface_function">getQualityValue</a></li>
+    
+  </ul>
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="AlphabetWithQualitiesConcept#getQualityValue" class="signature" data-lang-entity="interface_function">
+      <code>int getQualityValue(c);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns the quality of a character from an alphabet with integrated quality, e.g. the quality associated with
+a specified element from a sequence.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">c</code>
+            
+        
+      </th>
+      <td>Character to retrieve the quality from.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>int</code></th>
+        <td>Quality value of <tt>c</tt>. The quality value is an <tt>int</tt> value between 0 and 62 (inclusive).</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Examples</h4><div data-src-path="None"><pre class="code">String&lt;Dna5Q&gt; seq = "TATA";
+// Assign quality value to first 'T' in sequence seq
+assignQualityValue(seq[0], 35);
+// Print quality value of first 'T', and default quality value of first 'A'
+std::cout &lt;&lt; getQualityValue(seq[0]) &lt;&lt; std::endl; // Defined as 35
+std::cout &lt;&lt; getQualityValue(seq[1]) &lt;&lt; std::endl; // Default value 60</pre></div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  <h4>See Also</h4>
+  <ul>
+    
+    <li><a href="concept_AlphabetWithQualitiesConcept.html#AlphabetWithQualitiesConcept#assignQualityValue" data-lang-entity="interface_function">assignQualityValue</a></li>
+    
+    <li><a href="global_function_convertQuality.html" data-lang-entity="global_function">convertQuality</a></li>
+    
+  </ul>
+  
+  
+
+</div>
+
+
+
+<!-- Interface Metafunctions Details -->
+
+<div class="interface_metafunction_details" data-lang-entity-container="">
+<h2 data-lang-entity="interface_metafunction">Interface Metafunctions Detail</h2>
+
+
+<div class="method_details first">
+  <h3 data-toc="hidden" id="AlphabetWithQualitiesConcept#HasQualities" class="signature first" data-lang-entity="interface_metafunction">
+    <code>HasQualities&lt;TAlphabet&gt;::VALUE;
+HasQualities&lt;TAlphabet&gt;::Type;</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Return whether the given type stores qualities besides the alphabet.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TAlphabet</code></th>
+            <td>The alphabe to query.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>VALUE</code></th>
+            <td><tt>true</tt> or <tt>false</tt></td>
+        </tr>
+    
+        <tr>
+            <th><code>Type</code></th>
+            <td><tt>True</tt> or <tt>False</tt></td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="method_details">
+  <h3 data-toc="hidden" id="AlphabetWithQualitiesConcept#QualityValueSize" class="signature" data-lang-entity="interface_metafunction">
+    <code>QualityValueSize&lt;TAlphabet&gt;::VALUE;</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Return the number of quality values in characters from alphabet with qualities.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TAlphabet</code></th>
+            <td>The alphabet to query for its value size.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>VALUE</code></th>
+            <td>The cardinality of the set of qualities.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @concept AlphabetWithQualitiesConcept
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @extends AlphabetConcept
+ * 
+ * @brief An alphabet where qualities can be attached to the characters.
+ * 
+ * @mfn AlphabetWithQualitiesConcept#HasQualities
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Return whether the given type stores qualities besides the alphabet.
+ * 
+ * @signature HasQualities&lt;TAlphabet&gt;::VALUE;
+ * @signature HasQualities&lt;TAlphabet&gt;::Type;
+ * 
+ * @tparam TAlphabet The alphabe to query.
+ * 
+ * @return VALUE &lt;tt&gt;true&lt;/tt&gt; or &lt;tt&gt;false&lt;/tt&gt;
+ * @return Type &lt;tt&gt;True&lt;/tt&gt; or &lt;tt&gt;False&lt;/tt&gt;
+ * 
+ * @mfn AlphabetWithQualitiesConcept#QualityValueSize
+ * 
+ * @brief Return the number of quality values in characters from alphabet with
+ *        qualities.
+ * 
+ * @signature QualityValueSize&lt;TAlphabet&gt;::VALUE;
+ * 
+ * @tparam TAlphabet The alphabet to query for its value size.
+ * 
+ * @return VALUE The cardinality of the set of qualities.
+ * 
+ * @fn AlphabetWithQualitiesConcept#getQualityValue
+ * 
+ * @brief Returns the quality of a character from an alphabet with integrated
+ *        quality, e.g. the quality associated with a specified element from a
+ *        sequence.
+ * 
+ * @signature int getQualityValue(c);
+ * 
+ * @param[in] c Character to retrieve the quality from.
+ * 
+ * @return int Quality value of &lt;tt&gt;c&lt;/tt&gt;. The quality value is an &lt;tt&gt;int&lt;/tt&gt;
+ *             value between 0 and 62 (inclusive).
+ * 
+ * @section Examples
+ * 
+ * @code{.cpp}
+ * String&lt;Dna5Q&gt; seq = &#34;TATA&#34;;
+ * // Assign quality value to first &#39;T&#39; in sequence seq
+ * assignQualityValue(seq[0], 35);
+ * // Print quality value of first &#39;T&#39;, and default quality value of first &#39;A&#39;
+ * std::cout &lt;&lt; getQualityValue(seq[0]) &lt;&lt; std::endl; // Defined as 35
+ * std::cout &lt;&lt; getQualityValue(seq[1]) &lt;&lt; std::endl; // Default value 60
+ * @endcode
+ * 
+ * 
+ * @see AlphabetWithQualitiesConcept#assignQualityValue
+ * @see convertQuality
+ * 
+ * @fn AlphabetWithQualitiesConcept#assignQualityValue
+ * 
+ * @brief Assigns quality to a character from an alphabet with integrated
+ *        quality, e.g. to a specified element from a sequence.
+ * 
+ * @signature void assignQualityValue(c, q);
+ * 
+ * @param[out] c Target character to assign quality to.
+ * @param[in] q Quality to assign to the character. The quality value is an
+ *              integral value between 0 and 62 (inclusive).
+ * 
+ * If &lt;tt&gt;q&lt;/tt&gt; is a &lt;tt&gt;char&lt;/tt&gt; then &lt;tt&gt;&#39;!&#39;&lt;/tt&gt; is subtracted from
+ * &lt;tt&gt;q&lt;/tt&gt;. This is useful for ASCII encoded PHRED scores.
+ * 
+ * @see AlphabetWithQualitiesConcept#getQualityValue
+ * @see convertQuality
+ * @see assignQualities
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

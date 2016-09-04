@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="tag_move" data-page="Move">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Move - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="tag" data-pimped="true">
+  <a href="page_LanguageEntities.html#tag">Tag</a> <span>Move<div><div>Switch to force move.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/align.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>typedef Tag&lt;Move_&gt; Move;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>The difference between move constructor and copy constructor is that the source object is not copied but moved into
+the target object. The source object can lose its content and will be empty after this operation in this case. A
+move constructor can sigificantly faster than a copy constructor.</p><h3>Examples</h3><div data-src-path="None"><pre class="code">String source("hello");
+String target(source, Move()); // source is moved to target
+std::cout &lt;&lt; source; //nothing printed since source lost content
+std::cout &lt;&lt; target; //"hello"</pre></div><p>Move constructors are like copy-constructors. However, their argument is not const.</p><div data-src-path="None"><pre class="code">class Klass
+{
+public:
+    seqan::String m;
+
+    // Copy constructor, other is left untouched.
+    Klass(Klass const &amp; other) { ... }
+
+    // Move constructor, leaves other and its members in an "empty" state.
+    Klass(Klass &amp; other, seqan::Move const &amp;) { ... }
+};</pre></div></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="concept_AssignableConcept.html#AssignableConcept#move" data-lang-entity="interface_function">move</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @tag Move
+ * 
+ * @headerfile &lt;seqan/align.h&gt;
+ * 
+ * @brief Switch to force move.
+ * 
+ * @signature typedef Tag&lt;Move_&gt; Move;
+ * 
+ * The difference between move constructor and copy constructor is that the
+ * source object is not copied but moved into the target object. The source
+ * object can lose its content and will be empty after this operation in this
+ * case. A move constructor can sigificantly faster than a copy constructor.
+ * 
+ * @section Examples
+ * 
+ * @code{.cpp}
+ * String source(&#34;hello&#34;);
+ * String target(source, Move()); // source is moved to target
+ * std::cout &lt;&lt; source; //nothing printed since source lost content
+ * std::cout &lt;&lt; target; //&#34;hello&#34;
+ * @endcode
+ * 
+ * 
+ * Move constructors are like copy-constructors. However, their argument is not
+ * const.
+ * 
+ * @code{.cpp}
+ * class Klass
+ * {
+ * public:
+ *     seqan::String m;
+ * 
+ *     // Copy constructor, other is left untouched.
+ *     Klass(Klass const &amp; other) { ... }
+ * 
+ *     // Move constructor, leaves other and its members in an &#34;empty&#34; state.
+ *     Klass(Klass &amp; other, seqan::Move const &amp;) { ... }
+ * };
+ * @endcode
+ * 
+ * 
+ * @see AssignableConcept#move
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

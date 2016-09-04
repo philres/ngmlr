@@ -1,0 +1,711 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="concept_bidirectionaliteratorconcept" data-page="BidirectionalIteratorConcept">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>BidirectionalIteratorConcept - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="concept" data-pimped="true">
+  <a href="page_LanguageEntities.html#concept">Concept</a> <span>BidirectionalIteratorConcept<div><div>Iterator that can be both incremented and decremented.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+  <tr>
+    <th>Extends</th>
+    <td>
+      <a href="concept_ForwardIteratorConcept.html" data-lang-entity="concept">ForwardIteratorConcept</a>
+      
+    </td>
+  </tr>
+  
+
+  
+
+  
+  <tr>
+    <th>All Extended</dt>
+    <td>
+    <a href="concept_CopyConstructibleConcept.html" data-lang-entity="concept">CopyConstructibleConcept</a>, 
+    <a href="concept_DefaultConstructibleConcept.html" data-lang-entity="concept">DefaultConstructibleConcept</a>, 
+    <a href="concept_EqualityComparableConcept.html" data-lang-entity="concept">EqualityComparableConcept</a>, 
+    <a href="concept_ForwardIteratorConcept.html" data-lang-entity="concept">ForwardIteratorConcept</a>, 
+    <a href="concept_InputIteratorConcept.html" data-lang-entity="concept">InputIteratorConcept</a>, 
+    <a href="concept_IteratorAssociatedTypesConcept.html" data-lang-entity="concept">IteratorAssociatedTypesConcept</a>
+    
+    </td>
+  </tr>
+  
+
+  
+  <tr>
+    <th>All Subcl's</dt>
+    <td>
+    <a href="concept_MutableBidirectionalIteratorConcept.html" data-lang-entity="concept">MutableBidirectionalIteratorConcept</a>, 
+    <a href="concept_MutableRandomAccessIteratorConcept.html" data-lang-entity="concept">MutableRandomAccessIteratorConcept</a>, 
+    <a href="concept_MutableRootedRandomAccessIteratorConcept.html" data-lang-entity="concept">MutableRootedRandomAccessIteratorConcept</a>, 
+    <a href="concept_RandomAccessIteratorConcept.html" data-lang-entity="concept">RandomAccessIteratorConcept</a>, 
+    <a href="concept_RootedRandomAccessIteratorConcept.html" data-lang-entity="concept">RootedRandomAccessIteratorConcept</a>
+    
+    </td>
+  </tr>
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/basic.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>BidirectionalIteratorConcept&lt;T&gt;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>The SeqAn iterators mirror the definitions from <a href="http://generic-programming.org/languages/conceptcpp/concept_web.php?header=iterator">ConceptC++</a>.</p><h3>Examples</h3><p>In the following, <tt>x</tt> is an iterator to type <tt>X</tt>.</p><p>The following expressions must be valid.</p><div data-src-path="None"><pre class="code">--x  // Predecrement.
+x--  // Postdecrement.</pre></div></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Member Functions Inherited From <a href="concept_EqualityComparableConcept.html" data-lang-entity="concept">EqualityComparableConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_EqualityComparableConcept.html#EqualityComparableConcept::operator!=" data-lang-entity="member_function">operator!=</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_EqualityComparableConcept.html#EqualityComparableConcept::operator==" data-lang-entity="member_function">operator==</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BidirectionalIteratorConcept%23goPrevious" title="#BidirectionalIteratorConcept#goPrevious (interface function)" data-lang-entity="interface_function">void goPrevious(it);</a></code></span>
+    <span class="summary_desc"><div>Iterates to pevious position.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BidirectionalIteratorConcept%23operator--%28prefix%29" title="#BidirectionalIteratorConcept#operator--(prefix) (interface function)" data-lang-entity="interface_function">TIterator operator--(it);</a></code></span>
+    <span class="summary_desc"><div>C++ built-in prefix decrement operator.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BidirectionalIteratorConcept%23operator--%28suffix%29" title="#BidirectionalIteratorConcept#operator--(suffix) (interface function)" data-lang-entity="interface_function">TIterator operator--(it, i);</a></code></span>
+    <span class="summary_desc"><div>C++ built-in suffix decrement operator.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_InputIteratorConcept.html" data-lang-entity="concept">InputIteratorConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_InputIteratorConcept.html#InputIteratorConcept#goNext" data-lang-entity="interface_function">goNext</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_InputIteratorConcept.html#InputIteratorConcept#operator++(prefix)" data-lang-entity="interface_function">operator++(prefix)</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_InputIteratorConcept.html#InputIteratorConcept#operator++(suffix)" data-lang-entity="interface_function">operator++(suffix)</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_InputIteratorConcept.html#InputIteratorConcept#operator->" data-lang-entity="interface_function">operator-&gt;</a></code></span></li>
+  
+</ul>
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_IteratorAssociatedTypesConcept.html" data-lang-entity="concept">IteratorAssociatedTypesConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#getValue" data-lang-entity="interface_function">getValue</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#operator*" data-lang-entity="interface_function">operator*</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#value" data-lang-entity="interface_function">value</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Interface Metafunctions Overview -->
+
+
+
+<div data-lang-entity-container="interface_metafunction">
+<h2 data-lang-entity="interface_metafunction">Interface  Metafunction Overview</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Metafunctions Inherited From <a href="concept_IteratorAssociatedTypesConcept.html" data-lang-entity="concept">IteratorAssociatedTypesConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#Difference" data-lang-entity="interface_metafunction">Difference</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#GetValue" data-lang-entity="interface_metafunction">GetValue</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#Pointer" data-lang-entity="interface_metafunction">Pointer</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#Reference" data-lang-entity="interface_metafunction">Reference</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#Value" data-lang-entity="interface_metafunction">Value</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+</div>
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="BidirectionalIteratorConcept#goPrevious" class="signature first" data-lang-entity="interface_function">
+      <code>void goPrevious(it);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Iterates to pevious position.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">it</code>
+            
+        
+      </th>
+      <td>Iterator to move to previous position.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>This function is equivalent to <tt>--iterator</tt>.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BidirectionalIteratorConcept#operator--(prefix)" class="signature" data-lang-entity="interface_function">
+      <code>TIterator operator--(it);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>C++ built-in prefix decrement operator.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">it</code>
+            
+        
+      </th>
+      <td>The iterator to increment.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TIterator</code></th>
+        <td>Reference to the incremented iterator.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BidirectionalIteratorConcept#operator--(suffix)" class="signature" data-lang-entity="interface_function">
+      <code>TIterator operator--(it, i);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>C++ built-in suffix decrement operator.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">it</code>
+            
+        
+      </th>
+      <td>The iterator to increment.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">i</code>
+            
+        
+      </th>
+      <td>An int value to mark the operator as suffix decrement.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TIterator</code></th>
+        <td>Reference to the incremented iterator.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @concept BidirectionalIteratorConcept
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @extends ForwardIteratorConcept
+ * 
+ * @brief Iterator that can be both incremented and decremented.
+ * 
+ * @signature BidirectionalIteratorConcept&lt;T&gt;
+ * 
+ * The SeqAn iterators mirror the definitions from &lt;a href=&#34;http://generic-progr
+ * amming.org/languages/conceptcpp/concept_web.php?header=iterator&#34;&gt;ConceptC++&lt;/
+ * a&gt;.
+ * 
+ * @section Examples
+ * 
+ * In the following, &lt;tt&gt;x&lt;/tt&gt; is an iterator to type &lt;tt&gt;X&lt;/tt&gt;.
+ * 
+ * The following expressions must be valid.
+ * 
+ * @code{.cpp}
+ * --x  // Predecrement.
+ * x--  // Postdecrement.
+ * @endcode
+ * 
+ * 
+ * @fn BidirectionalIteratorConcept#operator--(prefix)
+ * 
+ * @brief C++ built-in prefix decrement operator.
+ * 
+ * @signature TIterator operator--(it);
+ * 
+ * @param[in,out] it The iterator to increment.
+ * 
+ * @return TIterator Reference to the incremented iterator.
+ * 
+ * @fn BidirectionalIteratorConcept#operator--(suffix)
+ * 
+ * @brief C++ built-in suffix decrement operator.
+ * 
+ * @signature TIterator operator--(it, i);
+ * 
+ * @param[in,out] it The iterator to increment.
+ * @param[in] i An int value to mark the operator as suffix decrement.
+ * 
+ * @return TIterator Reference to the incremented iterator.
+ * 
+ * @fn BidirectionalIteratorConcept#goPrevious
+ * 
+ * @brief Iterates to pevious position.
+ * 
+ * @signature void goPrevious(it);
+ * 
+ * @param[in,out] it Iterator to move to previous position.
+ * 
+ * This function is equivalent to &lt;tt&gt;--iterator&lt;/tt&gt;.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

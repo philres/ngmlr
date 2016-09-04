@@ -1,0 +1,869 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_blastprogramselector" data-page="BlastProgramSelector">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>BlastProgramSelector - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>BlastProgramSelector<div><div>A datatype that can act as either a <a href="enum_BlastProgram.html" data-lang-entity="enum">BlastProgram</a> or as an constexpr integral constant
+thereof.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/blast.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>template &lt;BlastProgram p&gt; struct BlastProgramSelector { ... };
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastProgramSelector%23qHasRevComp" title="#BlastProgramSelector#qHasRevComp (interface function)" data-lang-entity="interface_function">constexpr bool qHasRevComp(BlastProgram const p);</a></code></span>
+    <span class="summary_desc"><div>Whether the reverse complement of the <b>query</b> sequence(s) is searched with the given BlastProgram</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastProgramSelector%23qIsTranslated" title="#BlastProgramSelector#qIsTranslated (interface function)" data-lang-entity="interface_function">constexpr bool qIsTranslated(BlastProgram const p);</a></code></span>
+    <span class="summary_desc"><div>Whether the <b>query</b> sequence is translated in the given BlastProgram</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastProgramSelector%23qNumFrames" title="#BlastProgramSelector#qNumFrames (interface function)" data-lang-entity="interface_function">constexpr uint8_t qNumFrames(BlastProgram const p);</a></code></span>
+    <span class="summary_desc"><div>The number of frames per <b>query</b> sequence implied by the given BlastProgram</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastProgramSelector%23sHasRevComp" title="#BlastProgramSelector#sHasRevComp (interface function)" data-lang-entity="interface_function">constexpr bool sHasRevComp(BlastProgram const p);</a></code></span>
+    <span class="summary_desc"><div>Whether the reverse complement of the <b>subject</b> sequence(s) is searched with the given BlastProgram</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastProgramSelector%23sIsTranslated" title="#BlastProgramSelector#sIsTranslated (interface function)" data-lang-entity="interface_function">constexpr bool sIsTranslated(BlastProgram const p);</a></code></span>
+    <span class="summary_desc"><div>Whether the <b>subject</b> sequence is translated in the given BlastProgram</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastProgramSelector%23sNumFrames" title="#BlastProgramSelector#sNumFrames (interface function)" data-lang-entity="interface_function">constexpr uint8_t sNumFrames(BlastProgram const p);</a></code></span>
+    <span class="summary_desc"><div>The number of frames per <b>query</b> sequence implied by the given BlastProgram</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>This is a proxy datatype that enables compile-time optimizations through constexpressions iff the value
+is known at compile time. You will rarely need to instantiate objects of this type yourself, but they
+are used in the <a href="class_BlastIOContext.html" data-lang-entity="class">BlastIOContext</a>.</p><p>The interface functions work on regular enum values of <a href="enum_BlastProgram.html" data-lang-entity="enum">BlastProgram</a>, as well, but are
+gathered here for convenience.</p><p>Please note that the default value for <tt>BlastProgramSelector&lt;BlastProgram::DYNAMIC&gt;</tt> is
+<tt>BlastProgram::UNKNOWN</tt>, not <tt>BlastProgram::DYNAMIC</tt>.</p><h4>Example</h4><p>mutable variable:</p><div data-src-path="None"><pre class="code">BlastProgramSelector&lt;BlastProgram::DYNAMIC&gt; myProgram = BlastProgram::BLASTN;
+// same as:
+// BlastProgram myProgram = BlastProgram::BLASTN;
+
+SEQAN_ASSERT(myProgram == BlastProgram::BLASTN); // assertion is checked at run-time
+myProgram = BlastProgram::BLASTP; // works without problems</pre></div><p>compile time integral constant:</p><div data-src-path="None"><pre class="code">BlastProgramSelector&lt;BlastProgram::BLASTN&gt; myProgram;
+static_assert(myProgram == BlastProgram::BLASTN, ""); // assertion is checked at compile time
+myProgram = BlastProgram::BLASTP; // would fail, because value is fixed (and different)</pre></div></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="BlastProgramSelector#qHasRevComp" class="signature first" data-lang-entity="interface_function">
+      <code>constexpr bool qHasRevComp(BlastProgram const p);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Whether the reverse complement of the <b>query</b> sequence(s) is searched with the given BlastProgram</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>false</code></th>
+        <td>for <a href="enum_BlastProgram.html#BlastProgram::BLASTP">BLASTP</a> and <a href="enum_BlastProgram.html#BlastProgram::TBLASTN">TBLASTN</a></td>
+    </tr>
+    
+    <tr>
+        <th><code>true</code></th>
+        <td>otherwise</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastProgramSelector#qIsTranslated" class="signature" data-lang-entity="interface_function">
+      <code>constexpr bool qIsTranslated(BlastProgram const p);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Whether the <b>query</b> sequence is translated in the given BlastProgram</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>true</code></th>
+        <td>for <a href="enum_BlastProgram.html#BlastProgram::BLASTX">BLASTX</a> and <a href="enum_BlastProgram.html#BlastProgram::TBLASTX">TBLASTX</a></td>
+    </tr>
+    
+    <tr>
+        <th><code>false</code></th>
+        <td>otherwise</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastProgramSelector#qNumFrames" class="signature" data-lang-entity="interface_function">
+      <code>constexpr uint8_t qNumFrames(BlastProgram const p);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>The number of frames per <b>query</b> sequence implied by the given BlastProgram</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>6</code></th>
+        <td>for <a href="enum_BlastProgram.html#BlastProgram::BLASTX">BLASTX</a> and <a href="enum_BlastProgram.html#BlastProgram::TBLASTX">TBLASTX</a></td>
+    </tr>
+    
+    <tr>
+        <th><code>2</code></th>
+        <td>for <a href="enum_BlastProgram.html#BlastProgram::BLASTN">BLASTN</a></td>
+    </tr>
+    
+    <tr>
+        <th><code>1</code></th>
+        <td>for <a href="enum_BlastProgram.html#BlastProgram::BLASTP">BLASTP</a> and <a href="enum_BlastProgram.html#BlastProgram::TBLASTN">TBLASTN</a></td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastProgramSelector#sHasRevComp" class="signature" data-lang-entity="interface_function">
+      <code>constexpr bool sHasRevComp(BlastProgram const p);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Whether the reverse complement of the <b>subject</b> sequence(s) is searched with the given BlastProgram</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>true</code></th>
+        <td>for <a href="enum_BlastProgram.html#BlastProgram::TBLASTX">TBLASTX</a> and <a href="enum_BlastProgram.html#BlastProgram::TBLASTN">TBLASTN</a></td>
+    </tr>
+    
+    <tr>
+        <th><code>false</code></th>
+        <td>otherwise</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastProgramSelector#sIsTranslated" class="signature" data-lang-entity="interface_function">
+      <code>constexpr bool sIsTranslated(BlastProgram const p);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Whether the <b>subject</b> sequence is translated in the given BlastProgram</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>true</code></th>
+        <td>for <a href="enum_BlastProgram.html#BlastProgram::TBLASTX">TBLASTX</a> and <a href="enum_BlastProgram.html#BlastProgram::TBLASTN">TBLASTN</a></td>
+    </tr>
+    
+    <tr>
+        <th><code>false</code></th>
+        <td>otherwise</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastProgramSelector#sNumFrames" class="signature" data-lang-entity="interface_function">
+      <code>constexpr uint8_t sNumFrames(BlastProgram const p);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>The number of frames per <b>query</b> sequence implied by the given BlastProgram</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>6</code></th>
+        <td>for <a href="enum_BlastProgram.html#BlastProgram::TBLASTX">TBLASTX</a> and <a href="enum_BlastProgram.html#BlastProgram::TBLASTN">TBLASTN</a></td>
+    </tr>
+    
+    <tr>
+        <th><code>1</code></th>
+        <td>otherwise</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class BlastProgramSelector
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief A datatype that can act as either a @link BlastProgram @endlink or as
+ *        an constexpr integral constant thereof.
+ * 
+ * @signature template &lt;BlastProgram p&gt; struct BlastProgramSelector { ... };
+ * 
+ * This is a proxy datatype that enables compile-time optimizations through
+ * constexpressions iff the value is known at compile time. You will rarely need
+ * to instantiate objects of this type yourself, but they are used in the @link
+ * BlastIOContext @endlink.
+ * 
+ * The interface functions work on regular enum values of @link BlastProgram
+ * @endlink, as well, but are gathered here for convenience.
+ * 
+ * Please note that the default value for
+ * &lt;tt&gt;BlastProgramSelector&lt;BlastProgram::DYNAMIC&gt;&lt;/tt&gt; is
+ * &lt;tt&gt;BlastProgram::UNKNOWN&lt;/tt&gt;, not &lt;tt&gt;BlastProgram::DYNAMIC&lt;/tt&gt;.
+ * 
+ * @subsection Example
+ * 
+ * mutable variable:
+ * 
+ * @code{.cpp}
+ * BlastProgramSelector&lt;BlastProgram::DYNAMIC&gt; myProgram = BlastProgram::BLASTN;
+ * // same as:
+ * // BlastProgram myProgram = BlastProgram::BLASTN;
+ * 
+ * SEQAN_ASSERT(myProgram == BlastProgram::BLASTN); // assertion is checked at run-time
+ * myProgram = BlastProgram::BLASTP; // works without problems
+ * @endcode
+ * 
+ * 
+ * compile time integral constant:
+ * 
+ * @code{.cpp}
+ * BlastProgramSelector&lt;BlastProgram::BLASTN&gt; myProgram;
+ * static_assert(myProgram == BlastProgram::BLASTN, &#34;&#34;); // assertion is checked at compile time
+ * myProgram = BlastProgram::BLASTP; // would fail, because value is fixed (and different)
+ * @endcode
+ * 
+ * 
+ * @fn BlastProgramSelector#qHasRevComp
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Whether the reverse complement of the &lt;b&gt;query&lt;/b&gt; sequence(s) is
+ *        searched with the given BlastProgram
+ * 
+ * @signature constexpr bool qHasRevComp(BlastProgram const p);
+ * 
+ * @return false for @link BlastProgram::BLASTP @endlink and @link
+ *               BlastProgram::TBLASTN @endlink
+ * @return true otherwise
+ * 
+ * @fn BlastProgramSelector#qIsTranslated
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Whether the &lt;b&gt;query&lt;/b&gt; sequence is translated in the given
+ *        BlastProgram
+ * 
+ * @signature constexpr bool qIsTranslated(BlastProgram const p);
+ * 
+ * @return true for @link BlastProgram::BLASTX @endlink and @link
+ *              BlastProgram::TBLASTX @endlink
+ * @return false otherwise
+ * 
+ * @fn BlastProgramSelector#qNumFrames
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief The number of frames per &lt;b&gt;query&lt;/b&gt; sequence implied by the given
+ *        BlastProgram
+ * 
+ * @signature constexpr uint8_t qNumFrames(BlastProgram const p);
+ * 
+ * @return 6 for @link BlastProgram::BLASTX @endlink and @link
+ *           BlastProgram::TBLASTX @endlink
+ * @return 2 for @link BlastProgram::BLASTN @endlink
+ * @return 1 for @link BlastProgram::BLASTP @endlink and @link
+ *           BlastProgram::TBLASTN @endlink
+ * 
+ * @fn BlastProgramSelector#sHasRevComp
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Whether the reverse complement of the &lt;b&gt;subject&lt;/b&gt; sequence(s) is
+ *        searched with the given BlastProgram
+ * 
+ * @signature constexpr bool sHasRevComp(BlastProgram const p);
+ * 
+ * @return true for @link BlastProgram::TBLASTX @endlink and @link
+ *              BlastProgram::TBLASTN @endlink
+ * @return false otherwise
+ * 
+ * @fn BlastProgramSelector#sIsTranslated
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Whether the &lt;b&gt;subject&lt;/b&gt; sequence is translated in the given
+ *        BlastProgram
+ * 
+ * @signature constexpr bool sIsTranslated(BlastProgram const p);
+ * 
+ * @return true for @link BlastProgram::TBLASTX @endlink and @link
+ *              BlastProgram::TBLASTN @endlink
+ * @return false otherwise
+ * 
+ * @fn BlastProgramSelector#sNumFrames
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief The number of frames per &lt;b&gt;query&lt;/b&gt; sequence implied by the given
+ *        BlastProgram
+ * 
+ * @signature constexpr uint8_t sNumFrames(BlastProgram const p);
+ * 
+ * @return 6 for @link BlastProgram::TBLASTX @endlink and @link
+ *           BlastProgram::TBLASTN @endlink
+ * @return 1 otherwise
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

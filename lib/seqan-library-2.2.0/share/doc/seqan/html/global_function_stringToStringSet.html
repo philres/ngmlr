@@ -1,0 +1,332 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_stringtostringset" data-page="stringToStringSet">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>stringToStringSet - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>stringToStringSet<div><div>Transform a String into a StringSet containing this String.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/alignment_free.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>void stringToStringSet(stringSet, string);
+void stringToStringSet(dnaStringSet, dna5String);
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+<h2>Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">stringSet</code>
+            
+        
+        </th>
+        <td><a href="class_StringSet.html" data-lang-entity="class">StringSet</a> to create with one sequence.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">string</code>
+            
+        
+        </th>
+        <td><a href="class_String.html" data-lang-entity="class">String</a> to create the string set of.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">dnaStringSet</code>
+            
+        
+        </th>
+        <td><a href="class_StringSet.html" data-lang-entity="class">StringSet</a> of <a href="class_String.html" data-lang-entity="class">Strings</a> over the alphabet <a href="specialization_Dna.html" data-lang-entity="specialization">Dna</a>.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">dna5String</code>
+            
+        
+        </th>
+        <td><a href="class_String.html" data-lang-entity="class">String</a> over the alphabet <a href="specialization_Dna5.html" data-lang-entity="specialization">Dna5</a> to convert.</td>
+    </tr>
+
+</table>
+
+
+
+
+<!-- @tparam -->
+
+
+
+
+
+<!-- @returns -->
+
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+        
+        <div class="note info"><strong>Note:</strong> <div class='inline'>
+            <p>The second variant removes all N characters from the <a href="global_typedef_Dna5String.html" data-lang-entity="global_typedef">Dna5String</a>.</p>
+         </div></div>
+        
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><h3>Examples</h3><p>Transform a masked DNA sequence into a set of sequences with all masked parts removed.</p><div data-src-path="None"><pre class="code">using namespace seqan;
+Dna5String sequenceDna5 =
+    "NNNNNNTTTCCGAAAAGGTANNNNNGCAACTTTANNNCGTGATCAAAGTTTTCCCCGTCGAAATTGGGNNTG";
+StringSet&lt;DnaString&gt; sequencesDna;
+stringToStringSet(sequencesDna, sequenceDna5);
+// Print the masked sequence
+std::cout&lt;&lt;sequenceDna5&lt;&lt;"\n";
+// Print the sequence with the masked parts removed
+for(unsigned i = 0; i &lt; length(sequencesDna); ++i)
+    std::cout&lt;&lt;sequencesDna[i]&lt;&lt;"\n";
+// sequencesDna[0] = "TTTCCGAAAAGTA"
+// sequencesDna[1] = "GCAACTTTA"
+// sequencesDna[2] = "CGTGATCAAAGTTTTCCCCGTCGAAATTGGG"
+// sequencesDna[3] = "TG"</pre></div></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="class_MarkovModel.html" data-lang-entity="class">MarkovModel</a></li>
+  
+  <li><a href="global_function_alignmentFreeComparison.html" data-lang-entity="global_function">alignmentFreeComparison</a></li>
+  
+  <li><a href="global_function_countKmers.html" data-lang-entity="global_function">countKmers</a></li>
+  
+  <li><a href="global_function_cutNs.html" data-lang-entity="global_function">cutNs</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn stringToStringSet
+ * 
+ * @headerfile &lt;seqan/alignment_free.h&gt;
+ * 
+ * @brief Transform a String into a StringSet containing this String.
+ * 
+ * @note The second variant removes all N characters from the @link Dna5String
+ *       @endlink.
+ * 
+ * @signature void stringToStringSet(stringSet, string);
+ * @signature void stringToStringSet(dnaStringSet, dna5String);
+ * 
+ * @param[out] stringSet @link StringSet @endlink to create with one sequence.
+ * @param[in] string @link String @endlink to create the string set of.
+ * @param[out] dnaStringSet @link StringSet @endlink of @link String Strings
+ *                          @endlink over the alphabet @link Dna @endlink.
+ * @param[in] dna5String @link String @endlink over the alphabet @link Dna5
+ *                       @endlink to convert.
+ * 
+ * @section Examples
+ * 
+ * Transform a masked DNA sequence into a set of sequences with all masked parts
+ * removed.
+ * 
+ * @code{.cpp}
+ * using namespace seqan;
+ * Dna5String sequenceDna5 =
+ *     &#34;NNNNNNTTTCCGAAAAGGTANNNNNGCAACTTTANNNCGTGATCAAAGTTTTCCCCGTCGAAATTGGGNNTG&#34;;
+ * StringSet&lt;DnaString&gt; sequencesDna;
+ * stringToStringSet(sequencesDna, sequenceDna5);
+ * // Print the masked sequence
+ * std::cout&lt;&lt;sequenceDna5&lt;&lt;&#34;\n&#34;;
+ * // Print the sequence with the masked parts removed
+ * for(unsigned i = 0; i &lt; length(sequencesDna); ++i)
+ *     std::cout&lt;&lt;sequencesDna[i]&lt;&lt;&#34;\n&#34;;
+ * // sequencesDna[0] = &#34;TTTCCGAAAAGTA&#34;
+ * // sequencesDna[1] = &#34;GCAACTTTA&#34;
+ * // sequencesDna[2] = &#34;CGTGATCAAAGTTTTCCCCGTCGAAATTGGG&#34;
+ * // sequencesDna[3] = &#34;TG&#34;
+ * @endcode
+ * 
+ * 
+ * @see MarkovModel
+ * @see alignmentFreeComparison
+ * @see cutNs
+ * @see countKmers
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

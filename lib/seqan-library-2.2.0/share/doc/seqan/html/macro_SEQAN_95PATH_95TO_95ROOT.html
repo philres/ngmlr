@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="macro_seqan_path_to_root" data-page="SEQAN_PATH_TO_ROOT">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>SEQAN_PATH_TO_ROOT - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="macro" data-pimped="true">
+  <a href="page_LanguageEntities.html#macro">#define</a> <span>SEQAN_PATH_TO_ROOT<div><div>Return path to the checkout root directory.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/basic.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>TCharPtr SEQAN_PATH_TO_ROOT()
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+
+
+<!-- @returns -->
+
+
+<h2>Return Values</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>TCharPtr</code></th>
+        <td><tt>char const *</tt>, string with the path to the parent directory of the tests directory.</td>
+    </tr>
+
+</table>
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    
+
+    <!-- @deprecated -->
+    
+        
+        <div class="note deprecated"><strong>Deprecated.</strong> <div class='inline'>
+            <p>Unsafe.</p>
+        </div></div>
+        
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><h3>Examples</h3><div data-src-path="None"><pre class="code">CharString buffer = SEQAN_PATH_TO_ROOT();
+append(buffer, "/tests/files/example.txt");
+
+FILE *f = fopen(toCString(buffer), "w");
+fprintf(f, "Test Data");
+fclose(f);</pre></div></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="macro_SEQAN_95TEMP_95FILENAME.html" data-lang-entity="macro">SEQAN_TEMP_FILENAME</a></li>
+  
+  <li><a href="global_function_getAbsolutePath.html" data-lang-entity="global_function">getAbsolutePath</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @macro SEQAN_PATH_TO_ROOT
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Return path to the checkout root directory.
+ * 
+ * @deprecated Unsafe.
+ * 
+ * @signature TCharPtr SEQAN_PATH_TO_ROOT()
+ * 
+ * @return TCharPtr &lt;tt&gt;char const *&lt;/tt&gt;, string with the path to the parent
+ *                  directory of the tests directory.
+ * 
+ * @section Examples
+ * 
+ * @code{.cpp}
+ * CharString buffer = SEQAN_PATH_TO_ROOT();
+ * append(buffer, &#34;/tests/files/example.txt&#34;);
+ * 
+ * FILE *f = fopen(toCString(buffer), &#34;w&#34;);
+ * fprintf(f, &#34;Test Data&#34;);
+ * fclose(f);
+ * @endcode
+ * 
+ * 
+ * @see getAbsolutePath
+ * @see SEQAN_TEMP_FILENAME
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

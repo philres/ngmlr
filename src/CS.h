@@ -50,7 +50,7 @@ protected:
 	int m_DiscardedReads;
 	//	volatile int m_Candidates;
 	int m_Mode;
-	bool m_EnableBS;
+
 	int m_Overflows;
 	//float weightSum;
 	const IRefProvider* m_RefProvider;
@@ -69,14 +69,6 @@ protected:
 	static void PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom,
 			ulong mutateTo, void* data);
 
-//	static void AddLocationRead(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
-//			void* data);
-//
-//	static void BuildReducedRef(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
-//			void* data);
-
-	static void PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom,
-			ulong mutateTo, void* data, int mpos = 0);
 	virtual int CollectResultsStd(MappedRead* read);
 	int CollectResultsFallback(MappedRead* read);
 	void FilterScore(LocationScore* score);
@@ -112,8 +104,7 @@ protected:
 
 	inline void SetSearchTableBitLen(int bitLen) {
 		if (bitLen >= 24) {
-			Log.Message("SearchTable exceeded length.");
-			Fatal();
+			Log.Error("SearchTable exceeded length.");
 		}
 		c_SrchTableBitLen = bitLen;
 		c_BitShift = 64 - c_SrchTableBitLen;
@@ -155,8 +146,6 @@ public:
 
 	static void Init();
 	static void Cleanup();
-	static void PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom,
-			ulong mutateTo, void* data);
 	static void PrefixIteration(const char* sequence, uloc length,
 			PrefixIterationFn func, ulong mutateFrom, ulong mutateTo,
 			void* data, uint prefixskip = 0, uloc offset = 0);
@@ -187,13 +176,13 @@ public:
 //}
 
 inline uloc GetBin(uloc pos) {
-	static int const csBitShift = Config.GetInt(BIN_SIZE);
+	static int const csBitShift = Config.getBinSize();
 //	static int shift = calc_binshift();
 	return pos >> csBitShift;
 }
 
 inline uloc ResolveBin(uloc bin) {
-	static int const csBitShift = Config.GetInt(BIN_SIZE);
+	static int const csBitShift = Config.getBinSize();
 //	static int shift = calc_binshift();
 	static uint offset = (csBitShift > 0) ? 1 << (csBitShift - 1) : 0;
 	return (bin << csBitShift) + offset;

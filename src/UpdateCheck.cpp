@@ -1,10 +1,3 @@
-/*
- * UpdateCheck.cpp
- *
- *  Created on: October 2, 2014
- *      Author: moritz
- */
-
 #include "UpdateCheck.h"
 #include "Version.h"
 

@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="page_democonstraintiterator" data-page="DemoConstraintIterator">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Constraint Iterator - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<div id="filecontents">
+<h1 data-lang-entity="page" data-pimped="true">
+  <a href="page_LanguageEntities.html#page">Page</a> <span>Constraint Iterator</span>
+</h1>
+
+<div class="docstring">
+  <div class="discussion">
+    <!-- @brief -->
+    <div>Example for using node predicates on a deferred suffix tree.</div>
+    
+    <!-- paragraphs -->
+    
+<div><p>Given a sequences, we want to find all substrings s that fulfill certain constraints. The relative probabilty to see s
+should be at least p_min. s should also be not longer than replen_max. The latter constraint is a anti-monotonic pattern
+predicate and can be used in conjunction with the first constraint to cut of the trunk of a suffix tree. Only the top of
+the suffix tree contains candidates that might fulfill both predicates, so we can use an Index based on a deferred
+suffix tree (see IndexWotd). The following example demonstrates how to iterate over all suffix tree nodes fulfilling the
+constraints and output them.</p><p>We start by including the necessary headers and use the namespace seqan;</p><div data-src-path="demos/dox/index/node_predicate.cpp"><pre class="code">#include &lt;iostream&gt;
+#include &lt;seqan/index.h&gt;
+
+using namespace seqan;</pre><div class="path_label"><span class="label">Snippet from:</span> <a href="demos/dox/index/node_predicate.cpp" target="_top">demos/dox/index/node_predicate.cpp</a></div></div><p>Afterwards we create a struct containing the constraints.</p><div data-src-path="demos/dox/index/node_predicate.cpp"><pre class="code">struct TMyConstraints
+{
+    double p_min;
+    unsigned int replen_max;
+    bool _cachedPred;
+};</pre><div class="path_label"><span class="label">Snippet from:</span> <a href="demos/dox/index/node_predicate.cpp" target="_top">demos/dox/index/node_predicate.cpp</a></div></div><p>In the following we do the requiered extensions.</p><div data-src-path="demos/dox/index/node_predicate.cpp"><pre class="code">namespace seqan {
+// custom TSpec for our customized wotd-Index
+struct TMyIndex;
+
+template &lt;typename TText&gt;
+struct Cargo&lt;Index&lt;TText, IndexWotd&lt;TMyIndex&gt; &gt; &gt;
+{
+    typedef TMyConstraints Type;
+};
+
+// node predicate
+template &lt;typename TText, typename TSpec&gt;
+bool nodePredicate(Iter&lt;Index&lt;TText, IndexWotd&lt;TMyIndex&gt; &gt;, TSpec&gt; &amp; it)
+{
+    TMyConstraints &amp; cons = cargo(container(it));
+    unsigned int delta = countSequences(container(it)) * repLength(it);
+    unsigned int textLen = length(container(it));
+
+    if (textLen &lt;= delta)
+        return cons._cachedPred = true;
+
+    return cons._cachedPred =
+        ((double)countOccurrences(it) / (double)(textLen - delta)) &gt; cons.p_min;
+}
+
+// monotonic hull
+template &lt;typename TText, typename TSpec&gt;
+bool nodeHullPredicate(Iter&lt;Index&lt;TText, IndexWotd&lt;TMyIndex&gt; &gt;, TSpec&gt; &amp; it)
+{
+    TMyConstraints const &amp; cons = cargo(container(it));
+    unsigned int textLen = length(container(it));
+
+    if (repLength(it) &gt; cons.replen_max)
+        return false;
+
+    unsigned int delta = countSequences(container(it)) * cons.replen_max;
+    if (textLen &lt;= delta)
+        return true;
+
+    return ((double)countOccurrences(it) /
+            (double)(textLen - delta)) &gt; cons.p_min;
+}
+
+}</pre><div class="path_label"><span class="label">Snippet from:</span> <a href="demos/dox/index/node_predicate.cpp" target="_top">demos/dox/index/node_predicate.cpp</a></div></div><p>Now we start the main program with a sequence initialization.</p><div data-src-path="demos/dox/index/node_predicate.cpp"><pre class="code">int main()
+{
+    String&lt;char&gt; myString = "How many wood would a woodchuck chuck.";</pre><div class="path_label"><span class="label">Snippet from:</span> <a href="demos/dox/index/node_predicate.cpp" target="_top">demos/dox/index/node_predicate.cpp</a></div></div><p>Then we create our customized index which is a specialization of the deferred @Class.Index.wotd-Index@</p><div data-src-path="demos/dox/index/node_predicate.cpp"><pre class="code">    typedef Index&lt;String&lt;char&gt;, IndexWotd&lt;TMyIndex&gt; &gt; TMyIndex;
+    TMyIndex myIndex(myString);
+
+    cargo(myIndex).replen_max = 10;
+    cargo(myIndex).p_min = 0.05;
+</pre><div class="path_label"><span class="label">Snippet from:</span> <a href="demos/dox/index/node_predicate.cpp" target="_top">demos/dox/index/node_predicate.cpp</a></div></div><p>And finaly we search by traversing a string tree. To find all strings that fulfill our constraints, we simply do a
+dfs-traversal via @Function.goBegin@ and @Function.goNext@.</p><div data-src-path="demos/dox/index/node_predicate.cpp"><pre class="code">    typedef Iterator&lt;TMyIndex, TopDown&lt;ParentLinks&lt;&gt; &gt; &gt;::Type TConstrainedIterator;
+    TConstrainedIterator myConstrainedIterator(myIndex);
+
+    goBegin(myConstrainedIterator);
+    while (!atEnd(myConstrainedIterator))
+    {
+
+        //@Function.countOccurrences@ returns the number of hits of the representative.
+        std::cout &lt;&lt; countOccurrences(myConstrainedIterator) &lt;&lt; "x  ";
+
+        //The representative string can be determined with @Function.representative@
+        std::cout &lt;&lt; "\t\"" &lt;&lt; representative(myConstrainedIterator) &lt;&lt; '\"' &lt;&lt; std::endl;
+
+        goNext(myConstrainedIterator);
+    }
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Snippet from:</span> <a href="demos/dox/index/node_predicate.cpp" target="_top">demos/dox/index/node_predicate.cpp</a></div></div><pre class="console" data-src-path="None">weese@tanne:~/seqan$ cd demos
+weese@tanne:~/seqan/demos$ make index_node_predicate
+weese@tanne:~/seqan/demos$ ./index_node_predicate
+38x     ""
+6x      " "
+3x      " wo"
+2x      " wood"
+2x      "a"
+4x      "c"
+2x      "chuck"
+2x      "ck"
+3x      "d"
+2x      "d "
+2x      "huck"
+2x      "k"
+6x      "o"
+2x      "od"
+2x      "ood"
+3x      "u"
+2x      "uck"
+4x      "w"
+3x      "wo"
+2x      "wood"
+weese@tanne:~/seqan/demos$</pre></div>
+
+  </div>
+</div>
+
+<!-- @see -->
+
+</div>
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>@page DemoConstraintIterator Constraint Iterator
+
+@brief Example for using node predicates on a deferred suffix tree.
+
+Given a sequences, we want to find all substrings s that fulfill certain
+constraints. The relative probabilty to see s should be at least p_min. s
+should also be not longer than replen_max. The latter constraint is a anti-
+monotonic pattern predicate and can be used in conjunction with the first
+constraint to cut of the trunk of a suffix tree. Only the top of the suffix
+tree contains candidates that might fulfill both predicates, so we can use an
+Index based on a deferred suffix tree (see IndexWotd). The following example
+demonstrates how to iterate over all suffix tree nodes fulfilling the
+constraints and output them.
+
+We start by including the necessary headers and use the namespace seqan;
+
+@snippet demos/dox/index/node_predicate.cpp includes
+
+Afterwards we create a struct containing the constraints.
+
+@snippet demos/dox/index/node_predicate.cpp constraints
+
+In the following we do the requiered extensions.
+
+@snippet demos/dox/index/node_predicate.cpp extensions
+
+Now we start the main program with a sequence initialization.
+
+@snippet demos/dox/index/node_predicate.cpp main
+
+Then we create our customized index which is a specialization of the deferred
+@Class.Index.wotd-Index@
+
+@snippet demos/dox/index/node_predicate.cpp specialisation
+
+And finaly we search by traversing a string tree. To find all strings that
+fulfill our constraints, we simply do a dfs-traversal via @Function.goBegin@
+and @Function.goNext@.
+
+@snippet demos/dox/index/node_predicate.cpp traversal
+
+@code{.console}
+weese@tanne:~/seqan$ cd demos
+weese@tanne:~/seqan/demos$ make index_node_predicate
+weese@tanne:~/seqan/demos$ ./index_node_predicate
+38x     &#34;&#34;
+6x      &#34; &#34;
+3x      &#34; wo&#34;
+2x      &#34; wood&#34;
+2x      &#34;a&#34;
+4x      &#34;c&#34;
+2x      &#34;chuck&#34;
+2x      &#34;ck&#34;
+3x      &#34;d&#34;
+2x      &#34;d &#34;
+2x      &#34;huck&#34;
+2x      &#34;k&#34;
+6x      &#34;o&#34;
+2x      &#34;od&#34;
+2x      &#34;ood&#34;
+3x      &#34;u&#34;
+2x      &#34;uck&#34;
+4x      &#34;w&#34;
+3x      &#34;wo&#34;
+2x      &#34;wood&#34;
+weese@tanne:~/seqan/demos$
+@endcode
+
+
+</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

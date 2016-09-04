@@ -1,0 +1,1583 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_journaledstringtree" data-page="JournaledStringTree">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Journaled String Tree - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>Journaled String Tree<div><div>This data structure represents a virtual set of strings using a veritcal compression scheme.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/journaled_string_tree.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>template &lt;typename TSequence[, typename TConfig][, TSpec]&gt;
+class JournaledStringTree&lt;TDeltaStore, TConfig, TSpec&gt;;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TSequence</a></code></th>
+        <td>Type of underlying base sequence.</td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TConfig</a></code></th>
+        <td>A configuration object, whose traits can be used to specialize the underlying <a href="class_DeltaMap.html" data-lang-entity="class">DeltaMap</a>. Defaults to <a href="class_DefaultJstConfig.html" data-lang-entity="class">DefaultJstConfig</a>.</td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TSpec</a></code></th>
+        <td>The specialization tag for the journaled string tree. Defaults to <a href="tag_Default.html" data-lang-entity="tag">Default</a>.</td>
+    </tr>
+
+</table>
+</div>
+
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#JournaledStringTree%3A%3AJournaledStringTree" title="#JournaledStringTree::JournaledStringTree (interface function)" data-lang-entity="member_function">JournaledStringTree();, JournaledStringTree(size);, JournaledStringTree(source, size);</a></code></span>
+    <span class="summary_desc"><div>Constructor.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#JournaledStringTree%23clear" title="#JournaledStringTree#clear (interface function)" data-lang-entity="interface_function">void clear(jst);</a></code></span>
+    <span class="summary_desc"><div>Clears the journaled string tree.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#JournaledStringTree%23erase" title="#JournaledStringTree#erase (interface function)" data-lang-entity="interface_function">bool erase(jst, pos, type);</a></code></span>
+    <span class="summary_desc"><div>Erases a delta event in the journaled string tree.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#JournaledStringTree%23host" title="#JournaledStringTree#host (interface function)" data-lang-entity="interface_function">THost host(jst);</a></code></span>
+    <span class="summary_desc"><div>Returns the set base sequence.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#JournaledStringTree%23insert" title="#JournaledStringTree#insert (interface function)" data-lang-entity="interface_function">bool insert(jst, pos, val, ids, type);</a></code></span>
+    <span class="summary_desc"><div>Adds a new delta ecent to the journaled string tree.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#JournaledStringTree%23length" title="#JournaledStringTree#length (interface function)" data-lang-entity="interface_function">TSize length(jst);</a></code></span>
+    <span class="summary_desc"><div>Returns the number of sequences represented by the journaled string tree.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#JournaledStringTree%23resize" title="#JournaledStringTree#resize (interface function)" data-lang-entity="interface_function">void resize(jst, size);</a></code></span>
+    <span class="summary_desc"><div>Resizes the number of sequences represented by the journaled string tree.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#JournaledStringTree%23setHost" title="#JournaledStringTree#setHost (interface function)" data-lang-entity="interface_function">void setHost(jst, host);</a></code></span>
+    <span class="summary_desc"><div>Sets the base sequence of the journaled string tree.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+
+
+<div data-lang-entity-container="interface_metafunction">
+<h2 data-lang-entity="interface_metafunction">Interface  Metafunction Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#JournaledStringTree%23Host" title="#JournaledStringTree#Host (interface function)" data-lang-entity="interface_metafunction">Host&lt;TJst&gt;::Type;</a></code></span>
+    <span class="summary_desc"><div>The host type.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#JournaledStringTree%23Position" title="#JournaledStringTree#Position (interface function)" data-lang-entity="interface_metafunction">Position&lt;TJst&gt;::Type;</a></code></span>
+    <span class="summary_desc"><div>The position type.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#JournaledStringTree%23Size" title="#JournaledStringTree#Size (interface function)" data-lang-entity="interface_metafunction">Size&lt;TJst&gt;::Type;</a></code></span>
+    <span class="summary_desc"><div>The size type.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#JournaledStringTree%23Spec" title="#JournaledStringTree#Spec (interface function)" data-lang-entity="interface_metafunction">Spec&lt;TJst&gt;::Type;</a></code></span>
+    <span class="summary_desc"><div>Returns the specialization type.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>This data structure stores a virtual set of sequences in a compressed form. The sequences are described in form of a pointer
+to a common reference sequence and in addition delta events, which are stored in a <a href="class_DeltaMap.html" data-lang-entity="class">DeltaMap</a>.
+The interface is a hybrid between a container interface and a associative container interface. So it uses typical
+string set intrefaces to access the virtual strings. On the other hand it implements an associative container to
+store the delta events given their reference position as a key.
+This data structure can then be traversed efficiently, while exploring only those sequence contexts, that are unique
+to the set of sequences. This means, that redundant parts, that are shared by one or many sequences is traversed only
+once.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+<div class="member_function_details" data-lang-entity-container="member_function">
+  <h2 data-lang-entity="member_function">Member Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="JournaledStringTree::JournaledStringTree" class="signature first" data-lang-entity="member_function">
+      <code>JournaledStringTree();
+JournaledStringTree(size);
+JournaledStringTree(source, size);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Constructor.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            <code>size</code>
+        
+      </th>
+      <td>The number of sequences represented by the JST.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            <code>source</code>
+        
+      </th>
+      <td>The underlying base sequence to which the sequences are compressed.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="JournaledStringTree#clear" class="signature first" data-lang-entity="interface_function">
+      <code>void clear(jst);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Clears the journaled string tree.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">jst</code>
+            
+        
+      </th>
+      <td>The journaled string tree to be cleared.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="JournaledStringTree#erase" class="signature" data-lang-entity="interface_function">
+      <code>bool erase(jst, pos, type);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Erases a delta event in the journaled string tree.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">jst</code>
+            
+        
+      </th>
+      <td>The journaled string tree to be modified.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">pos</code>
+            
+        
+      </th>
+      <td>The host source position of the delta event.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">type</code>
+            
+        
+      </th>
+      <td>A tag representing the type of the delta event. One of <a href="group_DeltaTypeTags.html" data-lang-entity="group">DeltaTypeTags</a>.
+Note there can be multiple nodes at the same <tt>pos&lt;\tt&gt; with different <tt>type&lt;\tt&gt;.</tt></tt></td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>A delta event is described by it's host position and the type. If a left end of a deletion is deleted its
+accompanied right end is deleted as well.</p><p>@remark The deletion time is depends on the implementation of the underlying <a href="class_DeltaMap.html" data-lang-entity="class">DeltaMap</a>.
+See <a href="class_DeltaMap.html#DeltaMap#erase" data-lang-entity="interface_function">erase</a> for detailed information.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  <h4>See Also</h4>
+  <ul>
+    
+    <li><a href="class_JournaledStringTree.html#JournaledStringTree#insert" data-lang-entity="interface_function">insert</a></li>
+    
+  </ul>
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="JournaledStringTree#host" class="signature" data-lang-entity="interface_function">
+      <code>THost host(jst);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns the set base sequence.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">jst</code>
+            
+        
+      </th>
+      <td>The journaled string tree.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>THost</code></th>
+        <td>A reference to the host of type <a href="class_JournaledStringTree.html#JournaledStringTree#Host" data-lang-entity="interface_metafunction">Host</a>.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="JournaledStringTree#insert" class="signature" data-lang-entity="interface_function">
+      <code>bool insert(jst, pos, val, ids, type);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Adds a new delta ecent to the journaled string tree.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">jst</code>
+            
+        
+      </th>
+      <td>The journaled string tree to be modified.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">pos</code>
+            
+        
+      </th>
+      <td>The position of the host to place the new delta event at. This position must not exceed length of the <a href="class_JournaledStringTree.html#JournaledStringTree#host" data-lang-entity="interface_function">host</a>.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">val</code>
+            
+        
+      </th>
+      <td>The value of the delta event.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">ids</code>
+            
+        
+      </th>
+      <td>An object of <a href="concept_ContainerConcept.html" data-lang-entity="concept">ContainerConcept</a> storing the ids of the sequences covering this delta event. The ids must be in the range [0, <a href="class_JournaledStringTree.html#JournaledStringTree#length" data-lang-entity="interface_function">length</a>).</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">type</code>
+            
+        
+      </th>
+      <td>A tag representing the type of the delta event. One of <a href="group_DeltaTypeTags.html" data-lang-entity="group">DeltaTypeTags</a>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>Note the value given by <tt>val&lt;\tt&gt; depends on the <tt>type&lt;\tt&gt;, which can be a single character, a string,
+an integer or a pair of integer and string, representing a SNP, an insertion, a deletion or
+a structural variant respectively.</tt></tt></p><p>When inserting a deletion of size &gt; 1 (the same holds for the structural variant), the event is split into a left begin and a right begin and two events are inserted into the underlying <a href="class_DeltaMap.html" data-lang-entity="class">DeltaMap</a>.
+Hence the number of inserted events can differ from the actual number of calls to the insert function.</p><p>@remark The insertion time depends on the implementation of the underlying <a href="class_DeltaMap.html" data-lang-entity="class">DeltaMap</a>. See <a href="class_DeltaMap.html#DeltaMap#insert" data-lang-entity="interface_function">insert</a> for more details.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  <h4>See Also</h4>
+  <ul>
+    
+    <li><a href="class_JournaledStringTree.html#JournaledStringTree#erase" data-lang-entity="interface_function">erase</a></li>
+    
+  </ul>
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="JournaledStringTree#length" class="signature" data-lang-entity="interface_function">
+      <code>TSize length(jst);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns the number of sequences represented by the journaled string tree.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">jst</code>
+            
+        
+      </th>
+      <td>The journaled string tree to query the length for.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TSize</code></th>
+        <td>The number of sequences represented by the <tt>jst&lt;\tt&gt;. Of type <a href="class_JournaledStringTree.html#JournaledStringTree#Size" data-lang-entity="interface_metafunction">Size</a>.</tt></td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="JournaledStringTree#resize" class="signature" data-lang-entity="interface_function">
+      <code>void resize(jst, size);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Resizes the number of sequences represented by the journaled string tree.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">jst</code>
+            
+        
+      </th>
+      <td>The journaled string tree to resize.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">size</code>
+            
+        
+      </th>
+      <td>The new size of the <tt>jst</tt>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>Note, when invoking this method all stored delta events are parsed and their coverage is resized to the given
+<tt>size</tt>. If <tt>size</tt> is smaller than the previous size this reduces the actual size of the stored coverages.
+If <tt>size</tt> is bigger than the previous size, the coverages are filled up with 0s, i.e. they represent a copy of
+the underlying base sequence.
+Hence the performance is linear in the number of stored delta events times the linear time for resizing the coverages.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  <h4>See Also</h4>
+  <ul>
+    
+    <li><a href="class_JournaledStringTree.html#JournaledStringTree#length" data-lang-entity="interface_function">length</a></li>
+    
+  </ul>
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="JournaledStringTree#setHost" class="signature" data-lang-entity="interface_function">
+      <code>void setHost(jst, host);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Sets the base sequence of the journaled string tree.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">jst</code>
+            
+        
+      </th>
+      <td>The journaled string tree.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">host</code>
+            
+        
+      </th>
+      <td>The new host to set.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>When setting a new host, the <tt>jst</tt> will be cleared all previous information are lost.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+<div class="interface_metafunction_details" data-lang-entity-container="">
+<h2 data-lang-entity="interface_metafunction">Interface Metafunctions Detail</h2>
+
+
+<div class="method_details first">
+  <h3 data-toc="hidden" id="JournaledStringTree#Host" class="signature first" data-lang-entity="interface_metafunction">
+    <code>Host&lt;TJst&gt;::Type;</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>The host type.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TJst</code></th>
+            <td>The JST type to get the host type for.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>THost</code></th>
+            <td>The type of the underlying data structure.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="method_details">
+  <h3 data-toc="hidden" id="JournaledStringTree#Position" class="signature" data-lang-entity="interface_metafunction">
+    <code>Position&lt;TJst&gt;::Type;</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>The position type.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TJst</code></th>
+            <td>The JST type to get the position type for.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TPosition</code></th>
+            <td>The position type.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="method_details">
+  <h3 data-toc="hidden" id="JournaledStringTree#Size" class="signature" data-lang-entity="interface_metafunction">
+    <code>Size&lt;TJst&gt;::Type;</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>The size type.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TJst</code></th>
+            <td>The JST type to get the size type for.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TSize</code></th>
+            <td>The size type.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="method_details">
+  <h3 data-toc="hidden" id="JournaledStringTree#Spec" class="signature" data-lang-entity="interface_metafunction">
+    <code>Spec&lt;TJst&gt;::Type;</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns the specialization type.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TJst</code></th>
+            <td>The JST type to query the specialization type for.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TSpec</code></th>
+            <td>The specialization type.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class JournaledStringTree Journaled String Tree
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief This data structure represents a virtual set of strings using a
+ *        veritcal compression scheme.
+ * 
+ * @signature template &lt;typename TSequence[, typename TConfig][, TSpec]&gt; class
+ *            JournaledStringTree&lt;TDeltaStore, TConfig, TSpec&gt;;
+ * 
+ * @tparam TSequence Type of underlying base sequence.
+ * @tparam TConfig A configuration object, whose traits can be used to
+ *                 specialize the underlying @link DeltaMap @endlink. Defaults
+ *                 to @link DefaultJstConfig @endlink.
+ * @tparam TSpec The specialization tag for the journaled string tree. Defaults
+ *               to @link Default @endlink.
+ * 
+ * This data structure stores a virtual set of sequences in a compressed form.
+ * The sequences are described in form of a pointer to a common reference
+ * sequence and in addition delta events, which are stored in a @link DeltaMap
+ * @endlink. The interface is a hybrid between a container interface and a
+ * associative container interface. So it uses typical string set intrefaces to
+ * access the virtual strings. On the other hand it implements an associative
+ * container to store the delta events given their reference position as a key.
+ * This data structure can then be traversed efficiently, while exploring only
+ * those sequence contexts, that are unique to the set of sequences. This means,
+ * that redundant parts, that are shared by one or many sequences is traversed
+ * only once.
+ * 
+ * @mfn JournaledStringTree#Spec
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns the specialization type.
+ * 
+ * @signature Spec&lt;TJst&gt;::Type;
+ * 
+ * @tparam TJst The JST type to query the specialization type for.
+ * 
+ * @return TSpec The specialization type.
+ * 
+ * @mfn JournaledStringTree#Size
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief The size type.
+ * 
+ * @signature Size&lt;TJst&gt;::Type;
+ * 
+ * @tparam TJst The JST type to get the size type for.
+ * 
+ * @return TSize The size type.
+ * 
+ * @mfn JournaledStringTree#Position
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief The position type.
+ * 
+ * @signature Position&lt;TJst&gt;::Type;
+ * 
+ * @tparam TJst The JST type to get the position type for.
+ * 
+ * @return TPosition The position type.
+ * 
+ * @mfn JournaledStringTree#Host
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief The host type.
+ * 
+ * @signature Host&lt;TJst&gt;::Type;
+ * 
+ * @tparam TJst The JST type to get the host type for.
+ * 
+ * @return THost The type of the underlying data structure.
+ * 
+ * @fn JournaledStringTree::JournaledStringTree
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Constructor.
+ * 
+ * @signature JournaledStringTree();
+ * @signature JournaledStringTree(size);
+ * @signature JournaledStringTree(source, size);
+ * 
+ * @param size The number of sequences represented by the JST.
+ * @param source The underlying base sequence to which the sequences are
+ *               compressed.
+ * 
+ * @fn JournaledStringTree#host
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns the set base sequence.
+ * 
+ * @signature THost host(jst);
+ * 
+ * @param[in] jst The journaled string tree.
+ * 
+ * @return THost A reference to the host of type @link JournaledStringTree#Host
+ *               @endlink.
+ * 
+ * @fn JournaledStringTree#setHost
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Sets the base sequence of the journaled string tree.
+ * 
+ * @signature void setHost(jst, host);
+ * 
+ * @param[in,out] jst The journaled string tree.
+ * @param[in] host The new host to set.
+ * 
+ * When setting a new host, the &lt;tt&gt;jst&lt;/tt&gt; will be cleared all previous
+ * information are lost.
+ * 
+ * @fn JournaledStringTree#length
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Returns the number of sequences represented by the journaled string
+ *        tree.
+ * 
+ * @signature TSize length(jst);
+ * 
+ * @param[in] jst The journaled string tree to query the length for.
+ * 
+ * @return TSize The number of sequences represented by the &lt;tt&gt;jst&lt;\tt&gt;. Of
+ *               type @link JournaledStringTree#Size @endlink.
+ * 
+ * @fn JournaledStringTree#resize
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Resizes the number of sequences represented by the journaled string
+ *        tree.
+ * 
+ * @signature void resize(jst, size);
+ * 
+ * @param[in,out] jst The journaled string tree to resize.
+ * @param[in] size The new size of the &lt;tt&gt;jst&lt;/tt&gt;.
+ * 
+ * Note, when invoking this method all stored delta events are parsed and their
+ * coverage is resized to the given &lt;tt&gt;size&lt;/tt&gt;. If &lt;tt&gt;size&lt;/tt&gt; is smaller
+ * than the previous size this reduces the actual size of the stored coverages.
+ * If &lt;tt&gt;size&lt;/tt&gt; is bigger than the previous size, the coverages are filled
+ * up with 0s, i.e. they represent a copy of the underlying base sequence. Hence
+ * the performance is linear in the number of stored delta events times the
+ * linear time for resizing the coverages.
+ * 
+ * @see JournaledStringTree#length
+ * 
+ * @fn JournaledStringTree#clear
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Clears the journaled string tree.
+ * 
+ * @signature void clear(jst);
+ * 
+ * @param[in,out] jst The journaled string tree to be cleared.
+ * 
+ * @fn JournaledStringTree#insert
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Adds a new delta ecent to the journaled string tree.
+ * 
+ * @signature bool insert(jst, pos, val, ids, type);
+ * 
+ * @param[in,out] jst The journaled string tree to be modified.
+ * @param[in] pos The position of the host to place the new delta event at. This
+ *                position must not exceed length of the @link
+ *                JournaledStringTree#host @endlink.
+ * @param[in] val The value of the delta event.
+ * @param[in] ids An object of @link ContainerConcept @endlink storing the ids
+ *                of the sequences covering this delta event. The ids must be in
+ *                the range [0, @link JournaledStringTree#length @endlink).
+ * @param[in] type A tag representing the type of the delta event. One of @link
+ *                 DeltaTypeTags @endlink.
+ * 
+ * Note the value given by &lt;tt&gt;val&lt;\tt&gt; depends on the &lt;tt&gt;type&lt;\tt&gt;, which can
+ * be a single character, a string, an integer or a pair of integer and string,
+ * representing a SNP, an insertion, a deletion or a structural variant
+ * respectively.
+ * 
+ * When inserting a deletion of size &gt; 1 (the same holds for the structural
+ * variant), the event is split into a left begin and a right begin and two
+ * events are inserted into the underlying @link DeltaMap @endlink. Hence the
+ * number of inserted events can differ from the actual number of calls to the
+ * insert function.
+ * 
+ * @remark The insertion time depends on the implementation of the underlying
+ * @link DeltaMap @endlink. See @link DeltaMap#insert @endlink for more details.
+ * 
+ * @see JournaledStringTree#erase
+ * 
+ * @fn JournaledStringTree#erase
+ * 
+ * @headerfile &lt;seqan/journaled_string_tree.h&gt;
+ * 
+ * @brief Erases a delta event in the journaled string tree.
+ * 
+ * @signature bool erase(jst, pos, type);
+ * 
+ * @param[in,out] jst The journaled string tree to be modified.
+ * @param[in] pos The host source position of the delta event.
+ * @param[in] type A tag representing the type of the delta event. One of @link
+ *                 DeltaTypeTags @endlink. Note there can be multiple nodes at
+ *                 the same &lt;tt&gt;pos&lt;\tt&gt; with different &lt;tt&gt;type&lt;\tt&gt;.
+ * 
+ * A delta event is described by it&#39;s host position and the type. If a left end
+ * of a deletion is deleted its accompanied right end is deleted as well.
+ * 
+ * @remark The deletion time is depends on the implementation of the underlying
+ * @link DeltaMap @endlink. See @link DeltaMap#erase @endlink for detailed
+ * information.
+ * 
+ * @see JournaledStringTree#insert
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="specialization_hardwiredshape" data-page="HardwiredShape">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>HardwiredShape - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#specialization">Spec</a>
+<span>HardwiredShape<div><div>A structure to define a fixed gapped shape.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+  <tr>
+    <th>Extends</th>
+    <td>
+      <a href="specialization_GappedShape.html" data-lang-entity="specialization">GappedShape</a>
+      
+    </td>
+  </tr>
+  
+
+  
+
+  
+  <tr>
+    <th>All Extended</dt>
+    <td>
+    <a href="specialization_GappedShape.html" data-lang-entity="specialization">GappedShape</a>, 
+    <a href="class_Shape.html" data-lang-entity="class">Shape</a>
+    
+    </td>
+  </tr>
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/index.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>template &lt;typename TValue, typename P1[, typename P2[, ..., typename Pn]]&gt;
+class Shape&lt;TValue, HardwiredShape&lt;P1[, P2[, ..., Pn]]&gt; &gt;;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TValue</a></code></th>
+        <td>The type to use for the values.</td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">Pi</a></code></th>
+        <td>Pi is the distance of the i'th '1' to the next '1' in the shape.At
+most 20 parameters are allowed, so the maximal shape weight is 21.</td>
+    </tr>
+
+</table>
+</div>
+
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="class_Shape.html" data-lang-entity="class">Shape</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#hash" data-lang-entity="interface_function">hash</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#hash2" data-lang-entity="interface_function">hash2</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#hash2Next" data-lang-entity="interface_function">hash2Next</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#hash2Upper" data-lang-entity="interface_function">hash2Upper</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#hashInit" data-lang-entity="interface_function">hashInit</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#hashNext" data-lang-entity="interface_function">hashNext</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#hashUpper" data-lang-entity="interface_function">hashUpper</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#length" data-lang-entity="interface_function">length</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#resize" data-lang-entity="interface_function">resize</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#shapeToString" data-lang-entity="interface_function">shapeToString</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#stringToShape" data-lang-entity="interface_function">stringToShape</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#unhash" data-lang-entity="interface_function">unhash</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#value" data-lang-entity="interface_function">value</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#weight" data-lang-entity="interface_function">weight</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+
+
+<div data-lang-entity-container="interface_metafunction">
+<h2 data-lang-entity="interface_metafunction">Interface  Metafunction Overview</h2>
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Metafunctions Inherited From <a href="class_Shape.html" data-lang-entity="class">Shape</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#Host" data-lang-entity="interface_metafunction">Host</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#LENGTH" data-lang-entity="interface_metafunction">LENGTH</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#Size" data-lang-entity="interface_metafunction">Size</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#Value" data-lang-entity="interface_metafunction">Value</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#ValueSize" data-lang-entity="interface_metafunction">ValueSize</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Shape.html#Shape#WEIGHT" data-lang-entity="interface_metafunction">WEIGHT</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>You can use this structure to define your one gapped shapes in conjunction
+with <a href="specialization_GappedShape.html" data-lang-entity="specialization">GappedShape</a>.</p><p>The shape <tt>1100101</tt> corresponds to <tt>HardwiredShape&lt;1,3,2&gt;</tt>.</p><p>Note The following predefined shapes are already available in <tt>seqan/index/shape_predefined.h</tt>:</p><div data-src-path="include/seqan/index/shape_predefined.h"><pre class="code">// ==========================================================================
+//                 SeqAn - The Library for Sequence Analysis
+// ==========================================================================
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of Knut Reinert or the FU Berlin nor the names of
+//       its contributors may be used to endorse or promote products derived
+//       from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL KNUT REINERT OR THE FU BERLIN BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+// DAMAGE.
+//
+// ==========================================================================
+// Author: David Weese &lt;david.weese@fu-berlin.de&gt;
+// ==========================================================================
+
+#ifndef SEQAN_HEADER_SHAPE_PREDEFINED_H
+#define SEQAN_HEADER_SHAPE_PREDEFINED_H
+
+//SEQAN_NO_GENERATED_FORWARDS: no forwards are generated for this file
+
+namespace seqan
+{
+
+    //////////////////////////////////////////////////////////////////////////////
+    // some predefined gapped shapes
+
+
+    //////////////////////////////////////////////////////////////////////////////
+    // Single seed of
+    // B.Ma and J.Tromp and M.Li,
+    // "PatternHunter: faster and more sensitive homology search"
+    // Bioinformatics 18, 2002
+    //
+    // weight:11
+    // length:18
+    //
+    // shape:
+    // 111010010100110111
+
+    typedef GappedShape&lt;
+        HardwiredShape&lt; 1, 1, 2, 3, 2, 3, 1, 2, 1, 1 &gt;
+    &gt; ShapePatternHunter;
+
+
+
+    //////////////////////////////////////////////////////////////////////////////
+    // Multiple seeds of
+    // L.Ilie and S.Ilie, "Fast Computation of Good Multiple Spaced Seeds"
+    // WABI, 2007
+    //
+    // weight:9
+    // length:15
+    //
+    // shapes:
+    // 111010100100111
+    // 110100110011101
+    // 111010001011011
+    //
+    // sensitivity:
+    // 65% 0.747975        70% 0.897741
+    // 75% 0.973134        80% 0.996226
+
+    typedef GappedShape&lt;
+        HardwiredShape&lt; 1, 1, 2, 2, 3, 3, 1, 1 &gt;
+    &gt; ShapeIlieA1;
+
+    typedef GappedShape&lt;
+        HardwiredShape&lt; 1, 2, 3, 1, 3, 1, 1, 2 &gt;
+    &gt; ShapeIlieA2;
+
+    typedef GappedShape&lt;
+        HardwiredShape&lt; 1, 1, 2, 4, 2, 1, 2, 1 &gt;
+    &gt; ShapeIlieA3;
+
+
+
+    //////////////////////////////////////////////////////////////////////////////
+    // Multiple seeds of
+    // L.Ilie and S.Ilie, "Fast Computation of Good Multiple Spaced Seeds"
+    // WABI 2007
+    //
+    // weight:9
+    // length:13..23
+    //
+    // shapes:
+    // 1110110100111
+    // 11010000110010111
+    // 11100010010000101011
+    //
+    // sensitivity:
+    // 65% 0.767413        70% 0.910949
+    // 75% 0.978558        80% 0.997357
+
+    typedef GappedShape&lt;
+        HardwiredShape&lt; 1, 1, 2, 1, 2, 3, 1, 1 &gt;
+    &gt; ShapeIlieB1;
+
+    typedef GappedShape&lt;
+        HardwiredShape&lt; 1, 2, 5, 1, 3, 2, 1, 1 &gt;
+    &gt; ShapeIlieB2;
+
+    typedef GappedShape&lt;
+        HardwiredShape&lt; 1, 1, 4, 3, 5, 2, 2, 1 &gt;
+    &gt; ShapeIlieB3;
+
+
+}    // namespace seqan
+
+#endif
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="include/seqan/index/shape_predefined.h" target="_top">include/seqan/index/shape_predefined.h</a></div></div></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="specialization_GappedShape.html" data-lang-entity="specialization">GappedShape</a></li>
+  
+  <li><a href="specialization_GenericShape.html" data-lang-entity="specialization">GenericShape</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class HardwiredShape
+ * 
+ * @extends GappedShape
+ * 
+ * @headerfile &lt;seqan/index.h&gt;
+ * 
+ * @brief A structure to define a fixed gapped shape.
+ * 
+ * @signature template &lt;typename TValue, typename P1[, typename P2[, ...,
+ *            typename Pn]]&gt; class Shape&lt;TValue, HardwiredShape&lt;P1[, P2[, ...,
+ *            Pn]]&gt; &gt;;
+ * 
+ * @tparam TValue The type to use for the values.
+ * @tparam Pi Pi is the distance of the i&#39;th &#39;1&#39; to the next &#39;1&#39; in the shape.At
+ *            most 20 parameters are allowed, so the maximal shape weight is 21.
+ * 
+ * You can use this structure to define your one gapped shapes in conjunction
+ * with @link GappedShape @endlink.
+ * 
+ * The shape &lt;tt&gt;1100101&lt;/tt&gt; corresponds to &lt;tt&gt;HardwiredShape&lt;1,3,2&gt;&lt;/tt&gt;.
+ * 
+ * Note The following predefined shapes are already available in
+ * &lt;tt&gt;seqan/index/shape_predefined.h&lt;/tt&gt;:
+ * 
+ * @include include/seqan/index/shape_predefined.h
+ * 
+ * @see GappedShape
+ * @see GenericShape
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

@@ -1,25 +1,21 @@
 #include "PrefixTable.h"
-//#include "NGM.h"
-#include "CS.h"
-
-//#include "SequenceLocation.h"
-
-#include "Timing.h"
 
 #include <stdexcept>
-
-#undef module_name
-#define module_name "PREPROCESS"
-
 #include <cmath>
 #include <algorithm>
 #include <sstream>
 #include <stdio.h>
 
+#include "CS.h"
+#include "Timing.h"
+
+#undef module_name
+#define module_name "PREPROCESS"
+
 extern int lastSeqTotal;
 
 static uint const refTabCookie = 0x1701E;
-static uint const refTabEndCookie = 0xC0FFEE;
+//static uint const refTabEndCookie = 0xC0FFEE;
 
 uloc CompactPrefixTable::c_tableLocMax = 4294967296 - 1;
 
@@ -97,20 +93,12 @@ uint CompactPrefixTable::GetRefEntryChainLength() const {
 CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		DualStrand(dualStrand), skipRep(skip) {
 
-	bool m_EnableBS = false;
-	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
-
-	maxPrefixFreq = (Config.Exists("kmer_maxFreq") ? Config.GetInt("kmer_maxFreq") : maxPrefixFreq);
-	m_RefSkip = (Config.Exists("kmer_skip") ? Config.GetInt("kmer_skip", 0, -1) : 0);
-	if (m_EnableBS) {
-		m_RefSkip = 0;
-		Log.Verbose("BS mapping enabled. Kmer skip on ref is set to 0");
-	}
+	m_RefSkip = Config.getKmerSkip();
 	m_PrefixLength = CS::prefixBasecount;
 	uint indexLength = (int) pow(4.0, (double) m_PrefixLength) + 1;
 
 	std::stringstream refFileName;
-	refFileName << std::string(Config.GetString("ref")) << "-ht-" << m_PrefixLength << "-" << m_RefSkip << ".2.ngm";
+	refFileName << std::string(Config.getReferenceFile()) << "-ht-" << m_PrefixLength << "-" << m_RefSkip << ".2.ngm";
 
 	char * cacheFile = new char[refFileName.str().size() + 1];
 	strcpy(cacheFile, refFileName.str().c_str());
@@ -120,9 +108,9 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		kmerCountMinLocation = 0;
 		kmerCountMaxLocation = c_tableLocMax;
 
-		if( Config.Exists("vcf") )
+		if( Config.getVcfFile() != 0 )
 		{
-			vcf.open(Config.GetString("vcf"));
+			vcf.open(Config.getVcfFile());
 			Log.Message("Loaded VCF (%u variations)",vcf.length());
 
 			BuildSNPTable();
@@ -155,7 +143,7 @@ void CompactPrefixTable::test() {
 			uloc start = index[j].m_TabIndex - 1;
 			//TODO: Fix Invalid read of size 4
 			int maxLength = index[j + 1].m_TabIndex - 1 - start;
-			if (!(maxLength >= 0 && maxLength <= 1000 && start >= 0 && start < unit->cRefTableLen)) {
+			if (!(maxLength >= 0 && maxLength <= 1000 && start < unit->cRefTableLen)) {
 				printf("Error in index:\n");
 				printf("%d: %u %d %d\n", j - 1, index[j - 1].m_TabIndex, index[j - 1].m_RevCompIndex, index[j - 1].used());
 				printf("%d: %u %d %d -> %llu %d\n", j, index[j].m_TabIndex, index[j].m_RevCompIndex, index[j].used(), start, maxLength);
@@ -170,7 +158,7 @@ void CompactPrefixTable::test() {
 		Log.Message("Table length: %u", tableLen);
 		for (uint j = 0; j < tableLen; ++j) {
 			uloc pos = positions[j].m_Location + unit->Offset;
-			if (!(pos >= 0 && pos < SequenceProvider.GetConcatRefLen())) {
+			if (!(pos < SequenceProvider.GetConcatRefLen())) {
 				printf("Error in table");
 				printf("%u: %u\n", j, positions[j].m_Location);
 			}
@@ -378,8 +366,8 @@ void CompactPrefixTable::BuildSNPTable()
 		int region_extension = (snp.ref.size()+snp.alt.size()) - 2;
 		int region_len = 2 * (m_PrefixLength + region_extension);
 
-		char* buffer_tmp = new char[region_len+1];
-		memset(buffer_tmp,0,sizeof(buffer_tmp));
+		char * buffer_tmp = new char[region_len + 1];
+		memset(buffer_tmp, 0, sizeof(char) * (region_len + 1));
 		SequenceProvider.DecodeRefSequence(buffer_tmp,0, snp.pos - region_len / 2, region_len);
 		buffer_tmp[region_len] = 0;
 
@@ -600,7 +588,6 @@ void CompactPrefixTable::SaveToRefTable(ulong prefix, Location loc) {
 RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * entries) const {
 	if(prefix > (int) pow(4.0, (double) m_PrefixLength) + 1) {
 		Log.Error("Wrong prefix!!");
-		Fatal();
 	}
 	for (int i = 0; i < m_UnitCount; i++) {
 		RefEntry* entry = &entries[i * 2];
@@ -657,7 +644,7 @@ RefEntry const * CompactPrefixTable::GetRefEntry(ulong prefix, RefEntry * entrie
 }
 
 void CompactPrefixTable::saveToFile(char const * fileName, uint const refIndexSize) {
-	if (!Config.GetInt("skip_save")) {
+	if (!Config.getSkipSave()) {
 		Timer wtmr;
 		wtmr.ST();
 		Log.Message("Writing RefTable to %s", fileName);
@@ -684,7 +671,6 @@ void CompactPrefixTable::saveToFile(char const * fileName, uint const refIndexSi
 			fclose(fp);
 		} else {
 			Log.Error("Error while opening file %s for writing.", fileName);
-			Fatal();
 		}
 		Log.Message("Writing to disk took %.2fs", wtmr.ET());
 	} else {
@@ -710,7 +696,6 @@ bool CompactPrefixTable::readFromFile(char const * fileName) {
 	fp = fopen(fileName, "rb");
 	if (!fp) {
 		Log.Error("Couldn't open file %s for reading.", fileName);
-		Fatal();
 	}
 
 	read = fread(&cookie, sizeof(uint), 1, fp);
@@ -718,9 +703,7 @@ bool CompactPrefixTable::readFromFile(char const * fileName) {
 	read = fread(&refskip, sizeof(uint), 1, fp);
 	if (cookie != refTabCookie || prefixBasecount != m_PrefixLength || refskip != m_RefSkip) {
 		fclose(fp);
-		Log.Error("Invalid reference table found: %s.", fileName);
-		Log.Error("Please delete it and run NGM again.");
-		Fatal();
+		Log.Error("Invalid reference table found: %s. Please delete it and run NGM again.", fileName);
 	}
 
 	read = fread(&m_UnitCount, sizeof(uint), 1, fp );

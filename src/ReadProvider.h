@@ -1,10 +1,3 @@
-/*
- * ReadProvider.h
- *
- *  Created on: Jun 14, 2012
- *      Author: philipp_
- */
-
 #ifndef READPROVIDER_H_
 #define READPROVIDER_H_
 
@@ -37,13 +30,6 @@ private:
 	size_t readsInBuffer;
 
 	IParser * parser1;
-	IParser * parser2;
-
-	char const peDelimiter;
-
-	bool const isPaired;
-
-	bool const skipMateCheck;
 
 	void splitRead(MappedRead * read);
 	virtual MappedRead * NextRead(IParser * parser, int const id);

@@ -6,7 +6,6 @@
 
 #include "NGM.h"
 #include "Timing.h"
-#include "Debug.h"
 #include "AlignmentBuffer.h"
 
 #include "ConvexAlign.h"
@@ -47,49 +46,11 @@ void CS::PrefixIteration(char const * sequence, uloc length,
 	CS::PrefixIteration(sequence, length, func, mutateFrom, mutateTo, data,
 			prefixskip, offset);
 
-	prefixBasecount = Config.GetInt("kmer", 4, 32);
+	prefixBasecount = Config.getKmerLength();
 	prefixBits = prefixBasecount * 2;
 	prefixMask = ((ulong) 1 << prefixBits) - 1;
 }
 
-// mutate T (0x2) -> C (0x1)
-//ulong const mutateFrom = 0x2;
-//ulong const mutateTo = 0x1;
-//ulong mutateFrom = 0x2;
-//ulong mutateTo = 0x1;
-
-void CS::PrefixMutateSearch(ulong prefix, uloc pos, ulong mutateFrom,
-		ulong mutateTo, void* data) {
-	static int const cMutationLocLimit = Config.GetInt("bs_cutoff");
-	ulong const mask = 0x3;
-
-	int mutationLocs = 0;
-	for (int i = 0; i < (int) prefixBasecount; ++i) {
-		ulong base = mask & (prefix >> (i * 2));
-		if (base == mutateFrom)
-			++mutationLocs;
-	}
-
-	if (mutationLocs <= cMutationLocLimit)
-		PrefixMutateSearchEx(prefix, pos, mutateFrom, mutateTo, data);
-}
-
-void CS::PrefixMutateSearchEx(ulong prefix, uloc pos, ulong mutateFrom,
-		ulong mutateTo, void* data, int mpos) {
-	PrefixSearch(prefix, pos, mutateFrom, mutateTo, data);
-
-	ulong const mask = 0x3;
-	for (int i = mpos; i < (int) prefixBasecount; ++i) {
-		ulong cur = mask & (prefix >> (i * 2));
-
-		if (cur == mutateFrom) {
-			ulong p1 = (prefix & ~(mask << (i * 2)));
-			ulong p2 = (mutateTo << (i * 2));
-			PrefixMutateSearchEx(p1 | p2, pos, mutateFrom, mutateTo, data,
-					i + 1);
-		}
-	}
-}
 
 void CS::PrefixSearch(ulong prefix, uloc pos, ulong mutateFrom, ulong mutateTo,
 		void* data) {
@@ -195,7 +156,7 @@ void CS::AddLocationFallback(SequenceLocation const & loc, double const freq) {
 void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 
 	std::stringstream ss;
-	ss << Config.GetString("output") << "_kmer-profile/" << read->ReadId
+	ss << std::string(Config.getOutputFile()) << "_kmer-profile/" << read->ReadId
 			<< ".csv";
 	Log.Message("Opening %s", ss.str().c_str());
 	FILE * kmerCount = fopen(ss.str().c_str(), "w");
@@ -253,7 +214,7 @@ void CS::debugCS(MappedRead * read, int& n, float& mi_Threshhold) {
 
 int CS::CollectResultsStd(MappedRead * read) {
 
-	static float const mink = Config.GetFloat("kmer_min");
+	static float const mink = Config.getMinKmerHits();
 
 	int max = (read->length - CS::prefixBasecount + 1) * 0.9;
 
@@ -298,7 +259,7 @@ int CS::CollectResultsStd(MappedRead * read) {
 			toInsert->Location.setReverse(true);
 		}
 	}
-	static int const maxScores = Config.GetInt("max_cmrs");
+	static int const maxScores = Config.getMaxCMRs();
 	if (index < maxScores)
 		read->AllocScores(tmp, index);
 
@@ -368,19 +329,6 @@ int CS::RunRead(MappedRead * currentRead, PrefixIterationFn pFunc,
 	//weightSum = 0.0f;
 	kCount = 0;
 
-	ulong mutateFrom;
-	ulong mutateTo;
-	static bool const isPaired = Config.GetInt("paired") > 0;
-	if (isPaired && (currentRead->ReadId & 1)) {
-		//Second mate
-		mutateFrom = 0x0;
-		mutateTo = 0x3;
-	} else {
-		//First mate
-		mutateFrom = 0x2;
-		mutateTo = 0x1;
-	}
-
 	m_CurrentReadLength = currentRead->length;
 
 	++m_ProcessedReads;
@@ -394,7 +342,7 @@ int CS::RunRead(MappedRead * currentRead, PrefixIterationFn pFunc,
 	if (!fallback) {
 		try {
 			hpoc = c_SrchTableLen * 0.333f;
-			PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo, this,
+			PrefixIteration(qrySeq, qryLen, pFunc, 0, 0, this,
 					m_PrefixBaseSkip);
 			int nScores = CollectResultsStd(currentRead);
 			nScoresSum += nScores;
@@ -421,7 +369,7 @@ int CS::RunRead(MappedRead * currentRead, PrefixIterationFn pFunc,
 				currentThresh = 0.0f;
 
 				hpoc = c_SrchTableLen * 0.777f;
-				PrefixIteration(qrySeq, qryLen, pFunc, mutateFrom, mutateTo,
+				PrefixIteration(qrySeq, qryLen, pFunc, 0, 0,
 						this, m_PrefixBaseSkip);
 				nScoresSum += CollectResultsStd(currentRead);
 
@@ -443,11 +391,8 @@ int CS::RunRead(MappedRead * currentRead, PrefixIterationFn pFunc,
 
 int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 	PrefixIterationFn pFunc = &CS::PrefixSearch;
-	if (m_EnableBS)
-		pFunc = &CS::PrefixMutateSearch;
 
 	int nScoresSum = 0;
-
 	for (size_t i = 0; i < m_CurrentBatch.size(); ++i) {
 
 		MappedRead * currentRead = m_CurrentBatch[i];
@@ -458,25 +403,9 @@ int CS::RunBatch(ScoreBuffer * sw, AlignmentBuffer * out) {
 
 void CS::DoRun() {
 
-	int gpu = m_TID;
-	//TODO: remove
-	if (Config.Exists("gpu")) {
-		int threadcount = 1;
-		static const int cMaxAligner = 32;
-		threadcount = Config.GetInt("gpu", 1, cMaxAligner);
-		int * gpus = new int[threadcount];
-		if (Config.Exists("gpu")) {
-			Config.GetIntArray("gpu", gpus, threadcount);
-		} else {
-			gpus[0] = 0;
-		}
-		gpu = gpus[m_TID % threadcount];
-		delete[] gpus;
-		gpus = 0;
-	}
 
 	NGM.AquireOutputLock();
-	oclAligner = NGM.CreateAlignment(gpu | (std::min(Config.GetInt("format", 0, 2), 1) << 8));
+	oclAligner = NGM.CreateAlignment(0);
 
 //	IAlignment * aligner = new SWCPUCor(0);
 //	Align align;
@@ -499,8 +428,7 @@ void CS::DoRun() {
 //	IAlignment * sswAligner = new SWCPUCor(0);
 	IAlignment * sswAligner = new Convex::ConvexAlign(0);
 
-	alignmentBuffer = new AlignmentBuffer(
-	Config.Exists("output") ? Config.GetString("output") : 0, sswAligner);
+	alignmentBuffer = new AlignmentBuffer(Config.getOutputFile(), sswAligner);
 	ScoreBuffer * scoreBuffer = new ScoreBuffer(oclAligner, alignmentBuffer);
 	NGM.ReleaseOutputLock();
 
@@ -515,13 +443,7 @@ void CS::DoRun() {
 		rTable[i].state = -1;
 		rList[i] = -1;
 	}
-
-	m_CsSensitivity = 0.50f;
-	if (Config.Exists("sensitivity")) {
-		m_CsSensitivity = Config.GetFloat("sensitivity", 0, 1);
-	} else {
-		Log.Warning("Sensitivity parameter neither set nor estimated. Falling back to default.");
-	}
+	m_CsSensitivity = Config.getSensitivity();
 
 	m_RefProvider = 0;
 
@@ -565,7 +487,7 @@ void CS::DoRun() {
 		NGM.Stats->csOverflows = m_Overflows;
 		NGM.Stats->avgnCRMS = nCRMsSum / m_CurrentBatch.size();
 
-		if (!Config.Exists("search_table_length")) {
+		if (Config.getCsSearchTableLength() == 0) {
 			if (m_Overflows <= 5 && !up && c_SrchTableBitLen > 8) {
 				SetSearchTableBitLen( c_SrchTableBitLen - 1 );
 				Log.Debug(LOG_CS_DETAILS, "Overflow: Switching to %d bits (%d, %d)", c_SrchTableBitLen, c_BitShift, c_SrchTableLen);
@@ -590,45 +512,23 @@ void CS::DoRun() {
 	Log.Debug(LOG_CS_DETAILS, "CS Thread %i finished (%i reads processed, %i reads written, %i reads discarded)", m_TID, m_ProcessedReads, m_WrittenReads, m_DiscardedReads);
 }
 void CS::Init() {
-	prefixBasecount = Config.GetInt("kmer", 4, 32);
+	prefixBasecount = Config.getKmerLength();
 	prefixBits = prefixBasecount * 2;
 	prefixMask = ((ulong) 1 << prefixBits) - 1;
-
-	bool m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
-	if (m_EnableBS) {
-		static int const cMutationLocLimit =
-		Config.Exists("bs_cutoff") ? Config.GetInt("bs_cutoff") : 6;
-		Log.Message("BS mapping enabled. Max. number of A/T per k-mer set to %d", cMutationLocLimit);
-	}
 }
 
 CS::CS(bool useBuffer) :
 		m_CSThreadID((useBuffer) ? (AtomicInc(&s_ThreadCount) - 1) : -1), m_BatchSize(
 				cBatchSize), m_ProcessedReads(0), m_WrittenReads(0), m_DiscardedReads(
-				0), m_EnableBS(false), m_Overflows(0), m_entry(0), m_PrefixBaseSkip(
+				0), m_Overflows(0), m_entry(0), m_PrefixBaseSkip(
 				0), m_Fallback(false) // cTableLen <= 0 means always use fallback
 {
 
-	SetSearchTableBitLen(
-	Config.Exists("search_table_length") ?
-	Config.GetInt("search_table_length") :
-											16);
-
-	m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
-
-	if (m_EnableBS) {
-		m_PrefixBaseSkip = (Config.Exists("kmer_skip")) ?
-		Config.GetInt("kmer_skip", 0, -1) :
-															cPrefixBaseSkip;
-	}
+	SetSearchTableBitLen(Config.getCsSearchTableLength() != 0 ? Config.getCsSearchTableLength() : 16);
 
 	rTable = 0;
 
 	Log.Debug(LOG_CS_DETAILS, "SearchTabLen: %d (%d)", c_SrchTableLen, c_SrchTableBitLen);
-
-#ifdef _DEBUGCS
-	ofp2 = fopen("cs-results.txt", "w");
-#endif
 
 	currentState = 0;
 	tmpSize = 10000;
@@ -641,9 +541,6 @@ void CS::AllocRefEntryChain() {
 }
 
 CS::~CS() {
-#ifdef _DEBUGCS
-	fclose(ofp2);
-#endif
 	if (tmp != 0) {
 		delete[] tmp;
 		tmp = 0;

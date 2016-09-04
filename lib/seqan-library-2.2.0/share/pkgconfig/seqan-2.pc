@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+includedir=${prefix}/include
+
+Name: seqan
+Description: C++ library for biological sequence analysis
+URL: http://www.seqan.de
+Version: 2.2.0
+Requires: zlib
+Cflags: -I${includedir}

@@ -1,0 +1,5 @@
+Resulting gaps: GG-T-A-
+toSourcePosition(gaps, 0) == 1
+toSourcePosition(gaps, 4) == 4
+toViewPosition(gaps, 0) == -1
+toViewPosition(gaps, 5) == 9

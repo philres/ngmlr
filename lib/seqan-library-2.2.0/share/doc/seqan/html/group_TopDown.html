@@ -1,0 +1,399 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="group_topdown" data-page="TopDown">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Top-Down Iteration - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="group" data-pimped="true">
+  <a href="page_LanguageEntities.html#group">Group</a> <span>Top-Down Iteration
+  <div><div>Tag that specifies a <a href="specialization_VSTreeIterator.html" data-lang-entity="specialization">VSTreeIterator</a> to traverse the virtual string tree from the root towards
+the leafs.</div></div></span>
+</h1>
+
+<!--
+ =============================================================================
+  Grouped Overview
+ =============================================================================
+-->
+
+<!-- Grouped Tags Overview -->
+
+<div data-lang-entity-container="grouped_tag">
+<h2 data-lang-entity="grouped_tag">Grouped Tags Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code>ParentLinks</code></span>
+    
+    <span class="summary_desc"><div>A top down iterator with the possibility to go back up again.</div></span>
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code>Postorder</code></span>
+    
+    <span class="summary_desc"><div>Post-order traversal of the virtual string tree.</div></span>
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code>Preorder</code></span>
+    
+    <span class="summary_desc"><div>Pre-order traversal of the virtual string tree.</div></span>
+  </li>
+  
+</ul>
+</div>
+
+
+
+
+<!-- Grouped Tags Overview -->
+
+
+
+
+
+<!-- Grouped Functions Overview -->
+
+ 
+
+
+<!-- Grouped Metafunctions Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><h3>Examples</h3><p>The following example shows how a the <a href="group_TopDown.html" data-lang-entity="group">TopDown</a> tag is used.</p><div data-src-path="demos/dox/index/begin_atEnd_representative.cpp"><pre class="code">#include &lt;seqan/index.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    typedef Index&lt;CharString&gt; TIndex;
+    TIndex index("TATAA");
+
+    Iterator&lt;TIndex, TopDown&lt;ParentLinks&lt;&gt; &gt; &gt;::Type itDefault;
+    itDefault = begin(index, TopDown&lt;ParentLinks&lt;&gt; &gt;());
+
+    while (!atEnd(itDefault))
+    {
+        std::cout &lt;&lt; representative(itDefault) &lt;&lt; std::endl;
+        goNext(itDefault);
+    }
+
+    std::cout &lt;&lt; "--------------------------------" &lt;&lt; std::endl;
+
+    Iterator&lt;TIndex, TopDown&lt;ParentLinks&lt;Postorder&gt; &gt; &gt;::Type itPostOrder;
+    itPostOrder = begin(index, TopDown&lt;ParentLinks&lt;Postorder&gt; &gt;());
+
+    while (!atEnd(itPostOrder))
+    {
+        std::cout &lt;&lt; representative(itPostOrder) &lt;&lt; std::endl;
+        goNext(itPostOrder);
+    }
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/index/begin_atEnd_representative.cpp" target="_top">demos/dox/index/begin_atEnd_representative.cpp</a></div></div><pre class="code" data-src-path="None">A
+AA
+ATAA
+TA
+TAA
+TATAA
+--------------------------------
+AA
+ATAA
+A
+TAA
+TATAA
+TA</pre></div>
+
+  </div>
+</div>
+
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Grouped Details
+ =============================================================================
+-->
+
+<!-- Grouped Tags Details -->
+
+<div class="grouped_tags_details" data-lang-entity-container="grouped_tag">
+  <h2 data-lang-entity="grouped_tag">Grouped Tags Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="TopDown#ParentLinks" class="signature first" data-lang-entity="grouped_tag">
+      <code>ParentLinks</code>
+    </h3>
+
+    
+
+    <div class="docstring">
+      <div class="discussion">
+        <div>A top down iterator with the possibility to go back up again.</div>
+      </div>
+    </div>
+    
+    <dl>
+      
+
+      
+    </dl>
+
+    <div class="docstring">
+      <div class="discussion">
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <div class="method_details">
+    <h3 data-toc="hidden" id="TopDown#Postorder" class="signature" data-lang-entity="grouped_tag">
+      <code>Postorder</code>
+    </h3>
+
+    
+
+    <div class="docstring">
+      <div class="discussion">
+        <div>Post-order traversal of the virtual string tree.</div>
+      </div>
+    </div>
+    
+    <dl>
+      
+
+      
+    </dl>
+
+    <div class="docstring">
+      <div class="discussion">
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <div class="method_details">
+    <h3 data-toc="hidden" id="TopDown#Preorder" class="signature" data-lang-entity="grouped_tag">
+      <code>Preorder</code>
+    </h3>
+
+    
+
+    <div class="docstring">
+      <div class="discussion">
+        <div>Pre-order traversal of the virtual string tree.</div>
+      </div>
+    </div>
+    
+    <dl>
+      
+
+      
+    </dl>
+
+    <div class="docstring">
+      <div class="discussion">
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+
+
+
+</div>
+
+
+
+
+<!-- Grouped macros Details -->
+
+
+
+
+<!-- Grouped Functions Details -->
+
+
+
+
+<!-- Grouped Metafunctions Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @defgroup TopDown Top-Down Iteration
+ * 
+ * @brief Tag that specifies a @link VSTreeIterator @endlink to traverse the
+ *        virtual string tree from the root towards the leafs.
+ * 
+ * @section Examples
+ * 
+ * The following example shows how a the @link TopDown @endlink tag is used.
+ * 
+ * @include demos/dox/index/begin_atEnd_representative.cpp
+ * 
+ * @code{.output}
+ * A
+ * AA
+ * ATAA
+ * TA
+ * TAA
+ * TATAA
+ * --------------------------------
+ * AA
+ * ATAA
+ * A
+ * TAA
+ * TATAA
+ * TA
+ * @endcode
+ * 
+ * 
+ * @tag TopDown#ParentLinks
+ * 
+ * @brief A top down iterator with the possibility to go back up again.
+ * 
+ * @tag TopDown#Preorder
+ * 
+ * @brief Pre-order traversal of the virtual string tree.
+ * 
+ * @tag TopDown#Postorder
+ * 
+ * @brief Post-order traversal of the virtual string tree.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

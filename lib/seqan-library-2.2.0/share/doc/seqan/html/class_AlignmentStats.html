@@ -1,0 +1,787 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_alignmentstats" data-page="AlignmentStats">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>AlignmentStats - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>AlignmentStats<div><div>Statistics about a tabular alignment.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/align.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>struct AlignmentStats;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AAlignmentStats" title="#AlignmentStats::AlignmentStats (interface function)" data-lang-entity="member_function">AlignmentStats::AlignmentStats();</a></code></span>
+    <span class="summary_desc"><div>Constructor</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#AlignmentStats%23clear" title="#AlignmentStats#clear (interface function)" data-lang-entity="interface_function">void clear(stats);</a></code></span>
+    <span class="summary_desc"><div>Resets all members to <tt>0</tt>.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+  
+
+
+<!-- Member Variable Overview -->
+
+
+
+<div data-lang-entity-container="member_variable">
+<h2 data-lang-entity="member_variable">Member Variable Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AalignmentIdentity" title="#AlignmentStats::alignmentIdentity (interface function)" data-lang-entity="member_variable">
+        float AlignmentStats::alignmentIdentity
+    </a></code></span>
+    <span class="summary_desc"><div>The resulting alignment percent identity (match).</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AalignmentLength" title="#AlignmentStats::alignmentLength (interface function)" data-lang-entity="member_variable">
+        unsigned AlignmentStats::alignmentLength
+    </a></code></span>
+    <span class="summary_desc"><div>Length of the aligned region</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AalignmentScore" title="#AlignmentStats::alignmentScore (interface function)" data-lang-entity="member_variable">
+        int AlignmentStats::alignmentScore
+    </a></code></span>
+    <span class="summary_desc"><div>The resulting alignment score.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AalignmentSimilarity" title="#AlignmentStats::alignmentSimilarity (interface function)" data-lang-entity="member_variable">
+        float AlignmentStats::alignmentSimilarity
+    </a></code></span>
+    <span class="summary_desc"><div>The resulting alignment percent similarity (positive).</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AnumDeletions" title="#AlignmentStats::numDeletions (interface function)" data-lang-entity="member_variable">
+        unsigned AlignmentStats::numDeletions
+    </a></code></span>
+    <span class="summary_desc"><div>Number of gaps in query relative to reference.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AnumGapExtensions" title="#AlignmentStats::numGapExtensions (interface function)" data-lang-entity="member_variable">
+        unsigned AlignmentStats::numGapExtensions
+    </a></code></span>
+    <span class="summary_desc"><div>Number of gap extension events.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AnumGapOpens" title="#AlignmentStats::numGapOpens (interface function)" data-lang-entity="member_variable">
+        unsigned AlignmentStats::numGapOpens
+    </a></code></span>
+    <span class="summary_desc"><div>Number of gap open events.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AnumGaps" title="#AlignmentStats::numGaps (interface function)" data-lang-entity="member_variable">
+        unsigned AlignmentStats::numGaps
+    </a></code></span>
+    <span class="summary_desc"><div>Number of gap characters (sum of numGapOpens and numGapExtensions)</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AnumInsertions" title="#AlignmentStats::numInsertions (interface function)" data-lang-entity="member_variable">
+        unsigned AlignmentStats::numInsertions
+    </a></code></span>
+    <span class="summary_desc"><div>Number of gaps in reference relative to query.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AnumMatches" title="#AlignmentStats::numMatches (interface function)" data-lang-entity="member_variable">
+        unsigned AlignmentStats::numMatches
+    </a></code></span>
+    <span class="summary_desc"><div>Number of match (identity) events.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AnumMismatches" title="#AlignmentStats::numMismatches (interface function)" data-lang-entity="member_variable">
+        unsigned AlignmentStats::numMismatches
+    </a></code></span>
+    <span class="summary_desc"><div>Number of mismatch (not identity) events.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AnumNegativeScores" title="#AlignmentStats::numNegativeScores (interface function)" data-lang-entity="member_variable">
+        unsigned AlignmentStats::numNegativeScores
+    </a></code></span>
+    <span class="summary_desc"><div>Number of residues aligned with negative score.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#AlignmentStats%3A%3AnumPositiveScores" title="#AlignmentStats::numPositiveScores (interface function)" data-lang-entity="member_variable">
+        unsigned AlignmentStats::numPositiveScores
+    </a></code></span>
+    <span class="summary_desc"><div>Number of residues aligned with positive score (0 is counted as positive).</div></span>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="global_function_computeAlignmentStats.html" data-lang-entity="global_function">computeAlignmentStats</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+<div class="member_function_details" data-lang-entity-container="member_function">
+  <h2 data-lang-entity="member_function">Member Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="AlignmentStats::AlignmentStats" class="signature first" data-lang-entity="member_function">
+      <code>AlignmentStats::AlignmentStats();</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Constructor</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><p>All members are initialized to <tt>0</tt>.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="AlignmentStats#clear" class="signature first" data-lang-entity="interface_function">
+      <code>void clear(stats);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Resets all members to <tt>0</tt>.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">stats</code>
+            
+        
+      </th>
+      <td>AlignmentStats object to clear.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+<div class="member_variable_details" data-lang-entity-container="member_variable">
+  <h2 data-lang-entity="member_variable">Member Variables Detail</h2>
+
+  
+  <div class="member_variable_details first">
+    <h3 data-toc="hidden" id="AlignmentStats::alignmentIdentity" class="signature first" data-lang-entity="member_variable">
+      <code>float AlignmentStats::alignmentIdentity</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The resulting alignment percent identity (match).</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="AlignmentStats::alignmentLength" class="signature" data-lang-entity="member_variable">
+      <code>unsigned AlignmentStats::alignmentLength</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Length of the aligned region</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="AlignmentStats::alignmentScore" class="signature" data-lang-entity="member_variable">
+      <code>int AlignmentStats::alignmentScore</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The resulting alignment score.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="AlignmentStats::alignmentSimilarity" class="signature" data-lang-entity="member_variable">
+      <code>float AlignmentStats::alignmentSimilarity</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The resulting alignment percent similarity (positive).</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="AlignmentStats::numDeletions" class="signature" data-lang-entity="member_variable">
+      <code>unsigned AlignmentStats::numDeletions</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Number of gaps in query relative to reference.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="AlignmentStats::numGapExtensions" class="signature" data-lang-entity="member_variable">
+      <code>unsigned AlignmentStats::numGapExtensions</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Number of gap extension events.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="AlignmentStats::numGapOpens" class="signature" data-lang-entity="member_variable">
+      <code>unsigned AlignmentStats::numGapOpens</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Number of gap open events.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="AlignmentStats::numGaps" class="signature" data-lang-entity="member_variable">
+      <code>unsigned AlignmentStats::numGaps</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Number of gap characters (sum of numGapOpens and numGapExtensions)</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="AlignmentStats::numInsertions" class="signature" data-lang-entity="member_variable">
+      <code>unsigned AlignmentStats::numInsertions</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Number of gaps in reference relative to query.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="AlignmentStats::numMatches" class="signature" data-lang-entity="member_variable">
+      <code>unsigned AlignmentStats::numMatches</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Number of match (identity) events.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="AlignmentStats::numMismatches" class="signature" data-lang-entity="member_variable">
+      <code>unsigned AlignmentStats::numMismatches</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Number of mismatch (not identity) events.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="AlignmentStats::numNegativeScores" class="signature" data-lang-entity="member_variable">
+      <code>unsigned AlignmentStats::numNegativeScores</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Number of residues aligned with negative score.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="AlignmentStats::numPositiveScores" class="signature" data-lang-entity="member_variable">
+      <code>unsigned AlignmentStats::numPositiveScores</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Number of residues aligned with positive score (0 is counted as positive).</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class AlignmentStats
+ * 
+ * @headerfile &lt;seqan/align.h&gt;
+ * 
+ * @brief Statistics about a tabular alignment.
+ * 
+ * @signature struct AlignmentStats;
+ * 
+ * @see computeAlignmentStats
+ * 
+ * @fn AlignmentStats::AlignmentStats
+ * 
+ * @brief Constructor
+ * 
+ * @signature AlignmentStats::AlignmentStats();
+ * 
+ * All members are initialized to &lt;tt&gt;0&lt;/tt&gt;.
+ * 
+ * @var unsigned AlignmentStats::numGaps;
+ * 
+ * @brief Number of gap characters (sum of numGapOpens and numGapExtensions)
+ * 
+ * @var unsigned AlignmentStats::numGapOpens;
+ * 
+ * @brief Number of gap open events.
+ * 
+ * @var unsigned AlignmentStats::numGapExtensions;
+ * 
+ * @brief Number of gap extension events.
+ * 
+ * @var unsigned AlignmentStats::numInsertions;
+ * 
+ * @brief Number of gaps in reference relative to query.
+ * 
+ * @var unsigned AlignmentStats::numDeletions;
+ * 
+ * @brief Number of gaps in query relative to reference.
+ * 
+ * @var unsigned AlignmentStats::numMatches;
+ * 
+ * @brief Number of match (identity) events.
+ * 
+ * @var unsigned AlignmentStats::numMismatches;
+ * 
+ * @brief Number of mismatch (not identity) events.
+ * 
+ * @var unsigned AlignmentStats::numPositiveScores;
+ * 
+ * @brief Number of residues aligned with positive score (0 is counted as
+ *        positive).
+ * 
+ * @var unsigned AlignmentStats::numNegativeScores;
+ * 
+ * @brief Number of residues aligned with negative score.
+ * 
+ * @var unsigned AlignmentStats::alignmentLength;
+ * 
+ * @brief Length of the aligned region
+ * 
+ * @var float AlignmentStats::alignmentSimilarity;
+ * 
+ * @brief The resulting alignment percent similarity (positive).
+ * 
+ * @var float AlignmentStats::alignmentIdentity;
+ * 
+ * @brief The resulting alignment percent identity (match).
+ * 
+ * @var int AlignmentStats::alignmentScore;
+ * 
+ * @brief The resulting alignment score.
+ * 
+ * @fn AlignmentStats#clear
+ * 
+ * @brief Resets all members to &lt;tt&gt;0&lt;/tt&gt;.
+ * 
+ * @signature void clear(stats);
+ * 
+ * @param[in,out] stats AlignmentStats object to clear.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

@@ -1,10 +1,3 @@
-/*
- * IReadProvider.h
- *
- *  Created on: Jun 13, 2012
- *      Author: philipp_
- */
-
 #ifndef IREADPROVIDER_H_
 #define IREADPROVIDER_H_
 

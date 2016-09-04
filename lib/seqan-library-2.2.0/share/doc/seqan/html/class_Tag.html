@@ -1,0 +1,316 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_tag" data-page="Tag">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Tag - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>Tag<div><div>Template for tag definition.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/basic.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>template &lt;typename T&gt;
+struct Tag;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">T</a></code></th>
+        <td>Any parameterless types.</td>
+    </tr>
+
+</table>
+</div>
+
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+
+<!-- Interface Functions Overview -->
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>This <tt>struct</tt> is defined such that parameter less tags are easier recognizeable. This is best explained with
+the example below.</p><h3>Examples</h3><p>Usually, tags are defined in the following way.</p><div data-src-path="None"><pre class="code">struct SomeTag_;
+typedef Tag&lt;SomeTag_&gt; SomeTag;</pre></div><p>They are then used as follows.</p><div data-src-path="None"><pre class="code">template &lt;typename T&gt;
+void f(T const &amp; x, SomeTag const &amp; tag)
+{
+    // ...
+}
+
+// Somewhere else:
+f(3, SomeTag());</pre></div><p>This has the advantages that (1) the type of tag parameters is printed as <tt>Tag&lt;SomeTag_&gt;</tt> in compiler error
+traces. Furthermore, (2) parameter less tags can be defined redundantly in multiple headers and we can still
+instantiate them anywhere where they are declared. The latter (2) cannot be achieved with only forward declaration
+(<tt>struct SomeTag;</tt>) or full declarations (<tt>struct SomeTag {};</tt>) everywhere.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class Tag
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Template for tag definition.
+ * 
+ * @signature template &lt;typename T&gt; struct Tag;
+ * 
+ * @tparam T Any parameterless types.
+ * 
+ * This &lt;tt&gt;struct&lt;/tt&gt; is defined such that parameter less tags are easier
+ * recognizeable. This is best explained with the example below.
+ * 
+ * @section Examples
+ * 
+ * Usually, tags are defined in the following way.
+ * 
+ * @code{.cpp}
+ * struct SomeTag_;
+ * typedef Tag&lt;SomeTag_&gt; SomeTag;
+ * @endcode
+ * 
+ * 
+ * They are then used as follows.
+ * 
+ * @code{.cpp}
+ * template &lt;typename T&gt;
+ * void f(T const &amp; x, SomeTag const &amp; tag)
+ * {
+ *     // ...
+ * }
+ * 
+ * // Somewhere else:
+ * f(3, SomeTag());
+ * @endcode
+ * 
+ * 
+ * This has the advantages that (1) the type of tag parameters is printed as
+ * &lt;tt&gt;Tag&amp;lt;SomeTag_&amp;gt;&lt;/tt&gt; in compiler error traces. Furthermore, (2)
+ * parameter less tags can be defined redundantly in multiple headers and we can
+ * still instantiate them anywhere where they are declared. The latter (2)
+ * cannot be achieved with only forward declaration (&lt;tt&gt;struct SomeTag;&lt;/tt&gt;)
+ * or full declarations (&lt;tt&gt;struct SomeTag {};&lt;/tt&gt;) everywhere.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

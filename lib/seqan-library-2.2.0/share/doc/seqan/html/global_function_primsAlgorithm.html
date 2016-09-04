@@ -1,0 +1,365 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_primsalgorithm" data-page="primsAlgorithm">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>primsAlgorithm - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>primsAlgorithm<div><div>Computes a minimum spanning tree on a graph.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/graph_algorithms.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>void primsAlgorithm(predecessor, g, source, weight);
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+<h2>Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">predecessor</code>
+            
+        
+        </th>
+        <td>A property map. A property map that represents predecessor relationships among vertices. It
+determines a minimum spanning tree.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">g</code>
+            
+        
+        </th>
+        <td>An undirected graph. Types: Undirected Graph</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">source</code>
+            
+        
+        </th>
+        <td>A source vertex. Types: VertexDescriptor</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">weight</code>
+            
+        
+        </th>
+        <td>Edge weights.</td>
+    </tr>
+
+</table>
+
+
+
+
+<!-- @tparam -->
+
+
+
+
+
+<!-- @returns -->
+
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><h3>Example</h3><div data-src-path="demos/dox/graph_algorithms/prims_algorithm.cpp"><pre class="code">#include &lt;iostream&gt;
+#include &lt;seqan/graph_algorithms.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    typedef Graph&lt;Undirected&lt;&gt; &gt; TGraph;
+    typedef VertexDescriptor&lt;TGraph&gt;::Type TVertexDescriptor;
+    typedef Size&lt;TGraph&gt;::Type TSize;
+
+    // Create graph with 14 undirected edges {0,1}, {0,6}, ...
+    TSize numEdges = 14;
+    TVertexDescriptor edges[] = {0, 1, 0, 6, 1, 2, 1, 6, 2, 3, 2, 4, 2, 8, 3, 5, 3, 8, 4, 6, 4, 7, 5, 8, 6, 7, 7, 8};
+    TGraph g;
+    addEdges(g, edges, numEdges);
+    // Print graph.
+    std::cout &lt;&lt; g &lt;&lt; std::endl;
+
+    // Fill two external property maps for edge weights and vertex names.
+    unsigned int weights[] = {4, 8, 8, 11, 7, 2, 4, 9, 14, 7, 6, 10, 1, 2};
+    char names[] = {'a', 'b', 'c', 'd', 'i', 'e', 'h', 'g', 'f'};
+    String&lt;int&gt; weightMap;
+    assignEdgeMap(weightMap, g, weights);
+    String&lt;char&gt; nameMap;
+    assignVertexMap(nameMap, g, names);
+
+    // Run Prim's algorithm.
+    String&lt;TVertexDescriptor&gt; predMap;
+    primsAlgorithm(predMap, g, 0, weightMap);
+
+    // Print result to stdout.
+    std::cout &lt;&lt; "Minimum Spanning Tree (Prim's algorithm): \n";
+    typedef Iterator&lt;TGraph, VertexIterator&gt;::Type TVertexIterator;
+    TVertexIterator it(g);
+    while (!atEnd(it))
+    {
+        std::cout &lt;&lt; "Path from " &lt;&lt; getProperty(nameMap, 0) &lt;&lt; " to "
+                  &lt;&lt; getProperty(nameMap, getValue(it)) &lt;&lt; ": ";
+        _printPath(g, predMap, (TVertexDescriptor)0, getValue(it), nameMap);
+        std::cout &lt;&lt; "\n";
+        goNext(it);
+    }
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/graph_algorithms/prims_algorithm.cpp" target="_top">demos/dox/graph_algorithms/prims_algorithm.cpp</a></div></div><pre class="console" data-src-path="demos/dox/graph_algorithms/prims_algorithm.cpp.stdout">Adjacency list:
+0 -&gt; 6,1,
+1 -&gt; 6,2,0,
+2 -&gt; 8,4,3,1,
+3 -&gt; 8,5,2,
+4 -&gt; 7,6,2,
+5 -&gt; 8,3,
+6 -&gt; 7,4,1,0,
+7 -&gt; 8,6,4,
+8 -&gt; 7,5,3,2,
+Edge list:
+Source: 0,Target: 6 (Id: 1)
+Source: 0,Target: 1 (Id: 0)
+Source: 1,Target: 6 (Id: 3)
+Source: 1,Target: 2 (Id: 2)
+Source: 2,Target: 8 (Id: 6)
+Source: 2,Target: 4 (Id: 5)
+Source: 2,Target: 3 (Id: 4)
+Source: 3,Target: 8 (Id: 8)
+Source: 3,Target: 5 (Id: 7)
+Source: 4,Target: 7 (Id: 10)
+Source: 4,Target: 6 (Id: 9)
+Source: 5,Target: 8 (Id: 11)
+Source: 6,Target: 7 (Id: 12)
+Source: 7,Target: 8 (Id: 13)
+
+Minimum Spanning Tree (Prim's algorithm): 
+Path from a to a: a
+Path from a to b: a,b
+Path from a to c: a,b,c
+Path from a to d: a,b,c,d
+Path from a to i: a,b,c,i
+Path from a to e: a,b,c,d,e
+Path from a to h: a,b,c,f,g,h
+Path from a to g: a,b,c,f,g
+Path from a to f: a,b,c,f
+</pre></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="global_function_kruskalsAlgorithm.html" data-lang-entity="global_function">kruskalsAlgorithm</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn primsAlgorithm
+ * 
+ * @headerfile &lt;seqan/graph_algorithms.h&gt;
+ * 
+ * @brief Computes a minimum spanning tree on a graph.
+ * 
+ * @signature void primsAlgorithm(predecessor, g, source, weight);
+ * 
+ * @param[out] predecessor  A property map. A property map that represents
+ *                         predecessor relationships among vertices. It
+ *                         determines a minimum spanning tree.
+ * @param[in] g An undirected graph. Types: Undirected Graph
+ * @param[in] source A source vertex. Types: VertexDescriptor
+ * @param[in] weight Edge weights.
+ * 
+ * @section Example
+ * 
+ * @include demos/dox/graph_algorithms/prims_algorithm.cpp
+ * 
+ * @include demos/dox/graph_algorithms/prims_algorithm.cpp.stdout
+ * 
+ * @see kruskalsAlgorithm
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

@@ -1,10 +1,11 @@
 #ifndef __SEQUENCELOCATION_H__
 #define __SEQUENCELOCATION_H__
 
-#include "Types.h"
-#include "IRefProvider.h"
 #include <stdlib.h>
 #include <assert.h>
+
+#include "Types.h"
+#include "IRefProvider.h"
 
 struct SequenceLocation {
 	uloc m_Location;

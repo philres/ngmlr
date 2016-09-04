@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_externalconfiglarge" data-page="ExternalConfigLarge">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>ExternalConfigLarge - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>ExternalConfigLarge<div><div>Large size type configuration for the <a href="specialization_ExternalString.html" data-lang-entity="specialization">ExternalString</a>.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/file.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>template &lt;[typename TFile[, unsigned PAGESIZE[, unsigned FRAMES]]&gt;
+struct ExternalConfigLarge;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TFile</a></code></th>
+        <td>The <a href="class_File.html" data-lang-entity="class">File</a> type to use. Default: <tt>File&lt;&gt;</tt>.</td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">PAGESIZE</a></code></th>
+        <td>The number of values in one page. This should be a power of 2 to speed up transfer and
+calculations. Default: 2<sup>20</sup>.</td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">FRAMES</a></code></th>
+        <td>The number of pages that should reside in internal memory. To enable prefetching and automatic
+swap-out, <tt>frames</tt> should be greater than 1. Default: 2.</td>
+    </tr>
+
+</table>
+</div>
+
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+
+<!-- Interface Functions Overview -->
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><h3>Remarks</h3><p>When using this configuration ,the <tt>Size</tt> type of the ExternalString is <tt>Size</tt> type of <tt>TFile</tt>. Normally, this is
+a 64 bit integer. For a smaller size type use ExternalConfig.</p><p>Some data structures store size types values (e.g. suffix arrays in indices). To save memory, you should think o
+fusing ExternalConfig.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="class_ExternalConfig.html" data-lang-entity="class">ExternalConfig</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class ExternalConfigLarge
+ * 
+ * @headerfile &lt;seqan/file.h&gt;
+ * 
+ * @brief Large size type configuration for the @link ExternalString @endlink.
+ * 
+ * @signature template &lt;[typename TFile[, unsigned PAGESIZE[, unsigned FRAMES]]&gt;
+ *            struct ExternalConfigLarge;
+ * 
+ * @tparam TFile The @link File @endlink type to use. Default:
+ *               &lt;tt&gt;File&amp;lt;&amp;gt;&lt;/tt&gt;.
+ * @tparam PAGESIZE The number of values in one page. This should be a power of
+ *                  2 to speed up transfer and calculations. Default:
+ *                  2&lt;sup&gt;20&lt;/sup&gt;.
+ * @tparam FRAMES The number of pages that should reside in internal memory. To
+ *                enable prefetching and automatic swap-out, &lt;tt&gt;frames&lt;/tt&gt;
+ *                should be greater than 1. Default: 2.
+ * 
+ * @section Remarks
+ * 
+ * When using this configuration ,the &lt;tt&gt;Size&lt;/tt&gt; type of the ExternalString
+ * is &lt;tt&gt;Size&lt;/tt&gt; type of &lt;tt&gt;TFile&lt;/tt&gt;. Normally, this is a 64 bit integer.
+ * For a smaller size type use ExternalConfig.
+ * 
+ * Some data structures store size types values (e.g. suffix arrays in indices).
+ * To save memory, you should think o fusing ExternalConfig.
+ * 
+ * @see ExternalConfig
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

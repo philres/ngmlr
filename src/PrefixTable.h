@@ -1,10 +1,3 @@
-/*
- * CompactPrefixTable.h
- *
- *  Created on: May 9, 2012
- *      Author: philipp_
- */
-
 #ifndef COMPACTPREFIXTABLE_H_
 #define COMPACTPREFIXTABLE_H_
 

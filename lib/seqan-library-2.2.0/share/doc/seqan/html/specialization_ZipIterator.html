@@ -1,0 +1,893 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="specialization_zipiterator" data-page="ZipIterator">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>ZipIterator - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#specialization">Spec</a>
+<span>ZipIterator<div><div>Zips multiple iterators over different containers into a single iterator.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+  <tr>
+    <th>Extends</th>
+    <td>
+      <a href="class_Iter.html" data-lang-entity="class">Iter</a>
+      
+    </td>
+  </tr>
+  
+
+  
+  <tr>
+    <th>Implements</dt>
+    <td>
+    <a href="concept_IteratorAssociatedTypesConcept.html" data-lang-entity="concept">IteratorAssociatedTypesConcept</a>
+    
+    </td>
+  </tr>
+  
+
+  
+  <tr>
+    <th>All Extended</dt>
+    <td>
+    <a href="class_Iter.html" data-lang-entity="class">Iter</a>
+    
+    </td>
+  </tr>
+  
+
+  
+
+  
+  <tr>
+    <th>All Impl'd</dt>
+    <td>
+    <a href="concept_IteratorAssociatedTypesConcept.html" data-lang-entity="concept">IteratorAssociatedTypesConcept</a>
+    
+    </td>
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/basic.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>class Iter&lt;std::tuple&lt;TIteratorTypes...&gt;, ZipIterator&gt;;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TIteratorTypes</a></code></th>
+        <td>A template parameter pack with one or more <a href="concept_ContainerConcept.html#ContainerConcept#Iterator" data-lang-entity="interface_metafunction">Iterator</a> types.</td>
+    </tr>
+
+</table>
+</div>
+
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+
+
+
+
+<h3 data-toc="hidden">Member Functions Inherited From <a href="class_Iter.html" data-lang-entity="class">Iter</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Iter.html#Iter::Iter" data-lang-entity="member_function">Iter</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#ZipIterator%23ZipIterator" title="#ZipIterator#ZipIterator (interface function)" data-lang-entity="interface_function">Iter()
+Iter(TIteratorTypes... args)</a></code></span>
+    <span class="summary_desc"><div>Constructor.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_IteratorAssociatedTypesConcept.html" data-lang-entity="concept">IteratorAssociatedTypesConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#operator*" data-lang-entity="interface_function">operator*</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#value" data-lang-entity="interface_function">value</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#getValue" data-lang-entity="interface_function">getValue</a></code></span></li>
+  
+</ul>
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+
+
+<div data-lang-entity-container="interface_metafunction">
+<h2 data-lang-entity="interface_metafunction">Interface  Metafunction Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#ZipIterator%23Container" title="#ZipIterator#Container (interface function)" data-lang-entity="interface_metafunction">typename Container&lt;TZipIterator&gt;::Type;</a></code></span>
+    <span class="summary_desc"><div>Retruns the Container type of the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a>.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#ZipIterator%23GetValue" title="#ZipIterator#GetValue (interface function)" data-lang-entity="interface_metafunction">typename GetValue&lt;TZipIterator&gt;::Type;</a></code></span>
+    <span class="summary_desc"><div>Retruns the GetValue type of the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a>.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#ZipIterator%23Reference" title="#ZipIterator#Reference (interface function)" data-lang-entity="interface_metafunction">typename GetValue&lt;TZipIterator&gt;::Type;</a></code></span>
+    <span class="summary_desc"><div>Retruns the Reference type of the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a>.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#ZipIterator%23Value" title="#ZipIterator#Value (interface function)" data-lang-entity="interface_metafunction">typename Value&lt;TZipIterator&gt;::Type;</a></code></span>
+    <span class="summary_desc"><div>Retruns the Value type of the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a>.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+<h3 data-toc="hidden">Interface Metafunctions Inherited From <a href="class_Iter.html" data-lang-entity="class">Iter</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Iter.html#Iter#Container" data-lang-entity="interface_metafunction">Container</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Iter.html#Iter#IterComplementConst" data-lang-entity="interface_metafunction">IterComplementConst</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Iter.html#Iter#IterMakeConst" data-lang-entity="interface_metafunction">IterMakeConst</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_Iter.html#Iter#Spec" data-lang-entity="interface_metafunction">Spec</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Metafunctions Inherited From <a href="concept_IteratorAssociatedTypesConcept.html" data-lang-entity="concept">IteratorAssociatedTypesConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#Difference" data-lang-entity="interface_metafunction">Difference</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#GetValue" data-lang-entity="interface_metafunction">GetValue</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#Pointer" data-lang-entity="interface_metafunction">Pointer</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#Reference" data-lang-entity="interface_metafunction">Reference</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#Value" data-lang-entity="interface_metafunction">Value</a></code></span></li>
+  
+</ul>
+
+
+
+
+</div>
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+        
+        <div class="note info"><strong>Note:</strong> <div class='inline'>
+            <p>Throws an assertion if <tt>sizeof...(TIteratorTypes) == 0</tt> is true.</p>
+         </div></div>
+        
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>This iterator ties together different iterator types for different containers of the same size.
+It allows to operate on a single iterator, if multiple containers need to be traversed simultaneously.
+Note, that all operations are still executed in a serial fashion.
+If the zip iterator is dereferenced it returns a <a href="http://en.cppreference.com/w/cpp/utility/tuple">std::tuple</a>
+containing the dereferenced values of all embedded iterators.
+The metafunctions <a href="global_metafunction_Value.html" data-lang-entity="global_metafunction">Value</a>, <a href="global_metafunction_GetValue.html" data-lang-entity="global_metafunction">GetValue</a> and <a href="global_metafunction_Reference.html" data-lang-entity="global_metafunction">Reference</a>
+are overloaded accordingly.</p><p>To easily create a zip iterator one can use the helper function <a href="global_function_makeZipIterator.html" data-lang-entity="global_function">makeZipIterator</a>.</p><h3>Example</h3><p>The following example demonstrates the function of the zip iterator:</p><div data-src-path="demos/dox/basic/zip_iterator.cpp"><pre class="code">#include &lt;iostream&gt;
+
+#include &lt;seqan/basic.h&gt;
+#include &lt;seqan/sequence.h&gt;
+#include &lt;seqan/stream.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    StringSet&lt;CharString&gt; names;
+    StringSet&lt;CharString&gt; surnames;
+    String&lt;int&gt;           ages;
+
+    appendValue(names, "John");
+    appendValue(names, "Johnny");
+    appendValue(names, "Garfield");
+
+    appendValue(surnames, "Doe");
+    appendValue(surnames, "Donny");
+    appendValue(surnames, "the Cat");
+
+    appendValue(ages, 98);
+    appendValue(ages, 20);
+    appendValue(ages, 42);
+
+    auto it = makeZipIterator(begin(names), begin(surnames), begin(ages));
+    auto itEnd = makeZipIterator(end(names), end(surnames), end(ages));
+
+    for (; it != itEnd; ++it)
+        std::cout &lt;&lt; std::get&lt;1&gt;(*it) &lt;&lt; ", " &lt;&lt; std::get&lt;0&gt;(*it) &lt;&lt; ": " &lt;&lt; std::get&lt;2&gt;(*it) &lt;&lt; std::endl;
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/basic/zip_iterator.cpp" target="_top">demos/dox/basic/zip_iterator.cpp</a></div></div><p>This outputs the following to the console:</p><pre class="console" data-src-path="demos/dox/basic/zip_iterator.cpp.stdout">Doe, John: 98
+Donny, Johnny: 20
+the Cat, Garfield: 42
+
+</pre></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="ZipIterator#ZipIterator" class="signature first" data-lang-entity="interface_function">
+      <code>Iter()
+Iter(TIteratorTypes... args)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Constructor.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            <code>args</code>
+        
+      </th>
+      <td>The iterator instances to create the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a> from. Default constructors are not listed.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+<div class="interface_metafunction_details" data-lang-entity-container="">
+<h2 data-lang-entity="interface_metafunction">Interface Metafunctions Detail</h2>
+
+
+<div class="method_details first">
+  <h3 data-toc="hidden" id="ZipIterator#Container" class="signature first" data-lang-entity="interface_metafunction">
+    <code>typename Container&lt;TZipIterator&gt;::Type;</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Retruns the Container type of the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a>.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TZipIterator</code></th>
+            <td>The type of the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a>.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TRes</code></th>
+            <td>A <a href="http://en.cppreference.com/w/cpp/utility/tuple">std::tuple</a> containing the container
+types of all iterator types embedded in the <tt>TZipIterator</tt> type.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="method_details">
+  <h3 data-toc="hidden" id="ZipIterator#GetValue" class="signature" data-lang-entity="interface_metafunction">
+    <code>typename GetValue&lt;TZipIterator&gt;::Type;</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Retruns the GetValue type of the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a>.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TZipIterator</code></th>
+            <td>The type of the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a>.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TRes</code></th>
+            <td>A <a href="http://en.cppreference.com/w/cpp/utility/tuple">std::tuple</a> containing the value
+types of all iterator types embedded in the <tt>TZipIterator</tt> type.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="method_details">
+  <h3 data-toc="hidden" id="ZipIterator#Reference" class="signature" data-lang-entity="interface_metafunction">
+    <code>typename GetValue&lt;TZipIterator&gt;::Type;</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Retruns the Reference type of the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a>.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TZipIterator</code></th>
+            <td>The type of the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a>.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TRes</code></th>
+            <td>A <a href="http://en.cppreference.com/w/cpp/utility/tuple">std::tuple</a> containing the value
+types of all iterator types embedded in the <tt>TZipIterator</tt> type.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="method_details">
+  <h3 data-toc="hidden" id="ZipIterator#Value" class="signature" data-lang-entity="interface_metafunction">
+    <code>typename Value&lt;TZipIterator&gt;::Type;</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Retruns the Value type of the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a>.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TZipIterator</code></th>
+            <td>The type of the <a href="specialization_ZipIterator.html" data-lang-entity="specialization">ZipIterator</a>.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TRes</code></th>
+            <td>A <a href="http://en.cppreference.com/w/cpp/utility/tuple">std::tuple</a> containing the value
+types of all iterator types embedded in the <tt>TZipIterator</tt> type.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class ZipIterator
+ * 
+ * @implements IteratorAssociatedTypesConcept
+ * 
+ * @extends Iter
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Zips multiple iterators over different containers into a single
+ *        iterator.
+ * 
+ * @note Throws an assertion if &lt;tt&gt;sizeof...(TIteratorTypes) == 0&lt;/tt&gt; is true.
+ * 
+ * @signature class Iter&lt;std::tuple&lt;TIteratorTypes...&gt;, ZipIterator&gt;;
+ * 
+ * @tparam TIteratorTypes A template parameter pack with one or more @link
+ *                        ContainerConcept#Iterator @endlink types.
+ * 
+ * This iterator ties together different iterator types for different containers
+ * of the same size. It allows to operate on a single iterator, if multiple
+ * containers need to be traversed simultaneously. Note, that all operations are
+ * still executed in a serial fashion. If the zip iterator is dereferenced it
+ * returns a &lt;a
+ * href=&#34;http://en.cppreference.com/w/cpp/utility/tuple&#34;&gt;std::tuple&lt;/a&gt;
+ * containing the dereferenced values of all embedded iterators. The
+ * metafunctions @link Value @endlink, @link GetValue @endlink and @link
+ * Reference @endlink are overloaded accordingly.
+ * 
+ * To easily create a zip iterator one can use the helper function @link
+ * makeZipIterator @endlink.
+ * 
+ * @section Example
+ * 
+ * The following example demonstrates the function of the zip iterator:
+ * 
+ * @include demos/dox/basic/zip_iterator.cpp
+ * 
+ * This outputs the following to the console:
+ * 
+ * @include demos/dox/basic/zip_iterator.cpp.stdout
+ * 
+ * @mfn ZipIterator#Container
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Retruns the Container type of the @link ZipIterator @endlink.
+ * 
+ * @signature typename Container&lt;TZipIterator&gt;::Type;
+ * 
+ * @tparam TZipIterator The type of the @link ZipIterator @endlink.
+ * 
+ * @return TRes A &lt;a href=&#34;http://en.cppreference.com/w/cpp/utility/tuple&#34;&gt;std::
+ *              tuple&lt;/a&gt; containing the container types of all iterator types
+ *              embedded in the &lt;tt&gt;TZipIterator&lt;/tt&gt; type.
+ * 
+ * @mfn ZipIterator#Value
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Retruns the Value type of the @link ZipIterator @endlink.
+ * 
+ * @signature typename Value&lt;TZipIterator&gt;::Type;
+ * 
+ * @tparam TZipIterator The type of the @link ZipIterator @endlink.
+ * 
+ * @return TRes A &lt;a href=&#34;http://en.cppreference.com/w/cpp/utility/tuple&#34;&gt;std::
+ *              tuple&lt;/a&gt; containing the value types of all iterator types
+ *              embedded in the &lt;tt&gt;TZipIterator&lt;/tt&gt; type.
+ * 
+ * @mfn ZipIterator#GetValue
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Retruns the GetValue type of the @link ZipIterator @endlink.
+ * 
+ * @signature typename GetValue&lt;TZipIterator&gt;::Type;
+ * 
+ * @tparam TZipIterator The type of the @link ZipIterator @endlink.
+ * 
+ * @return TRes A &lt;a href=&#34;http://en.cppreference.com/w/cpp/utility/tuple&#34;&gt;std::
+ *              tuple&lt;/a&gt; containing the value types of all iterator types
+ *              embedded in the &lt;tt&gt;TZipIterator&lt;/tt&gt; type.
+ * 
+ * @mfn ZipIterator#Reference
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Retruns the Reference type of the @link ZipIterator @endlink.
+ * 
+ * @signature typename GetValue&lt;TZipIterator&gt;::Type;
+ * 
+ * @tparam TZipIterator The type of the @link ZipIterator @endlink.
+ * 
+ * @return TRes A &lt;a href=&#34;http://en.cppreference.com/w/cpp/utility/tuple&#34;&gt;std::
+ *              tuple&lt;/a&gt; containing the value types of all iterator types
+ *              embedded in the &lt;tt&gt;TZipIterator&lt;/tt&gt; type.
+ * 
+ * @fn ZipIterator#ZipIterator
+ * 
+ * @brief Constructor.
+ * 
+ * @signature Iter() Iter(TIteratorTypes... args)
+ * 
+ * @param args The iterator instances to create the @link ZipIterator @endlink
+ *             from. Default constructors are not listed.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

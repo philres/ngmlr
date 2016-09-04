@@ -1,9 +1,5 @@
-/*
- * UpdateCheck.h
- *
- *  Created on: October 2, 2014
- *      Author: moritz
- */
+#ifndef __UPDATE_CHECK_H__
+#define __UPDATE_CHECK_H__
 
 class UpdateCheckInterface
 {
@@ -14,3 +10,5 @@ public:
 	//Perform a version check with the CIBIV server
 	static void remoteCheck();
 };
+
+#endif//__UPDATE_CHECK_H__

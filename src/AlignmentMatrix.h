@@ -2,7 +2,7 @@
 #define ALIGNMENT_MATRIX_
 
 #include "IAlignment.h"
-#include "core/Types.h"
+#include "Types.h"
 
 /**
  * Used in directionMatrix

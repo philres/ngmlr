@@ -4,19 +4,14 @@
 #include <vector>
 
 #include "Types.h"
-
 #include "Log.h"
-#include "Config.h"
+#include "IConfig.h"
 #include "PlatformSpecifics.h"
 #include "SequenceProvider.h"
 #include "NGMThreads.h"
 #include "MappedRead.h"
-
-
 #include "NGMStats.h"
-
 #include "NGMTask.h"
-
 #include "IRefProvider.h"
 #include "IReadProvider.h"
 #include "IAlignment.h"
@@ -48,9 +43,6 @@ public:
 	// Liefert den nächsten Batch an Reads, oder einen leeren Vektor wenn keien Reads mehr zu mappen sind
 	std::vector<MappedRead*> GetNextReadBatch(int batchSize);
 	inline bool Running() const { return m_ActiveThreads > 0; }
-	inline bool DualStrand() const { return m_DualStrand; }
-	inline int GetOutputFormat() const { return m_OutputFormat; }
-
 
 	void GeneratePartitions();
 
@@ -107,8 +99,7 @@ public:
 	NGMStats * Stats;
 
 	static char const * AppName;
-	static int sPairMinDistance;
-	static int sPairMaxDistance;
+
 private:
 	static NGMTHREADFUNC ThreadFunc(void*);
 
@@ -117,8 +108,6 @@ private:
 	friend void NGMTask::FinishStage();
 
 	void FinishThread( int tid );
-	int GetStart();
-	int GetCount();
 
 	void StartCS(int threads);
 
@@ -130,9 +119,6 @@ private:
 
 	volatile int m_ActiveThreads;
 	int m_NextThread;
-	bool const m_DualStrand;
-	bool const m_Paired;
-	int const m_OutputFormat;
 
 	//TODO: hack - fix this!!!
 	void * m_Output;
@@ -171,7 +157,5 @@ private:
 #define module_name 0
 
 #define NGM _NGM::Instance()
-
-void Help();
 
 #endif

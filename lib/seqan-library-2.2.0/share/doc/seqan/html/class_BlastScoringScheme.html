@@ -1,0 +1,2025 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_blastscoringscheme" data-page="BlastScoringScheme">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>BlastScoringScheme - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>BlastScoringScheme<div><div>Wrapper around a SeqAn scoring scheme</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/blast.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>struct BlastScoringScheme&lt;TScoringScheme&gt; { ... };
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TScoringScheme</a></code></th>
+        <td>A SeqAn Score type</td>
+    </tr>
+
+</table>
+</div>
+
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23computeBitScore" title="#BlastScoringScheme#computeBitScore (interface function)" data-lang-entity="interface_function">double computeBitScore(rawScore, blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>Compute the bit-score for a given raw score.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23computeEValue" title="#BlastScoringScheme#computeEValue (interface function)" data-lang-entity="interface_function">double computeEValue(rawScore, queryLength, dbLength, blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>Compute the E-Value for a given raw score and sequence lengths.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23getAlpha" title="#BlastScoringScheme#getAlpha (interface function)" data-lang-entity="interface_function">double getAlpha(blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>Get the &alpha; value of the Karlin-Altschul parameters.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23getBeta" title="#BlastScoringScheme#getBeta (interface function)" data-lang-entity="interface_function">double getBeta(blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>Get the &beta; value of the Karlin-Altschul parameters.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23getH" title="#BlastScoringScheme#getH (interface function)" data-lang-entity="interface_function">double getH(blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>Get the H value of the Karlin-Altschul parameters.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23getKappa" title="#BlastScoringScheme#getKappa (interface function)" data-lang-entity="interface_function">double getKappa(blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>Get the &Kappa; value of the Karlin-Altschul parameters.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23getLambda" title="#BlastScoringScheme#getLambda (interface function)" data-lang-entity="interface_function">double getLambda(blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>Get the &lambda; value of the Karlin-Altschul parameters.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23isValid" title="#BlastScoringScheme#isValid (interface function)" data-lang-entity="interface_function">bool isValid(blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>check whether valid KarlinAltschulValues are selected</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23scoreGapExtend" title="#BlastScoringScheme#scoreGapExtend (interface function)" data-lang-entity="interface_function">TValue scoreGapExtend(blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>The Gap Extend score.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23scoreGapOpen" title="#BlastScoringScheme#scoreGapOpen (interface function)" data-lang-entity="interface_function">TValue scoreGapOpen(blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>The Gap Open score in SeqAn convention.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23scoreGapOpenBlast" title="#BlastScoringScheme#scoreGapOpenBlast (interface function)" data-lang-entity="interface_function">TValue scoreGapOpenBlast(blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>The Gap Open score in Blast convention.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23scoreMatch" title="#BlastScoringScheme#scoreMatch (interface function)" data-lang-entity="interface_function">int scoreMatch(blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>The Match score (only for SimpleScore specialization).</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23scoreMismatch" title="#BlastScoringScheme#scoreMismatch (interface function)" data-lang-entity="interface_function">int scoreMismatch(blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>The Mismatch score (only for SimpleScore specialization).</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23seqanScheme" title="#BlastScoringScheme#seqanScheme (interface function)" data-lang-entity="interface_function">TScoringScheme const & seqanScheme(blastScoringScheme);</a></code></span>
+    <span class="summary_desc"><div>Retrieve a <a href="class_Score.html" data-lang-entity="class">Score</a> object for use with e.g. <a href="global_function_localAlignment.html" data-lang-entity="global_function">localAlignment</a>.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23setScoreGapExtend" title="#BlastScoringScheme#setScoreGapExtend (interface function)" data-lang-entity="interface_function">bool setScoreGapExtend(blastScoringScheme, value);</a></code></span>
+    <span class="summary_desc"><div>Set gap extend score.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23setScoreGapOpen" title="#BlastScoringScheme#setScoreGapOpen (interface function)" data-lang-entity="interface_function">bool setScoreGapOpen(blastScoringScheme, value);</a></code></span>
+    <span class="summary_desc"><div>Set gap open score in SeqAn convention.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23setScoreGapOpenBlast" title="#BlastScoringScheme#setScoreGapOpenBlast (interface function)" data-lang-entity="interface_function">bool setScoreGapOpenBlast(blastScoringScheme, value);</a></code></span>
+    <span class="summary_desc"><div>Set gap open score in BLAST convention.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23setScoreMatch" title="#BlastScoringScheme#setScoreMatch (interface function)" data-lang-entity="interface_function">bool setScoreMatch(blastScoringScheme, value);</a></code></span>
+    <span class="summary_desc"><div>Set match score.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastScoringScheme%23setScoreMismatch" title="#BlastScoringScheme#setScoreMismatch (interface function)" data-lang-entity="interface_function">bool setScoreMismatch(blastScoringScheme, value);</a></code></span>
+    <span class="summary_desc"><div>Set mismatch score.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>This class wraps around a SeqAn scoring scheme and add functions for the retrievel of pre-computed
+Karlin-Altschul-Values (required for e-value statistics) and it modifies the gap-scoring slightly.
+If you use high-level IO (<a href="class_BlastReport.html" data-lang-entity="class">BlastReport</a>, <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a>) you need not worry about the
+specifics, however you should always make sure that the scoring scheme <a href="class_BlastScoringScheme.html#BlastScoringScheme#isValid" data-lang-entity="interface_function">isValid</a>
+after you modify it (or check the return values of the set* functions).</p><p>To retrieve a score-object compatible with regular SeqAn-functions, call
+<a href="class_BlastScoringScheme.html#BlastScoringScheme#seqanScheme" data-lang-entity="interface_function">seqanScheme</a>.</p><h3>Gap cost computation</h3><p>Gap-costs are computed differently in SeqAn and in BLAST.
+Blast (and many other tools) compute scores of a stretch of gaps as
+<tt>s = gO + n * gE</tt>
+where gO is the gapOpen score, gE is the gap extend score and n ist the
+total number of gap characters.</p><p>SeqAn, however, normally computes them as as <tt>s = gO + (n-1) * gE</tt>.</p><p>Effectively this results only in a different gap open score. To make dealing with this easier, there are
+convenience functions for setting and getting the gap open score in blast convention:
+<a href="class_BlastScoringScheme.html#BlastScoringScheme#scoreGapOpenBlast" data-lang-entity="interface_function">scoreGapOpenBlast</a> and <a href="class_BlastScoringScheme.html#BlastScoringScheme#setScoreGapOpenBlast" data-lang-entity="interface_function">setScoreGapOpenBlast</a>.</p><h3>Karlin-Altschul values</h3><p>E-Value statistics require certain pre-computed constants. The BlastScoringScheme picks these automatically
+whenever you modify it. Unfortunately there aren't parameters for all combinations of scoring schemes and gap
+costs, so you have to check <a href="class_BlastScoringScheme.html#BlastScoringScheme#isValid" data-lang-entity="interface_function">isValid</a> after modifying it or verify the return
+value of the set* functions which is bool here (instead of void).</p><p>More details on the scoring parameters is in these slides:
+<a href="https://www.cs.umd.edu/class/fall2011/cmsc858s/Local_Alignment_Statistics.pdf">
+https://www.cs.umd.edu/class/fall2011/cmsc858s/Local_Alignment_Statistics.pdf</a>.</p><p>The constants used in SeqAn were imported from the NCBI blast source code (blast-2.2.26)</p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="BlastScoringScheme#computeBitScore" class="signature first" data-lang-entity="interface_function">
+      <code>double computeBitScore(rawScore, blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Compute the bit-score for a given raw score.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">rawScore</code>
+            
+        
+      </th>
+      <td>The raw score of the alignment.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">blastScoringScheme</code>
+            
+        
+      </th>
+      <td>The <a href="class_BlastScoringScheme.html" data-lang-entity="class">BlastScoringScheme</a>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>double</code></th>
+        <td>The bit-score computed.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#computeEValue" class="signature" data-lang-entity="interface_function">
+      <code>double computeEValue(rawScore, queryLength, dbLength, blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Compute the E-Value for a given raw score and sequence lengths.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">rawScore</code>
+            
+        
+      </th>
+      <td>The raw score of the alignment.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">queryLength</code>
+            
+        
+      </th>
+      <td>The length of the query sequence.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">dbLength</code>
+            
+        
+      </th>
+      <td>The length of the database in case of many subject sequences, otherwise the
+length of the subject sequence.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">blastScoringScheme</code>
+            
+        
+      </th>
+      <td>The <a href="class_BlastScoringScheme.html" data-lang-entity="class">BlastScoringScheme</a>.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>double</code></th>
+        <td>The e-value computed.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#getAlpha" class="signature" data-lang-entity="interface_function">
+      <code>double getAlpha(blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Get the &alpha; value of the Karlin-Altschul parameters.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#getBeta" class="signature" data-lang-entity="interface_function">
+      <code>double getBeta(blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Get the &beta; value of the Karlin-Altschul parameters.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#getH" class="signature" data-lang-entity="interface_function">
+      <code>double getH(blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Get the H value of the Karlin-Altschul parameters.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#getKappa" class="signature" data-lang-entity="interface_function">
+      <code>double getKappa(blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Get the &Kappa; value of the Karlin-Altschul parameters.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#getLambda" class="signature" data-lang-entity="interface_function">
+      <code>double getLambda(blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Get the &lambda; value of the Karlin-Altschul parameters.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#isValid" class="signature" data-lang-entity="interface_function">
+      <code>bool isValid(blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>check whether valid KarlinAltschulValues are selected</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#scoreGapExtend" class="signature" data-lang-entity="interface_function">
+      <code>TValue scoreGapExtend(blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>The Gap Extend score.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#scoreGapOpen" class="signature" data-lang-entity="interface_function">
+      <code>TValue scoreGapOpen(blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>The Gap Open score in SeqAn convention.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#scoreGapOpenBlast" class="signature" data-lang-entity="interface_function">
+      <code>TValue scoreGapOpenBlast(blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>The Gap Open score in Blast convention.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#scoreMatch" class="signature" data-lang-entity="interface_function">
+      <code>int scoreMatch(blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>The Match score (only for SimpleScore specialization).</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#scoreMismatch" class="signature" data-lang-entity="interface_function">
+      <code>int scoreMismatch(blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>The Mismatch score (only for SimpleScore specialization).</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#seqanScheme" class="signature" data-lang-entity="interface_function">
+      <code>TScoringScheme const & seqanScheme(blastScoringScheme);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Retrieve a <a href="class_Score.html" data-lang-entity="class">Score</a> object for use with e.g. <a href="global_function_localAlignment.html" data-lang-entity="global_function">localAlignment</a>.</div>
+    </div>
+  </div>
+
+  
+
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TScoringScheme_const_&amp;</code></th>
+        <td>the internal scoring object for use with other SeqAn functions.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>The reference returned is always const, because you should not modify the internal score object
+directly. Use <a href="class_BlastScoringScheme.html" data-lang-entity="class">BlastScoringScheme</a>'s interface instead.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#setScoreGapExtend" class="signature" data-lang-entity="interface_function">
+      <code>bool setScoreGapExtend(blastScoringScheme, value);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Set gap extend score.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastScoringScheme</code>
+            
+        
+      </th>
+      <td>The <a href="class_BlastScoringScheme.html" data-lang-entity="class">BlastScoringScheme</a> to modify.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">value</code>
+            
+        
+      </th>
+      <td>The new value.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>isValid(blastScoringScheme)</code></th>
+        <td>whether Karlin-Altschul values for the new scheme exist.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#setScoreGapOpen" class="signature" data-lang-entity="interface_function">
+      <code>bool setScoreGapOpen(blastScoringScheme, value);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Set gap open score in SeqAn convention.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastScoringScheme</code>
+            
+        
+      </th>
+      <td>The <a href="class_BlastScoringScheme.html" data-lang-entity="class">BlastScoringScheme</a> to modify.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">value</code>
+            
+        
+      </th>
+      <td>The new value.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>isValid(blastScoringScheme)</code></th>
+        <td>whether Karlin-Altschul values for the new scheme exist.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#setScoreGapOpenBlast" class="signature" data-lang-entity="interface_function">
+      <code>bool setScoreGapOpenBlast(blastScoringScheme, value);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Set gap open score in BLAST convention.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastScoringScheme</code>
+            
+        
+      </th>
+      <td>The <a href="class_BlastScoringScheme.html" data-lang-entity="class">BlastScoringScheme</a> to modify.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">value</code>
+            
+        
+      </th>
+      <td>The new value.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>isValid(blastScoringScheme)</code></th>
+        <td>whether Karlin-Altschul values for the new scheme exist.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#setScoreMatch" class="signature" data-lang-entity="interface_function">
+      <code>bool setScoreMatch(blastScoringScheme, value);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Set match score.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastScoringScheme</code>
+            
+        
+      </th>
+      <td>The <a href="class_BlastScoringScheme.html" data-lang-entity="class">BlastScoringScheme</a> to modify.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">value</code>
+            
+        
+      </th>
+      <td>The new value.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>isValid(blastScoringScheme)</code></th>
+        <td>whether Karlin-Altschul values for the new scheme exist.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastScoringScheme#setScoreMismatch" class="signature" data-lang-entity="interface_function">
+      <code>bool setScoreMismatch(blastScoringScheme, value);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Set mismatch score.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastScoringScheme</code>
+            
+        
+      </th>
+      <td>The <a href="class_BlastScoringScheme.html" data-lang-entity="class">BlastScoringScheme</a> to modify.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">value</code>
+            
+        
+      </th>
+      <td>The new value.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>isValid(blastScoringScheme)</code></th>
+        <td>whether Karlin-Altschul values for the new scheme exist.</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class BlastScoringScheme
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Wrapper around a SeqAn scoring scheme
+ * 
+ * @signature struct BlastScoringScheme&lt;TScoringScheme&gt; { ... };
+ * 
+ * @tparam TScoringScheme A SeqAn Score type
+ * 
+ * This class wraps around a SeqAn scoring scheme and add functions for the
+ * retrievel of pre-computed Karlin-Altschul-Values (required for e-value
+ * statistics) and it modifies the gap-scoring slightly. If you use high-level
+ * IO (@link BlastReport @endlink, @link BlastTabular @endlink) you need not
+ * worry about the specifics, however you should always make sure that the
+ * scoring scheme @link BlastScoringScheme#isValid @endlink after you modify it
+ * (or check the return values of the set* functions).
+ * 
+ * To retrieve a score-object compatible with regular SeqAn-functions, call
+ * @link BlastScoringScheme#seqanScheme @endlink.
+ * 
+ * @section Gap cost computation
+ * 
+ * Gap-costs are computed differently in SeqAn and in BLAST. Blast (and many
+ * other tools) compute scores of a stretch of gaps as &lt;tt&gt;s = gO + n * gE&lt;/tt&gt;
+ * where gO is the gapOpen score, gE is the gap extend score and n ist the total
+ * number of gap characters.
+ * 
+ * SeqAn, however, normally computes them as as &lt;tt&gt;s = gO + (n-1) * gE&lt;/tt&gt;.
+ * 
+ * Effectively this results only in a different gap open score. To make dealing
+ * with this easier, there are convenience functions for setting and getting the
+ * gap open score in blast convention: @link
+ * BlastScoringScheme#scoreGapOpenBlast @endlink and @link
+ * BlastScoringScheme#setScoreGapOpenBlast @endlink.
+ * 
+ * @section Karlin-Altschul values
+ * 
+ * E-Value statistics require certain pre-computed constants. The
+ * BlastScoringScheme picks these automatically whenever you modify it.
+ * Unfortunately there aren&#39;t parameters for all combinations of scoring schemes
+ * and gap costs, so you have to check @link BlastScoringScheme#isValid @endlink
+ * after modifying it or verify the return value of the set* functions which is
+ * bool here (instead of void).
+ * 
+ * More details on the scoring parameters is in these slides: &lt;a href=&#34;https://w
+ * ww.cs.umd.edu/class/fall2011/cmsc858s/Local_Alignment_Statistics.pdf&#34;&gt; https:
+ * //www.cs.umd.edu/class/fall2011/cmsc858s/Local_Alignment_Statistics.pdf&lt;/a&gt;.
+ * 
+ * The constants used in SeqAn were imported from the NCBI blast source code
+ * (blast-2.2.26)
+ * 
+ * @fn BlastScoringScheme#seqanScheme
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Retrieve a @link Score @endlink object for use with e.g. @link
+ *        localAlignment @endlink.
+ * 
+ * @signature TScoringScheme const &amp; seqanScheme(blastScoringScheme);
+ * 
+ * @return TScoringScheme_const_&amp; the internal scoring object for use with other
+ *                                SeqAn functions.
+ * 
+ * @section Remarks
+ * 
+ * The reference returned is always const, because you should not modify the
+ * internal score object directly. Use @link BlastScoringScheme @endlink&#39;s
+ * interface instead.
+ * 
+ * @fn BlastScoringScheme#scoreMatch
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief The Match score (only for SimpleScore specialization).
+ * 
+ * @signature int scoreMatch(blastScoringScheme);
+ * 
+ * @fn BlastScoringScheme#scoreMismatch
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief The Mismatch score (only for SimpleScore specialization).
+ * 
+ * @signature int scoreMismatch(blastScoringScheme);
+ * 
+ * @fn BlastScoringScheme#scoreGapOpen
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief The Gap Open score in SeqAn convention.
+ * 
+ * @signature TValue scoreGapOpen(blastScoringScheme);
+ * 
+ * @fn BlastScoringScheme#scoreGapOpenBlast
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief The Gap Open score in Blast convention.
+ * 
+ * @signature TValue scoreGapOpenBlast(blastScoringScheme);
+ * 
+ * @fn BlastScoringScheme#scoreGapExtend
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief The Gap Extend score.
+ * 
+ * @signature TValue scoreGapExtend(blastScoringScheme);
+ * 
+ * @fn BlastScoringScheme#isValid
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief check whether valid KarlinAltschulValues are selected
+ * 
+ * @signature bool isValid(blastScoringScheme);
+ * 
+ * @fn BlastScoringScheme#setScoreMatch
+ * 
+ * @brief Set match score.
+ * 
+ * @signature bool setScoreMatch(blastScoringScheme, value);
+ * 
+ * @param[in,out] blastScoringScheme The @link BlastScoringScheme @endlink to
+ *                                   modify.
+ * @param[in] value The new value.
+ * 
+ * @return isValid(blastScoringScheme) whether Karlin-Altschul values for the
+ *                                     new scheme exist.
+ * 
+ * @fn BlastScoringScheme#setScoreMismatch
+ * 
+ * @brief Set mismatch score.
+ * 
+ * @signature bool setScoreMismatch(blastScoringScheme, value);
+ * 
+ * @param[in,out] blastScoringScheme The @link BlastScoringScheme @endlink to
+ *                                   modify.
+ * @param[in] value The new value.
+ * 
+ * @return isValid(blastScoringScheme) whether Karlin-Altschul values for the
+ *                                     new scheme exist.
+ * 
+ * @fn BlastScoringScheme#setScoreGapOpenBlast
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Set gap open score in BLAST convention.
+ * 
+ * @signature bool setScoreGapOpenBlast(blastScoringScheme, value);
+ * 
+ * @param[in,out] blastScoringScheme The @link BlastScoringScheme @endlink to
+ *                                   modify.
+ * @param[in] value The new value.
+ * 
+ * @return isValid(blastScoringScheme) whether Karlin-Altschul values for the
+ *                                     new scheme exist.
+ * 
+ * @fn BlastScoringScheme#setScoreGapOpen
+ * 
+ * @brief Set gap open score in SeqAn convention.
+ * 
+ * @signature bool setScoreGapOpen(blastScoringScheme, value);
+ * 
+ * @param[in,out] blastScoringScheme The @link BlastScoringScheme @endlink to
+ *                                   modify.
+ * @param[in] value The new value.
+ * 
+ * @return isValid(blastScoringScheme) whether Karlin-Altschul values for the
+ *                                     new scheme exist.
+ * 
+ * @fn BlastScoringScheme#setScoreGapExtend
+ * 
+ * @brief Set gap extend score.
+ * 
+ * @signature bool setScoreGapExtend(blastScoringScheme, value);
+ * 
+ * @param[in,out] blastScoringScheme The @link BlastScoringScheme @endlink to
+ *                                   modify.
+ * @param[in] value The new value.
+ * 
+ * @return isValid(blastScoringScheme) whether Karlin-Altschul values for the
+ *                                     new scheme exist.
+ * 
+ * @fn BlastScoringScheme#getLambda
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Get the &amp;lambda; value of the Karlin-Altschul parameters.
+ * 
+ * @signature double getLambda(blastScoringScheme);
+ * 
+ * @fn BlastScoringScheme#getKappa
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Get the &amp;Kappa; value of the Karlin-Altschul parameters.
+ * 
+ * @signature double getKappa(blastScoringScheme);
+ * 
+ * @fn BlastScoringScheme#getH
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Get the H value of the Karlin-Altschul parameters.
+ * 
+ * @signature double getH(blastScoringScheme);
+ * 
+ * @fn BlastScoringScheme#getAlpha
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Get the &amp;alpha; value of the Karlin-Altschul parameters.
+ * 
+ * @signature double getAlpha(blastScoringScheme);
+ * 
+ * @fn BlastScoringScheme#getBeta
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Get the &amp;beta; value of the Karlin-Altschul parameters.
+ * 
+ * @signature double getBeta(blastScoringScheme);
+ * 
+ * @fn BlastScoringScheme#computeBitScore
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Compute the bit-score for a given raw score.
+ * 
+ * @signature double computeBitScore(rawScore, blastScoringScheme);
+ * 
+ * @param[in] rawScore The raw score of the alignment.
+ * @param[in] blastScoringScheme The @link BlastScoringScheme @endlink.
+ * 
+ * @return double The bit-score computed.
+ * 
+ * @fn BlastScoringScheme#computeEValue
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Compute the E-Value for a given raw score and sequence lengths.
+ * 
+ * @signature double computeEValue(rawScore, queryLength, dbLength,
+ *            blastScoringScheme);
+ * 
+ * @param[in] rawScore The raw score of the alignment.
+ * @param[in] queryLength The length of the query sequence.
+ * @param[in] dbLength The length of the database in case of many subject
+ *                     sequences, otherwise the length of the subject sequence.
+ * @param[in] blastScoringScheme The @link BlastScoringScheme @endlink.
+ * 
+ * @return double The e-value computed.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

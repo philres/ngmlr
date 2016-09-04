@@ -1,0 +1,761 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_blastiocontext" data-page="BlastIOContext">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>BlastIOContext - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>BlastIOContext<div><div>An object that holds file global information and buffers for BlastIO</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/blast.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>template &lt;typename TScore_ = Blosum62,
+BlastProgram p = BlastProgram::UNKNOWN, BlastTabularSpec h = BlastTabularSpec::UNKNOWN&gt;
+struct BlastIOContext { ... };
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TScore</a></code></th>
+        <td>Type of the <a href="class_Score.html" data-lang-entity="class">Score</a> object used.</td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">p</a></code></th>
+        <td><a href="enum_BlastProgram.html" data-lang-entity="enum">BlastProgram</a> as compile-time parameter.</td>
+    </tr>
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">h</a></code></th>
+        <td><a href="enum_BlastTabularSpec.html" data-lang-entity="enum">BlastTabularSpec</a> as compile-time parameter.</td>
+    </tr>
+
+</table>
+</div>
+
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+
+<!-- Interface Functions Overview -->
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+  
+
+
+<!-- Member Variable Overview -->
+
+
+
+<div data-lang-entity-container="member_variable">
+<h2 data-lang-entity="member_variable">Member Variable Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3AblastProgram" title="#BlastIOContext::blastProgram (interface function)" data-lang-entity="member_variable">
+        BlastProgramSelector BlastIOContext::blastProgram
+    </a></code></span>
+    <span class="summary_desc"><div>The <a href="enum_BlastProgram.html" data-lang-entity="enum">BlastProgram</a>.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3AconformancyErrors" title="#BlastIOContext::conformancyErrors (interface function)" data-lang-entity="member_variable">
+        StringSet&lt;TString&gt; BlastIOContext::conformancyErrors
+    </a></code></span>
+    <span class="summary_desc"><div>Holds non fatal error messages when reading from <a href="specialization_BlastTabularFileIn.html" data-lang-entity="specialization">BlastTabularFileIn</a>.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3AdbName" title="#BlastIOContext::dbName (interface function)" data-lang-entity="member_variable">
+        TString BlastIOContext::dbName
+    </a></code></span>
+    <span class="summary_desc"><div>Name of the dabase or path to the file.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3AdbNumberOfSeqs" title="#BlastIOContext::dbNumberOfSeqs (interface function)" data-lang-entity="member_variable">
+        uint64_t BlastIOContext::dbNumberOfSeqs
+    </a></code></span>
+    <span class="summary_desc"><div>Number of sequences in the database.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3AdbTotalLength" title="#BlastIOContext::dbTotalLength (interface function)" data-lang-entity="member_variable">
+        uint64_t BlastIOContext::dbTotalLength
+    </a></code></span>
+    <span class="summary_desc"><div>Summed up sequence length of the database.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3Afields" title="#BlastIOContext::fields (interface function)" data-lang-entity="member_variable">
+        std::vector&lt;BlastMatchField::Enum&gt; BlastIOContext::fields
+    </a></code></span>
+    <span class="summary_desc"><div>The fields (types of columns) in <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a>-formats.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3AfieldsAsStrings" title="#BlastIOContext::fieldsAsStrings (interface function)" data-lang-entity="member_variable">
+        StringSet&lt;TString&gt; BlastIOContext::fieldsAsStrings
+    </a></code></span>
+    <span class="summary_desc"><div>The fields (types of columns) in <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a>-formats, but as uninterpreted strings.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3AignoreFieldsInComments" title="#BlastIOContext::ignoreFieldsInComments (interface function)" data-lang-entity="member_variable">
+        bool BlastIOContext::ignoreFieldsInComments
+    </a></code></span>
+    <span class="summary_desc"><div>Use fields as in-parameter for readRecord as well (only <a href="specialization_BlastTabularFileIn.html" data-lang-entity="specialization">BlastTabularFileIn</a>).</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3AlegacyFormat" title="#BlastIOContext::legacyFormat (interface function)" data-lang-entity="member_variable">
+        bool BlastIOContext::legacyFormat
+    </a></code></span>
+    <span class="summary_desc"><div>Whether to use the legacy format (only <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a>).</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3AotherLines" title="#BlastIOContext::otherLines (interface function)" data-lang-entity="member_variable">
+        StringSet&lt;TString&gt; BlastIOContext::otherLines
+    </a></code></span>
+    <span class="summary_desc"><div>A StringSet that will contain all comment lines that
+could not be interpreted in another way (only <a href="specialization_BlastTabularFileIn.html" data-lang-entity="specialization">BlastTabularFileIn</a>).</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3AscoringScheme" title="#BlastIOContext::scoringScheme (interface function)" data-lang-entity="member_variable">
+        BlastScoringScheme&lt;TScore&gt; BlastIOContext::scoringScheme
+    </a></code></span>
+    <span class="summary_desc"><div>The <a href="class_BlastScoringScheme.html" data-lang-entity="class">BlastScoringScheme</a>.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3AtabularSpec" title="#BlastIOContext::tabularSpec (interface function)" data-lang-entity="member_variable">
+        BlastTabularSpecSelector BlastIOContext::tabularSpec
+    </a></code></span>
+    <span class="summary_desc"><div>The <a href="enum_BlastTabularSpec.html" data-lang-entity="enum">BlastTabularSpec</a>.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastIOContext%3A%3AversionString" title="#BlastIOContext::versionString (interface function)" data-lang-entity="member_variable">
+        TString BlastIOContext::versionString
+    </a></code></span>
+    <span class="summary_desc"><div>The blast version string.</div></span>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>This is a part of the Blast formatted files. Before writing, some of the context's members should be set; after
+reading it will contain
+all information from the file that did not belong to a <a href="class_BlastRecord.html" data-lang-entity="class">BlastRecord</a>, e.g. the name of the database.
+It also contains buffers for internal use.</p><p>You should re-use this object (i.e. only create it once for
+every file that you read/write). And you don't need to and should not clear()
+this, except when restarting IO on a different file.</p><p>To speed-up file writing slightly you can set the value template parameters <tt>p</tt> and/or <tt>h</tt> to something
+other than ::DYNAMIC at compile-time (e.g. if you know that you will be printing only BLASTX), but then you won't
+be able to modify these values at run-time. For file reading this is also possible, but usually the
+added flexibility of automatically detecting these values is prefferable.</p><p>If not explicitly stated otherwise, the member variables are <i>out-parameters</i> of <tt>readHeader()</tt>,
+<tt>readRecord()</tt> and <tt>readFooter()</tt>, i.e. they are set by these functions; and they are
+<i>in-parameters</i> to <tt>writeHeader()</tt>, <tt>writeRecord()</tt> and <tt>writeFooter()</tt>, i.e. they
+influence these functions' output.</p><p>See <a href="specialization_BlastTabularFileOut.html" data-lang-entity="specialization">BlastTabularFileOut</a> and <a href="specialization_BlastReportFileOut.html" data-lang-entity="specialization">BlastReportFileOut</a> for more complete examples of usage.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+<div class="member_variable_details" data-lang-entity-container="member_variable">
+  <h2 data-lang-entity="member_variable">Member Variables Detail</h2>
+
+  
+  <div class="member_variable_details first">
+    <h3 data-toc="hidden" id="BlastIOContext::blastProgram" class="signature first" data-lang-entity="member_variable">
+      <code>BlastProgramSelector BlastIOContext::blastProgram</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The <a href="enum_BlastProgram.html" data-lang-entity="enum">BlastProgram</a>.</div>
+        
+<div><h4>Remarks</h4><p>Behaves exactly like an enum of type <a href="enum_BlastProgram.html" data-lang-entity="enum">BlastProgram</a>, unless the second template parameter was
+specified to make this a compile-time constant. See <a href="class_BlastProgramSelector.html" data-lang-entity="class">BlastProgramSelector</a> for more information.</p></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastIOContext::conformancyErrors" class="signature" data-lang-entity="member_variable">
+      <code>StringSet&lt;TString&gt; BlastIOContext::conformancyErrors</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Holds non fatal error messages when reading from <a href="specialization_BlastTabularFileIn.html" data-lang-entity="specialization">BlastTabularFileIn</a>.</div>
+        
+<div><h4>Remarks</h4><p>After doing a <a href="specialization_BlastTabularFileIn.html#BlastTabularFileIn#readRecord" data-lang-entity="interface_function">readRecord</a> this will indicate whether the
+comment lines contained non-fatal parse errors, usually the result
+of a file written by a sloppy blast implementation or possibly a bug in SeqAn.
+An empty StringSet indicates that all is good.</p></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastIOContext::dbName" class="signature" data-lang-entity="member_variable">
+      <code>TString BlastIOContext::dbName</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Name of the dabase or path to the file.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastIOContext::dbNumberOfSeqs" class="signature" data-lang-entity="member_variable">
+      <code>uint64_t BlastIOContext::dbNumberOfSeqs</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Number of sequences in the database.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastIOContext::dbTotalLength" class="signature" data-lang-entity="member_variable">
+      <code>uint64_t BlastIOContext::dbTotalLength</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Summed up sequence length of the database.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastIOContext::fields" class="signature" data-lang-entity="member_variable">
+      <code>std::vector&lt;BlastMatchField::Enum&gt; BlastIOContext::fields</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The fields (types of columns) in <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a>-formats.</div>
+        
+<div><h4>Remarks</h4><p>This is an <i>out-parameter</i> for:
+<li> <a href="specialization_BlastTabularFileIn.html#BlastTabularFileIn#readRecord" data-lang-entity="interface_function">readRecord</a> iff tabularSpec == COMMENTS (otherwise it can't be deduced)</li></p><p>This is an <i>in-parameter</i> for:
+<li> <a href="specialization_BlastTabularFileIn.html#BlastTabularFileIn#readRecord" data-lang-entity="interface_function">readRecord</a> if tabularSpec != COMMENTS (specified fields will be expected)</li>
+<li> <a href="specialization_BlastTabularFileOut.html#BlastTabularFileOut#writeRecord" data-lang-entity="interface_function">writeRecord</a> (specified fields will written)</li></p><p>Setting <a href="class_BlastIOContext.html#BlastIOContext::ignoreFieldsInComments" data-lang-entity="member_variable">ignoreFieldsInComments</a> will make this variable be an <i>in-parameter</i> for
+the first case, as well. This variable is ignored in the legacy formats and for non-tabular formats.</p></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastIOContext::fieldsAsStrings" class="signature" data-lang-entity="member_variable">
+      <code>StringSet&lt;TString&gt; BlastIOContext::fieldsAsStrings</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The fields (types of columns) in <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a>-formats, but as uninterpreted strings.</div>
+        
+<div><h4>Remarks</h4><p>Useful when the comment lines do not conform to standards and you want to extract the verbatim column labels or
+if you wish to print non-standard column labels (which you shouldn't!).</p></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastIOContext::ignoreFieldsInComments" class="signature" data-lang-entity="member_variable">
+      <code>bool BlastIOContext::ignoreFieldsInComments</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Use fields as in-parameter for readRecord as well (only <a href="specialization_BlastTabularFileIn.html" data-lang-entity="specialization">BlastTabularFileIn</a>).</div>
+        
+<div><h4>Remarks</h4><p>See <a href="specialization_BlastTabularFileIn.html#BlastTabularFileIn#readRecord" data-lang-entity="interface_function">readRecord</a>. Use this when the comment lines do not
+conform to standards (and the fields can't be read), but you know that
+the matches are in the given, e.g. default format.</p></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastIOContext::legacyFormat" class="signature" data-lang-entity="member_variable">
+      <code>bool BlastIOContext::legacyFormat</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>Whether to use the legacy format (only <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a>).</div>
+        
+<div><h4>Remarks</h4><p>Setting this flag when writing to a <a href="specialization_BlastTabularFileOut.html" data-lang-entity="specialization">BlastTabularFileOut</a> (that has BlastTabularSpec::COMMENTS set)
+will result in the legacy version of the comments being written. In the legacy format the mismatches column
+also includes all gaps in addition to mismatches.
+Note that many other features like custom fields are not supported in this format.</p><p>When reading <a href="specialization_BlastTabularFileOut.html" data-lang-entity="specialization">BlastTabularFileOut</a> this flag will automatically be set based on the comments (if a
+they exist).</p></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastIOContext::otherLines" class="signature" data-lang-entity="member_variable">
+      <code>StringSet&lt;TString&gt; BlastIOContext::otherLines</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>A StringSet that will contain all comment lines that
+could not be interpreted in another way (only <a href="specialization_BlastTabularFileIn.html" data-lang-entity="specialization">BlastTabularFileIn</a>).</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastIOContext::scoringScheme" class="signature" data-lang-entity="member_variable">
+      <code>BlastScoringScheme&lt;TScore&gt; BlastIOContext::scoringScheme</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The <a href="class_BlastScoringScheme.html" data-lang-entity="class">BlastScoringScheme</a>.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastIOContext::tabularSpec" class="signature" data-lang-entity="member_variable">
+      <code>BlastTabularSpecSelector BlastIOContext::tabularSpec</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The <a href="enum_BlastTabularSpec.html" data-lang-entity="enum">BlastTabularSpec</a>.</div>
+        
+<div><h4>Remarks</h4><p>Behaves exactly like an enum of type <a href="enum_BlastTabularSpec.html" data-lang-entity="enum">BlastTabularSpec</a>, unless the third template parameter was
+specified to make this a compile-time constant. See <a href="class_BlastTabularSpecSelector.html" data-lang-entity="class">BlastTabularSpecSelector</a> for more information.</p></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastIOContext::versionString" class="signature" data-lang-entity="member_variable">
+      <code>TString BlastIOContext::versionString</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The blast version string.</div>
+        
+<div><h4>Remarks</h4><p>Used when writing <a href="specialization_BlastReportFileOut.html" data-lang-entity="specialization">BlastReportFileOut</a> and <a href="specialization_BlastTabularFileOut.html" data-lang-entity="specialization">BlastTabularFileOut</a> if the context's tabularSpec
+is set to BlastTabularSpec::COMMENTS. Defaults to a version string based on the emulated
+blast version and the current SeqAn version.
+When reading from <a href="specialization_BlastTabularFileOut.html" data-lang-entity="specialization">BlastTabularFileOut</a> the corresponding line is extracted from the comment lines
+(if present).</p></div>
+
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class BlastIOContext
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief An object that holds file global information and buffers for BlastIO
+ * 
+ * @signature template &lt;typename TScore_ = Blosum62, BlastProgram p =
+ *            BlastProgram::UNKNOWN, BlastTabularSpec h =
+ *            BlastTabularSpec::UNKNOWN&gt; struct BlastIOContext { ... };
+ * 
+ * @tparam TScore Type of the @link Score @endlink object used.
+ * @tparam p @link BlastProgram @endlink as compile-time parameter.
+ * @tparam h @link BlastTabularSpec @endlink as compile-time parameter.
+ * 
+ * This is a part of the Blast formatted files. Before writing, some of the
+ * context&#39;s members should be set; after reading it will contain all
+ * information from the file that did not belong to a @link BlastRecord
+ * @endlink, e.g. the name of the database. It also contains buffers for
+ * internal use.
+ * 
+ * You should re-use this object (i.e. only create it once for every file that
+ * you read/write). And you don&#39;t need to and should not clear() this, except
+ * when restarting IO on a different file.
+ * 
+ * To speed-up file writing slightly you can set the value template parameters
+ * &lt;tt&gt;p&lt;/tt&gt; and/or &lt;tt&gt;h&lt;/tt&gt; to something other than ::DYNAMIC at compile-
+ * time (e.g. if you know that you will be printing only BLASTX), but then you
+ * won&#39;t be able to modify these values at run-time. For file reading this is
+ * also possible, but usually the added flexibility of automatically detecting
+ * these values is prefferable.
+ * 
+ * If not explicitly stated otherwise, the member variables are &lt;i&gt;out-
+ * parameters&lt;/i&gt; of &lt;tt&gt;readHeader()&lt;/tt&gt;, &lt;tt&gt;readRecord()&lt;/tt&gt; and
+ * &lt;tt&gt;readFooter()&lt;/tt&gt;, i.e. they are set by these functions; and they are &lt;i
+ * &gt;in-parameters&lt;/i&gt; to &lt;tt&gt;writeHeader()&lt;/tt&gt;, &lt;tt&gt;writeRecord()&lt;/tt&gt; and
+ * &lt;tt&gt;writeFooter()&lt;/tt&gt;, i.e. they influence these functions&#39; output.
+ * 
+ * See @link BlastTabularFileOut @endlink and @link BlastReportFileOut @endlink
+ * for more complete examples of usage.
+ * 
+ * @var BlastProgramSelector BlastIOContext::blastProgram;
+ * 
+ * @brief The @link BlastProgram @endlink.
+ * 
+ * @section Remarks
+ * 
+ * Behaves exactly like an enum of type @link BlastProgram @endlink, unless the
+ * second template parameter was specified to make this a compile-time constant.
+ * See @link BlastProgramSelector @endlink for more information.
+ * 
+ * @var BlastTabularSpecSelector BlastIOContext::tabularSpec;
+ * 
+ * @brief The @link BlastTabularSpec @endlink.
+ * 
+ * @section Remarks
+ * 
+ * Behaves exactly like an enum of type @link BlastTabularSpec @endlink, unless
+ * the third template parameter was specified to make this a compile-time
+ * constant. See @link BlastTabularSpecSelector @endlink for more information.
+ * 
+ * @var BlastScoringScheme&lt;TScore&gt; BlastIOContext::scoringScheme;
+ * 
+ * @brief The @link BlastScoringScheme @endlink.
+ * 
+ * @var TString BlastIOContext::versionString;
+ * 
+ * @brief The blast version string.
+ * 
+ * @section Remarks
+ * 
+ * Used when writing @link BlastReportFileOut @endlink and @link
+ * BlastTabularFileOut @endlink if the context&#39;s tabularSpec is set to
+ * BlastTabularSpec::COMMENTS. Defaults to a version string based on the
+ * emulated blast version and the current SeqAn version. When reading from @link
+ * BlastTabularFileOut @endlink the corresponding line is extracted from the
+ * comment lines (if present).
+ * 
+ * @var bool BlastIOContext::legacyFormat;
+ * 
+ * @brief Whether to use the legacy format (only @link BlastTabular @endlink).
+ * 
+ * @section Remarks
+ * 
+ * Setting this flag when writing to a @link BlastTabularFileOut @endlink (that
+ * has BlastTabularSpec::COMMENTS set) will result in the legacy version of the
+ * comments being written. In the legacy format the mismatches column also
+ * includes all gaps in addition to mismatches. Note that many other features
+ * like custom fields are not supported in this format.
+ * 
+ * When reading @link BlastTabularFileOut @endlink this flag will automatically
+ * be set based on the comments (if a they exist).
+ * 
+ * @var TString BlastIOContext::dbName;
+ * 
+ * @brief Name of the dabase or path to the file.
+ * 
+ * @var uint64_t BlastIOContext::dbTotalLength;
+ * 
+ * @brief Summed up sequence length of the database.
+ * 
+ * @var uint64_t BlastIOContext::dbNumberOfSeqs;
+ * 
+ * @brief Number of sequences in the database.
+ * 
+ * @var StringSet&lt;TString&gt; BlastIOContext::otherLines;
+ * 
+ * @brief A StringSet that will contain all comment lines that could not be
+ *        interpreted in another way (only @link BlastTabularFileIn @endlink).
+ * 
+ * @var std::vector&lt;BlastMatchField::Enum&gt; BlastIOContext::fields;
+ * 
+ * @brief The fields (types of columns) in @link BlastTabular @endlink-formats.
+ * 
+ * @section Remarks
+ * 
+ * This is an &lt;i&gt;out-parameter&lt;/i&gt; for: &lt;li&gt; @link BlastTabularFileIn#readRecord
+ * @endlink iff tabularSpec == COMMENTS (otherwise it can&#39;t be deduced)&lt;/li&gt;
+ * 
+ * This is an &lt;i&gt;in-parameter&lt;/i&gt; for: &lt;li&gt; @link BlastTabularFileIn#readRecord
+ * @endlink if tabularSpec != COMMENTS (specified fields will be expected)&lt;/li&gt;
+ * &lt;li&gt; @link BlastTabularFileOut#writeRecord @endlink (specified fields will
+ * written)
+ * 
+ * Setting @link BlastIOContext::ignoreFieldsInComments @endlink will make this
+ * variable be an &lt;i&gt;in-parameter&lt;/i&gt; for the first case, as well. This variable
+ * is ignored in the legacy formats and for non-tabular formats.
+ * 
+ * @var StringSet&lt;TString&gt; BlastIOContext::fieldsAsStrings;
+ * 
+ * @brief The fields (types of columns) in @link BlastTabular @endlink-formats,
+ *        but as uninterpreted strings.
+ * 
+ * @section Remarks
+ * 
+ * Useful when the comment lines do not conform to standards and you want to
+ * extract the verbatim column labels or if you wish to print non-standard
+ * column labels (which you shouldn&#39;t!).
+ * 
+ * @var bool BlastIOContext::ignoreFieldsInComments;
+ * 
+ * @brief Use fields as in-parameter for readRecord as well (only @link
+ *        BlastTabularFileIn @endlink).
+ * 
+ * @section Remarks
+ * 
+ * See @link BlastTabularFileIn#readRecord @endlink. Use this when the comment
+ * lines do not conform to standards (and the fields can&#39;t be read), but you
+ * know that the matches are in the given, e.g. default format.
+ * 
+ * @var StringSet&lt;TString&gt; BlastIOContext::conformancyErrors;
+ * 
+ * @brief Holds non fatal error messages when reading from @link
+ *        BlastTabularFileIn @endlink.
+ * 
+ * @section Remarks
+ * 
+ * After doing a @link BlastTabularFileIn#readRecord @endlink this will indicate
+ * whether the comment lines contained non-fatal parse errors, usually the
+ * result of a file written by a sloppy blast implementation or possibly a bug
+ * in SeqAn. An empty StringSet indicates that all is good.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

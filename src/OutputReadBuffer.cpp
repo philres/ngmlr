@@ -1,10 +1,3 @@
-/*
- * OutputReadBuffer.cpp
- *
- *  Created on: May 3, 2014
- *      Author: philipp_
- */
-
 #include "OutputReadBuffer.h"
 
 OutputReadBuffer * OutputReadBuffer::pInstance = 0;

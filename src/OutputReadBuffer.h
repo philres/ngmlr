@@ -1,10 +1,3 @@
-/*
- * OutputReadBuffer.h
- *
- *  Created on: May 3, 2014
- *      Author: philipp_
- */
-
 #ifndef OUTPUTREADBUFFER_H_
 #define OUTPUTREADBUFFER_H_
 

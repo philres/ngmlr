@@ -1,0 +1,871 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="specialization_blasttabularfileout" data-page="BlastTabularFileOut">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>BlastTabularFileOut - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#specialization">Spec</a>
+<span>BlastTabularFileOut<div><div>FormattedFileOut abstraction for <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a></div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+  <tr>
+    <th>Extends</th>
+    <td>
+      <a href="specialization_FormattedFileOut.html" data-lang-entity="specialization">FormattedFileOut</a>
+      
+    </td>
+  </tr>
+  
+
+  
+
+  
+  <tr>
+    <th>All Extended</dt>
+    <td>
+    <a href="class_FormattedFile.html" data-lang-entity="class">FormattedFile</a>, 
+    <a href="specialization_FormattedFileOut.html" data-lang-entity="specialization">FormattedFileOut</a>
+    
+    </td>
+  </tr>
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/blast.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>template &lt;typename TBlastIOContext&gt;
+using BlastTabularFileOut = FormattedFile&lt;BlastTabular, Output, TBlastIOContext&gt;;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+
+
+
+
+<h3 data-toc="hidden">Member Functions Inherited From <a href="class_FormattedFile.html" data-lang-entity="class">FormattedFile</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile::getFileExtensions" data-lang-entity="member_function">getFileExtensions</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile::operatorTDependentContext" data-lang-entity="member_function">operatorTDependentContext</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastTabularFileOut%23writeFooter" title="#BlastTabularFileOut#writeFooter (interface function)" data-lang-entity="interface_function">void writeFooter(blastTabularOut);</a></code></span>
+    <span class="summary_desc"><div>Write the footer of a BlastTabular file.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastTabularFileOut%23writeHeader" title="#BlastTabularFileOut#writeHeader (interface function)" data-lang-entity="interface_function">void writeHeader(blastTabularOut);</a></code></span>
+    <span class="summary_desc"><div>Write the header (top-most section) of a BlastTabular file (this is a NOOP).</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastTabularFileOut%23writeRecord" title="#BlastTabularFileOut#writeRecord (interface function)" data-lang-entity="interface_function">void writeRecord(blastTabularOut, blastRecord);</a></code></span>
+    <span class="summary_desc"><div>Write a <a href="class_BlastRecord.html" data-lang-entity="class">BlastRecord</a> including it's <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>es and possible comment lines to a file.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="class_FormattedFile.html" data-lang-entity="class">FormattedFile</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#atEnd" data-lang-entity="interface_function">atEnd</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#close" data-lang-entity="interface_function">close</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#context" data-lang-entity="interface_function">context</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#format" data-lang-entity="interface_function">format</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#FormattedFile" data-lang-entity="interface_function">FormattedFile</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#getFileExtensions" data-lang-entity="interface_function">getFileExtensions</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#guessFormat" data-lang-entity="interface_function">guessFormat</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#open" data-lang-entity="interface_function">open</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#setFormat" data-lang-entity="interface_function">setFormat</a></code></span></li>
+  
+</ul>
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="specialization_FormattedFileOut.html" data-lang-entity="specialization">FormattedFileOut</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="specialization_FormattedFileOut.html#FormattedFileOut#writeHeader" data-lang-entity="interface_function">writeHeader</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="specialization_FormattedFileOut.html#FormattedFileOut#writeRecord" data-lang-entity="interface_function">writeRecord</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+
+
+<div data-lang-entity-container="interface_metafunction">
+<h2 data-lang-entity="interface_metafunction">Interface  Metafunction Overview</h2>
+
+
+
+
+
+<h3 data-toc="hidden">Interface Metafunctions Inherited From <a href="class_FormattedFile.html" data-lang-entity="class">FormattedFile</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#FileFormat" data-lang-entity="interface_metafunction">FileFormat</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="class_FormattedFile.html#FormattedFile#FormattedFileContext" data-lang-entity="interface_metafunction">FormattedFileContext</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>This is a <a href="class_FormattedFile.html" data-lang-entity="class">FormattedFile</a> specialization for writing <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a> formats. For details
+on how to influence the writing of files and how to differentiate between the tabular format with and without
+comment lines, see <a href="class_BlastIOContext.html" data-lang-entity="class">BlastIOContext</a>.
+Please note that you have to specify the type of the context as a template parameter to BlastTabularFileOut, see the example
+below.</p><h3>Overview</h3><p><ul>
+<li> open <a href="specialization_BlastTabularFileOut.html" data-lang-entity="specialization">BlastTabularFileOut</a>,</li>
+<li> configure the <a href="class_BlastIOContext.html" data-lang-entity="class">BlastIOContext</a> </li>
+<li> <a href="specialization_BlastTabularFileOut.html#BlastTabularFileOut#writeHeader" data-lang-entity="interface_function">writeHeader</a> </li>
+<li> <a href="specialization_BlastTabularFileOut.html#BlastTabularFileOut#writeRecord" data-lang-entity="interface_function">writeRecord</a> repeated up to n times</li>
+<li> <a href="specialization_BlastTabularFileOut.html#BlastTabularFileOut#writeFooter" data-lang-entity="interface_function">writeFooter</a> </li>
+</ul></p><p>The following members of the context have to be defined before writing:
+<ul>
+<li> <a href="class_BlastIOContext.html#BlastIOContext::blastProgram" data-lang-entity="member_variable">blastProgram</a> (unless fixed at compile-time)</li>
+<li> <a href="class_BlastIOContext.html#BlastIOContext::scoringScheme" data-lang-entity="member_variable">scoringScheme</a></li>
+<li> <a href="class_BlastIOContext.html#BlastIOContext::dbName" data-lang-entity="member_variable">dbName</a></li>
+<li> <a href="class_BlastIOContext.html#BlastIOContext::dbTotalLength" data-lang-entity="member_variable">dbTotalLength</a></li>
+<li> <a href="class_BlastIOContext.html#BlastIOContext::dbNumberOfSeqs" data-lang-entity="member_variable">dbNumberOfSeqs</a></li>
+</ul></p><p>For a detailed example have a look at the
+<a href="http://seqan.readthedocs.io/en/develop/Tutorial/BlastIO.html">Blast IO tutorial</a>.</p><p>Strictly speaking the <tt>writeHeader()</tt> call is not required for BlastTabular, but for consistency with
+other (blast) formats and the read interface it is recommended.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="class_BlastRecord.html" data-lang-entity="class">BlastRecord</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="BlastTabularFileOut#writeFooter" class="signature first" data-lang-entity="interface_function">
+      <code>void writeFooter(blastTabularOut);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Write the footer of a BlastTabular file.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastTabularOut</code>
+            
+        
+      </th>
+      <td>A <a href="specialization_BlastTabularFileOut.html" data-lang-entity="specialization">BlastTabularFileOut</a> formattedFile.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  <h4>Thrown Exceptions</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>IOError</code></th>
+        <td>On low-level I/O errors.</td>
+    </tr>
+    
+  </table>
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  <h4>See Also</h4>
+  <ul>
+    
+    <li><a href="class_BlastIOContext.html" data-lang-entity="class">BlastIOContext</a></li>
+    
+    <li><a href="class_BlastRecord.html" data-lang-entity="class">BlastRecord</a></li>
+    
+  </ul>
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastTabularFileOut#writeHeader" class="signature" data-lang-entity="interface_function">
+      <code>void writeHeader(blastTabularOut);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Write the header (top-most section) of a BlastTabular file (this is a NOOP).</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastTabularOut</code>
+            
+        
+      </th>
+      <td>A <a href="specialization_BlastTabularFileOut.html" data-lang-entity="specialization">BlastTabularFileOut</a> formattedFile.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  <h4>Thrown Exceptions</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>IOError</code></th>
+        <td>On low-level I/O errors.</td>
+    </tr>
+    
+  </table>
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  <h4>See Also</h4>
+  <ul>
+    
+    <li><a href="class_BlastIOContext.html" data-lang-entity="class">BlastIOContext</a></li>
+    
+    <li><a href="class_BlastRecord.html" data-lang-entity="class">BlastRecord</a></li>
+    
+  </ul>
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastTabularFileOut#writeRecord" class="signature" data-lang-entity="interface_function">
+      <code>void writeRecord(blastTabularOut, blastRecord);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Write a <a href="class_BlastRecord.html" data-lang-entity="class">BlastRecord</a> including it's <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>es and possible comment lines to a file.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">blastTabularOut</code>
+            
+        
+      </th>
+      <td>A <a href="specialization_BlastTabularFileOut.html" data-lang-entity="specialization">BlastTabularFileOut</a> formattedFile.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">blastRecord</code>
+            
+        
+      </th>
+      <td>The <a href="class_BlastRecord.html" data-lang-entity="class">BlastRecord</a> you wish to print.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>This function first writes the comment lines of the record and then writes match lines for every match in it. If the
+context's <a href="class_BlastIOContext.html#BlastIOContext::tabularSpec" data-lang-entity="member_variable">tabularSpec</a> is set to BlastTabularSpec::NO_COMMENTS, no
+comment lines will be written and this function immediately prints the match lines.</p><h5>Comment lines</h5><p>The contents of the comment lines is largely defined by the members of the context.</p><p>If the context's <a href="class_BlastIOContext.html#BlastIOContext::versionString" data-lang-entity="member_variable">versionString</a> is set, this will be written,
+otherwise a stanadard version string is generated.</p><p>The context's <a href="class_BlastIOContext.html#BlastIOContext::dbName" data-lang-entity="member_variable">dbName</a> is printed as the database name / path.</p><p>If either the context's <a href="class_BlastIOContext.html#BlastIOContext::fields" data-lang-entity="member_variable">fields</a> or
+<a href="class_BlastIOContext.html#BlastIOContext::fieldsAsStrings" data-lang-entity="member_variable">fieldsAsStrings</a> member are specified these will be printed
+as column labels. If both are specified than <a href="class_BlastIOContext.html#BlastIOContext::fieldsAsStrings" data-lang-entity="member_variable">fieldsAsStrings</a>
+is given preference. Please note that it is recommended to use
+<a href="class_BlastIOContext.html#BlastIOContext::fields" data-lang-entity="member_variable">fields</a> and not <a href="class_BlastIOContext.html#BlastIOContext::fieldsAsStrings" data-lang-entity="member_variable">fieldsAsStrings</a> to stay
+"standards"-compliant. Also only <a href="class_BlastIOContext.html#BlastIOContext::fields" data-lang-entity="member_variable">fields</a> has an influence on
+the values printed in the match lines.</p><h5>Matches</h5><p>Please note that BLAST is 1-indexed and considers the last position
+to be the back, not the end, i.e. last one included in a match/sequence/...,
+not the one behind it (as SeqAn does); this functions corrects for both of
+these bahaviours, so you don't have to. Additionally, based on the context's
+<a href="class_BlastIOContext.html#BlastIOContext::blastProgram" data-lang-entity="member_variable">blastProgram</a>, positions are transformed back to DNA space, if
+translation has taken place.
+Please note also that query and subject IDs are truncated at the first space
+character in NCBI BLAST, this is also done by default here.</p><p>By setting the context's <a href="class_BlastIOContext.html#BlastIOContext::fields" data-lang-entity="member_variable">fields</a> meber you can specify which columns you
+wish to print (if you don't want defaults); the same conversions mentioned above will me made. See
+<a href="enum_BlastMatchField_58_58Enum.html" data-lang-entity="enum">BlastMatchField::Enum</a> for a list of fields available. If the context's legacy-flag is set
+(<a href="class_BlastIOContext.html#BlastIOContext::legacyFormat" data-lang-entity="member_variable">legacyFormat</a>) the <a href="class_BlastIOContext.html#BlastIOContext::fields" data-lang-entity="member_variable">fields</a>
+variable is ignored.</p><p>Many guides recommend always printing the default 12 columns and using only
+additional columns with additional (custom) data.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  <h4>Thrown Exceptions</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>IOError</code></th>
+        <td>On low-level I/O errors.</td>
+    </tr>
+    
+  </table>
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  <h4>See Also</h4>
+  <ul>
+    
+    <li><a href="class_BlastIOContext.html" data-lang-entity="class">BlastIOContext</a></li>
+    
+    <li><a href="class_BlastRecord.html" data-lang-entity="class">BlastRecord</a></li>
+    
+  </ul>
+  
+  
+
+</div>
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class BlastTabularFileOut
+ * 
+ * @extends FormattedFileOut
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief FormattedFileOut abstraction for @link BlastTabular @endlink
+ * 
+ * @signature template &lt;typename TBlastIOContext&gt; using BlastTabularFileOut =
+ *            FormattedFile&lt;BlastTabular, Output, TBlastIOContext&gt;;
+ * 
+ * This is a @link FormattedFile @endlink specialization for writing @link
+ * BlastTabular @endlink formats. For details on how to influence the writing of
+ * files and how to differentiate between the tabular format with and without
+ * comment lines, see @link BlastIOContext @endlink. Please note that you have
+ * to specify the type of the context as a template parameter to
+ * BlastTabularFileOut, see the example below.
+ * 
+ * @section Overview
+ * 
+ * &lt;ul&gt; &lt;li&gt; open @link BlastTabularFileOut @endlink,&lt;/li&gt; &lt;li&gt; configure the
+ * @link BlastIOContext @endlink &lt;/li&gt; &lt;li&gt; @link
+ * BlastTabularFileOut#writeHeader @endlink &lt;/li&gt; &lt;li&gt; @link
+ * BlastTabularFileOut#writeRecord @endlink repeated up to n times&lt;/li&gt; &lt;li&gt;
+ * @link BlastTabularFileOut#writeFooter @endlink &lt;/li&gt; &lt;/ul&gt;
+ * 
+ * The following members of the context have to be defined before writing: &lt;ul&gt;
+ * &lt;li&gt; @link BlastIOContext::blastProgram @endlink (unless fixed at compile-
+ * time)&lt;/li&gt; &lt;li&gt; @link BlastIOContext::scoringScheme @endlink&lt;/li&gt; &lt;li&gt; @link
+ * BlastIOContext::dbName @endlink&lt;/li&gt; &lt;li&gt; @link BlastIOContext::dbTotalLength
+ * @endlink&lt;/li&gt; &lt;li&gt; @link BlastIOContext::dbNumberOfSeqs @endlink&lt;/li&gt; &lt;/ul&gt;
+ * 
+ * For a detailed example have a look at the &lt;a
+ * href=&#34;http://seqan.readthedocs.io/en/develop/Tutorial/BlastIO.html&#34;&gt;Blast IO
+ * tutorial&lt;/a&gt;.
+ * 
+ * Strictly speaking the &lt;tt&gt;writeHeader()&lt;/tt&gt; call is not required for
+ * BlastTabular, but for consistency with other (blast) formats and the read
+ * interface it is recommended.
+ * 
+ * @see BlastRecord
+ * 
+ * @fn BlastTabularFileOut#writeRecord
+ * 
+ * @headerfile seqan/blast.h
+ * 
+ * @brief Write a @link BlastRecord @endlink including it&#39;s @link BlastMatch
+ *        @endlinkes and possible comment lines to a file.
+ * 
+ * @signature void writeRecord(blastTabularOut, blastRecord);
+ * 
+ * @param[in,out] blastTabularOut A @link BlastTabularFileOut @endlink
+ *                                formattedFile.
+ * @param[in] blastRecord The @link BlastRecord @endlink you wish to print.
+ * 
+ * @throw IOError On low-level I/O errors.
+ * 
+ * @section Remarks
+ * 
+ * This function first writes the comment lines of the record and then writes
+ * match lines for every match in it. If the context&#39;s @link
+ * BlastIOContext::tabularSpec @endlink is set to BlastTabularSpec::NO_COMMENTS,
+ * no comment lines will be written and this function immediately prints the
+ * match lines.
+ * 
+ * @subsection Comment lines
+ * 
+ * The contents of the comment lines is largely defined by the members of the
+ * context.
+ * 
+ * If the context&#39;s @link BlastIOContext::versionString @endlink is set, this
+ * will be written, otherwise a stanadard version string is generated.
+ * 
+ * The context&#39;s @link BlastIOContext::dbName @endlink is printed as the
+ * database name / path.
+ * 
+ * If either the context&#39;s @link BlastIOContext::fields @endlink or @link
+ * BlastIOContext::fieldsAsStrings @endlink member are specified these will be
+ * printed as column labels. If both are specified than @link
+ * BlastIOContext::fieldsAsStrings @endlink is given preference. Please note
+ * that it is recommended to use @link BlastIOContext::fields @endlink and not
+ * @link BlastIOContext::fieldsAsStrings @endlink to stay &#34;standards&#34;-compliant.
+ * Also only @link BlastIOContext::fields @endlink has an influence on the
+ * values printed in the match lines.
+ * 
+ * @subsection Matches
+ * 
+ * Please note that BLAST is 1-indexed and considers the last position to be the
+ * back, not the end, i.e. last one included in a match/sequence/..., not the
+ * one behind it (as SeqAn does); this functions corrects for both of these
+ * bahaviours, so you don&#39;t have to. Additionally, based on the context&#39;s @link
+ * BlastIOContext::blastProgram @endlink, positions are transformed back to DNA
+ * space, if translation has taken place. Please note also that query and
+ * subject IDs are truncated at the first space character in NCBI BLAST, this is
+ * also done by default here.
+ * 
+ * By setting the context&#39;s @link BlastIOContext::fields @endlink meber you can
+ * specify which columns you wish to print (if you don&#39;t want defaults); the
+ * same conversions mentioned above will me made. See @link
+ * BlastMatchField::Enum @endlink for a list of fields available. If the
+ * context&#39;s legacy-flag is set (@link BlastIOContext::legacyFormat @endlink)
+ * the @link BlastIOContext::fields @endlink variable is ignored.
+ * 
+ * Many guides recommend always printing the default 12 columns and using only
+ * additional columns with additional (custom) data.
+ * 
+ * @see BlastRecord
+ * @see BlastIOContext
+ * 
+ * @fn BlastTabularFileOut#writeHeader
+ * 
+ * @headerfile seqan/blast.h
+ * 
+ * @brief Write the header (top-most section) of a BlastTabular file (this is a
+ *        NOOP).
+ * 
+ * @signature void writeHeader(blastTabularOut);
+ * 
+ * @param[in,out] blastTabularOut A @link BlastTabularFileOut @endlink
+ *                                formattedFile.
+ * 
+ * @throw IOError On low-level I/O errors.
+ * 
+ * @see BlastRecord
+ * @see BlastIOContext
+ * 
+ * @fn BlastTabularFileOut#writeFooter
+ * 
+ * @headerfile seqan/blast.h
+ * 
+ * @brief Write the footer of a BlastTabular file.
+ * 
+ * @signature void writeFooter(blastTabularOut);
+ * 
+ * @param[in,out] blastTabularOut A @link BlastTabularFileOut @endlink
+ *                                formattedFile.
+ * 
+ * @throw IOError On low-level I/O errors.
+ * 
+ * @see BlastRecord
+ * @see BlastIOContext
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

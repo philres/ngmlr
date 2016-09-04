@@ -1,0 +1,944 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_blasttabularll" data-page="BlastTabularLL">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>BlastTabularLL - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>BlastTabularLL<div><div>Low-Level support for Blast Tabular file formats</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/blast.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>typedef Tag&lt;BlastTabularLL_&gt; BlastTabularLL;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastTabularLL%23onMatch" title="#BlastTabularLL#onMatch (interface function)" data-lang-entity="interface_function">bool onMatch(stream, blastTabularLL)</a></code></span>
+    <span class="summary_desc"><div>Returns whether the iterator is on the beginning of a match line.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastTabularLL%23readMatch" title="#BlastTabularLL#readMatch (interface function)" data-lang-entity="interface_function">void readMatch(stream, blastTabularLL, args ...);</a></code></span>
+    <span class="summary_desc"><div>Low-level BlastTabular file reading.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastTabularLL%23skipUntilMatch" title="#BlastTabularLL#skipUntilMatch (interface function)" data-lang-entity="interface_function">void skipUntilMatch(stream, blastTabularLL);</a></code></span>
+    <span class="summary_desc"><div>Skip arbitrary number of comment lines until the beginning of a match is reached.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#BlastTabularLL%23writeMatch" title="#BlastTabularLL#writeMatch (interface function)" data-lang-entity="interface_function">void writeMatch(stream, blastTabularLL, columns...)</a></code></span>
+    <span class="summary_desc"><div>Low-level file-writing for blast tabular formats</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>There are three blast format related tags in SeqAn:</p><p><li> <a href="class_BlastReport.html" data-lang-entity="class">BlastReport</a> with the FormattedFile output specialization <a href="specialization_BlastReportFileOut.html" data-lang-entity="specialization">BlastReportFileOut</a></li>
+<li> <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a> with the FormattedFile output and input specializations
+<a href="specialization_BlastTabularFileOut.html" data-lang-entity="specialization">BlastTabularFileOut</a> and <a href="specialization_BlastTabularFileIn.html" data-lang-entity="specialization">BlastTabularFileIn</a></li>
+<li> <a href="class_BlastTabularLL.html" data-lang-entity="class">BlastTabularLL</a> which provides light-weight, but very basic tabular IO </li></p><p>This is the third tag, it offers <b>low-level</b> support for reading and writing NCBI Blast compatible
+<b>tabular</b> files, <b>without comment lines</b> -- although files with comment lines can be read if the comment
+lines are skipped. These are the formats that are available in legacy Blast
+(<tt>blastall</tt> executable) with the parameters <tt>-m 8</tt> and <tt>-m 9</tt> (with comment lines)
+and in BLAST+ (<tt>blastx</tt>, <tt>blastn</tt>...) with
+the parameters <tt>-outfmt 6</tt> and <tt>-outfmt 7</tt> respectively.</p><p>For most situations <a href="class_BlastTabular.html" data-lang-entity="class">BlastTabular</a> is more adequate. Use this tag's interface only for quick parsing
+of matches in a file, e.g counting and filtering purposes. This interface does not offer a FormattedFile
+abstraction and no convenience data structures, it does no transformations on the data.</p><p>The reference Blast implementation used for developing the SeqAn support is NCBI Blast+ 2.2.26 and
+NCBI Blast 2.2.26 for the legacy support.</p><h3>Input example</h3><p>The following example program extracts the list of matching query-subject-pairs from a blast tabular file and prints
+it to std::out:</p><div data-src-path="demos/blast/blast_in_lowlevel.cpp"><pre class="code">#include &lt;iostream&gt;
+#include &lt;seqan/basic.h&gt;
+#ifndef STDLIB_VS
+#include &lt;seqan/blast.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    std::string inPath = std::string(SEQAN_PATH_TO_ROOT()) + "/tests/blast/plus_comments_defaults.m9";
+
+    std::ifstream fin(toCString(inPath), std::ios_base::in | std::ios_base::binary);
+    auto fit = directionIterator(fin, Input());
+
+    typedef std::pair&lt;std::string, std::string&gt; THsp;
+    std::vector&lt;THsp&gt; hsps;
+
+    while (!atEnd(fit))
+    {
+        // skip any comment lines
+        if (!onMatch(fit, BlastTabularLL()))
+        {
+            skipUntilMatch(fit, BlastTabularLL());
+            if (atEnd(fit))
+                break;
+        }
+
+        // resize output list
+        resize(hsps, length(hsps)+1);
+
+        // read only the first two fields into our variables
+        readMatch(fit, BlastTabularLL(), back(hsps).first, back(hsps).second);
+    }
+
+    std::sort(std::begin(hsps), std::end(hsps));
+    std::unique(std::begin(hsps), std::end(hsps));
+
+    for (THsp const &amp; hsp : hsps)
+        std::cout &lt;&lt; '(' &lt;&lt; hsp.first &lt;&lt; ", " &lt;&lt; hsp.second &lt;&lt; ")\n";
+
+    return 0;
+}
+#else
+int main()
+{
+    std::cerr &lt;&lt; "Demo not run, because of a bug in Microsoft Visual Studio 2015.\n";
+    return 0;
+}
+#endif</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/blast/blast_in_lowlevel.cpp" target="_top">demos/blast/blast_in_lowlevel.cpp</a></div></div><p>The output looks like this:</p><pre class="code" data-src-path="demos/blast/blast_in_lowlevel.cpp.stdout_">(SHAA004TF, sp|P03831|INBD_SHIDY)
+(SHAA004TF, sp|P0A915|OMPW_ECOLI)
+(SHAA004TF, sp|P0A916|OMPW_SHIFL)
+(SHAA004TF, sp|P0CF25|INSB1_ECOLI)
+(SHAA004TF, sp|P0CF26|INSB2_ECOLI)
+(SHAA004TF, sp|P0CF27|INSB3_ECOLI)
+(SHAA004TF, sp|P0CF28|INSB5_ECOLI)
+(SHAA004TF, sp|P0CF29|INSB6_ECOLI)
+(SHAA004TF, sp|P0CF30|INSB8_ECOLI)
+(SHAA004TF, sp|P0CF31|INSB_ECOLX)
+(SHAA004TF, sp|P17266|OMPW_VIBCH)
+(SHAA004TF, sp|P19765|INSB_SHIFL)
+(SHAA004TF, sp|P19766|INSB_SHISO)
+(SHAA004TF, sp|P57998|INSB4_ECOLI)
+(SHAA004TF, sp|P59843|INSB_HAEDU)
+(SHAA004TF, sp|Q8Z7E2|OMPW_SALTI)
+(SHAA004TF, sp|Q8ZP50|OMPW_SALTY)
+(SHAA004TR, sp|Q0HGZ8|META_SHESM)
+(SHAA004TR, sp|Q0HTA5|META_SHESR)
+</pre></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="BlastTabularLL#onMatch" class="signature first" data-lang-entity="interface_function">
+      <code>bool onMatch(stream, blastTabularLL)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Returns whether the iterator is on the beginning of a match line.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">iter</code>
+            
+        
+      </th>
+      <td>An input iterator over a stream or any fwd-iterator over a string.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">blastTabularLL</code>
+            
+        
+      </th>
+      <td>The <a href="class_BlastTabularLL.html" data-lang-entity="class">BlastTabularLL</a> tag.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>bool</code></th>
+        <td>true or false</td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  <h4>Thrown Exceptions</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>IOError</code></th>
+        <td>On low-level I/O errors.</td>
+    </tr>
+    
+  </table>
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastTabularLL#readMatch" class="signature" data-lang-entity="interface_function">
+      <code>void readMatch(stream, blastTabularLL, args ...);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Low-level BlastTabular file reading.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">stream</code>
+            
+        
+      </th>
+      <td>An input iterator over a stream or any fwd-iterator over a string.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">blastTabularLL</code>
+            
+        
+      </th>
+      <td>The <a href="class_BlastTabularLL.html" data-lang-entity="class">BlastTabularLL</a> tag.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">args</code>
+            
+        
+      </th>
+      <td>Arbitrary typed variables able to hold the fields.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>Use this signature only if you do not or cannot use <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>es. You can specify any number of arguments that are expected
+to be able to hold the values in the columns read, i.e. if you pass a
+double as argument and the value in the column cannot be successfully cast
+to double, an exception will be thrown. If you want to be on the safe side,
+you can pass CharStrings and evaluate them in another way.</p><p>You may specify less columns than are available in the file, all but the first
+n will be discarded.</p><p>No transformations are made on the data, e.g. the positions are still
+one-indexed and flipped for reverse strand matches.</p><p>See <a href="class_BlastTabularLL.html" data-lang-entity="class">BlastTabularLL</a> for an example of low-level IO.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  <h4>Thrown Exceptions</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>IOError</code></th>
+        <td>On low-level I/O errors.</td>
+    </tr>
+    
+    <tr>
+        <th><code>ParseError</code></th>
+        <td>On high-level file format errors.</td>
+    </tr>
+    
+  </table>
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastTabularLL#skipUntilMatch" class="signature" data-lang-entity="interface_function">
+      <code>void skipUntilMatch(stream, blastTabularLL);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Skip arbitrary number of comment lines until the beginning of a match is reached.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">stream</code>
+            
+        
+      </th>
+      <td>An input iterator over a stream or any fwd-iterator over a string.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">blastTabularLL</code>
+            
+        
+      </th>
+      <td>The <a href="class_BlastTabularLL.html" data-lang-entity="class">BlastTabularLL</a> tag.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>This is also part of the low-level IO and not required if you use readRecord.
+Call this function whenever you are not <a href="class_BlastTabularLL.html#BlastTabularLL#onMatch" data-lang-entity="interface_function">onMatch</a>, but want to be, e.g. to
+<a href="class_BlastTabularLL.html#BlastTabularLL#readMatch" data-lang-entity="interface_function">readMatch</a>.</p><p>Since it is legal for files to end with comment lines, this function does not throw if end-of-file is reached.
+You need to check that after calling.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  <h4>Thrown Exceptions</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>IOError</code></th>
+        <td>On low-level I/O errors.</td>
+    </tr>
+    
+    <tr>
+        <th><code>ParseError</code></th>
+        <td>On high-level file format errors.</td>
+    </tr>
+    
+  </table>
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="BlastTabularLL#writeMatch" class="signature" data-lang-entity="interface_function">
+      <code>void writeMatch(stream, blastTabularLL, columns...)</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Low-level file-writing for blast tabular formats</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">stream</code>
+            
+        
+      </th>
+      <td>The file to write to (FILE, fstream, <a href="concept_OutputStreamConcept.html" data-lang-entity="concept">OutputStreamConcept</a> ...).</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">blastTabularLL</code>
+            
+        
+      </th>
+      <td>The <a href="class_BlastTabularLL.html" data-lang-entity="class">BlastTabularLL</a> tag.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">columns</code>
+            
+        
+      </th>
+      <td>... Any number of printable parameters.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div><h4>Remarks</h4><p>This is a very leight-weight alternative to <a href="specialization_BlastTabularFileOut.html#BlastTabularFileOut#writeRecord" data-lang-entity="interface_function">writeRecord</a>. It doesn't require
+<a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>es, <a href="class_BlastRecord.html" data-lang-entity="class">BlastRecord</a>s or the use of <a href="class_FormattedFile.html" data-lang-entity="class">FormattedFile</a>.
+It supports an arbitrary amount of and arbitrary typed columns to be printed.</p><p>Use this only if you do not require comment lines and you are prepared to do all transformations on the data
+yourself, i.e. this function does none of the match adjustments mentioned in
+<a href="specialization_BlastTabularFileOut.html#BlastTabularFileOut#writeRecord" data-lang-entity="interface_function">writeRecord</a>.</p></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  <h4>Thrown Exceptions</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>IOError</code></th>
+        <td>On low-level I/O errors.</td>
+    </tr>
+    
+  </table>
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class BlastTabularLL
+ * 
+ * @headerfile &lt;seqan/blast.h&gt;
+ * 
+ * @brief Low-Level support for Blast Tabular file formats
+ * 
+ * @signature typedef Tag&lt;BlastTabularLL_&gt; BlastTabularLL;
+ * 
+ * There are three blast format related tags in SeqAn:
+ * 
+ * &lt;li&gt; @link BlastReport @endlink with the FormattedFile output specialization
+ * @link BlastReportFileOut @endlink&lt;/li&gt; &lt;li&gt; @link BlastTabular @endlink with
+ * the FormattedFile output and input specializations @link BlastTabularFileOut
+ * @endlink and @link BlastTabularFileIn @endlink&lt;/li&gt; &lt;li&gt; @link BlastTabularLL
+ * @endlink which provides light-weight, but very basic tabular IO &lt;/li&gt;
+ * 
+ * This is the third tag, it offers &lt;b&gt;low-level&lt;/b&gt; support for reading and
+ * writing NCBI Blast compatible &lt;b&gt;tabular&lt;/b&gt; files, &lt;b&gt;without comment
+ * lines&lt;/b&gt; -- although files with comment lines can be read if the comment
+ * lines are skipped. These are the formats that are available in legacy Blast
+ * (&lt;tt&gt;blastall&lt;/tt&gt; executable) with the parameters &lt;tt&gt;-m 8&lt;/tt&gt; and &lt;tt&gt;-m
+ * 9&lt;/tt&gt; (with comment lines) and in BLAST+ (&lt;tt&gt;blastx&lt;/tt&gt;,
+ * &lt;tt&gt;blastn&lt;/tt&gt;...) with the parameters &lt;tt&gt;-outfmt 6&lt;/tt&gt; and &lt;tt&gt;-outfmt
+ * 7&lt;/tt&gt; respectively.
+ * 
+ * For most situations @link BlastTabular @endlink is more adequate. Use this
+ * tag&#39;s interface only for quick parsing of matches in a file, e.g counting and
+ * filtering purposes. This interface does not offer a FormattedFile abstraction
+ * and no convenience data structures, it does no transformations on the data.
+ * 
+ * The reference Blast implementation used for developing the SeqAn support is
+ * NCBI Blast+ 2.2.26 and NCBI Blast 2.2.26 for the legacy support.
+ * 
+ * @section Input example
+ * 
+ * The following example program extracts the list of matching query-subject-
+ * pairs from a blast tabular file and prints it to std::out:
+ * 
+ * @include demos/blast/blast_in_lowlevel.cpp
+ * 
+ * The output looks like this:
+ * 
+ * @include demos/blast/blast_in_lowlevel.cpp.stdout_
+ * 
+ * 
+ * 
+ * @fn BlastTabularLL#onMatch
+ * 
+ * @headerfile seqan/blast.h
+ * 
+ * @brief Returns whether the iterator is on the beginning of a match line.
+ * 
+ * @signature bool onMatch(stream, blastTabularLL)
+ * 
+ * @param[in] iter An input iterator over a stream or any fwd-iterator over a
+ *                 string.
+ * @param[in] blastTabularLL The @link BlastTabularLL @endlink tag.
+ * 
+ * @return bool true or false
+ * 
+ * @throw IOError On low-level I/O errors.
+ * 
+ * @fn BlastTabularLL#skipUntilMatch
+ * 
+ * @headerfile seqan/blast.h
+ * 
+ * @brief Skip arbitrary number of comment lines until the beginning of a match
+ *        is reached.
+ * 
+ * @signature void skipUntilMatch(stream, blastTabularLL);
+ * 
+ * @param[in,out] stream An input iterator over a stream or any fwd-iterator
+ *                       over a string.
+ * @param[in] blastTabularLL The @link BlastTabularLL @endlink tag.
+ * 
+ * @throw IOError On low-level I/O errors.
+ * @throw ParseError On high-level file format errors.
+ * 
+ * @section Remarks
+ * 
+ * This is also part of the low-level IO and not required if you use readRecord.
+ * Call this function whenever you are not @link BlastTabularLL#onMatch
+ * @endlink, but want to be, e.g. to @link BlastTabularLL#readMatch @endlink.
+ * 
+ * Since it is legal for files to end with comment lines, this function does not
+ * throw if end-of-file is reached. You need to check that after calling.
+ * 
+ * @fn BlastTabularLL#readMatch
+ * 
+ * @headerfile seqan/blast.h
+ * 
+ * @brief Low-level BlastTabular file reading.
+ * 
+ * @signature void readMatch(stream, blastTabularLL, args ...);
+ * 
+ * @param[in,out] stream An input iterator over a stream or any fwd-iterator
+ *                       over a string.
+ * @param[in] blastTabularLL The @link BlastTabularLL @endlink tag.
+ * @param[out] args Arbitrary typed variables able to hold the fields.
+ * 
+ * @throw IOError On low-level I/O errors.
+ * @throw ParseError On high-level file format errors.
+ * 
+ * @section Remarks
+ * 
+ * Use this signature only if you do not or cannot use @link BlastMatch
+ * @endlinkes. You can specify any number of arguments that are expected to be
+ * able to hold the values in the columns read, i.e. if you pass a double as
+ * argument and the value in the column cannot be successfully cast to double,
+ * an exception will be thrown. If you want to be on the safe side, you can pass
+ * CharStrings and evaluate them in another way.
+ * 
+ * You may specify less columns than are available in the file, all but the
+ * first n will be discarded.
+ * 
+ * No transformations are made on the data, e.g. the positions are still one-
+ * indexed and flipped for reverse strand matches.
+ * 
+ * See @link BlastTabularLL @endlink for an example of low-level IO.
+ * 
+ * @fn BlastTabularLL#writeMatch
+ * 
+ * @headerfile seqan/blast.h
+ * 
+ * @brief Low-level file-writing for blast tabular formats
+ * 
+ * @signature void writeMatch(stream, blastTabularLL, columns...)
+ * 
+ * @param[in,out] stream The file to write to (FILE, fstream, @link
+ *                       OutputStreamConcept @endlink ...).
+ * @param[in] blastTabularLL The @link BlastTabularLL @endlink tag.
+ * @param[in] columns ... Any number of printable parameters.
+ * 
+ * @throw IOError On low-level I/O errors.
+ * 
+ * @section Remarks
+ * 
+ * This is a very leight-weight alternative to @link
+ * BlastTabularFileOut#writeRecord @endlink. It doesn&#39;t require @link BlastMatch
+ * @endlinkes, @link BlastRecord @endlinks or the use of @link FormattedFile
+ * @endlink. It supports an arbitrary amount of and arbitrary typed columns to
+ * be printed.
+ * 
+ * Use this only if you do not require comment lines and you are prepared to do
+ * all transformations on the data yourself, i.e. this function does none of the
+ * match adjustments mentioned in @link BlastTabularFileOut#writeRecord
+ * @endlink.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

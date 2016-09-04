@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_typedef_pam40" data-page="Pam40">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Pam40 - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="typedef" data-pimped="true">
+  <a href="page_LanguageEntities.html#typedef">Typedef</a> <span>Pam40<div><div>PAM40 scoring matrix.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/score.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>typedef Score&lt;int, ScoreMatrix&lt;AminoAcid, ScoreSpecPam40&gt; &gt; Pam40;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+
+<h2>Overview</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><pre class="code" data-src-path="None">A     6
+B    -3   6
+C    -6 -11   9
+D    -3   6 -12   7
+E    -2   2 -12   3   7
+F    -7  -9 -11 -13 -12   9
+G    -1  -2  -8  -3  -3  -8   6
+H    -6  -1  -7  -3  -4  -5  -8   9
+I    -4  -5  -5  -6  -5  -2  -9  -8   8
+J    -5  -7  -9  -9  -7  -2  -9  -7   4   4
+K    -6  -2 -12  -4  -4 -12  -6  -5  -5  -6   6
+L    -5  -8 -13 -11  -8  -2  -9  -5  -1   3  -7   7
+M    -4  -8 -12  -9  -6  -3  -7  -9   0   1  -1   1  11
+N    -3   6  -9   2  -1  -8  -2   1  -4  -5   0  -6  -7   7
+O    -3  -4  -8  -5  -4  -7  -4  -4  -4  -5  -4  -5  -4  -3  -4
+P    -1  -6  -7  -7  -5  -9  -5  -3  -7  -7  -6  -6  -7  -5  -4   8
+Q    -3  -2 -12  -2   2 -11  -6   1  -7  -6  -2  -4  -3  -3  -4  -2   8
+R    -6  -6  -7  -9  -8  -8  -8  -1  -5  -7   1  -8  -3  -5  -5  -3  -1   8
+S     0  -1  -2  -3  -4  -6  -1  -5  -6  -7  -3  -7  -5   0  -2  -1  -4  -2   6
+T     0  -2  -7  -4  -5  -8  -5  -6  -2  -4  -2  -6  -3  -1  -3  -3  -5  -5   1   7
+U    -3  -4  -8  -5  -4  -7  -4  -4  -4  -5  -4  -5  -4  -3  -4  -4  -4  -5  -2  -3  -4
+V    -2  -7  -5  -7  -6  -7  -5  -6   2   0  -8  -2  -1  -7  -4  -5  -6  -7  -5  -2  -4   7
+W   -12  -9 -14 -13 -15  -4 -13  -6 -12  -9 -10  -5 -11  -7  -9 -12 -11  -1  -4 -11  -9 -14  13
+Y    -7  -6  -3 -10  -8   2 -12  -3  -5  -6  -8  -6 -10  -4  -7 -12 -10  -9  -6  -6  -7  -6  -4  10
+Z    -2   1 -12   2   6 -12  -4   0  -5  -6  -3  -6  -4  -2  -4  -3   6  -3  -4  -5  -4  -6 -13  -8   6
+X    -3  -4  -8  -5  -4  -7  -4  -4  -4  -5  -4  -5  -4  -3  -4  -4  -4  -5  -2  -3  -4  -4  -9  -7  -4  -4
+*   -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15   1
+
+      A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   Y   Z   X   *</pre></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @typedef Pam40
+ * 
+ * @headerfile &lt;seqan/score.h&gt;
+ * 
+ * @brief PAM40 scoring matrix.
+ * 
+ * @signature typedef Score&lt;int, ScoreMatrix&lt;AminoAcid, ScoreSpecPam40&gt; &gt; Pam40;
+ * 
+ * @code{.txt}
+ * A     6
+ * B    -3   6
+ * C    -6 -11   9
+ * D    -3   6 -12   7
+ * E    -2   2 -12   3   7
+ * F    -7  -9 -11 -13 -12   9
+ * G    -1  -2  -8  -3  -3  -8   6
+ * H    -6  -1  -7  -3  -4  -5  -8   9
+ * I    -4  -5  -5  -6  -5  -2  -9  -8   8
+ * J    -5  -7  -9  -9  -7  -2  -9  -7   4   4
+ * K    -6  -2 -12  -4  -4 -12  -6  -5  -5  -6   6
+ * L    -5  -8 -13 -11  -8  -2  -9  -5  -1   3  -7   7
+ * M    -4  -8 -12  -9  -6  -3  -7  -9   0   1  -1   1  11
+ * N    -3   6  -9   2  -1  -8  -2   1  -4  -5   0  -6  -7   7
+ * O    -3  -4  -8  -5  -4  -7  -4  -4  -4  -5  -4  -5  -4  -3  -4
+ * P    -1  -6  -7  -7  -5  -9  -5  -3  -7  -7  -6  -6  -7  -5  -4   8
+ * Q    -3  -2 -12  -2   2 -11  -6   1  -7  -6  -2  -4  -3  -3  -4  -2   8
+ * R    -6  -6  -7  -9  -8  -8  -8  -1  -5  -7   1  -8  -3  -5  -5  -3  -1   8
+ * S     0  -1  -2  -3  -4  -6  -1  -5  -6  -7  -3  -7  -5   0  -2  -1  -4  -2   6
+ * T     0  -2  -7  -4  -5  -8  -5  -6  -2  -4  -2  -6  -3  -1  -3  -3  -5  -5   1   7
+ * U    -3  -4  -8  -5  -4  -7  -4  -4  -4  -5  -4  -5  -4  -3  -4  -4  -4  -5  -2  -3  -4
+ * V    -2  -7  -5  -7  -6  -7  -5  -6   2   0  -8  -2  -1  -7  -4  -5  -6  -7  -5  -2  -4   7
+ * W   -12  -9 -14 -13 -15  -4 -13  -6 -12  -9 -10  -5 -11  -7  -9 -12 -11  -1  -4 -11  -9 -14  13
+ * Y    -7  -6  -3 -10  -8   2 -12  -3  -5  -6  -8  -6 -10  -4  -7 -12 -10  -9  -6  -6  -7  -6  -4  10
+ * Z    -2   1 -12   2   6 -12  -4   0  -5  -6  -3  -6  -4  -2  -4  -3   6  -3  -4  -5  -4  -6 -13  -8   6
+ * X    -3  -4  -8  -5  -4  -7  -4  -4  -4  -5  -4  -5  -4  -3  -4  -4  -4  -5  -2  -3  -4  -4  -9  -7  -4  -4
+ * *   -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15 -15   1
+ * 
+ *       A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   Y   Z   X   *
+ * @endcode
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

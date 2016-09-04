@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="page_demomaximaluniquematches" data-page="DemoMaximalUniqueMatches">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Maximal Unique Matches - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<div id="filecontents">
+<h1 data-lang-entity="page" data-pimped="true">
+  <a href="page_LanguageEntities.html#page">Page</a> <span>Maximal Unique Matches</span>
+</h1>
+
+<div class="docstring">
+  <div class="discussion">
+    <!-- @brief -->
+    <div>Example for using the Mums Iterator.</div>
+    
+    <!-- paragraphs -->
+    
+<div><p>Given a set of sequences, a unique match is a match that occurs exactly once in each sequence. A maximal unique match
+(MUM) is a unique match that is not part of any longer unique match. The following example demonstrates how to iterate
+over all MUMs and output them.</p><div data-src-path="demos/dox/index/mums.cpp"><pre class="code">///A tutorial about finding Mums.
+#include &lt;iostream&gt;
+#include &lt;seqan/index.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    // We begin with a StringSet that stores multiple strings.
+    StringSet&lt;String&lt;char&gt; &gt; mySet;
+    resize(mySet, 3);
+    mySet[0] = "SeqAn is a library for sequence analysis.";
+    mySet[1] = "The String class is the fundamental sequence type in SeqAn.";
+    mySet[2] = "Subsequences can be handled with SeqAn's Segment class.";
+
+    // Then we create an Index of this StringSet.
+    typedef Index&lt;StringSet&lt;String&lt;char&gt; &gt; &gt; TMyIndex;
+    TMyIndex myIndex(mySet);
+
+    // To find maximal unique matches (Mums), we use the Mums Iterator and set the minimum MUM length to 3.
+    Iterator&lt;TMyIndex, Mums&gt;::Type myMUMiterator(myIndex, 3);
+    String&lt;SAValue&lt;TMyIndex&gt;::Type&gt; occs;
+
+    while (!atEnd(myMUMiterator))
+    {
+        // A multiple match can be represented by the positions it occurs at in every sequence and its length.
+        // getOccurrences@ returns an unordered sequence of pairs (seqNo,seqOfs) the match occurs at.
+        occs = getOccurrences(myMUMiterator);
+        //To order them ascending according seqNo we use orderOccurrences.
+        orderOccurrences(occs);
+
+        for (unsigned i = 0; i &lt; length(occs); ++i)
+            std::cout &lt;&lt; getValueI2(occs[i]) &lt;&lt; ", ";
+
+        // repLength returns the length of the match.
+        std::cout &lt;&lt; repLength(myMUMiterator) &lt;&lt; "   ";
+
+        // The match string itself can be determined with representative.
+        std::cout &lt;&lt; "\t\"" &lt;&lt; representative(myMUMiterator) &lt;&lt; '\"' &lt;&lt; std::endl;
+
+        ++myMUMiterator;
+    }
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/index/mums.cpp" target="_top">demos/dox/index/mums.cpp</a></div></div><p>The only maximal matches that occur in all 3 sequences are "SeqAn" and "sequence". They occur exactly once and thus
+are maximal unique matches.</p><pre class="console" data-src-path="None">weese@tanne:~/seqan$ cd demos
+weese@tanne:~/seqan/demos$ make index_mums
+weese@tanne:~/seqan/demos$ ./index_mums
+0, 53, 33, 5    "SeqAn"
+23, 36, 3, 8    "sequence"
+weese@tanne:~/seqan/demos$ *</pre></div>
+
+  </div>
+</div>
+
+<!-- @see -->
+
+</div>
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>@page DemoMaximalUniqueMatches Maximal Unique Matches
+
+@brief Example for using the Mums Iterator.
+
+Given a set of sequences, a unique match is a match that occurs exactly once
+in each sequence. A maximal unique match (MUM) is a unique match that is not
+part of any longer unique match. The following example demonstrates how to
+iterate over all MUMs and output them.
+
+@include demos/dox/index/mums.cpp
+
+The only maximal matches that occur in all 3 sequences are &#34;SeqAn&#34; and
+&#34;sequence&#34;. They occur exactly once and thus are maximal unique matches.
+
+@code{.console}
+weese@tanne:~/seqan$ cd demos
+weese@tanne:~/seqan/demos$ make index_mums
+weese@tanne:~/seqan/demos$ ./index_mums
+0, 53, 33, 5    &#34;SeqAn&#34;
+23, 36, 3, 8    &#34;sequence&#34;
+weese@tanne:~/seqan/demos$ * @endcode
+
+
+</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

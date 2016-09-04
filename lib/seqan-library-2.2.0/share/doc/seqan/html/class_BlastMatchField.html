@@ -1,0 +1,617 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_blastmatchfield" data-page="BlastMatchField">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>BlastMatchField - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>BlastMatchField<div><div>A "meta" datastructure that contains information about members of <a href="class_BlastMatch.html" data-lang-entity="class">BlastMatch</a>es</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      seqan/blast.h
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>template &lt;typename TVoidSpec = void&gt; struct BlastMatchField;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TVoidSpec</a></code></th>
+        <td>An extra spec to prevent global inclusion of statics members (you can safely ignore this)</td>
+    </tr>
+
+</table>
+</div>
+
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+
+<!-- Interface Functions Overview -->
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+  
+
+
+<!-- Member Variable Overview -->
+
+
+
+<div data-lang-entity-container="member_variable">
+<h2 data-lang-entity="member_variable">Member Variable Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatchField%3A%3AcolumnLabels%5B%5D" title="#BlastMatchField::columnLabels[] (interface function)" data-lang-entity="member_variable">
+        static_constexpr_const_std::array&lt;char_const*,45&gt; BlastMatchField::columnLabels[]
+    </a></code></span>
+    <span class="summary_desc"><div>An array of CStrings representing the <b>column label</b> of each possible field; for the
+<a href="class_BlastIOContext.html#BlastIOContext::legacyFormat" data-lang-entity="member_variable">legacyFormat</a>, use <a href="class_BlastMatchField.html#BlastMatchField::legacyColumnLabels" data-lang-entity="member_variable">legacyColumnLabels</a> instead.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatchField%3A%3Adefaults" title="#BlastMatchField::defaults (interface function)" data-lang-entity="member_variable">
+        static_constexpr_std::array&lt;Enum_const,12&gt; BlastMatchField::defaults
+    </a></code></span>
+    <span class="summary_desc"><div>An std::array of <a href="enum_BlastMatchField_58_58Enum.html" data-lang-entity="enum">BlastMatchField::Enum</a> indicating the fields that are default</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatchField%3A%3Adescriptions%5B%5D" title="#BlastMatchField::descriptions[] (interface function)" data-lang-entity="member_variable">
+        static_constexpr_const_std::array&lt;char_const*,45&gt; BlastMatchField::descriptions[]
+    </a></code></span>
+    <span class="summary_desc"><div>An array of CStrings representing the human-readable descriptions of each field</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatchField%3A%3Aimplemented%5B%5D" title="#BlastMatchField::implemented[] (interface function)" data-lang-entity="member_variable">
+        static_constexpr_const_std::array&lt;bool,45&gt; BlastMatchField::implemented[]
+    </a></code></span>
+    <span class="summary_desc"><div>An array of bools revealing whether the Blast I/O module supports printing this field</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatchField%3A%3AlegacyColumnLabels" title="#BlastMatchField::legacyColumnLabels (interface function)" data-lang-entity="member_variable">
+        static_constexpr_char_const_*_const BlastMatchField::legacyColumnLabels
+    </a></code></span>
+    <span class="summary_desc"><div>A single CString representing the <b>column labels</b> of the <a href="class_BlastIOContext.html#BlastIOContext::legacyFormat" data-lang-entity="member_variable">legacyFormat</a>.</div></span>
+  </li>
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#BlastMatchField%3A%3AoptionLabels%5B%5D" title="#BlastMatchField::optionLabels[] (interface function)" data-lang-entity="member_variable">
+        static_constexpr_const_std::array&lt;char_const*,45&gt; BlastMatchField::optionLabels[]
+    </a></code></span>
+    <span class="summary_desc"><div>An array of CStrings representing the command line parameter name of each field</div></span>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>This data structure conveniently gives access to all possible fields used in
+BLAST-compatabile tabular output formats. <a href="enum_BlastMatchField_58_58Enum.html" data-lang-entity="enum">BlastMatchField::Enum</a> is needed to
+specify a custom field composition for a <a href="class_BlastIOContext.html" data-lang-entity="class">BlastIOContext</a>.</p><p>The member variables offer the correct labels for the tabular formats' I/O and strings
+to interact with the user on the command line.</p><p>Please note that for the legacyFormat (<a href="class_BlastIOContext.html#BlastIOContext::legacyFormat" data-lang-entity="member_variable">legacyFormat</a>) specifying or reading custom
+fields is not supported and the columnsLabels will always be printed as
+<a href="class_BlastMatchField.html#BlastMatchField::legacyColumnLabels" data-lang-entity="member_variable">legacyColumnLabels</a>.</p><p><h3>Table overview</h3></p>
+<span style="font-size:90%"><table>
+<tr><th>#</th><th>Enum</th><th>optionLabels</th><th>columnLabels</th><th>descriptions</th><th>implemented</th></tr>
+<tr><td>0</td><td>STD</td><td>std</td><td>query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score</td><td>Default 12 columns (Query Seq-id, Subject Seq-id, Percentage of identical matches, Alignment length, Number of mismatches, Number of gap openings, Start of alignment in query, End of alignment in query, Start of alignment in subject, End of alignment in subject, Expect value, Bit score)</td><td>&#9745;</td></tr>
+<tr><td>1</td><td>Q_SEQ_ID</td><td>qseqid</td><td>query id</td><td>Query Seq-id</td><td>&#9745;</td></tr>
+<tr><td>2</td><td>Q_GI</td><td>qgi</td><td>query gi</td><td>Query GI</td><td>&#9744;</td></tr>
+<tr><td>3</td><td>Q_ACC</td><td>qacc</td><td>query acc.</td><td>Query accesion</td><td>&#9744;</td></tr>
+<tr><td>4</td><td>Q_ACCVER</td><td>qaccver</td><td>query acc.ver</td><td>Query accesion.version</td><td>&#9744;</td></tr>
+<tr><td>5</td><td>Q_LEN</td><td>qlen</td><td>query length</td><td>Query sequence length</td><td>&#9745;</td></tr>
+<tr><td>6</td><td>S_SEQ_ID</td><td>sseqid</td><td>subject id</td><td>Subject Seq-id</td><td>&#9745;</td></tr>
+<tr><td>7</td><td>S_ALL_SEQ_ID</td><td>sallseqid</td><td>subject ids</td><td>All subject Seq-id(s), separated by a ';'</td><td>&#9744;</td></tr>
+<tr><td>8</td><td>S_GI</td><td>sgi</td><td>subject gi</td><td>Subject GI</td><td>&#9744;</td></tr>
+<tr><td>9</td><td>S_ALL_GI</td><td>sallgi</td><td>subject gis</td><td>All subject GIs</td><td>&#9744;</td></tr>
+<tr><td>10</td><td>S_ACC</td><td>sacc</td><td>subject acc.</td><td>Subject accession</td><td>&#9744;</td></tr>
+<tr><td>11</td><td>S_ACCVER</td><td>saccver</td><td>subject acc.ver</td><td>Subject accession.version</td><td>&#9744;</td></tr>
+<tr><td>12</td><td>S_ALLACC</td><td>sallacc</td><td>subject accs.</td><td>All subject accessions</td><td>&#9744;</td></tr>
+<tr><td>13</td><td>S_LEN</td><td>slen</td><td>subject length</td><td>Subject sequence length</td><td>&#9745;</td></tr>
+<tr><td>14</td><td>Q_START</td><td>qstart</td><td>q. start</td><td>Start of alignment in query</td><td>&#9745;</td></tr>
+<tr><td>15</td><td>Q_END</td><td>qend</td><td>q. end</td><td>End of alignment in query</td><td>&#9745;</td></tr>
+<tr><td>16</td><td>S_START</td><td>sstart</td><td>s. start</td><td>Start of alignment in subject</td><td>&#9745;</td></tr>
+<tr><td>17</td><td>S_END</td><td>send</td><td>s. end</td><td>End of alignment in subject</td><td>&#9745;</td></tr>
+<tr><td>18</td><td>Q_SEQ</td><td>qseq</td><td>query seq</td><td>Aligned part of query sequence</td><td>&#9744;</td></tr>
+<tr><td>19</td><td>S_SEQ</td><td>sseq</td><td>subject seq</td><td>Aligned part of subject sequence</td><td>&#9744;</td></tr>
+<tr><td>20</td><td>E_VALUE</td><td>evalue</td><td>evalue</td><td>Expect value</td><td>&#9745;</td></tr>
+<tr><td>21</td><td>BIT_SCORE</td><td>bitscore</td><td>bit score</td><td>Bit score</td><td>&#9745;</td></tr>
+<tr><td>22</td><td>SCORE</td><td>score</td><td>score</td><td>Raw score</td><td>&#9745;</td></tr>
+<tr><td>23</td><td>LENGTH</td><td>length</td><td>alignment length</td><td>Alignment length</td><td>&#9745;</td></tr>
+<tr><td>24</td><td>P_IDENT</td><td>pident</td><td>% identity</td><td>Percentage of identical matches</td><td>&#9745;</td></tr>
+<tr><td>25</td><td>N_IDENT</td><td>nident</td><td>identical</td><td>Number of identical matches</td><td>&#9745;</td></tr>
+<tr><td>26</td><td>MISMATCH</td><td>mismatch</td><td>mismatches</td><td>Number of mismatches</td><td>&#9745;</td></tr>
+<tr><td>27</td><td>POSITIVE</td><td>positive</td><td>positives</td><td>Number of positive-scoring matches</td><td>&#9745;</td></tr>
+<tr><td>28</td><td>GAP_OPEN</td><td>gapopen</td><td>gap opens</td><td>Number of gap openings</td><td>&#9745;</td></tr>
+<tr><td>29</td><td>GAPS</td><td>gaps</td><td>gaps</td><td>Total number of gaps</td><td>&#9745;</td></tr>
+<tr><td>30</td><td>P_POS</td><td>ppos</td><td>% positives</td><td>Percentage of positive-scoring matches</td><td>&#9745;</td></tr>
+<tr><td>31</td><td>FRAMES</td><td>frames</td><td>query/sbjct frames</td><td>Query and subject frames separated by a '/'</td><td>&#9745;</td></tr>
+<tr><td>32</td><td>Q_FRAME</td><td>qframe</td><td>query frame</td><td>Query frame</td><td>&#9745;</td></tr>
+<tr><td>33</td><td>S_FRAME</td><td>sframe</td><td>sbjct frame</td><td>Subject frame</td><td>&#9745;</td></tr>
+<tr><td>34</td><td>BTOP</td><td>btop</td><td>BTOP</td><td>Blast traceback operations (BTOP)</td><td>&#9744;</td></tr>
+<tr><td>35</td><td>S_TAX_IDS</td><td>staxids</td><td>subject tax ids</td><td>unique Subject Taxonomy ID(s), separated by a ';' (in numerical order)</td><td>&#9744;</td></tr>
+<tr><td>36</td><td>S_SCI_NAMES</td><td>sscinames</td><td>subject sci names</td><td>unique Subject Scientific Name(s), separated by a ';'</td><td>&#9744;</td></tr>
+<tr><td>37</td><td>S_COM_NAMES</td><td>scomnames</td><td>subject com names</td><td>unique Subject Common Name(s), separated by a ';'</td><td>&#9744;</td></tr>
+<tr><td>38</td><td>S_BLAST_NAMES</td><td>sblastnames</td><td>subject blast names</td><td>unique Subject Blast Name(s), separated by a ';' (in alphabetical order)</td><td>&#9744;</td></tr>
+<tr><td>39</td><td>S_S_KINGDOMS</td><td>sskingdoms</td><td>subject super kingdoms</td><td>unique Subject Super Kingdom(s), separated by a ';' (in alphabetical order)</td><td>&#9744;</td></tr>
+<tr><td>40</td><td>S_TITLE</td><td>stitle</td><td>subject title</td><td>Subject Title</td><td>&#9744;</td></tr>
+<tr><td>41</td><td>S_ALL_TITLES</td><td>salltitles</td><td>subject titles</td><td>All Subject Title(s), separated by a '<>'</td><td>&#9744;</td></tr>
+<tr><td>42</td><td>S_STRAND</td><td>sstrand</td><td>subject strand</td><td>Subject Strand</td><td>&#9744;</td></tr>
+<tr><td>43</td><td>Q_COV_S</td><td>qcovs</td><td>% subject coverage</td><td>Query Coverage Per Subject</td><td>&#9744;</td></tr>
+<tr><td>45</td><td>Q_COV_HSP</td><td>qcovhsp</td><td>% hsp coverage</td><td>Query Coverage Per HSP</td><td>&#9744;</td></tr>
+</table></span>
+<p>More fields will likely be implemented in the future.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+
+
+
+<!-- Member Typedefs Details -->
+
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+<div class="member_variable_details" data-lang-entity-container="member_variable">
+  <h2 data-lang-entity="member_variable">Member Variables Detail</h2>
+
+  
+  <div class="member_variable_details first">
+    <h3 data-toc="hidden" id="BlastMatchField::columnLabels[]" class="signature first" data-lang-entity="member_variable">
+      <code>static_constexpr_const_std::array&lt;char_const*,45&gt; BlastMatchField::columnLabels[]</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>An array of CStrings representing the <b>column label</b> of each possible field; for the
+<a href="class_BlastIOContext.html#BlastIOContext::legacyFormat" data-lang-entity="member_variable">legacyFormat</a>, use <a href="class_BlastMatchField.html#BlastMatchField::legacyColumnLabels" data-lang-entity="member_variable">legacyColumnLabels</a> instead.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatchField::defaults" class="signature" data-lang-entity="member_variable">
+      <code>static_constexpr_std::array&lt;Enum_const,12&gt; BlastMatchField::defaults</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>An std::array of <a href="enum_BlastMatchField_58_58Enum.html" data-lang-entity="enum">BlastMatchField::Enum</a> indicating the fields that are default</div>
+        
+<div><div data-src-path="None"><pre class="code">static constexpr std::array&lt;Enum const, 12&gt; defaults
+{
+    {
+        Enum::Q_SEQ_ID,
+        Enum::S_SEQ_ID,
+        Enum::P_IDENT,
+        Enum::LENGTH,
+        Enum::MISMATCH,
+        Enum::GAP_OPEN,
+        Enum::Q_START,
+        Enum::Q_END,
+        Enum::S_START,
+        Enum::S_END,
+        Enum::E_VALUE,
+        Enum::BIT_SCORE
+    }
+};</pre></div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatchField::descriptions[]" class="signature" data-lang-entity="member_variable">
+      <code>static_constexpr_const_std::array&lt;char_const*,45&gt; BlastMatchField::descriptions[]</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>An array of CStrings representing the human-readable descriptions of each field</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatchField::implemented[]" class="signature" data-lang-entity="member_variable">
+      <code>static_constexpr_const_std::array&lt;bool,45&gt; BlastMatchField::implemented[]</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>An array of bools revealing whether the Blast I/O module supports printing this field</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatchField::legacyColumnLabels" class="signature" data-lang-entity="member_variable">
+      <code>static_constexpr_char_const_*_const BlastMatchField::legacyColumnLabels</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>A single CString representing the <b>column labels</b> of the <a href="class_BlastIOContext.html#BlastIOContext::legacyFormat" data-lang-entity="member_variable">legacyFormat</a>.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="member_variable_details">
+    <h3 data-toc="hidden" id="BlastMatchField::optionLabels[]" class="signature" data-lang-entity="member_variable">
+      <code>static_constexpr_const_std::array&lt;char_const*,45&gt; BlastMatchField::optionLabels[]</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>An array of CStrings representing the command line parameter name of each field</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class BlastMatchField BlastMatchField
+ * 
+ * @headerfile seqan/blast.h
+ * 
+ * @brief A &#34;meta&#34; datastructure that contains information about members of
+ *        @link BlastMatch @endlinkes
+ * 
+ * @signature template &lt;typename TVoidSpec = void&gt; struct BlastMatchField;
+ * 
+ * @tparam TVoidSpec An extra spec to prevent global inclusion of statics
+ *                   members (you can safely ignore this)
+ * 
+ * This data structure conveniently gives access to all possible fields used in
+ * BLAST-compatabile tabular output formats. @link BlastMatchField::Enum
+ * @endlink is needed to specify a custom field composition for a @link
+ * BlastIOContext @endlink.
+ * 
+ * The member variables offer the correct labels for the tabular formats&#39; I/O
+ * and strings to interact with the user on the command line.
+ * 
+ * Please note that for the legacyFormat (@link BlastIOContext::legacyFormat
+ * @endlink) specifying or reading custom fields is not supported and the
+ * columnsLabels will always be printed as @link
+ * BlastMatchField::legacyColumnLabels @endlink.
+ * 
+ * &lt;h3&gt;Table overview&lt;/h3&gt;
+ * 
+ * @endhtmlonly
+ * &lt;span style=&#34;font-size:90%&#34;&gt;&lt;table&gt;
+ * &lt;tr&gt;&lt;th&gt;#&lt;/th&gt;&lt;th&gt;Enum&lt;/th&gt;&lt;th&gt;optionLabels&lt;/th&gt;&lt;th&gt;columnLabels&lt;/th&gt;&lt;th&gt;descriptions&lt;/th&gt;&lt;th&gt;implemented&lt;/th&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;STD&lt;/td&gt;&lt;td&gt;std&lt;/td&gt;&lt;td&gt;query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score&lt;/td&gt;&lt;td&gt;Default 12 columns (Query Seq-id, Subject Seq-id, Percentage of identical matches, Alignment length, Number of mismatches, Number of gap openings, Start of alignment in query, End of alignment in query, Start of alignment in subject, End of alignment in subject, Expect value, Bit score)&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;Q_SEQ_ID&lt;/td&gt;&lt;td&gt;qseqid&lt;/td&gt;&lt;td&gt;query id&lt;/td&gt;&lt;td&gt;Query Seq-id&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;2&lt;/td&gt;&lt;td&gt;Q_GI&lt;/td&gt;&lt;td&gt;qgi&lt;/td&gt;&lt;td&gt;query gi&lt;/td&gt;&lt;td&gt;Query GI&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;3&lt;/td&gt;&lt;td&gt;Q_ACC&lt;/td&gt;&lt;td&gt;qacc&lt;/td&gt;&lt;td&gt;query acc.&lt;/td&gt;&lt;td&gt;Query accesion&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;4&lt;/td&gt;&lt;td&gt;Q_ACCVER&lt;/td&gt;&lt;td&gt;qaccver&lt;/td&gt;&lt;td&gt;query acc.ver&lt;/td&gt;&lt;td&gt;Query accesion.version&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;5&lt;/td&gt;&lt;td&gt;Q_LEN&lt;/td&gt;&lt;td&gt;qlen&lt;/td&gt;&lt;td&gt;query length&lt;/td&gt;&lt;td&gt;Query sequence length&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;6&lt;/td&gt;&lt;td&gt;S_SEQ_ID&lt;/td&gt;&lt;td&gt;sseqid&lt;/td&gt;&lt;td&gt;subject id&lt;/td&gt;&lt;td&gt;Subject Seq-id&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;7&lt;/td&gt;&lt;td&gt;S_ALL_SEQ_ID&lt;/td&gt;&lt;td&gt;sallseqid&lt;/td&gt;&lt;td&gt;subject ids&lt;/td&gt;&lt;td&gt;All subject Seq-id(s), separated by a &#39;;&#39;&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;8&lt;/td&gt;&lt;td&gt;S_GI&lt;/td&gt;&lt;td&gt;sgi&lt;/td&gt;&lt;td&gt;subject gi&lt;/td&gt;&lt;td&gt;Subject GI&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;9&lt;/td&gt;&lt;td&gt;S_ALL_GI&lt;/td&gt;&lt;td&gt;sallgi&lt;/td&gt;&lt;td&gt;subject gis&lt;/td&gt;&lt;td&gt;All subject GIs&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;10&lt;/td&gt;&lt;td&gt;S_ACC&lt;/td&gt;&lt;td&gt;sacc&lt;/td&gt;&lt;td&gt;subject acc.&lt;/td&gt;&lt;td&gt;Subject accession&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;11&lt;/td&gt;&lt;td&gt;S_ACCVER&lt;/td&gt;&lt;td&gt;saccver&lt;/td&gt;&lt;td&gt;subject acc.ver&lt;/td&gt;&lt;td&gt;Subject accession.version&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;12&lt;/td&gt;&lt;td&gt;S_ALLACC&lt;/td&gt;&lt;td&gt;sallacc&lt;/td&gt;&lt;td&gt;subject accs.&lt;/td&gt;&lt;td&gt;All subject accessions&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;13&lt;/td&gt;&lt;td&gt;S_LEN&lt;/td&gt;&lt;td&gt;slen&lt;/td&gt;&lt;td&gt;subject length&lt;/td&gt;&lt;td&gt;Subject sequence length&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;14&lt;/td&gt;&lt;td&gt;Q_START&lt;/td&gt;&lt;td&gt;qstart&lt;/td&gt;&lt;td&gt;q. start&lt;/td&gt;&lt;td&gt;Start of alignment in query&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;15&lt;/td&gt;&lt;td&gt;Q_END&lt;/td&gt;&lt;td&gt;qend&lt;/td&gt;&lt;td&gt;q. end&lt;/td&gt;&lt;td&gt;End of alignment in query&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;16&lt;/td&gt;&lt;td&gt;S_START&lt;/td&gt;&lt;td&gt;sstart&lt;/td&gt;&lt;td&gt;s. start&lt;/td&gt;&lt;td&gt;Start of alignment in subject&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;17&lt;/td&gt;&lt;td&gt;S_END&lt;/td&gt;&lt;td&gt;send&lt;/td&gt;&lt;td&gt;s. end&lt;/td&gt;&lt;td&gt;End of alignment in subject&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;18&lt;/td&gt;&lt;td&gt;Q_SEQ&lt;/td&gt;&lt;td&gt;qseq&lt;/td&gt;&lt;td&gt;query seq&lt;/td&gt;&lt;td&gt;Aligned part of query sequence&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;19&lt;/td&gt;&lt;td&gt;S_SEQ&lt;/td&gt;&lt;td&gt;sseq&lt;/td&gt;&lt;td&gt;subject seq&lt;/td&gt;&lt;td&gt;Aligned part of subject sequence&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;20&lt;/td&gt;&lt;td&gt;E_VALUE&lt;/td&gt;&lt;td&gt;evalue&lt;/td&gt;&lt;td&gt;evalue&lt;/td&gt;&lt;td&gt;Expect value&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;21&lt;/td&gt;&lt;td&gt;BIT_SCORE&lt;/td&gt;&lt;td&gt;bitscore&lt;/td&gt;&lt;td&gt;bit score&lt;/td&gt;&lt;td&gt;Bit score&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;22&lt;/td&gt;&lt;td&gt;SCORE&lt;/td&gt;&lt;td&gt;score&lt;/td&gt;&lt;td&gt;score&lt;/td&gt;&lt;td&gt;Raw score&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;23&lt;/td&gt;&lt;td&gt;LENGTH&lt;/td&gt;&lt;td&gt;length&lt;/td&gt;&lt;td&gt;alignment length&lt;/td&gt;&lt;td&gt;Alignment length&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;24&lt;/td&gt;&lt;td&gt;P_IDENT&lt;/td&gt;&lt;td&gt;pident&lt;/td&gt;&lt;td&gt;% identity&lt;/td&gt;&lt;td&gt;Percentage of identical matches&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;25&lt;/td&gt;&lt;td&gt;N_IDENT&lt;/td&gt;&lt;td&gt;nident&lt;/td&gt;&lt;td&gt;identical&lt;/td&gt;&lt;td&gt;Number of identical matches&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;26&lt;/td&gt;&lt;td&gt;MISMATCH&lt;/td&gt;&lt;td&gt;mismatch&lt;/td&gt;&lt;td&gt;mismatches&lt;/td&gt;&lt;td&gt;Number of mismatches&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;27&lt;/td&gt;&lt;td&gt;POSITIVE&lt;/td&gt;&lt;td&gt;positive&lt;/td&gt;&lt;td&gt;positives&lt;/td&gt;&lt;td&gt;Number of positive-scoring matches&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;28&lt;/td&gt;&lt;td&gt;GAP_OPEN&lt;/td&gt;&lt;td&gt;gapopen&lt;/td&gt;&lt;td&gt;gap opens&lt;/td&gt;&lt;td&gt;Number of gap openings&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;29&lt;/td&gt;&lt;td&gt;GAPS&lt;/td&gt;&lt;td&gt;gaps&lt;/td&gt;&lt;td&gt;gaps&lt;/td&gt;&lt;td&gt;Total number of gaps&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;30&lt;/td&gt;&lt;td&gt;P_POS&lt;/td&gt;&lt;td&gt;ppos&lt;/td&gt;&lt;td&gt;% positives&lt;/td&gt;&lt;td&gt;Percentage of positive-scoring matches&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;31&lt;/td&gt;&lt;td&gt;FRAMES&lt;/td&gt;&lt;td&gt;frames&lt;/td&gt;&lt;td&gt;query/sbjct frames&lt;/td&gt;&lt;td&gt;Query and subject frames separated by a &#39;/&#39;&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;32&lt;/td&gt;&lt;td&gt;Q_FRAME&lt;/td&gt;&lt;td&gt;qframe&lt;/td&gt;&lt;td&gt;query frame&lt;/td&gt;&lt;td&gt;Query frame&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;33&lt;/td&gt;&lt;td&gt;S_FRAME&lt;/td&gt;&lt;td&gt;sframe&lt;/td&gt;&lt;td&gt;sbjct frame&lt;/td&gt;&lt;td&gt;Subject frame&lt;/td&gt;&lt;td&gt;&amp;#9745;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;34&lt;/td&gt;&lt;td&gt;BTOP&lt;/td&gt;&lt;td&gt;btop&lt;/td&gt;&lt;td&gt;BTOP&lt;/td&gt;&lt;td&gt;Blast traceback operations (BTOP)&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;35&lt;/td&gt;&lt;td&gt;S_TAX_IDS&lt;/td&gt;&lt;td&gt;staxids&lt;/td&gt;&lt;td&gt;subject tax ids&lt;/td&gt;&lt;td&gt;unique Subject Taxonomy ID(s), separated by a &#39;;&#39; (in numerical order)&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;36&lt;/td&gt;&lt;td&gt;S_SCI_NAMES&lt;/td&gt;&lt;td&gt;sscinames&lt;/td&gt;&lt;td&gt;subject sci names&lt;/td&gt;&lt;td&gt;unique Subject Scientific Name(s), separated by a &#39;;&#39;&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;37&lt;/td&gt;&lt;td&gt;S_COM_NAMES&lt;/td&gt;&lt;td&gt;scomnames&lt;/td&gt;&lt;td&gt;subject com names&lt;/td&gt;&lt;td&gt;unique Subject Common Name(s), separated by a &#39;;&#39;&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;38&lt;/td&gt;&lt;td&gt;S_BLAST_NAMES&lt;/td&gt;&lt;td&gt;sblastnames&lt;/td&gt;&lt;td&gt;subject blast names&lt;/td&gt;&lt;td&gt;unique Subject Blast Name(s), separated by a &#39;;&#39; (in alphabetical order)&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;39&lt;/td&gt;&lt;td&gt;S_S_KINGDOMS&lt;/td&gt;&lt;td&gt;sskingdoms&lt;/td&gt;&lt;td&gt;subject super kingdoms&lt;/td&gt;&lt;td&gt;unique Subject Super Kingdom(s), separated by a &#39;;&#39; (in alphabetical order)&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;40&lt;/td&gt;&lt;td&gt;S_TITLE&lt;/td&gt;&lt;td&gt;stitle&lt;/td&gt;&lt;td&gt;subject title&lt;/td&gt;&lt;td&gt;Subject Title&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;41&lt;/td&gt;&lt;td&gt;S_ALL_TITLES&lt;/td&gt;&lt;td&gt;salltitles&lt;/td&gt;&lt;td&gt;subject titles&lt;/td&gt;&lt;td&gt;All Subject Title(s), separated by a &#39;&lt;&gt;&#39;&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;42&lt;/td&gt;&lt;td&gt;S_STRAND&lt;/td&gt;&lt;td&gt;sstrand&lt;/td&gt;&lt;td&gt;subject strand&lt;/td&gt;&lt;td&gt;Subject Strand&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;43&lt;/td&gt;&lt;td&gt;Q_COV_S&lt;/td&gt;&lt;td&gt;qcovs&lt;/td&gt;&lt;td&gt;% subject coverage&lt;/td&gt;&lt;td&gt;Query Coverage Per Subject&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;45&lt;/td&gt;&lt;td&gt;Q_COV_HSP&lt;/td&gt;&lt;td&gt;qcovhsp&lt;/td&gt;&lt;td&gt;% hsp coverage&lt;/td&gt;&lt;td&gt;Query Coverage Per HSP&lt;/td&gt;&lt;td&gt;&amp;#9744;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;/table&gt;&lt;/span&gt;
+ * @endhtmlonly
+ * 
+ * 
+ * More fields will likely be implemented in the future.
+ * 
+ * @var static_constexpr_std::array&lt;Enum_const,12&gt; BlastMatchField::defaults;
+ * 
+ * @brief An std::array of @link BlastMatchField::Enum @endlink indicating the
+ *        fields that are default
+ * 
+ * @code{.cpp}
+ * static constexpr std::array&lt;Enum const, 12&gt; defaults
+ * {
+ *     {
+ *         Enum::Q_SEQ_ID,
+ *         Enum::S_SEQ_ID,
+ *         Enum::P_IDENT,
+ *         Enum::LENGTH,
+ *         Enum::MISMATCH,
+ *         Enum::GAP_OPEN,
+ *         Enum::Q_START,
+ *         Enum::Q_END,
+ *         Enum::S_START,
+ *         Enum::S_END,
+ *         Enum::E_VALUE,
+ *         Enum::BIT_SCORE
+ *     }
+ * };
+ * @endcode
+ * 
+ * 
+ * @var static_constexpr_const_std::array&lt;char_const*,45&gt; BlastMatchField::optio
+ *                                                        nLabels[];
+ * 
+ * @brief An array of CStrings representing the command line parameter name of
+ *        each field
+ * 
+ * @var static_constexpr_char_const_*_const BlastMatchField::legacyColumnLabels;
+ * 
+ * @brief A single CString representing the &lt;b&gt;column labels&lt;/b&gt; of the @link
+ *        BlastIOContext::legacyFormat @endlink.
+ * 
+ * @var static_constexpr_const_std::array&lt;char_const*,45&gt; BlastMatchField::colum
+ *                                                        nLabels[];
+ * 
+ * @brief An array of CStrings representing the &lt;b&gt;column label&lt;/b&gt; of each
+ *        possible field; for the @link BlastIOContext::legacyFormat @endlink,
+ *        use @link BlastMatchField::legacyColumnLabels @endlink instead.
+ * 
+ * @var static_constexpr_const_std::array&lt;char_const*,45&gt; BlastMatchField::descr
+ *                                                        iptions[];
+ * 
+ * @brief An array of CStrings representing the human-readable descriptions of
+ *        each field
+ * 
+ * @var static_constexpr_const_std::array&lt;bool,45&gt; BlastMatchField::implemented[
+ *                                                 ];
+ * 
+ * @brief An array of bools revealing whether the Blast I/O module supports
+ *        printing this field
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

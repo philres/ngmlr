@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="page_demomummy" data-page="DemoMummy">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Mummy - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<div id="filecontents">
+<h1 data-lang-entity="page" data-pimped="true">
+  <a href="page_LanguageEntities.html#page">Page</a> <span>Mummy</span>
+</h1>
+
+<div class="docstring">
+  <div class="discussion">
+    <!-- @brief -->
+    <div>Simple MUMmer clone.</div>
+    
+    <!-- paragraphs -->
+    
+<div><p>MUMmer is a tool to search for multiple exact matches (MUMs) between 2 given sequences. MUMs can be used as a
+starting point for a multiple genome alignment algorithm. This example shows how to implement a simple version of
+MUMer to find multiple exact matches of n sequences (n&gt;=2) in SeqAn.</p><div data-src-path="demos/dox/index/mummy.cpp"><pre class="code">#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;seqan/index.h&gt;
+#include &lt;seqan/seq_io.h&gt;
+
+using namespace seqan;
+
+
+template &lt;typename TIndex&gt;
+void findMUMs(TIndex &amp; esa, unsigned minLen)
+{
+    typename Iterator&lt;TIndex, Mums&gt;::Type it(esa, minLen);  // set minimum MUM length
+    String&lt;typename SAValue&lt;TIndex&gt;::Type&gt; occs;            // temp. string storing the hit positions
+
+    std::cout &lt;&lt; std::resetiosflags(std::ios::left);
+    while (!atEnd(it))
+    {
+        occs = getOccurrences(it);                          // gives hit positions (seqNo,seqOfs)
+        orderOccurrences(occs);                             // order them by seqNo
+
+        for (unsigned i = 0; i &lt; length(occs); ++i)
+            std::cout &lt;&lt; std::setw(8)
+                      &lt;&lt; getValueI2(occs[i]) + 1            // output them in MUMmer's output format
+                      &lt;&lt; "  ";
+
+        std::cout &lt;&lt; std::setw(8)
+                  &lt;&lt; repLength(it)
+                  &lt;&lt; "\n";
+
+        ++it;
+    }
+    std::cout &lt;&lt; std::setiosflags(std::ios::left) &lt;&lt; "\n";
+}
+
+template &lt;typename TSpec&gt;
+int runMummy(int argc, const char * argv[], unsigned seqCount, unsigned minLen)
+{
+    typedef String&lt;Dna5, TSpec&gt; TString;
+    typedef StringSet&lt;TString&gt;  TStringSet;
+    typedef Index&lt;TStringSet&gt;   TIndex;
+
+    TIndex  index;
+
+    // import sequences
+    StringSet&lt;CharString&gt; meta;
+    for (int arg = 1, seq = 0; arg &lt; argc; ++arg)
+    {
+        // skip two argument options
+        if (strcmp(argv[arg], "-p") == 0 || strcmp(argv[arg], "--profile") == 0 ||
+            strcmp(argv[arg], "-l") == 0 || strcmp(argv[arg], "--minlen") == 0)
+        {
+            ++arg;
+            continue;
+        }
+
+        if (argv[arg][0] != '-')
+        {
+            SeqFileIn file;
+            if (!open(file, argv[arg]))
+            {
+                std::cout &lt;&lt; "Import of sequence " &lt;&lt; argv[arg] &lt;&lt; " failed.\n";
+                return 1;
+            }
+            readRecords(meta, indexText(index), file);
+            clear(meta);
+            close(file);
+            ++seq;
+        }
+    }
+    std::cout &lt;&lt; lengthSum(indexText(index)) &lt;&lt; " bps sequence imported.\n";
+
+    findMUMs(index, minLen);
+
+    return 0;
+}
+
+void printHelp(int, const char *[], bool longHelp = false)
+{
+    std::cout &lt;&lt; "***************************************\n";
+    std::cout &lt;&lt; "***        Simple MUM finder        ***\n";
+    std::cout &lt;&lt; "*** written by David Weese (c) 2007 ***\n";
+    std::cout &lt;&lt; "***************************************\n\n";
+    std::cout &lt;&lt; "Usage: mummy [OPTION]... &lt;SEQUENCE FILE&gt; ... &lt;SEQUENCE FILE&gt;\n";
+    if (longHelp)
+    {
+        std::cout &lt;&lt; "\nOptions:\n";
+        std::cout &lt;&lt; "  -e, --extern          \tuse external memory (for large datasets)\n";
+        std::cout &lt;&lt; "  -l, --minlen          \tset minimum MUM length\n";
+        std::cout &lt;&lt; "                        \tif not set, default value is 20\n";
+        std::cout &lt;&lt; "  -h, --help            \tprint this help\n";
+    }
+    else
+    {
+        std::cout &lt;&lt; "Try 'mummy --help' for more information.\n";
+    }
+}
+
+int main(int argc, const char * argv[])
+{
+    if (argc &lt; 2)
+    {
+        printHelp(argc, argv);
+        return 0;
+    }
+
+    unsigned optMinLen = 20;
+    bool     optExtern = false;
+
+    unsigned seqCount = 0;
+    for (int arg = 1; arg &lt; argc; ++arg)
+    {
+        if (argv[arg][0] == '-')
+        {
+            // parse option
+
+            if (strcmp(argv[arg], "-e") == 0 || strcmp(argv[arg], "--extern") == 0)
+            {
+                // use external memory algorithms
+                optExtern = true;
+                continue;
+            }
+            if (strcmp(argv[arg], "-l") == 0 || strcmp(argv[arg], "--minlen") == 0)
+            {
+                // minimum match length
+                if (arg + 1 == argc)
+                {
+                    printHelp(argc, argv);
+                    return 0;
+                }
+                ++arg;
+                optMinLen = atoi(argv[arg]);
+                continue;
+            }
+            if (strcmp(argv[arg], "-h") == 0 || strcmp(argv[arg], "--help") == 0)
+            {
+                // print help
+                printHelp(argc, argv, true);
+                return 0;
+            }
+        }
+        else
+        {
+            // parse sequence file
+            ++seqCount;
+        }
+    }
+
+    if (optExtern)
+        return runMummy&lt;External&lt;&gt; &gt;(argc, argv, seqCount, optMinLen);
+    else
+        return runMummy&lt;Alloc&lt;&gt; &gt;(argc, argv, seqCount, optMinLen);
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/index/mummy.cpp" target="_top">demos/dox/index/mummy.cpp</a></div></div><p>If you run the tool on 2 sequences it outputs exactly the same matches as MUMmer (called with -mum option), it only
+differs in the * order of outputted matches. To get matches with increasing positions at the first sequence we
+piped
+the output to sort.</p><p>As an example data set we used 3 strains of chlamydia bacterium
+(NC_002620.fna, NC_000117.fna, NC_007429.fna) and saved the Fasta files
+to the demos directory.</p><pre class="console" data-src-path="None">weese@tanne:~/seqan$ cd demos
+weese@tanne:~/seqan/demos$ make index_mummy
+weese@tanne:~/seqan/demos$ ./index_mummy -h
+***************************************
+***        Simple MUM finder        ***
+*** written by David Weese (c) 2007 ***
+***************************************
+
+Usage: mummy [OPTION]... &lt;SEQUENCE FILE&gt; ... &lt;SEQUENCE FILE&gt;
+
+Options:
+  -e, --extern                  use external memory (for large datasets)
+  -l, --minlen                  set minimum MUM length
+                                if not set, default value is 20
+  -h, --help                    print this help
+weese@tanne:~/seqan/demos$ ./index_mummy NC*.fna |sort &gt; mums.txt
+3159928 bps sequence imported.
+weese@tanne:~/seqan/demos$ head mums.txt
+    1565    323805      2159        48
+    1646    323886      2240        27
+    1722    323962      2316        37
+    1774    324014      2368        26
+    1941    324181      2535        23
+    2061    324301      2655        35
+    2102    324342      2696        29
+    2132    324372      2726        20
+    2183    324423      2777        24
+weese@tanne:~/seqan/demos$</pre></div>
+
+  </div>
+</div>
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="class_Index.html" data-lang-entity="class">Index</a></li>
+  
+  <li><a href="specialization_MumsIterator.html" data-lang-entity="specialization">MumsIterator</a></li>
+  
+  </ul>
+
+</div>
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>@page DemoMummy Mummy
+
+@brief Simple MUMmer clone.
+
+MUMmer is a tool to search for multiple exact matches (MUMs) between 2 given
+sequences. MUMs can be used as a starting point for a multiple genome
+alignment algorithm. This example shows how to implement a simple version of
+MUMer to find multiple exact matches of n sequences (n&gt;=2) in SeqAn.
+
+@include demos/dox/index/mummy.cpp
+
+If you run the tool on 2 sequences it outputs exactly the same matches as
+MUMmer (called with -mum option), it only differs in the * order of outputted
+matches. To get matches with increasing positions at the first sequence we
+piped the output to sort.
+
+As an example data set we used 3 strains of chlamydia bacterium
+(NC_002620.fna, NC_000117.fna, NC_007429.fna) and saved the Fasta files to
+the demos directory.
+
+@code{.console}
+weese@tanne:~/seqan$ cd demos
+weese@tanne:~/seqan/demos$ make index_mummy
+weese@tanne:~/seqan/demos$ ./index_mummy -h
+***************************************
+***        Simple MUM finder        ***
+*** written by David Weese (c) 2007 ***
+***************************************
+
+Usage: mummy [OPTION]... &lt;SEQUENCE FILE&gt; ... &lt;SEQUENCE FILE&gt;
+
+Options:
+  -e, --extern                  use external memory (for large datasets)
+  -l, --minlen                  set minimum MUM length
+                                if not set, default value is 20
+  -h, --help                    print this help
+weese@tanne:~/seqan/demos$ ./index_mummy NC*.fna |sort &gt; mums.txt
+3159928 bps sequence imported.
+weese@tanne:~/seqan/demos$ head mums.txt
+    1565    323805      2159        48
+    1646    323886      2240        27
+    1722    323962      2316        37
+    1774    324014      2368        26
+    1941    324181      2535        23
+    2061    324301      2655        35
+    2102    324342      2696        29
+    2132    324372      2726        20
+    2183    324423      2777        24
+weese@tanne:~/seqan/demos$
+@endcode
+
+
+@see Index
+@see MumsIterator
+
+</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

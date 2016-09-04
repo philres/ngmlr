@@ -2,20 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 project(NextGenMap-LR)
 
 include_directories (../lib/seqan-library-1.4.1/include)
-#include_directories (../lib/bamtools-2.3.0/src/api)
 include_directories (../lib/bamtools-2.3.0/src)
-#include_directories (../lib/mason/cpu)
-#include_directories (../lib/mason/opencl)
 include_directories (../lib/Complete-Striped-Smith-Waterman-Library/src)
-include_directories (../include)
 include_directories (../lib)
-include_directories (parser)
-include_directories (writer)
-include_directories (core)
-include_directories (misc)
-include_directories (log)
-include_directories (config)
-include_directories (.)
 
 configure_file( Version.h.in ${CMAKE_SOURCE_DIR}/src/Version.h )
 
@@ -23,96 +12,82 @@ configure_file( Version.h.in ${CMAKE_SOURCE_DIR}/src/Version.h )
 #SET(BUILD_SHARED_LIBRARIES OFF)
 #SET(CMAKE_EXE_LINKER_FLAGS "-static")
  	
-add_executable(ngm
+add_executable(ngmlr
                     AlignmentMatrix.cpp
+                    ArgParser.cpp
 					../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
-					parser/BamParser.cpp
-					writer/BAMWriter.cpp
+					BamParser.cpp
+					BAMWriter.cpp
 					BitpalAligner.cpp
-					parser/VcfParser.cpp																	
-					config/Config.cpp					
+					VcfParser.cpp																					
 					CS.cpp					
 					CSstatic.cpp
 					ConvexAlign.cpp
-					misc/Debug.cpp
-					misc/LinearRegression.cpp													
-					log/Logging.cpp
+					LinearRegression.cpp													
+					Logging.cpp
 					MappedRead.cpp
-					NGM_main.cpp
+					main.cpp
 					NGM.cpp
 					UpdateCheck.cpp
-					core/NGMTask.cpp
+					NGMTask.cpp
 					AlignmentBuffer.cpp
 					PrefixTable.cpp														
 					ReadProvider.cpp
-					parser/SamParser.cpp
-					writer/SAMWriter.cpp
-					writer/ScoreWriter.cpp
-					seqan/EndToEndAffine.cpp
+					SamParser.cpp
+					SAMWriter.cpp
+					EndToEndAffine.cpp
 					SequenceProvider.cpp	
 					OutputReadBuffer.cpp	
 					ScoreBuffer.cpp
 					StrippedSW.cpp
-					core/unix.cpp
-					core/unix_threads.cpp
-					core/windows_threads.cpp
-					core/windows.cpp)										
+					unix.cpp
+					unix_threads.cpp)										
 					
-#ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/NGM_main.cpp")
+ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/main.cpp")
 
-SET_TARGET_PROPERTIES(ngm PROPERTIES COMPILE_FLAGS "-g -O3 -DNDEBUG")
+SET_TARGET_PROPERTIES(ngmlr PROPERTIES COMPILE_FLAGS " -g -O3 -DNDEBUG")
 
-target_link_libraries(ngm pthread)
-#target_link_libraries(ngm MASonOpenCl)	
-TARGET_LINK_LIBRARIES(ngm BamTools-static)
-TARGET_LINK_LIBRARIES(ngm zlibstatic)
+TARGET_LINK_LIBRARIES(ngmlr pthread)	
+TARGET_LINK_LIBRARIES(ngmlr BamTools-static)
+TARGET_LINK_LIBRARIES(ngmlr zlibstatic)
 	
 add_definitions(-D _BAM) 
 
-
-add_executable(ngm-debug
+add_executable(ngmlr-debug
                     AlignmentMatrix.cpp
+                    ArgParser.cpp
 					../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
-					parser/BamParser.cpp
-					writer/BAMWriter.cpp
+					BamParser.cpp
+					BAMWriter.cpp
 					BitpalAligner.cpp
-					parser/VcfParser.cpp																		
-					config/Config.cpp					
+					VcfParser.cpp																							
 					CS.cpp					
 					CSstatic.cpp
 					ConvexAlign.cpp
-					misc/Debug.cpp
-					misc/LinearRegression.cpp													
-					log/Logging.cpp
+					LinearRegression
+					Logging.cpp
 					MappedRead.cpp
-					NGM_main.cpp
+					main.cpp
 					NGM.cpp
 					UpdateCheck.cpp
-					core/NGMTask.cpp
+					NGMTask.cpp
 					AlignmentBuffer.cpp
 					PrefixTable.cpp														
 					ReadProvider.cpp
-					parser/SamParser.cpp
-					writer/SAMWriter.cpp
-					writer/ScoreWriter.cpp
-					seqan/EndToEndAffine.cpp
+					SamParser.cpp
+					SAMWriter.cpp
+					EndToEndAffine.cpp
 					SequenceProvider.cpp	
 					OutputReadBuffer.cpp				
 					ScoreBuffer.cpp
 					StrippedSW.cpp
-					core/unix.cpp
-					core/unix_threads.cpp
-					core/windows_threads.cpp
-					core/windows.cpp)
+					unix.cpp
+					unix_threads.cpp)
 
+SET_TARGET_PROPERTIES(ngmlr-debug PROPERTIES COMPILE_DEFINITIONS "DEBUGLOG")
+SET_TARGET_PROPERTIES(ngmlr-debug PROPERTIES COMPILE_FLAGS " -g3 -O0")
 
-
-set_target_properties(ngm-debug PROPERTIES COMPILE_DEFINITIONS "DEBUGLOG")
-
-SET_TARGET_PROPERTIES(ngm-debug PROPERTIES COMPILE_FLAGS "-g3 -O0")
-
-target_link_libraries(ngm-debug pthread)
-#target_link_libraries(ngm-core-debug MASonOpenCl-debug)	
-TARGET_LINK_LIBRARIES(ngm-debug BamTools-static)
-TARGET_LINK_LIBRARIES(ngm-debug zlibstatic)
+TARGET_LINK_LIBRARIES(ngmlr-debug pthread)	
+TARGET_LINK_LIBRARIES(ngmlr-debug BamTools-static)
+TARGET_LINK_LIBRARIES(ngmlr-debug zlibstatic)
 

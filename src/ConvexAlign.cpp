@@ -3,9 +3,10 @@
 #include <cmath>
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
+#include <algorithm>
 
-#include "Config.h"
-#include "misc/Timing.h"
+#include "IConfig.h"
 
 //TODO: remove
 #define pRef pBuffer1
@@ -25,7 +26,7 @@ int NumberOfSetBits(uint32_t i) {
 
 ConvexAlign::ConvexAlign(int gpu_id) :
 		maxBinaryCigarLength(200000), pacbioDebug(false), stdoutPrintAlignCorridor(
-		Config.GetInt(STDOUT) == 6) {
+		Config.getStdoutMode() == 6) {
 
 	mat = 2.0f;
 	mis = -5.0f;
@@ -262,7 +263,6 @@ int ConvexAlign::convertCigar(char const * const refSeq, Align & result,
 	if (nmPerPositionLength < exactAlignmentLength) {
 		fprintf(stderr, "Alignmentlength (%d) < exactAlingmentlength (%d)\n",
 				nmPerPositionLength, exactAlignmentLength);
-		exit(-1);
 	}
 	//	fprintf(stderr, "\n==== Matches: %d of %d ====\n", overallMatchCount,
 	//			posInRead);
@@ -427,9 +427,7 @@ int ConvexAlign::SingleAlign(int const mode, CorridorLine * corridorLines,
 			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, refLen, qryLen,
 					-1);
 		}
-//
-////	Timer t1;
-////	t1.ST();
+
 		AlignmentMatrix::Score score = fwdFillMatrix(refSeq, qrySeq, fwdResults,
 				mode);
 ////	fprintf(stderr, "fill: %f\n", t1.ET());

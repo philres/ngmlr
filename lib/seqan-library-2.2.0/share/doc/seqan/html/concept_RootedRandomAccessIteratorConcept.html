@@ -1,0 +1,921 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="concept_rootedrandomaccessiteratorconcept" data-page="RootedRandomAccessIteratorConcept">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>RootedRandomAccessIteratorConcept - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="concept" data-pimped="true">
+  <a href="page_LanguageEntities.html#concept">Concept</a> <span>RootedRandomAccessIteratorConcept<div><div>Rooted iterator with random access.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+  <tr>
+    <th>Extends</th>
+    <td>
+      <a href="concept_RandomAccessIteratorConcept.html" data-lang-entity="concept">RandomAccessIteratorConcept</a>, 
+      <a href="concept_RootedIteratorConcept.html" data-lang-entity="concept">RootedIteratorConcept</a>
+      
+    </td>
+  </tr>
+  
+
+  
+
+  
+  <tr>
+    <th>All Extended</dt>
+    <td>
+    <a href="concept_BidirectionalIteratorConcept.html" data-lang-entity="concept">BidirectionalIteratorConcept</a>, 
+    <a href="concept_CopyConstructibleConcept.html" data-lang-entity="concept">CopyConstructibleConcept</a>, 
+    <a href="concept_DefaultConstructibleConcept.html" data-lang-entity="concept">DefaultConstructibleConcept</a>, 
+    <a href="concept_EqualityComparableConcept.html" data-lang-entity="concept">EqualityComparableConcept</a>, 
+    <a href="concept_ForwardIteratorConcept.html" data-lang-entity="concept">ForwardIteratorConcept</a>, 
+    <a href="concept_InputIteratorConcept.html" data-lang-entity="concept">InputIteratorConcept</a>, 
+    <a href="concept_IteratorAssociatedTypesConcept.html" data-lang-entity="concept">IteratorAssociatedTypesConcept</a>, 
+    <a href="concept_LessThanComparableConcept.html" data-lang-entity="concept">LessThanComparableConcept</a>, 
+    <a href="concept_RandomAccessIteratorConcept.html" data-lang-entity="concept">RandomAccessIteratorConcept</a>, 
+    <a href="concept_RootedIteratorConcept.html" data-lang-entity="concept">RootedIteratorConcept</a>
+    
+    </td>
+  </tr>
+  
+
+  
+  <tr>
+    <th>All Subcl's</dt>
+    <td>
+    <a href="concept_MutableRootedRandomAccessIteratorConcept.html" data-lang-entity="concept">MutableRootedRandomAccessIteratorConcept</a>
+    
+    </td>
+  </tr>
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &nbsp;
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>RootedRandomAccessIteratorConcept&lt;T&gt;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+<div data-lang-entity-container="member_function">
+<h2 data-lang-entity="member_function">Member Function Overview</h2>
+
+
+
+
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Member Functions Inherited From <a href="concept_EqualityComparableConcept.html" data-lang-entity="concept">EqualityComparableConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_EqualityComparableConcept.html#EqualityComparableConcept::operator!=" data-lang-entity="member_function">operator!=</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_EqualityComparableConcept.html#EqualityComparableConcept::operator==" data-lang-entity="member_function">operator==</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Member Functions Inherited From <a href="concept_LessThanComparableConcept.html" data-lang-entity="concept">LessThanComparableConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_LessThanComparableConcept.html#LessThanComparableConcept::operator<" data-lang-entity="member_function">operator&lt;</a></code></span></li>
+  
+</ul>
+
+
+
+<h3 data-toc="hidden">Member Functions Inherited From <a href="concept_RandomAccessIteratorConcept.html" data-lang-entity="concept">RandomAccessIteratorConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RandomAccessIteratorConcept.html#RandomAccessIteratorConcept::operator[]" data-lang-entity="member_function">operator[]</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<!-- Interface Functions Overview -->
+
+
+
+<div data-lang-entity-container="interface_function">
+<h2 data-lang-entity="interface_function">Interface Function Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#RootedRandomAccessIteratorConcept%23goBegin" title="#RootedRandomAccessIteratorConcept#goBegin (interface function)" data-lang-entity="interface_function">void goBegin(it);</a></code></span>
+    <span class="summary_desc"><div>Set position of rooted random access iterator to the beginning of the container.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#RootedRandomAccessIteratorConcept%23goEnd" title="#RootedRandomAccessIteratorConcept#goEnd (interface function)" data-lang-entity="interface_function">void goEnd(it, pos);</a></code></span>
+    <span class="summary_desc"><div>Set position of rooted random access iterator to the end of the container.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#RootedRandomAccessIteratorConcept%23position" title="#RootedRandomAccessIteratorConcept#position (interface function)" data-lang-entity="interface_function">TPosition position(it);</a></code></span>
+    <span class="summary_desc"><div>Function to get the position of a rooted random access iterator.</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#RootedRandomAccessIteratorConcept%23setPosition" title="#RootedRandomAccessIteratorConcept#setPosition (interface function)" data-lang-entity="interface_function">void setPosition(it, pos);</a></code></span>
+    <span class="summary_desc"><div>Set position of a rooted random access iterator.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_BidirectionalIteratorConcept.html" data-lang-entity="concept">BidirectionalIteratorConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_BidirectionalIteratorConcept.html#BidirectionalIteratorConcept#goPrevious" data-lang-entity="interface_function">goPrevious</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_BidirectionalIteratorConcept.html#BidirectionalIteratorConcept#operator--(prefix)" data-lang-entity="interface_function">operator--(prefix)</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_BidirectionalIteratorConcept.html#BidirectionalIteratorConcept#operator--(suffix)" data-lang-entity="interface_function">operator--(suffix)</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_InputIteratorConcept.html" data-lang-entity="concept">InputIteratorConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_InputIteratorConcept.html#InputIteratorConcept#goNext" data-lang-entity="interface_function">goNext</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_InputIteratorConcept.html#InputIteratorConcept#operator++(prefix)" data-lang-entity="interface_function">operator++(prefix)</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_InputIteratorConcept.html#InputIteratorConcept#operator++(suffix)" data-lang-entity="interface_function">operator++(suffix)</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_InputIteratorConcept.html#InputIteratorConcept#operator->" data-lang-entity="interface_function">operator-&gt;</a></code></span></li>
+  
+</ul>
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_IteratorAssociatedTypesConcept.html" data-lang-entity="concept">IteratorAssociatedTypesConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#getValue" data-lang-entity="interface_function">getValue</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#operator*" data-lang-entity="interface_function">operator*</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#value" data-lang-entity="interface_function">value</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_RandomAccessIteratorConcept.html" data-lang-entity="concept">RandomAccessIteratorConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RandomAccessIteratorConcept.html#RandomAccessIteratorConcept#atNil" data-lang-entity="interface_function">atNil</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RandomAccessIteratorConcept.html#RandomAccessIteratorConcept#difference" data-lang-entity="interface_function">difference</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RandomAccessIteratorConcept.html#RandomAccessIteratorConcept#goFurther" data-lang-entity="interface_function">goFurther</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RandomAccessIteratorConcept.html#RandomAccessIteratorConcept#goNil" data-lang-entity="interface_function">goNil</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RandomAccessIteratorConcept.html#RandomAccessIteratorConcept#operator+" data-lang-entity="interface_function">operator+</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RandomAccessIteratorConcept.html#RandomAccessIteratorConcept#operator+=" data-lang-entity="interface_function">operator+=</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RandomAccessIteratorConcept.html#RandomAccessIteratorConcept#operator-=" data-lang-entity="interface_function">operator-=</a></code></span></li>
+  
+</ul>
+
+
+
+<h3 data-toc="hidden">Interface Functions Inherited From <a href="concept_RootedIteratorConcept.html" data-lang-entity="concept">RootedIteratorConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RootedIteratorConcept.html#RootedIteratorConcept#atBegin" data-lang-entity="interface_function">atBegin</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RootedIteratorConcept.html#RootedIteratorConcept#atEnd" data-lang-entity="interface_function">atEnd</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RootedIteratorConcept.html#RootedIteratorConcept#container" data-lang-entity="interface_function">container</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+</div>
+
+ 
+
+
+<!-- Interface Metafunctions Overview -->
+
+
+
+<div data-lang-entity-container="interface_metafunction">
+<h2 data-lang-entity="interface_metafunction">Interface  Metafunction Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#RootedRandomAccessIteratorConcept%23Position" title="#RootedRandomAccessIteratorConcept#Position (interface function)" data-lang-entity="interface_metafunction">Position&lt;TIter&gt;::Type</a></code></span>
+    <span class="summary_desc"><div>Metafunction to get Position type of a rooted random access iterator.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h3 data-toc="hidden">Interface Metafunctions Inherited From <a href="concept_IteratorAssociatedTypesConcept.html" data-lang-entity="concept">IteratorAssociatedTypesConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#Difference" data-lang-entity="interface_metafunction">Difference</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#GetValue" data-lang-entity="interface_metafunction">GetValue</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#Pointer" data-lang-entity="interface_metafunction">Pointer</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#Reference" data-lang-entity="interface_metafunction">Reference</a></code></span></li>
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_IteratorAssociatedTypesConcept.html#IteratorAssociatedTypesConcept#Value" data-lang-entity="interface_metafunction">Value</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+<h3 data-toc="hidden">Interface Metafunctions Inherited From <a href="concept_RandomAccessIteratorConcept.html" data-lang-entity="concept">RandomAccessIteratorConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RandomAccessIteratorConcept.html#RandomAccessIteratorConcept#Difference" data-lang-entity="interface_metafunction">Difference</a></code></span></li>
+  
+</ul>
+
+
+
+<h3 data-toc="hidden">Interface Metafunctions Inherited From <a href="concept_RootedIteratorConcept.html" data-lang-entity="concept">RootedIteratorConcept</a></h3>
+
+<ul class="summary compact">
+  
+  <li class="public"><span class="summary_signature"><code><a href="concept_RootedIteratorConcept.html#RootedIteratorConcept#Container" data-lang-entity="interface_metafunction">Container</a></code></span></li>
+  
+</ul>
+
+
+
+
+
+</div>
+
+  
+
+
+<!-- Member Variable Overview -->
+
+  
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+<div class="interface_function_details" data-lang-entity-container="interface_function">
+  <h2 data-lang-entity="interface_function">Interface Functions Detail</h2>
+
+  
+  <div class="method_details first">
+    <h3 data-toc="hidden" id="RootedRandomAccessIteratorConcept#goBegin" class="signature first" data-lang-entity="interface_function">
+      <code>void goBegin(it);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Set position of rooted random access iterator to the beginning of the container.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">it</code>
+            
+        
+      </th>
+      <td>The iterator to set the position of.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="RootedRandomAccessIteratorConcept#goEnd" class="signature" data-lang-entity="interface_function">
+      <code>void goEnd(it, pos);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Set position of rooted random access iterator to the end of the container.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">it</code>
+            
+        
+      </th>
+      <td>The iterator to set the position of.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="RootedRandomAccessIteratorConcept#position" class="signature" data-lang-entity="interface_function">
+      <code>TPosition position(it);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Function to get the position of a rooted random access iterator.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">it</code>
+            
+        
+      </th>
+      <td>The iterator to query for its position.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+  <h4>Returns</h4>
+  <table class="overview">
+    
+    <tr>
+        <th><code>TPosition</code></th>
+        <td>The position of <tt>it</tt></td>
+    </tr>
+    
+  </table>
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+  <div class="method_details">
+    <h3 data-toc="hidden" id="RootedRandomAccessIteratorConcept#setPosition" class="signature" data-lang-entity="interface_function">
+      <code>void setPosition(it, pos);</code>
+    </h3>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Set position of a rooted random access iterator.</div>
+    </div>
+  </div>
+
+  
+
+  
+  <h4>Parameters</h4>
+  <table class="overview">
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">it</code>
+            
+        
+      </th>
+      <td>The iterator to set the position of.</td>
+    </tr>
+    
+    <tr>
+      <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">pos</code>
+            
+        
+      </th>
+      <td>The position to set <tt>it</tt> to.</td>
+    </tr>
+    
+  </table>
+  
+  
+  
+
+	<!-- General description -->
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+ 
+
+  <!-- Throws Section -->
+	
+  
+  
+  <!-- Data Races Section  -->
+  
+  <h4>Data Races</h4>
+  <div class="discussion">
+  
+    Thread safety unknown!
+  
+  </div>
+	
+	
+  <!-- Sees section -->
+  
+  
+  
+
+</div>
+
+
+
+<!-- Interface Metafunctions Details -->
+
+<div class="interface_metafunction_details" data-lang-entity-container="">
+<h2 data-lang-entity="interface_metafunction">Interface Metafunctions Detail</h2>
+
+
+<div class="method_details first">
+  <h3 data-toc="hidden" id="RootedRandomAccessIteratorConcept#Position" class="signature first" data-lang-entity="interface_metafunction">
+    <code>Position&lt;TIter&gt;::Type</code>
+  </h3>
+
+  
+
+  
+
+  
+
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      <div>Metafunction to get Position type of a rooted random access iterator.</div>
+    </div>
+  </div>
+
+  
+  <h4>Template Parameters</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>TIter</code></th>
+            <td>Iterator to query for its position type.</td>
+        </tr>
+    
+    </table>
+  
+
+  
+  <h4>Returns</h4>
+    <table class="overview">
+    
+        <tr>
+            <th><code>Type</code></th>
+            <td>The position type of the iterator.</td>
+        </tr>
+    
+    </table>
+  
+
+  <div class="docstring">
+    <div class="discussion">
+      
+<div></div>
+
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+
+
+<!-- Member Variable Details -->
+
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @concept RootedRandomAccessIteratorConcept
+ * 
+ * @extends RootedIteratorConcept
+ * @extends RandomAccessIteratorConcept
+ * 
+ * @brief Rooted iterator with random access.
+ * 
+ * @signature RootedRandomAccessIteratorConcept&lt;T&gt;
+ * 
+ * @mfn RootedRandomAccessIteratorConcept#Position
+ * 
+ * @brief Metafunction to get Position type of a rooted random access iterator.
+ * 
+ * @signature Position&lt;TIter&gt;::Type
+ * 
+ * @tparam TIter Iterator to query for its position type.
+ * 
+ * @return Type The position type of the iterator.
+ * 
+ * @fn RootedRandomAccessIteratorConcept#position
+ * 
+ * @brief Function to get the position of a rooted random access iterator.
+ * 
+ * @signature TPosition position(it);
+ * 
+ * @param[in] it The iterator to query for its position.
+ * 
+ * @return TPosition The position of &lt;tt&gt;it&lt;/tt&gt;
+ * 
+ * @fn RootedRandomAccessIteratorConcept#setPosition
+ * 
+ * @brief Set position of a rooted random access iterator.
+ * 
+ * @signature void setPosition(it, pos);
+ * 
+ * @param[in,out] it The iterator to set the position of.
+ * @param[in] pos The position to set &lt;tt&gt;it&lt;/tt&gt; to.
+ * 
+ * @fn RootedRandomAccessIteratorConcept#goBegin
+ * 
+ * @brief Set position of rooted random access iterator to the beginning of the
+ *        container.
+ * 
+ * @signature void goBegin(it);
+ * 
+ * @param[in,out] it The iterator to set the position of.
+ * 
+ * @fn RootedRandomAccessIteratorConcept#goEnd
+ * 
+ * @brief Set position of rooted random access iterator to the end of the
+ *        container.
+ * 
+ * @signature void goEnd(it, pos);
+ * 
+ * @param[in,out] it The iterator to set the position of.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,579 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_splitalignment" data-page="splitAlignment">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>splitAlignment - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>splitAlignment<div><div>Compute split alignments.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/align_split.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>TScoreValue splitAlignment(alignL, alignR, scoringScheme[, config][, lowerDiag, upperDiag]);
+TScoreValue splitAlignment(gapsHL, gapsVL, gapsHR, gapsVR, scoringScheme[, config][, lowerDiag, upperDiag]);
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+<h2>Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">alignL</code>
+            
+        
+        </th>
+        <td><a href="class_Align.html" data-lang-entity="class">Align</a> object with two rows for the left alignment.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">alignR</code>
+            
+        
+        </th>
+        <td><a href="class_Align.html" data-lang-entity="class">Align</a> object with two rows for the right alignment.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">gapsHL</code>
+            
+        
+        </th>
+        <td><a href="class_Gaps.html" data-lang-entity="class">Gaps</a> object with the horizontal/contig row for the left alignment.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">gapsVL</code>
+            
+        
+        </th>
+        <td><a href="class_Gaps.html" data-lang-entity="class">Gaps</a> object with the vertical/read row for the left alignment.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">gapsHR</code>
+            
+        
+        </th>
+        <td><a href="class_Gaps.html" data-lang-entity="class">Gaps</a> object with the horizontal/contig row for the right alignment.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">gapsVR</code>
+            
+        
+        </th>
+        <td><a href="class_Gaps.html" data-lang-entity="class">Gaps</a> object with the vertical/read row for the right alignment.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">scoringScheme</code>
+            
+        
+        </th>
+        <td>The scoring scheme to use for the alignment.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">config</code>
+            
+        
+        </th>
+        <td>A configuration object of type <a href="class_AlignConfig.html" data-lang-entity="class">AlignConfig</a>, to specify free-end-gaps.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">lowerDiag</code>
+            
+        
+        </th>
+        <td>The lower diagonal.You have to specify the upper and lower diagonals for the left
+alignment. For the right alignment, the corresponding diagonals are chosen for the
+lower right part of the DP matrix, <tt>int</tt>.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">upperDiag</code>
+            
+        
+        </th>
+        <td>The lower diagonal. Also see remark for <tt>lowerDiag</tt>, <tt>int</tt>.</td>
+    </tr>
+
+</table>
+
+
+
+
+<!-- @tparam -->
+
+
+
+
+
+<!-- @returns -->
+
+
+<h2>Return Values</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>TScoreValue</code></th>
+        <td>The sum of the alignment scores of both alignments (Metafunction: <a href="class_Score.html#Score#Value" data-lang-entity="interface_metafunction">Value</a>
+of the type of <tt>scoringScheme</tt>).</td>
+    </tr>
+
+</table>
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>There are two variants of the split alignment problem. In the first variant, we want to align two sequences where the
+first (say the reference) one is shorter than the second (say a read) and the read contains an insertion with respect
+to the reference. We now want to align the read agains the reference such that the left part of the read aligns well
+against the left part of the reference and the right part of the read aligns well against the right part of the
+reference. The center gap in the reference is free.</p><p>For example:</p><pre class="console" data-src-path="None">reference  AGCATGTTAGATAAGATAGC-----------TGTGCTAGTAGGCAGTCAGCGCCAT
+           ||||||||||||||||||||           |||||||||||||||||||||||||
+read       AGCATGTTAGATAAGATAGCCCCCCCCCCCCTGTGCTAGTAGGCAGTCAGCGCCAT</pre><p>The second variant is to align two sequences A and B against a reference such that the left part of A aligns well to
+the left part of the reference and the right part of B aligns well to the right part of the reference. Together,
+both reads span the whole reference and overlap with an insertion in the reference.</p><pre class="console" data-src-path="None">reference  AGCATGTTAGATAAGATAGCTGTGCTAGTAGGCAGTCAGCGCCAT
+           |||||||||||||||||| | ||
+           AGCATGTTAGATAAGATATCCGTCC
+           read 1
+                             ||| |||||||||||||||||||||||
+                           CCGCTATGCTAGTAGGCAGTCAGCGCCAT
+                                                  read 2</pre><p>The resulting alignment of the left/right parts is depicted below. The square brackets indicate clipping positions.</p><pre class="console" data-src-path="None">reference  AGCATGTTAGATAAGATA    [GCTGTGCTAGTAGGCAGTCAGCGCCAT
+           ||||||||||||||||||    [ | ||
+           AGCATGTTAGATAAGATA    [TCCGTCC
+           read 1
+reference  AGCATGTTAGATAAGATA]    GTGCTAGTAGGCAGTCAGCGCCAT
+                             ]     |||||||||||||||||||||||
+                        CCGCT]    ATGCTAGTAGGCAGTCAGCGCCAT
+                                                    read 2</pre><p>In the first case, we want to find the one breakpoint in the reference and the two breakpoints in the reads and the
+alignment of the left and right well-aligning read parts. In the second case, we want to find the one breakpoint in
+the reference and the breakpoint/clipping position in each read.</p><p>The <tt>splitAlignment()</tt> function takes as the input two alignments. The sequence in each alignment's first row
+is the reference and the sequence of the second row is the read. The sequence has to be the same sequence whereas
+the reads might differ. If the reads are the same then this is the same as the first case and if the reads differ
+then this is the second case.</p><p>The result is two alignments of the left and right contig path clipped appropriately. The resulting score is the sum
+of the scores of both alignments.</p><h3>Remarks</h3><p>The DP algorithm is chosen automatically depending on whether the gap open and extension costs are equal.</p><h3>Example</h3><p>The following example demonstrates the usage of <tt>splitAlignment</tt> in the first case. The second case
+works accordingly.</p><div data-src-path="demos/dox/align_split/split_alignment.cpp"><pre class="code">#include &lt;seqan/align.h&gt;
+#include &lt;seqan/align_split.h&gt;
+#include &lt;seqan/file.h&gt;  // output of String
+#include &lt;seqan/sequence.h&gt;
+#include &lt;seqan/score.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    std::cout &lt;&lt; "Situation\n"
+              &lt;&lt; "\n"
+              &lt;&lt; "REF  AGCATGTTAGATAAGATAG-----------CTGTGCTAGTAGGCAGTCAGCGCCAT\n"
+              &lt;&lt; "READ AGCATGTTAGATAAGATAGCCCCCCCCCCCCTGTGCTAGTAGGCAGTCAGCGCCAT\n"
+              &lt;&lt; "\n";
+
+    // Demo for split alignment where the read contains an insertion with
+    // respect to the reference.  The input of the function is the infix of
+    // reference earlier identified.
+    Dna5String ref =  "AGCATGTTAGATAAGATAG"         "CTGTGCTAGTAGGCAGTCAGCGCCAT";
+    Dna5String read = "AGCATGTTAGATAAGATAGCCCCCCCCCCCCTGTGCTAGTAGGCAGTCAGCGCCAT";
+
+    // Prepare Gaps objects.  We need one for the left part and one for the
+    // right part of the alignment.
+    Align&lt;Dna5String&gt; alignL;
+    resize(rows(alignL), 2);
+    assignSource(row(alignL, 0), ref);
+    assignSource(row(alignL, 1), read);
+    Align&lt;Dna5String&gt; alignR;
+    resize(rows(alignR), 2);
+    assignSource(row(alignR, 0), ref);
+    assignSource(row(alignR, 1), read);
+
+    // Define scoring scheme.
+    Score&lt;int, Simple&gt; scoringScheme(1, -1, -1);
+
+    // Call split alignment function.
+    splitAlignment(alignL, alignR, scoringScheme);
+
+    // Print resulting alignment to stdout.
+    std::cout &lt;&lt; "Resulting alignments\n"
+              &lt;&lt; "\n"
+              &lt;&lt; "Left\n"
+              &lt;&lt; alignL
+              &lt;&lt; "Right\n"
+              &lt;&lt; alignR
+              &lt;&lt; "\n";
+
+    // Get relevant clipping positions.
+    int refSplitPosition = toSourcePosition(row(alignL, 0), clippedEndPosition(row(alignL, 0)));
+    SEQAN_ASSERT_EQ(refSplitPosition, toSourcePosition(row(alignR, 0), 0));
+    int readSplitLPosition = toSourcePosition(row(alignL, 1), clippedEndPosition(row(alignL, 1)));
+    int readSplitRPosition = toSourcePosition(row(alignR, 1), 0);
+
+    std::cout &lt;&lt; "refSplitPosition   == " &lt;&lt; refSplitPosition &lt;&lt; "\n"
+              &lt;&lt; "readSplitLPosition == " &lt;&lt; readSplitLPosition &lt;&lt; "\n"
+              &lt;&lt; "readSplitRPosition == " &lt;&lt; readSplitRPosition &lt;&lt; "\n\n";
+
+    // Print sequence parts to stdout.
+    std::cout &lt;&lt; "Reference Left  " &lt;&lt; prefix(ref, refSplitPosition) &lt;&lt; "\n"
+              &lt;&lt; "Reference Right " &lt;&lt; suffix(ref, refSplitPosition) &lt;&lt; "\n"
+              &lt;&lt; "\n"
+              &lt;&lt; "Read Left       " &lt;&lt; prefix(read, readSplitLPosition) &lt;&lt; "\n"
+              &lt;&lt; "Read Center     " &lt;&lt; infix(read, readSplitLPosition, readSplitRPosition) &lt;&lt; "\n"
+              &lt;&lt; "Read Right      " &lt;&lt; suffix(read, readSplitRPosition) &lt;&lt; "\n";
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/align_split/split_alignment.cpp" target="_top">demos/dox/align_split/split_alignment.cpp</a></div></div><p>The output is as follows.</p><pre class="console" data-src-path="demos/dox/align_split/split_alignment.cpp.stdout">Situation
+
+REF  AGCATGTTAGATAAGATAG-----------CTGTGCTAGTAGGCAGTCAGCGCCAT
+READ AGCATGTTAGATAAGATAGCCCCCCCCCCCCTGTGCTAGTAGGCAGTCAGCGCCAT
+
+Resulting alignments
+
+Left
+      0     .    :    .     
+        AGCATGTTAGATAAGATAG
+        |||||||||||||||||||
+        AGCATGTTAGATAAGATAG
+
+
+Right
+      0     .    :    .    :    .  
+        CTGTGCTAGTAGGCAGTCAGCGCCAT
+        ||||||||||||||||||||||||||
+        CTGTGCTAGTAGGCAGTCAGCGCCAT
+
+
+
+refSplitPosition   == 19
+readSplitLPosition == 19
+readSplitRPosition == 30
+
+Reference Left  AGCATGTTAGATAAGATAG
+Reference Right CTGTGCTAGTAGGCAGTCAGCGCCAT
+
+Read Left       AGCATGTTAGATAAGATAG
+Read Center     CCCCCCCCCCC
+Read Right      CTGTGCTAGTAGGCAGTCAGCGCCAT
+</pre></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn splitAlignment
+ * 
+ * @headerfile &lt;seqan/align_split.h&gt;
+ * 
+ * @brief Compute split alignments.
+ * 
+ * @signature TScoreValue splitAlignment(alignL, alignR, scoringScheme[,
+ *            config][, lowerDiag, upperDiag]);
+ * @signature TScoreValue splitAlignment(gapsHL, gapsVL, gapsHR, gapsVR,
+ *            scoringScheme[, config][, lowerDiag, upperDiag]);
+ * 
+ * @param[in,out] alignL @link Align @endlink object with two rows for the left
+ *                       alignment.
+ * @param[in,out] alignR @link Align @endlink object with two rows for the right
+ *                       alignment.
+ * @param[in,out] gapsHL @link Gaps @endlink object with the horizontal/contig
+ *                       row for the left alignment.
+ * @param[in,out] gapsVL @link Gaps @endlink object with the vertical/read row
+ *                       for the left alignment.
+ * @param[in,out] gapsHR @link Gaps @endlink object with the horizontal/contig
+ *                       row for the right alignment.
+ * @param[in,out] gapsVR @link Gaps @endlink object with the vertical/read row
+ *                       for the right alignment.
+ * @param[in] scoringScheme The scoring scheme to use for the alignment.
+ * @param[in] config A configuration object of type @link AlignConfig @endlink,
+ *                   to specify free-end-gaps.
+ * @param[in] lowerDiag The lower diagonal.You have to specify the upper and
+ *                      lower diagonals for the left alignment. For the right
+ *                      alignment, the corresponding diagonals are chosen for
+ *                      the lower right part of the DP matrix, &lt;tt&gt;int&lt;/tt&gt;.
+ * @param[in] upperDiag The lower diagonal. Also see remark for
+ *                      &lt;tt&gt;lowerDiag&lt;/tt&gt;, &lt;tt&gt;int&lt;/tt&gt;.
+ * 
+ * @return TScoreValue The sum of the alignment scores of both alignments
+ *                     (Metafunction: @link Score#Value @endlink of the type of
+ *                     &lt;tt&gt;scoringScheme&lt;/tt&gt;).
+ * 
+ * There are two variants of the split alignment problem. In the first variant,
+ * we want to align two sequences where the first (say the reference) one is
+ * shorter than the second (say a read) and the read contains an insertion with
+ * respect to the reference. We now want to align the read agains the reference
+ * such that the left part of the read aligns well against the left part of the
+ * reference and the right part of the read aligns well against the right part
+ * of the reference. The center gap in the reference is free.
+ * 
+ * For example:
+ * 
+ * @code{.console}
+ * reference  AGCATGTTAGATAAGATAGC-----------TGTGCTAGTAGGCAGTCAGCGCCAT
+ *            ||||||||||||||||||||           |||||||||||||||||||||||||
+ * read       AGCATGTTAGATAAGATAGCCCCCCCCCCCCTGTGCTAGTAGGCAGTCAGCGCCAT
+ * @endcode
+ * 
+ * 
+ * The second variant is to align two sequences A and B against a reference such
+ * that the left part of A aligns well to the left part of the reference and the
+ * right part of B aligns well to the right part of the reference. Together,
+ * both reads span the whole reference and overlap with an insertion in the
+ * reference.
+ * 
+ * @code{.console}
+ * reference  AGCATGTTAGATAAGATAGCTGTGCTAGTAGGCAGTCAGCGCCAT
+ *            |||||||||||||||||| | ||
+ *            AGCATGTTAGATAAGATATCCGTCC
+ *            read 1
+ *                              ||| |||||||||||||||||||||||
+ *                            CCGCTATGCTAGTAGGCAGTCAGCGCCAT
+ *                                                   read 2
+ * @endcode
+ * 
+ * 
+ * The resulting alignment of the left/right parts is depicted below. The square
+ * brackets indicate clipping positions.
+ * 
+ * @code{.console}
+ * reference  AGCATGTTAGATAAGATA    [GCTGTGCTAGTAGGCAGTCAGCGCCAT
+ *            ||||||||||||||||||    [ | ||
+ *            AGCATGTTAGATAAGATA    [TCCGTCC
+ *            read 1
+ * reference  AGCATGTTAGATAAGATA]    GTGCTAGTAGGCAGTCAGCGCCAT
+ *                              ]     |||||||||||||||||||||||
+ *                         CCGCT]    ATGCTAGTAGGCAGTCAGCGCCAT
+ *                                                     read 2
+ * @endcode
+ * 
+ * 
+ * In the first case, we want to find the one breakpoint in the reference and
+ * the two breakpoints in the reads and the alignment of the left and right
+ * well-aligning read parts. In the second case, we want to find the one
+ * breakpoint in the reference and the breakpoint/clipping position in each
+ * read.
+ * 
+ * The &lt;tt&gt;splitAlignment()&lt;/tt&gt; function takes as the input two alignments. The
+ * sequence in each alignment&#39;s first row is the reference and the sequence of
+ * the second row is the read. The sequence has to be the same sequence whereas
+ * the reads might differ. If the reads are the same then this is the same as
+ * the first case and if the reads differ then this is the second case.
+ * 
+ * The result is two alignments of the left and right contig path clipped
+ * appropriately. The resulting score is the sum of the scores of both
+ * alignments.
+ * 
+ * @section Remarks
+ * 
+ * The DP algorithm is chosen automatically depending on whether the gap open
+ * and extension costs are equal.
+ * 
+ * @section Example
+ * 
+ * The following example demonstrates the usage of &lt;tt&gt;splitAlignment&lt;/tt&gt; in
+ * the first case. The second case works accordingly.
+ * 
+ * @include demos/dox/align_split/split_alignment.cpp
+ * 
+ * The output is as follows.
+ * 
+ * @include demos/dox/align_split/split_alignment.cpp.stdout
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

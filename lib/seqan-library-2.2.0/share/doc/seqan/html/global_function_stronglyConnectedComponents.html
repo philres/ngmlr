@@ -1,0 +1,346 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_stronglyconnectedcomponents" data-page="stronglyConnectedComponents">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>stronglyConnectedComponents - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>stronglyConnectedComponents<div><div>Decomposes a directed graph into its strongly connected components.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/graph_algorithms.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>TSize stronglyConnectedComponents(components, g);
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+<h2>Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">components</code>
+            
+        
+        </th>
+        <td>A property map.Each vertex is mapped to a component id. If two vertices share the same id they are
+in the same component.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">g</code>
+            
+        
+        </th>
+        <td>A directed graph. Types: Directed Graph</td>
+    </tr>
+
+</table>
+
+
+
+
+<!-- @tparam -->
+
+
+
+
+
+<!-- @returns -->
+
+
+<h2>Return Values</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>TSize</code></th>
+        <td>Number of strongly connected components, Size type of g.</td>
+    </tr>
+
+</table>
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><h3>Example</h3><div data-src-path="demos/dox/graph_algorithms/strongly_connected_components.cpp"><pre class="code">#include &lt;iostream&gt;
+#include &lt;seqan/graph_algorithms.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    typedef Graph&lt;Directed&lt;&gt; &gt; TGraph;
+    typedef VertexDescriptor&lt;TGraph&gt;::Type TVertexDescriptor;
+    typedef Size&lt;TGraph&gt;::Type TSize;
+
+    // Create grap with 14 directed edges (1,0), (0,4), ...
+    TSize numEdges = 14;
+    TVertexDescriptor edges[] = {1, 0, 0, 4, 2, 1, 4, 1, 5, 1, 6, 2, 3, 2, 2, 3, 7, 3, 5, 4, 6, 5, 5, 6, 7, 6, 7, 7};
+    TGraph g;
+    addEdges(g, edges, numEdges);
+    // Print graph.
+    std::cout &lt;&lt; g &lt;&lt; std::endl;
+
+    // Create external property map with vertex names and assign to graph.
+    String&lt;char&gt; nameMap;
+    char names[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+    assignVertexMap(nameMap, g, names);
+
+    // Compute strongly connected components.
+    String&lt;unsigned int&gt; component;
+    stronglyConnectedComponents(component, g);
+
+    // Print result to stdout.
+    std::cout &lt;&lt; "Strongly Connected Components: \n";
+    typedef Iterator&lt;TGraph, VertexIterator&gt;::Type TVertexIterator;
+    TVertexIterator it(g);
+    while (!atEnd(it))
+    {
+        std::cout &lt;&lt; "Vertex " &lt;&lt; getProperty(nameMap, getValue(it)) &lt;&lt; ": \n"
+                  &lt;&lt; "Component = " &lt;&lt; getProperty(component, getValue(it)) &lt;&lt; "\n";
+        goNext(it);
+    }
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/graph_algorithms/strongly_connected_components.cpp" target="_top">demos/dox/graph_algorithms/strongly_connected_components.cpp</a></div></div><pre class="console" data-src-path="demos/dox/graph_algorithms/strongly_connected_components.cpp.stdout">Adjacency list:
+0 -&gt; 4,
+1 -&gt; 0,
+2 -&gt; 3,1,
+3 -&gt; 2,
+4 -&gt; 1,
+5 -&gt; 6,4,1,
+6 -&gt; 5,2,
+7 -&gt; 7,6,3,
+Edge list:
+Source: 0,Target: 4 (Id: 1)
+Source: 1,Target: 0 (Id: 0)
+Source: 2,Target: 3 (Id: 7)
+Source: 2,Target: 1 (Id: 2)
+Source: 3,Target: 2 (Id: 6)
+Source: 4,Target: 1 (Id: 3)
+Source: 5,Target: 6 (Id: 11)
+Source: 5,Target: 4 (Id: 9)
+Source: 5,Target: 1 (Id: 4)
+Source: 6,Target: 5 (Id: 10)
+Source: 6,Target: 2 (Id: 5)
+Source: 7,Target: 7 (Id: 13)
+Source: 7,Target: 6 (Id: 12)
+Source: 7,Target: 3 (Id: 8)
+
+Strongly Connected Components: 
+Vertex a: 
+Component = 3
+Vertex b: 
+Component = 3
+Vertex c: 
+Component = 2
+Vertex d: 
+Component = 2
+Vertex e: 
+Component = 3
+Vertex f: 
+Component = 1
+Vertex g: 
+Component = 1
+Vertex h: 
+Component = 0
+</pre></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn stronglyConnectedComponents
+ * 
+ * @headerfile &lt;seqan/graph_algorithms.h&gt;
+ * 
+ * @brief Decomposes a directed graph into its strongly connected components.
+ * 
+ * @signature TSize stronglyConnectedComponents(components, g);
+ * 
+ * @param[out] components  A property map.Each vertex is mapped to a component
+ *                        id. If two vertices share the same id they are in the
+ *                        same component.
+ * @param[in] g A directed graph. Types: Directed Graph
+ * 
+ * @return TSize Number of strongly connected components, Size type of g.
+ * 
+ * @section Example
+ * 
+ * @include demos/dox/graph_algorithms/strongly_connected_components.cpp
+ * 
+ * @include demos/dox/graph_algorithms/strongly_connected_components.cpp.stdout
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_allpairsshortestpath" data-page="allPairsShortestPath">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>allPairsShortestPath - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>allPairsShortestPath<div><div>Finds shortest paths between all pairs of vertices in a graph.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/graph_algorithms.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>void allPairsShortestPath(graph, weight, distance, predecessor);
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+<h2>Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">distance</code>
+            
+        
+        </th>
+        <td>A <a href="class_Matrix.html" data-lang-entity="class">Matrix</a> with distances. Entry <tt>(i,j)</tt> in this matrix indicates the
+distance from vertex <tt>i</tt> to vertex <tt>j</tt>.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">predecessor</code>
+            
+        
+        </th>
+        <td>A <a href="class_Matrix.html" data-lang-entity="class">Matrix</a> with predecessors. Entry <tt>(i,j)</tt> in this matrix indicates the
+predecessor of <tt>j</tt> on a shortest path from vertex <tt>i</tt> to vertex <tt>j</tt>.
+You can use <tt>_printAllPairsShortestPath(graph, predecessor, i, j)</tt> to print the
+shortest path from <tt>i</tt> to <tt>j</tt>.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">graph</code>
+            
+        
+        </th>
+        <td>A <a href="specialization_DirectedGraph.html" data-lang-entity="specialization">Directed Graph</a>.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">weight</code>
+            
+        
+        </th>
+        <td>A property map with edge weights. Edge weights may be negative.</td>
+    </tr>
+
+</table>
+
+
+
+
+<!-- @tparam -->
+
+
+
+
+
+<!-- @returns -->
+
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><h3>Example</h3><div data-src-path="demos/dox/graph_algorithms/all_pairs_shortest_path.cpp"><pre class="code">#include &lt;iostream&gt;
+#include &lt;seqan/graph_algorithms.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    typedef Graph&lt;Directed&lt;&gt; &gt; TGraph;
+    typedef VertexDescriptor&lt;TGraph&gt;::Type TVertexDescriptor;
+    typedef Size&lt;TGraph&gt;::Type TSize;
+
+    // Create a graph with 9 directed edges (0,1), (0,2), ...
+    TSize numEdges = 9;
+    TVertexDescriptor edges[] = {0, 1, 0, 2, 0, 4, 1, 3, 1, 4, 2, 1, 3, 0, 3, 2, 4, 3};
+    TGraph g;
+    addEdges(g, edges, numEdges);
+    // Print graph.
+    std::cout &lt;&lt; g &lt;&lt; std::endl;
+
+    // Create a property map with edge weights.  Note that we can use negative
+    // weights since the edges are directed and there are no cycles.
+    int weights[] = {3, 8, -4, 1, 7, 4, 2, -5, 6};
+    String&lt;int&gt; weightMap;
+    assignEdgeMap(weightMap, g, weights);
+
+    // Compute all-pairs shortest path.
+    String&lt;int&gt; distMat;
+    String&lt;TVertexDescriptor&gt; predMat;
+    allPairsShortestPath(distMat, predMat, g, weightMap);
+
+    // Print the result to stdout.
+    unsigned int len = static_cast&lt;unsigned&gt;(std::sqrt((double)length(distMat)));
+    for (TSize row = 0; row &lt; len; ++row)
+        for (TSize col = 0; col &lt; len; ++col)
+        {
+            std::cout &lt;&lt; row &lt;&lt; "," &lt;&lt; col &lt;&lt; " (Distance="
+                      &lt;&lt; getValue(distMat, row * len + col) &lt;&lt; "): ";
+            _printAllPairsShortestPath(g, predMat, row, col);
+            std::cout &lt;&lt; "\n";
+        }
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/graph_algorithms/all_pairs_shortest_path.cpp" target="_top">demos/dox/graph_algorithms/all_pairs_shortest_path.cpp</a></div></div><pre class="console" data-src-path="demos/dox/graph_algorithms/all_pairs_shortest_path.cpp.stdout">Adjacency list:
+0 -&gt; 4,2,1,
+1 -&gt; 4,3,
+2 -&gt; 1,
+3 -&gt; 2,0,
+4 -&gt; 3,
+Edge list:
+Source: 0,Target: 4 (Id: 2)
+Source: 0,Target: 2 (Id: 1)
+Source: 0,Target: 1 (Id: 0)
+Source: 1,Target: 4 (Id: 4)
+Source: 1,Target: 3 (Id: 3)
+Source: 2,Target: 1 (Id: 5)
+Source: 3,Target: 2 (Id: 7)
+Source: 3,Target: 0 (Id: 6)
+Source: 4,Target: 3 (Id: 8)
+
+0,0 (Distance=0): 0
+0,1 (Distance=1): 0,4,3,2,1
+0,2 (Distance=-3): 0,4,3,2
+0,3 (Distance=2): 0,4,3
+0,4 (Distance=-4): 0,4
+1,0 (Distance=3): 1,3,0
+1,1 (Distance=0): 1
+1,2 (Distance=-4): 1,3,2
+1,3 (Distance=1): 1,3
+1,4 (Distance=-1): 1,3,0,4
+2,0 (Distance=7): 2,1,3,0
+2,1 (Distance=4): 2,1
+2,2 (Distance=0): 2
+2,3 (Distance=5): 2,1,3
+2,4 (Distance=3): 2,1,3,0,4
+3,0 (Distance=2): 3,0
+3,1 (Distance=-1): 3,2,1
+3,2 (Distance=-5): 3,2
+3,3 (Distance=0): 3
+3,4 (Distance=-2): 3,0,4
+4,0 (Distance=8): 4,3,0
+4,1 (Distance=5): 4,3,2,1
+4,2 (Distance=1): 4,3,2
+4,3 (Distance=6): 4,3
+4,4 (Distance=0): 4
+</pre></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="global_function_floydWarshallAlgorithm.html" data-lang-entity="global_function">floydWarshallAlgorithm</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn allPairsShortestPath
+ * 
+ * @headerfile &lt;seqan/graph_algorithms.h&gt;
+ * 
+ * @brief Finds shortest paths between all pairs of vertices in a graph.
+ * 
+ * @signature void allPairsShortestPath(graph, weight, distance, predecessor);
+ * 
+ * @param[out] distance A @link Matrix @endlink with distances. Entry
+ *                      &lt;tt&gt;(i,j)&lt;/tt&gt; in this matrix indicates the distance
+ *                      from vertex &lt;tt&gt;i&lt;/tt&gt; to vertex &lt;tt&gt;j&lt;/tt&gt;.
+ * @param[out] predecessor A @link Matrix @endlink with predecessors. Entry
+ *                         &lt;tt&gt;(i,j)&lt;/tt&gt; in this matrix indicates the
+ *                         predecessor of &lt;tt&gt;j&lt;/tt&gt; on a shortest path from
+ *                         vertex &lt;tt&gt;i&lt;/tt&gt; to vertex &lt;tt&gt;j&lt;/tt&gt;. You can use
+ *                         &lt;tt&gt;_printAllPairsShortestPath(graph, predecessor, i,
+ *                         j)&lt;/tt&gt; to print the shortest path from &lt;tt&gt;i&lt;/tt&gt; to
+ *                         &lt;tt&gt;j&lt;/tt&gt;.
+ * @param[in] graph A @link DirectedGraph Directed Graph @endlink.
+ * @param[in] weight A property map with edge weights. Edge weights may be
+ *                   negative.
+ * 
+ * @section Example
+ * 
+ * @include demos/dox/graph_algorithms/all_pairs_shortest_path.cpp
+ * 
+ * @include demos/dox/graph_algorithms/all_pairs_shortest_path.cpp.stdout
+ * 
+ * @see floydWarshallAlgorithm
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

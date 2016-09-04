@@ -1,0 +1,366 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_lexicalcast" data-page="lexicalCast">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>lexicalCast - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>lexicalCast<div><div>Interpret the character sequence in <tt>source</tt> as the numeric value and write to <tt>target</tt>.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/stream.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>bool lexicalCast(target, source);
+TTarget lexicalCast&lt;TTarge&gt;(source) // throws BadLexicalCast
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+<h2>Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="out" title="OUT parameters are modified and used as a means to return values">target</code>
+            
+        
+        </th>
+        <td>A numeric value to write to.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">source</code>
+            
+        
+        </th>
+        <td>The source sequence of <tt>char</tt> to convert.</td>
+    </tr>
+
+</table>
+
+
+
+
+<!-- @tparam -->
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>TTarget</code></th>
+        <td>The type to use for lexical cast of <tt>source</tt>.</td>
+    </tr>
+
+</table>
+
+</div>
+
+
+
+<!-- @returns -->
+
+
+<h2>Return Values</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>bool</code></th>
+        <td><tt>true</tt> if successful and <tt>false</tt> if there was a problem with the cast.</td>
+    </tr>
+
+</table>
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><h3>Examples</h3><p>The following example shows some lexical cast from various sequence types to numbers.</p><div data-src-path="demos/dox/stream/lexical_cast.cpp"><pre class="code">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+#include &lt;seqan/sequence.h&gt;
+#include &lt;seqan/stream.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    // interpret string literal as int
+    int x = 0;
+    // successful cast
+    std::cout &lt;&lt; "success=" &lt;&lt; lexicalCast(x, "123");
+    std::cout &lt;&lt; ", x=" &lt;&lt; x &lt;&lt; "\n";
+    // unsuccessful cast
+    std::cout &lt;&lt; "success=" &lt;&lt; lexicalCast(x, "42a");
+    std::cout &lt;&lt; ", x=" &lt;&lt; x &lt;&lt; "\n";
+
+    // interpret std::string as int
+    std::cout &lt;&lt; "success=" &lt;&lt; lexicalCast(x, std::string("234"));
+    std::cout &lt;&lt; ", x=" &lt;&lt; x &lt;&lt; "\n";
+    // interpret CharString as int
+    std::cout &lt;&lt; "success=" &lt;&lt; lexicalCast(x, CharString("345"));
+    std::cout &lt;&lt; ", x=" &lt;&lt; x &lt;&lt; "\n";
+    // interpret infix as int
+    CharString str = "123";
+    std::cout &lt;&lt; "success=" &lt;&lt; lexicalCast(x, infix(str, 1, 2));
+    std::cout &lt;&lt; ", x=" &lt;&lt; x &lt;&lt; "\n";
+
+    // interpret literal as float and double
+    float f = -1;
+    double d = -1;
+    std::cout &lt;&lt; "success=" &lt;&lt; lexicalCast(f, "3.1");
+    std::cout &lt;&lt; ", f=" &lt;&lt; f &lt;&lt; "\n";
+    std::cout &lt;&lt; "success=" &lt;&lt; lexicalCast(d, "4.2");
+    std::cout &lt;&lt; ", d=" &lt;&lt; d &lt;&lt; "\n";
+
+    // demonstrate throwing of exceptions with lexicalCast()
+    try
+    {
+        x = lexicalCast&lt;int&gt;("a");
+    }
+    catch (BadLexicalCast const &amp; badCast)
+    {
+        std::cout &lt;&lt; "error: " &lt;&lt; badCast.what() &lt;&lt; "\n";
+    }
+
+    // demonstrate throwing of exceptions with lexicalCastWithException
+    try
+    {
+        lexicalCastWithException(x, "b");
+    }
+    catch (BadLexicalCast const &amp; badCast)
+    {
+        std::cout &lt;&lt; "error: " &lt;&lt; badCast.what() &lt;&lt; "\n";
+    }
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/stream/lexical_cast.cpp" target="_top">demos/dox/stream/lexical_cast.cpp</a></div></div><pre class="console" data-src-path="demos/dox/stream/lexical_cast.cpp.stdout">success=1, x=123
+success=0, x=123
+success=1, x=234
+success=1, x=345
+success=1, x=2
+success=1, f=3.1
+success=1, d=4.2
+error: Unable to convert 'a' into int.
+error: Unable to convert 'b' into int.
+</pre></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+<h2>Thrown Exceptions</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>BadLexicalCast</code></th>
+        <td>The second variant throws <a href="specialization_BadLexicalCast.html" data-lang-entity="specialization">BadLexicalCast</a> in the case that casting failed.</td>
+    </tr>
+
+</table>
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn lexicalCast
+ * 
+ * @headerfile &lt;seqan/stream.h&gt;
+ * 
+ * @brief Interpret the character sequence in &lt;tt&gt;source&lt;/tt&gt; as the numeric
+ *        value and write to &lt;tt&gt;target&lt;/tt&gt;.
+ * 
+ * @signature bool lexicalCast(target, source);
+ * @signature TTarget lexicalCast&lt;TTarge&gt;(source) // throws BadLexicalCast
+ * 
+ * @tparam TTarget The type to use for lexical cast of &lt;tt&gt;source&lt;/tt&gt;.
+ * 
+ * @param[out] target A numeric value to write to.
+ * @param[in] source The source sequence of &lt;tt&gt;char&lt;/tt&gt; to convert.
+ * 
+ * @return bool &lt;tt&gt;true&lt;/tt&gt; if successful and &lt;tt&gt;false&lt;/tt&gt; if there was a
+ *              problem with the cast.
+ * 
+ * @throw BadLexicalCast The second variant throws @link BadLexicalCast @endlink
+ *                       in the case that casting failed.
+ * 
+ * @section Examples
+ * 
+ * The following example shows some lexical cast from various sequence types to
+ * numbers.
+ * 
+ * @include demos/dox/stream/lexical_cast.cpp
+ * 
+ * @include demos/dox/stream/lexical_cast.cpp.stdout
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

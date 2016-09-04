@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "Timing.h"
-#include "seqan/EndToEndAffine.h"
+#include "EndToEndAffine.h"
 #include "OutputReadBuffer.h"
 
 using std::vector;
@@ -1182,11 +1182,9 @@ Interval * * AlignmentBuffer::infereCMRsfromAnchors(int & intervalsIndex,
 				if(abs(interval->onReadStop - interval->onReadStart) > 0 &&
 						llabs(interval->onRefStart - interval->onRefStop) > 0) {
 					if(!constructMappedSegements(segments, interval, segementsIndex)) {
-						Log.Message("Too many intervals found (>1000). Ignoring all others");
 						lisLength = 0;
 						delete[] lis;
-//					return intervals;
-						Fatal();
+						Log.Error("Too many intervals found (>1000). Ignoring all others");
 					}
 				} else {
 					if(pacbioDebug) {
@@ -1343,7 +1341,7 @@ int AlignmentBuffer::alignmentCheckForInversion(int const inversionLength,
 		uloc inversionMidpointOnRead, const char* const readName,
 		int inversionNumber, char* fullReadSeq) {
 
-	static bool const noLowQualSplit = Config.GetInt(NOLOWQUALSPLIT) == 1;
+	static bool const noLowQualSplit = !Config.getLowQualitySplit();
 
 	int svType = SV_NONE;
 	int const readCheckLength = 50;
@@ -1541,7 +1539,7 @@ int AlignmentBuffer::detectMisalignment(Align const * const align,
 		Interval const * alignedInterval, char * readPartSeq,
 		Interval * leftOfInv, Interval * rightOfInv, MappedRead * read) {
 
-	static bool const enabled = Config.GetInt(NOINVERSIONS) != 1;
+	static bool const enabled = Config.getSmallInversionDetection();
 	if (!enabled) {
 		return SV_NONE;
 	}
@@ -2842,7 +2840,7 @@ void AlignmentBuffer::SaveRead(MappedRead * read, bool mapped) {
 }
 
 void AlignmentBuffer::WriteRead(MappedRead* read, bool mapped) {
-	static int const topn = Config.GetInt("topn");
+
 	if (mapped) {
 		//Convert mapping position to RefId and position
 		for (int i = 0; i < read->Calculated; ++i) {
@@ -2851,50 +2849,9 @@ void AlignmentBuffer::WriteRead(MappedRead* read, bool mapped) {
 			mapped = SequenceProvider.convert(read->Scores[i].Location);
 		}
 	}
-	if (read->Paired != 0) {
-		if (topn == 1) {
-			if (read->Paired->HasFlag(NGMNames::DeletionPending)) {
-				if (read->hasCandidates() && read->Paired->hasCandidates()) {
-					LocationScore * ls1 = &read->Scores[0];
-					LocationScore * ls2 = &read->Paired->Scores[0];
-					int distance =
-							(ls2->Location.m_Location > ls1->Location.m_Location) ?
-									ls2->Location.m_Location
-											- ls1->Location.m_Location
-											+ read->length :
-									ls1->Location.m_Location
-											- ls2->Location.m_Location
-											+ read->Paired->length;
 
-					//int distance = abs(read->TLS()->Location.m_Location - read->Paired->TLS()->Location.m_Location);
+	m_Writer->WriteRead(read, mapped);
 
-					pairInsertCount += 1;
-					if (ls1->Location.getrefId() != ls2->Location.getrefId()
-							|| distance < _NGM::sPairMinDistance
-							|| distance > _NGM::sPairMaxDistance
-							|| ls1->Location.isReverse()
-									== ls2->Location.isReverse()) {
-						//						Log.Message("%d != %d || %d < _%d || %d > %d || %d == %d", ls1->Location.getrefId() , ls2->Location.getrefId(), distance, _NGM::sPairMinDistance, distance, _NGM::sPairMaxDistance, ls1->Location.isReverse(), ls2->Location.isReverse());
-						read->SetFlag(NGMNames::PairedFail);
-						read->Paired->SetFlag(NGMNames::PairedFail);
-						brokenPairs += 1;
-					} else {
-						pairInsertSum += distance;
-					}
-				}
-				m_Writer->WritePair(read, 0, read->Paired, 0);
-			}
-		} else {
-			Log.Error("TopN > 1 is currently not supported for paired end reads.");
-			Fatal();
-		}
-	} else {
-		m_Writer->WriteRead(read, mapped);
-	}
-	if (pairInsertCount % 1000 == 0) {
-		NGM.Stats->validPairs = (pairInsertCount - brokenPairs) * 100.0f / pairInsertCount;
-		//		NGM.Stats->insertSize = tSum * 1.0f / (tCount - brokenPairs);
-	}
 	NGM.GetReadProvider()->DisposeRead(read);
 }
 

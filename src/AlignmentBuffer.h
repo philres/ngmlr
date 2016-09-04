@@ -3,13 +3,13 @@
 
 #include "GenericReadWriter.h"
 
+#include "ILog.h"
+#include "IConfig.h"
 #include "SAMWriter.h"
 #include "BAMWriter.h"
-#include "ScoreWriter.h"
 #include "StrippedSW.h"
-
 #include "intervaltree/IntervalTree.h"
-#include "misc/LinearRegression.h"
+#include "LinearRegression.h"
 
 #undef module_name
 #define module_name "OUTPUT"
@@ -110,28 +110,6 @@ private:
 		int scoreId;
 	};
 
-	int const outputformat;
-	int const alignmode;
-	bool m_EnableBS;
-	int const batchSize;
-	int const corridor;
-	uloc const refMaxLen;
-	int const min_mq;
-
-//	Alignment * reads;
-//	int nReads;
-//	char const * * qryBuffer;
-//	char const * * refBuffer;
-//	char * m_DirBuffer;
-	int dbLen;
-//	Align * alignBuffer;
-	char * dBuffer;
-	char * dummy;
-
-	long pairInsertCount;
-	long pairInsertSum;
-	long brokenPairs;
-
 	float processTime;
 	float alignTime;
 //	float overallTime;
@@ -141,8 +119,6 @@ private:
 	static bool first;
 
 	IAlignment * aligner;
-
-	bool const argos;
 
 	bool const pacbioDebug;
 
@@ -292,66 +268,20 @@ public:
 			bool const isReverse, int const type, int const status);
 
 	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
-			batchSize(mAligner->GetAlignBatchSize() / 2), outputformat(
-			NGM.GetOutputFormat()),
-			alignmode(Config.GetInt(MODE, 0, 1)),
-			corridor(Config.GetInt("corridor")),
-			refMaxLen((Config.GetInt("qry_max_len") + corridor) | 1 + 1),
-			min_mq(Config.GetInt(MIN_MQ)),
-			aligner(mAligner), argos(Config.Exists(ARGOS)), pacbioDebug(Config.GetInt(PACBIOLOG) == 1), readCoordsTree(0), readPartLength(Config.GetInt(READ_PART_LENGTH)), maxIntervalNumber(10) {
-		pairInsertSum = 0;
-		pairInsertCount = 0;
-		brokenPairs = 0;
+			aligner(mAligner), pacbioDebug(Config.getVerbose()), readCoordsTree(0), readPartLength(Config.getReadPartLength()), maxIntervalNumber(10) {
+
 		m_Writer = 0;
-//		nReads = 0;
 
-		m_EnableBS = false;
-		m_EnableBS = (Config.GetInt("bs_mapping", 0, 1) == 1);
-
-		int const outputformat = NGM.GetOutputFormat();
-
-		if(Config.Exists(ARGOS)) {
-			m_Writer = (GenericReadWriter*) new ScoreWriter((FileWriter*)NGM.getWriter());
+		if (Config.getBAM()) {
+			m_Writer = (GenericReadWriter*) new BAMWriter((FileWriterBam*) NGM.getWriter(), filename);
 		} else {
-			switch (outputformat) {
-				case 0:
-				Log.Error("This output format is not supported any more.");
-				Fatal();
-				break;
-				case 1:
-				m_Writer = (GenericReadWriter*) new SAMWriter((FileWriter*)NGM.getWriter());
-				break;
-				case 2:
-				m_Writer = (GenericReadWriter*) new BAMWriter((FileWriterBam*)NGM.getWriter(), filename);
-				break;
-				default:
-				break;
-			}
+			m_Writer = (GenericReadWriter*) new SAMWriter((FileWriter*)NGM.getWriter());
 		}
 
-		if(first) {
+		if (first) {
 			m_Writer->WriteProlog();
 			first = false;
 		}
-
-//		reads = new Alignment[batchSize];
-
-//		qryBuffer = new char const *[batchSize];
-//		refBuffer = new char const *[batchSize];
-
-//		for (int i = 0; i < batchSize; ++i) {
-//			refBuffer[i] = new char[refMaxLen];
-//		}
-//
-//		m_DirBuffer = new char[batchSize];
-
-//		alignBuffer = new Align[batchSize];
-		dbLen = std::max(1, Config.GetInt("qry_max_len")) * 8;
-		dBuffer = new char[dbLen];
-
-		dummy = new char[refMaxLen];
-		memset(dummy, '\0', refMaxLen);
-		//dummy[Config.GetInt("qry_max_len") - 1] = '\0';
 
 		processTime = 0.0f;
 //		overallTime = 0.0f;
@@ -359,18 +289,18 @@ public:
 		//}
 		//}
 
-		if(first) {
+		if (first) {
 			m_Writer->WriteProlog();
 			first = false;
 		}
 
-		stdoutPrintDotPlot = Config.GetInt(STDOUT) == 1;
-		stdoutInversionBed = Config.GetInt(STDOUT) == 2;
-		stdoutErrorProfile = Config.GetInt(STDOUT) == 3;
-		printInvCandidateFa = Config.GetInt(STDOUT) == 4;
-		stdoutPrintMappedSegments = Config.GetInt(STDOUT) == 5;
-		stdoutPrintAlignCorridor =						Config.GetInt(STDOUT) == 6;
-		stdoutPrintScores =		Config.GetInt(STDOUT) == 7;
+		stdoutPrintDotPlot = Config.getStdoutMode() == 1;
+		stdoutInversionBed = Config.getStdoutMode() == 2;
+		stdoutErrorProfile = Config.getStdoutMode() == 3;
+		printInvCandidateFa = Config.getStdoutMode() == 4;
+		stdoutPrintMappedSegments = Config.getStdoutMode() == 5;
+		stdoutPrintAlignCorridor = Config.getStdoutMode() == 6;
+		stdoutPrintScores = Config.getStdoutMode() == 7;
 
 		Log.Verbose("Alignment batchsize = %i", batchSize);
 
@@ -381,29 +311,10 @@ public:
 
 	virtual ~AlignmentBuffer() {
 		delete m_Writer;
-//		delete[] m_DirBuffer;
-//		m_DirBuffer = 0;
-
-		delete[] dummy;
-		dummy = 0;
-
-//		for (int i = 0; i < batchSize; ++i) {
-//			delete[] refBuffer[i];
-//			refBuffer[i] = 0;
-//		}
-//		delete[] qryBuffer;
-//		delete[] refBuffer;
-//		delete[] alignBuffer;
-//
-//		delete[] reads;
-		delete[] dBuffer;
 
 		delete[] intervalBuffer;
 		intervalBuffer = 0;
 
-		//m_Writer->WriteEpilog();
-
-		//delete m_Writer;
 	}
 
 	void DoRun();

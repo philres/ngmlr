@@ -1,0 +1,469 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_function_extendalignment" data-page="extendAlignment">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>extendAlignment - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="function" data-pimped="true">
+  <a href="page_LanguageEntities.html#function">fn()</a> <span>extendAlignment<div><div>X-Drop extension for alignment objects.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/align_extend.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>TScoreValue extendAlignment(align, [origScore,] hSeq, vSeq, positions, extensionDirection,
+[lowerDiag, upperDiag,] [xDrop,] scoreScheme);
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+<h2>Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in_out" title="IN/OUT parameters are read and also modified by the called function">align</code>
+            
+        
+        </th>
+        <td>The <a href="class_Align.html" data-lang-entity="class">Align</a> object to work on. Must be an alignment over the
+<a href="specialization_InfixSegment.html" data-lang-entity="specialization">infix</a> of the <i>const</i> type of <tt>hSeq</tt>
+and <tt>vSeq</tt>. Also see section "Returned Alignment".</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">origScore</code>
+            
+        
+        </th>
+        <td>Original score value of the alignment (optional; computed if not provided).</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">hSeq</code>
+            
+        
+        </th>
+        <td>Full horizontal sequence.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">vSeq</code>
+            
+        
+        </th>
+        <td>Full vertical sequence.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">positions</code>
+            
+        
+        </th>
+        <td>A <a href="class_Tuple.html" data-lang-entity="class">Tuple</a> of length 4 with the begin and end position of the
+infixes in align.</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">extensionDirection</code>
+            
+        
+        </th>
+        <td>The extension direction (<a href="enum_ExtensionDirection.html" data-lang-entity="enum">ExtensionDirection</a>).</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">lowerDiag</code>
+            
+        
+        </th>
+        <td>Lower alignment diagonal to use (<tt>int</tt>).</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">upperDiag</code>
+            
+        
+        </th>
+        <td>Upper alignment diagonal to use (<tt>int</tt>).</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">xDrop</code>
+            
+        
+        </th>
+        <td>The X-drop value to use (integral value). It only limits computation of new
+columns in the DP-Matrix and has no influence on the diagonals (but can be combined with them).</td>
+    </tr>
+
+    <tr>
+        <th>
+        
+            
+                <code data-param-type="in" title="IN parameters are only read and not modified">scoringScheme</code>
+            
+        
+        </th>
+        <td>The <a href="class_Score.html" data-lang-entity="class">Score</a> to use.</td>
+    </tr>
+
+</table>
+
+
+
+
+<!-- @tparam -->
+
+
+
+
+
+<!-- @returns -->
+
+
+<h2>Return Values</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>TScoreValue</code></th>
+        <td>The score of the new alignment. <tt>TScoreValue</tt> is the value type of
+<tt>scoringScheme</tt>.</td>
+    </tr>
+
+</table>
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><h3>Returned Alignment</h3><p>The resulting alignment has the infixes extended to the whole underlying sequence. The alignment
+is clipped to give the parts of the aligned sequences.</p><h3>Example</h3><div data-src-path="demos/dox/align_extend/extend_alignment.cpp"><pre class="code">#include &lt;iostream&gt;
+
+#include &lt;seqan/align.h&gt;
+#include &lt;seqan/align_extend.h&gt;
+#include &lt;seqan/sequence.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    Score&lt;int&gt; sc(2, -1, -2);
+
+    Align&lt;Infix&lt;CharString const&gt;::Type&gt; align;
+    resize(rows(align), 2);
+
+    // We create the following initial situation with subject/query and the
+    // infixes thereof.
+    //
+    //                         infixes/seeds
+    //                             &lt;--&gt;
+    // subject  NNNNNNNNNNTTCCGGGACGGTACACACACGGGGGGGGGG
+    // query               CTCGGGACGGTACAGGCACGGTTTTTTTT
+    CharString subject = "NNNNNNNNNNTTCCGGGACGGTACACACACGGGGGGGGGG";
+    CharString query   = "CTCGGGACGGTACAGGCACGGTTTTTTTT";
+    assignSource(row(align, 0), infix(subject, 19, 23));
+    assignSource(row(align, 1), infix(query, 8, 12));
+    int score = globalAlignment(align, sc);
+
+    std::cout &lt;&lt; "Initial alignment of infixes (score == " &lt;&lt; score &lt;&lt; ")\n\n"
+              &lt;&lt; align;
+
+    // The alignment starts at diagonal (23 - 19) = 4.  A band of 4 in each direction has
+    // the following diagonals.
+    int lDiag = 0, uDiag = 8;
+    // Set the x-Drop value to 5.
+    int xDrop = 5;
+    Tuple&lt;unsigned, 4&gt; positions = { {19u, 8u, 23u, 12u} };
+    score = extendAlignment(align, score, subject, query, positions, EXTEND_BOTH,
+                            lDiag, uDiag, xDrop, sc);
+
+    std::cout &lt;&lt; "Resulting alignment (score == " &lt;&lt; score &lt;&lt; ")\n\n"
+              &lt;&lt; align;
+
+    std::cout &lt;&lt; "source(row(align, 0)) == " &lt;&lt; source(row(align, 0)) &lt;&lt; " (full sequence)\n"
+              &lt;&lt; "source(row(align, 1)) == " &lt;&lt; source(row(align, 1)) &lt;&lt; " (full sequence)\n"
+              &lt;&lt; "\n"
+              &lt;&lt; "clipping positions of row 0: " &lt;&lt; clippedBeginPosition(row(align, 0))
+              &lt;&lt; ", " &lt;&lt; clippedEndPosition(row(align, 0)) &lt;&lt; "\n"
+              &lt;&lt; "clipping positions of row 1: " &lt;&lt; clippedBeginPosition(row(align, 1))
+              &lt;&lt; ", " &lt;&lt; clippedEndPosition(row(align, 1)) &lt;&lt; "\n";
+
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/align_extend/extend_alignment.cpp" target="_top">demos/dox/align_extend/extend_alignment.cpp</a></div></div><p>The output is as follows:</p><pre class="console" data-src-path="demos/dox/align_extend/extend_alignment.cpp.stdout">Initial alignment of infixes (score == 8)
+
+      0      
+        GGTA
+        ||||
+        GGTA
+
+
+Resulting alignment (score == 32)
+
+      0     .    :    .     
+        CGGGACGGTACACACACGG
+        ||||||||||||  |||||
+        CGGGACGGTACAGGCACGG
+
+
+source(row(align, 0)) == NNNNNNNNNNTTCCGGGACGGTACACACACGGGGGGGGGG (full sequence)
+source(row(align, 1)) == CTCGGGACGGTACAGGCACGGTTTTTTTT (full sequence)
+
+clipping positions of row 0: 13, 32
+clipping positions of row 1: 2, 21
+</pre><h3>Remarks</h3><p>It is necessary to explicitly pass hSeq, vSeq and the positions, because the
+original hSeq and vSeq (that Align was created on), might have been infixes,
+(especially if they are members of a ConcatDirect set) in which cases their
+actual begin and end positions cannot be inferred from the Align object's
+rows' source().</p></div>
+
+  </div>
+</div>
+
+
+<!-- @throw -->
+
+
+
+
+<!-- @datarace -->
+<h2 class="clause_header">Data Races</h2>
+
+	<div class="summary compact">
+ 		Thread safety unknown!
+	</div>
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @fn extendAlignment
+ * 
+ * @headerfile &lt;seqan/align_extend.h&gt;
+ * 
+ * @brief X-Drop extension for alignment objects.
+ * 
+ * @signature TScoreValue extendAlignment(align, [origScore,] hSeq, vSeq,
+ *            positions, extensionDirection, [lowerDiag, upperDiag,] [xDrop,]
+ *            scoreScheme);
+ * 
+ * @param[in,out] align The @link Align @endlink object to work on. Must be an
+ *                      alignment over the @link InfixSegment infix @endlink of
+ *                      the &lt;i&gt;const&lt;/i&gt; type of &lt;tt&gt;hSeq&lt;/tt&gt; and
+ *                      &lt;tt&gt;vSeq&lt;/tt&gt;. Also see section &#34;Returned Alignment&#34;.
+ * @param[in] origScore Original score value of the alignment (optional;
+ *                      computed if not provided).
+ * @param[in] hSeq Full horizontal sequence.
+ * @param[in] vSeq Full vertical sequence.
+ * @param[in] positions A @link Tuple @endlink of length 4 with the begin and
+ *                      end position of the infixes in align.
+ * @param[in] extensionDirection  The extension direction (@link
+ *                               ExtensionDirection @endlink).
+ * @param[in] lowerDiag Lower alignment diagonal to use (&lt;tt&gt;int&lt;/tt&gt;).
+ * @param[in] upperDiag Upper alignment diagonal to use (&lt;tt&gt;int&lt;/tt&gt;).
+ * @param[in] xDrop The X-drop value to use (integral value). It only limits
+ *                  computation of new columns in the DP-Matrix and has no
+ *                  influence on the diagonals (but can be combined with them).
+ * @param[in] scoringScheme  The @link Score @endlink to use.
+ * 
+ * @return TScoreValue The score of the new alignment. &lt;tt&gt;TScoreValue&lt;/tt&gt; is
+ *                     the value type of &lt;tt&gt;scoringScheme&lt;/tt&gt;.
+ * 
+ * @section Returned Alignment
+ * 
+ * The resulting alignment has the infixes extended to the whole underlying
+ * sequence. The alignment is clipped to give the parts of the aligned
+ * sequences.
+ * 
+ * @section Example
+ * 
+ * @include demos/dox/align_extend/extend_alignment.cpp
+ * 
+ * The output is as follows:
+ * 
+ * @include demos/dox/align_extend/extend_alignment.cpp.stdout
+ * 
+ * @section Remarks
+ * 
+ * It is necessary to explicitly pass hSeq, vSeq and the positions, because the
+ * original hSeq and vSeq (that Align was created on), might have been infixes,
+ * (especially if they are members of a ConcatDirect set) in which cases their
+ * actual begin and end positions cannot be inferred from the Align object&#39;s
+ * rows&#39; source().
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="page_demosuffixarray" data-page="DemoSuffixArray">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>Demo Suffix Array - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<div id="filecontents">
+<h1 data-lang-entity="page" data-pimped="true">
+  <a href="page_LanguageEntities.html#page">Page</a> <span>Demo Suffix Array</span>
+</h1>
+
+<div class="docstring">
+  <div class="discussion">
+    <!-- @brief -->
+    <div>Example for how to create a suffix array and use it as a dictionary.</div>
+    
+    <!-- paragraphs -->
+    
+<div><p>Given a sequence $s$, a suffix array is an array containing start positions of all suffices of $s$ in
+lexicographical order. A suffix array can simply be used to find all occurrences of an arbitrary substring $t$ in $s$ in
+O(|t|*log(|s|)).</p><p>SeqAn contains various suffix array construction algorithms like the Skew algorithm (J. Karkkainen and P. Sanders,
+"Simple Linear Work Suffix Array Construction", 2003), a more efficient modification of the Skew algorithm (difference
+cover of 7), external memory Skew algorithms, the prefix-doubling algorithm (U. Manber and G. Myers, "Suffix arrays: A
+new method for online string searching", 1993), the algorithm of Larsson and Sadakane (N.J. Larsson and K. Sadakane,
+"Faster Suffix Sorting", 1999), and a quicksort based algorithm.</p><p>The following example constructs a suffix array using the modified Skew algorithm and searches the interval of suffices
+beginning with $t="l"$. The start positions of these suffices are the occurences of $t$, which are outputted at last.
+This is only an example for <a href="global_function_createSuffixArray.html" data-lang-entity="global_function">createSuffixArray</a> and similar functions. For an index based substring search
+better use the more generic <a href="class_Finder.html" data-lang-entity="class">Finder</a> class (see @Demo.Index Finder@ demo).</p><div data-src-path="demos/dox/index/sufarray.cpp"><pre class="code">///A tutorial about suffix arrays.
+#include &lt;iostream&gt;
+#include &lt;seqan/index.h&gt;
+
+using namespace seqan;
+
+int main()
+{
+    String&lt;char&gt; text = "hello world!";
+    String&lt;char&gt; pattern = "l";
+    String&lt;unsigned&gt; sa;
+
+//Build a suffix array using the Skew7 algorithm.
+    resize(sa, length(text));
+    createSuffixArray(sa, text, Skew7());
+
+//Search the interval of suffices beginning with the pattern.
+    Pair&lt;unsigned&gt; hitRange;
+    hitRange = equalRangeSA(text, sa, pattern);
+
+//Output the suffix indices, i.e. the occurrences of the pattern.
+    for (unsigned i = hitRange.i1; i &lt; hitRange.i2; ++i)
+        std::cout &lt;&lt; sa[i] &lt;&lt; " ";
+    std::cout &lt;&lt; std::endl;
+
+    return 0;
+}
+</pre><div class="path_label"><span class="label">Demo:</span> <a href="demos/dox/index/sufarray.cpp" target="_top">demos/dox/index/sufarray.cpp</a></div></div><pre class="console" data-src-path="None">weese@tanne:~/seqan$ cd demos
+weese@tanne:~/seqan/demos$ make index_sufarray
+weese@tanne:~/seqan/demos$ ./index_sufarray
+9 2 3</pre></div>
+
+  </div>
+</div>
+
+<!-- @see -->
+
+</div>
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>@page DemoSuffixArray Demo Suffix Array
+
+@brief Example for how to create a suffix array and use it as a dictionary.
+
+Given a sequence $s$, a suffix array is an array containing start positions
+of all suffices of $s$ in lexicographical order. A suffix array can simply be
+used to find all occurrences of an arbitrary substring $t$ in $s$ in
+O(|t|*log(|s|)).
+
+SeqAn contains various suffix array construction algorithms like the Skew
+algorithm (J. Karkkainen and P. Sanders, &#34;Simple Linear Work Suffix Array
+Construction&#34;, 2003), a more efficient modification of the Skew algorithm
+(difference cover of 7), external memory Skew algorithms, the prefix-doubling
+algorithm (U. Manber and G. Myers, &#34;Suffix arrays: A new method for online
+string searching&#34;, 1993), the algorithm of Larsson and Sadakane (N.J. Larsson
+and K. Sadakane, &#34;Faster Suffix Sorting&#34;, 1999), and a quicksort based
+algorithm.
+
+The following example constructs a suffix array using the modified Skew
+algorithm and searches the interval of suffices beginning with $t=&#34;l&#34;$. The
+start positions of these suffices are the occurences of $t$, which are
+outputted at last. This is only an example for @link createSuffixArray
+@endlink and similar functions. For an index based substring search better
+use the more generic @link Finder @endlink class (see @Demo.Index Finder@
+demo).
+
+@include demos/dox/index/sufarray.cpp
+
+@code{.console}
+weese@tanne:~/seqan$ cd demos
+weese@tanne:~/seqan/demos$ make index_sufarray
+weese@tanne:~/seqan/demos$ ./index_sufarray
+9 2 3
+@endcode
+
+
+</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

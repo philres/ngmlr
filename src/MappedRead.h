@@ -10,9 +10,6 @@
 #include "ReadStatus.h"
 #include "LocationScore.h"
 
-//#include "ILog.h"
-//#include "SequenceProvider.h"
-
 struct MappedRead;
 
 typedef struct {
@@ -43,13 +40,11 @@ public:
 
 	int const qryMaxLen;
 
-	uint numTopScores; // Total number of equal scoring results
 	LocationScore * Scores;
 	Align * Alignments;
 
 	int iScores;
 
-	MappedRead * Paired; // Read pair
 	uint Status;
 
 	int mappingQlty;

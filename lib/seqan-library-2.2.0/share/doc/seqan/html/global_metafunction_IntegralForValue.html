@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="global_metafunction_integralforvalue" data-page="IntegralForValue">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>IntegralForValue - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+<h1 data-lang-entity="metafunction" data-pimped="true">
+  <a href="page_LanguageEntities.html#metafunction">Fn<></a> <span>IntegralForValue<div><div>Returns an itegral type that provides sufficient space to store a value.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/basic.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>IntegralForValue&lt;T&gt;::Type;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- @param -->
+
+
+
+
+
+<!-- @tparam -->
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>T</code></th>
+        <td>The type to query.</td>
+    </tr>
+
+</table>
+
+</div>
+
+
+
+<!-- @returns -->
+
+
+<h2>Return Values</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code>Type</code></th>
+        <td>An integral type.</td>
+    </tr>
+
+</table>
+
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+<h2>Detailed Description</h2>
+<div class="docstring">
+  <div class="discussion">
+    <!-- @internal -->
+    
+
+    <!-- @deprecated -->
+    
+
+    <!-- @warning -->
+    
+
+    <!-- @note -->
+    
+
+    <!-- @aka -->
+    
+
+    <!-- paragraphs -->
+    
+<div><p>The type is the smallest unsigned integral type that has a size of at least BytesPerValue bytes.</p><p><table>
+<tr>
+<th>sizeof(T) in bytes</th>
+<th>integral types</th>
+</tr>
+<tr>
+<td>1</td>
+<td><tt>unsigned char</tt></td>
+</tr>
+<tr>
+<td>2</td>
+<td><tt>unsigned short</tt></td>
+</tr>
+<tr>
+<td>3</td>
+<td><tt>unsigned int</tt></td>
+</tr>
+<tr>
+<td>4</td>
+<td><tt>unsigned int</tt></td>
+</tr>
+<tr>
+<td>&gt; 4</td>
+<td><tt>int64_t</tt></td>
+</tr>
+</table></p><p>Note that the returned integral type cannot store <tt>T</tt> values, if <tt>T</tt> takes more than 8 bytes, since
+there exists no integral type that provides sufficient space to store types of this size.</p></div>
+
+  </div>
+</div>
+
+
+<!-- @see -->
+
+  <h2 class="clause_header">See Also</h2>
+  <ul class="summary compact">
+  
+  <li><a href="concept_AlphabetConcept.html#AlphabetConcept#BitsPerValue" data-lang-entity="interface_metafunction">BitsPerValue</a></li>
+  
+  <li><a href="global_metafunction_BytesPerValue.html" data-lang-entity="global_metafunction">BytesPerValue</a></li>
+  
+  <li><a href="concept_FiniteOrderedAlphabetConcept.html#FiniteOrderedAlphabetConcept#ValueSize" data-lang-entity="interface_metafunction">ValueSize</a></li>
+  
+  </ul>
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @mfn IntegralForValue
+ * 
+ * @headerfile &lt;seqan/basic.h&gt;
+ * 
+ * @brief Returns an itegral type that provides sufficient space to store a
+ *        value.
+ * 
+ * @signature IntegralForValue&lt;T&gt;::Type;
+ * 
+ * @tparam T The type to query.
+ * 
+ * @return Type An integral type.
+ * 
+ * The type is the smallest unsigned integral type that has a size of at least
+ * BytesPerValue bytes.
+ * 
+ * &lt;table&gt; &lt;tr&gt; &lt;th&gt;sizeof(T) in bytes&lt;/th&gt; &lt;th&gt;integral types&lt;/th&gt; &lt;/tr&gt; &lt;tr&gt;
+ * &lt;td&gt;1&lt;/td&gt; &lt;td&gt;&lt;tt&gt;unsigned char&lt;/tt&gt;&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;2&lt;/td&gt;
+ * &lt;td&gt;&lt;tt&gt;unsigned short&lt;/tt&gt;&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;3&lt;/td&gt; &lt;td&gt;&lt;tt&gt;unsigned
+ * int&lt;/tt&gt;&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;4&lt;/td&gt; &lt;td&gt;&lt;tt&gt;unsigned int&lt;/tt&gt;&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt;
+ * &lt;td&gt;&amp;gt; 4&lt;/td&gt; &lt;td&gt;&lt;tt&gt;int64_t&lt;/tt&gt;&lt;/td&gt; &lt;/tr&gt; &lt;/table&gt;
+ * 
+ * Note that the returned integral type cannot store &lt;tt&gt;T&lt;/tt&gt; values, if
+ * &lt;tt&gt;T&lt;/tt&gt; takes more than 8 bytes, since there exists no integral type that
+ * provides sufficient space to store types of this size.
+ * 
+ * @see FiniteOrderedAlphabetConcept#ValueSize
+ * @see AlphabetConcept#BitsPerValue
+ * @see BytesPerValue
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+    </div>
+
+  </body>
+</html>

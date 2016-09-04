@@ -5,18 +5,12 @@
 #include <limits.h>
 
 #include "CS.h"
-#include "Debug.h"
 #include "PrefixTable.h"
 #include "ReadProvider.h"
 #include "PlainFileWriter.h"
-#include "GZFileWriter.h"
 #include "SAMWriter.h"
 #include "BAMWriter.h"
 #include "Timing.h"
-
-//#include "OclHost.h"
-//#include "SWOclCigar.h"
-#include "seqan/EndToEndAffine.h"
 #include "BitpalAligner.h"
 
 #undef module_name
@@ -25,8 +19,6 @@
 _NGM * _NGM::pInstance = 0;
 NGMOnceControl _NGM::once_control = NGM_ONCE_INIT;
 char const * _NGM::AppName = 0;
-int _NGM::sPairMinDistance = 0;
-int _NGM::sPairMaxDistance = INT_MAX;
 
 namespace __NGM {
 	inline int min(int a, int b) {
@@ -36,12 +28,6 @@ namespace __NGM {
 
 void _NGM::Init() {
 	pInstance = new _NGM();
-
-	sPairMinDistance = Config.GetInt("min_insert_size");
-	sPairMaxDistance = Config.GetInt("max_insert_size");
-	if (sPairMaxDistance <= 0)
-	sPairMaxDistance = INT_MAX;
-
 }
 
 _NGM & _NGM::Instance() {
@@ -49,30 +35,18 @@ _NGM & _NGM::Instance() {
 	return *pInstance;
 }
 
-_NGM::_NGM() :
-Stats(new NGMStats()),
-m_ActiveThreads(0), m_NextThread(0), m_DualStrand(Config.GetInt("dualstrand") != 0), m_Paired(
-		Config.GetInt("paired") != 0 || (Config.Exists("qry1") && Config.Exists("qry2"))),
-#ifdef _BAM
-m_OutputFormat(Config.GetInt("format", 0, 2)),
-#else
-m_OutputFormat(Config.GetInt("format", 0, 1)),
-#endif
-m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(false), m_UnmappedReads(0), m_MappedReads(
-		0), m_WrittenReads(0), m_ReadReads(0), m_ReadProvider(0) {
+_NGM::_NGM() : Stats(new NGMStats()), m_ActiveThreads(0), m_NextThread(0), m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(false), m_UnmappedReads(0), m_MappedReads(0), m_WrittenReads(0), m_ReadReads(0), m_RefProvider(0), m_ReadProvider(0) {
 
-	char const * const output_name = Config.Exists("output") ? Config.GetString("output") : 0;
-	if (m_OutputFormat != 2) {
+	char const * const output_name = Config.getOutputFile();
+	if (!Config.getBAM()) {
 		if (output_name != 0) {
 			Log.Message("Opening for output (SAM): %s", output_name);
 		} else {
 			Log.Message("Wrinting output (SAM) to stdout");
 		}
-		if(Config.Exists(GZ)) {
-			m_Output = new GZFileWriter(output_name);
-		} else {
-			m_Output = new PlainFileWriter(output_name);
-		}
+
+		m_Output = new PlainFileWriter(output_name);
+
 	} else {
 		if (output_name != 0) {
 			Log.Message("Opening for output (BAM): %s", output_name);
@@ -95,8 +69,6 @@ m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnma
 	memset(m_StageThreadCount, 0, cMaxStage * sizeof(int));
 	memset(m_BlockedThreads, 0, cMaxStage * sizeof(int));
 	memset(m_ToBlock, 0, cMaxStage * sizeof(int));
-	if (m_Paired && !m_DualStrand)
-	Log.Error("Logical error: Paired read mode without dualstrand search.");
 
 }
 
@@ -105,13 +77,10 @@ void _NGM::InitProviders() {
 
 	SequenceProvider.Init(); // Prepares input data
 
-	m_RefProvider = new CompactPrefixTable(NGM.DualStrand());
+	m_RefProvider = new CompactPrefixTable();
 
-	if (Config.Exists("qry")
-			|| (Config.Exists("qry1") && Config.Exists("qry2"))) {
-		m_ReadProvider = new ReadProvider();
-		uint readCount = m_ReadProvider->init();
-	}
+	m_ReadProvider = new ReadProvider();
+	uint readCount = m_ReadProvider->init();
 }
 
 _NGM::~_NGM() {
@@ -126,22 +95,6 @@ _NGM::~_NGM() {
 		delete m_ReadProvider;
 }
 
-int _NGM::GetStart() {
-	int start = Config.GetInt("qry_start");
-	if (start < 0) {
-		Log.Error("Invalid start read %i", start);
-		start = 0;
-	} else {
-		start *= ((m_Paired) ? 2 : 1);
-	}
-	return start;
-}
-int _NGM::GetCount() {
-	int count = Config.GetInt("qry_count");
-	if (count > 0)
-		count *= ((m_Paired) ? 2 : 1);
-	return count;
-}
 
 void _NGM::StartThread(NGMTask * task, int cpu) {
 	Log.Verbose("Starting thread %i <%s> on cpu %i", m_NextThread, task->GetName(), cpu);
@@ -162,7 +115,7 @@ void * _NGM::getWriter() {
 
 void _NGM::ReleaseWriter() {
 	if (m_Output != 0) {
-		if (m_OutputFormat != 2) {
+		if (!Config.getBAM()) {
 			delete (FileWriter*) m_Output;
 		} else {
 			delete (FileWriterBam*) m_Output;
@@ -236,12 +189,8 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 
 	std::vector<MappedRead*> list;
 
-	if (m_Paired) {
-		if (desBatchSize == 1)
-			desBatchSize = 2;
-		else
-			desBatchSize &= ~1;
-	}
+
+	desBatchSize &= ~1;
 
 	if (m_CurCount == 0) {
 		m_CurStart = 0;
@@ -377,82 +326,37 @@ void _NGM::StopThreads() {
 }
 
 void _NGM::StartThreads() {
-	int threadcount = Config.GetInt("cpu_threads", 1, 0);
 
-#ifdef _DEBUGCS
-	threadcount = 1;
-#endif
-
-	StartCS(threadcount);
+	StartCS(Config.getThreads());
 
 }
 
 void _NGM::StartCS(int cs_threadcount) {
-	int * cpu_affinities = new int[cs_threadcount];
-	bool fixCPUs = Config.HasArray("cpu_threads");
-
-	if (fixCPUs)
-		Config.GetIntArray("cpu_threads", cpu_affinities, cs_threadcount);
 
 	for (int i = 0; i < cs_threadcount; ++i) {
 		NGMTask * cs = 0;
 		cs = new CS();
-		StartThread(cs, (fixCPUs) ? cpu_affinities[i] : -1);
+		StartThread(cs, -1);
 	}
-	delete[] cpu_affinities;
+
 }
 
 IAlignment * _NGM::CreateAlignment(int const mode) {
 	IAlignment * instance = 0;
 
-	if (Config.GetInt("affine")) {
-		if (Config.Exists("gpu")) {
-			Log.Error("GPU doesn't support affine gap penalties. Please remove --affine or -g/--gpu.");
-			Fatal();
-		}
-		instance = new EndToEndAffine();
-	} else {
-		instance = new BitpalAligner();
-
-//		int dev_type = CL_DEVICE_TYPE_CPU;
-//
-//		if (Config.Exists("gpu")) {
-//			dev_type = CL_DEVICE_TYPE_GPU;
-//		}
-//
-//		Log.Debug(LOG_INFO, "INFO", "Mode: %d GPU: %d", mode, mode & 0xFF);
-//		OclHost * host = new OclHost(dev_type, mode & 0xFF, Config.GetInt("cpu_threads"));
-//
-//		int ReportType = (mode >> 8) & 0xFF;
-//		switch (ReportType) {
-//			case 1:
-//
-//			instance = new SWOclCigar(host);
-//			break;
-//			default:
-//			Log.Error("Unsupported report type %i", mode);
-//			break;
-//		}
-	}
+	instance = new BitpalAligner();
 
 	return instance;
 }
 
 void _NGM::DeleteAlignment(IAlignment* instance) {
-//	OclHost * host = 0;
-//	if (!Config.GetInt("affine")) {
-//		host = ((SWOcl *) instance)->getHost();
-//	}
+
 	Log.Verbose("Delete alignment called");
 	if (instance != 0) {
 		delete instance;
 		instance = 0;
 	}
 
-//	if (host != 0) {
-//		delete host;
-//		host = 0;
-//	}
 }
 
 void _NGM::MainLoop() {
@@ -460,8 +364,7 @@ void _NGM::MainLoop() {
 	Timer tmr;
 	tmr.ST();
 
-	int const threadcount = Config.GetInt("cpu_threads", 1, 0);
-	bool const progress = Config.GetInt(PROGRESS) == 1;
+	bool const progress = Config.getProgress();
 
 	int processed = 0;
 	float runTime = 0.0f;

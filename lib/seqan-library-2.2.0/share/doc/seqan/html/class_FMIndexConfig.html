@@ -1,0 +1,389 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="class_fmindexconfig" data-page="FMIndexConfig">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII" />
+    <title>FMIndexConfig - SeqAn API Documentation</title>
+
+      
+
+      
+      <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+      <link rel="stylesheet" href="lib/bootstrap-multiselect/css/bootstrap-multiselect.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="lib/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+      <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+      <link rel="stylesheet" href="css/common.less.css" type="text/css" media="screen" charset="utf-8" />
+      <script type="text/javascript" charset="utf-8" src="js/less.min.js"></script>
+      
+
+
+
+    <script type="text/javascript" charset="utf-8">
+      hasFrames = window.top.frames.main ? true : false;
+      relpath = '/';
+      docsPrefix = 'docs/yard';
+      listPrefix = 'list/docs/yard';
+      searchPrefix = 'search/docs/yard';
+      framesUrl = '/docs/yard/frames/file/README.md';
+    </script>
+
+    <style type="text/css">
+    <!-- pygments not available -->
+    </style>
+
+    <style>
+      .link.error
+      {
+          color: red;
+      }
+    </style>
+
+      
+      
+      <script type="text/javascript" charset="utf-8" src="lib/jquery-bbq/jquery.ba-bbq.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/jquery.smooth-scroll.js"></script>
+
+      <script type="text/javascript" charset="utf-8" src="js/lang_entities.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/autocomplete.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/rubydoc_custom.js"></script>
+      <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+      
+  </head>
+  <body>
+    <a id="top" name="top"></a>
+
+    <div id="content">
+      
+
+<h1 data-lang-entity="class" data-pimped="true"><a href="page_LanguageEntities.html#class">Class</a>
+<span>FMIndexConfig<div><div>A configuration object that determines the data types of certain fibres of the <a href="specialization_FMIndex.html" data-lang-entity="specialization">FMIndex</a>.</div></div></span>
+</h1>
+
+
+<table class="overview">
+
+  
+
+  
+
+  
+
+  
+
+  
+  </tr>
+
+  <tr>
+    <th>Defined in</th>
+    <td>
+      
+      &lt;seqan/index.h&gt;
+      
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <th>Signature</th>
+    <td>
+      <code>template &lt;[typename TSpec]&gt;
+struct FMIndexConfig;
+</code>
+    </td>
+  </tr>
+</table>
+
+
+<!-- Template Parameters -->
+
+
+
+
+<div data-lang-entity-container="template_parameter">
+<h2 data-lang-entity="template_parameter">Template Parameters</h2>
+
+<table class="overview">
+
+    <tr>
+        <th><code><a href="#" data-lang-entity="template_parameter">TSpec</a></code></th>
+        <td>The specializating type, defaults to <tt>void</tt>.</td>
+    </tr>
+
+</table>
+</div>
+
+
+
+
+
+
+<!--
+ =============================================================================
+  Member and Interface Overview
+ =============================================================================
+-->
+
+<!-- Member Functions Overview -->
+
+
+
+
+<!-- Interface Functions Overview -->
+
+ 
+
+
+<!-- Member Typedefs Overview -->
+
+
+
+<div data-lang-entity-container="member_typedef">
+<h2 data-lang-entity="member_typedef">Member Typedef Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#FMIndexConfig%3A%3ABwt" title="#FMIndexConfig::Bwt (member typedef)" data-lang-entity="member_typedef">typedef WaveletTree&lt;TSpec, TConfig&gt; Bwt;</a></code></span>
+    <span class="summary_desc"><div>The <tt>Bwt</tt> determines the type of the occurrence table. In the default <a href="class_FMIndexConfig.html" data-lang-entity="class">FMIndexConfig</a> object the type of <tt>Bwt</tt> is a wavelet tree (<a href="specialization_WaveletTree.html" data-lang-entity="specialization">WaveletTree</a>).</div></span>
+    
+  </li>
+  
+  <li class="public">
+    
+    <span class="summary_signature"><code><a href="#FMIndexConfig%3A%3ASentinels" title="#FMIndexConfig::Sentinels (member typedef)" data-lang-entity="member_typedef">typedef Levels&lt;TSpec, TConfig&gt; Sentinels;</a></code></span>
+    <span class="summary_desc"><div>The <tt>Sentinels</tt> determines the type of the sentinels in the <a href="specialization_FMIndex.html" data-lang-entity="specialization">FMIndex</a>. In the
+default <a href="class_FMIndexConfig.html" data-lang-entity="class">FMIndexConfig</a> object the type of <tt>Sentinels</tt> is a two level
+<a href="class_RankDictionary.html" data-lang-entity="class">RankDictionary</a>.</div></span>
+    
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!-- Interface Metafunctions Overview -->
+
+  
+
+
+<!-- Member Variable Overview -->
+
+
+
+<div data-lang-entity-container="member_variable">
+<h2 data-lang-entity="member_variable">Member Variable Overview</h2>
+
+<ul class="summary">
+  
+  <li class="public">
+    <span class="summary_signature"><code><a href="#FMIndexConfig%3A%3ASAMPLING" title="#FMIndexConfig::SAMPLING (interface function)" data-lang-entity="member_variable">
+        unsigned FMIndexConfig::SAMPLING
+    </a></code></span>
+    <span class="summary_desc"><div>The sampling rate determines how many suffix array entries are represented with one entry in the
+<a href="class_CompressedSA.html" data-lang-entity="class">CompressedSA</a>.</div></span>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+
+</div>
+
+  
+
+
+<!--
+ =============================================================================
+  Detailed Description
+ =============================================================================
+-->
+
+
+
+<!-- @see -->
+
+
+<!--
+ =============================================================================
+  Member and Interface Details
+ =============================================================================
+-->
+
+<!-- Member Functions Details -->
+
+
+
+
+
+
+<!-- Interface Functions Details -->
+
+
+
+
+<!-- Member Typedefs Details -->
+
+<div class="member_typedef_defails" data-lang-entity-container="member_typedef">
+  <h2 data-lang-entity="member_typedef">Member Typedef Detail</h2>
+
+  
+      <div class="method_details first">
+        <h3 data-toc="hidden" id="FMIndexConfig::Bwt" class="signature first" data-lang-entity="member_typedef">
+          <code>typedef WaveletTree&lt;TSpec, TConfig&gt; Bwt;</code>
+        </h3>
+      </div>
+      <div class="docstring">
+        <div class="discussion">
+          <div>The <tt>Bwt</tt> determines the type of the occurrence table. In the default <a href="class_FMIndexConfig.html" data-lang-entity="class">FMIndexConfig</a> object the type of <tt>Bwt</tt> is a wavelet tree (<a href="specialization_WaveletTree.html" data-lang-entity="specialization">WaveletTree</a>).</div>
+          
+<div></div>
+
+        </div>
+      </div>
+
+      
+  
+      <div class="method_details">
+        <h3 data-toc="hidden" id="FMIndexConfig::Sentinels" class="signature" data-lang-entity="member_typedef">
+          <code>typedef Levels&lt;TSpec, TConfig&gt; Sentinels;</code>
+        </h3>
+      </div>
+      <div class="docstring">
+        <div class="discussion">
+          <div>The <tt>Sentinels</tt> determines the type of the sentinels in the <a href="specialization_FMIndex.html" data-lang-entity="specialization">FMIndex</a>. In the
+default <a href="class_FMIndexConfig.html" data-lang-entity="class">FMIndexConfig</a> object the type of <tt>Sentinels</tt> is a two level
+<a href="class_RankDictionary.html" data-lang-entity="class">RankDictionary</a>.</div>
+          
+<div></div>
+
+        </div>
+      </div>
+
+      
+  
+  
+</div>
+
+
+
+<!-- Interface Metafunctions Details -->
+
+
+
+
+<!-- Member Variable Details -->
+
+<div class="member_variable_details" data-lang-entity-container="member_variable">
+  <h2 data-lang-entity="member_variable">Member Variables Detail</h2>
+
+  
+  <div class="member_variable_details first">
+    <h3 data-toc="hidden" id="FMIndexConfig::SAMPLING" class="signature first" data-lang-entity="member_variable">
+      <code>unsigned FMIndexConfig::SAMPLING</code>
+    </h3>
+    <div class="docstring">
+      <div class="discussion">
+        <div>The sampling rate determines how many suffix array entries are represented with one entry in the
+<a href="class_CompressedSA.html" data-lang-entity="class">CompressedSA</a>.</div>
+        
+<div></div>
+
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+
+
+<!--
+ =============================================================================
+  Footer / Debug
+ =============================================================================
+-->
+
+
+
+<div class="modal fade" id="doxSources" tabindex="-1" role="dialog" aria-labelledby="doxSourcesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="doxSourcesLabel">Dox Sources</h4>
+      </div>
+      <div class="modal-body">
+        <pre>/*!
+ * @class FMIndexConfig
+ * 
+ * @headerfile &lt;seqan/index.h&gt;
+ * 
+ * @brief A configuration object that determines the data types of certain
+ *        fibres of the @link FMIndex @endlink.
+ * 
+ * @signature template &lt;[typename TSpec]&gt; struct FMIndexConfig;
+ * 
+ * @tparam TSpec The specializating type, defaults to &lt;tt&gt;void&lt;/tt&gt;.
+ * 
+ * @typedef FMIndexConfig::Bwt
+ * 
+ * @brief The &lt;tt&gt;Bwt&lt;/tt&gt; determines the type of the occurrence table. In the
+ *        default @link FMIndexConfig @endlink object the type of &lt;tt&gt;Bwt&lt;/tt&gt;
+ *        is a wavelet tree (@link WaveletTree @endlink).
+ * 
+ * @signature typedef WaveletTree&lt;TSpec, TConfig&gt; Bwt;
+ * 
+ * @typedef FMIndexConfig::Sentinels
+ * 
+ * @brief The &lt;tt&gt;Sentinels&lt;/tt&gt; determines the type of the sentinels in the
+ *        @link FMIndex @endlink. In the default @link FMIndexConfig @endlink
+ *        object the type of &lt;tt&gt;Sentinels&lt;/tt&gt; is a two level @link
+ *        RankDictionary @endlink.
+ * 
+ * @signature typedef Levels&lt;TSpec, TConfig&gt; Sentinels;
+ * 
+ * @var unsigned FMIndexConfig::SAMPLING;
+ * 
+ * @brief The sampling rate determines how many suffix array entries are
+ *        represented with one entry in the @link CompressedSA @endlink.
+ */</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    </div>
+
+  </body>
+</html>
