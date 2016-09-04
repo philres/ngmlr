@@ -334,7 +334,7 @@ void UpdateCheckInterface::reminder()
 			Log.Message("[UPDATE_CHECK] Your version of NGM is more than %d months old - a newer version may be available. (For performing an automatic check use --update-check)",UPDATE_REMIND_AFTER_MONTHS);
 		}
 
-	} catch( UpdateCheckException ex ) {
+	} catch( UpdateCheckException & ex ) {
 		Log.Message(("[UPDATE_CHECK] Failure: " + ex.what()).c_str());
 	}
 }
@@ -373,7 +373,7 @@ void UpdateCheckInterface::remoteCheck()
 			throw UpdateCheckException("Status value invalid");
 		}
 
-	} catch( UpdateCheckException ex ) {
+	} catch( UpdateCheckException & ex ) {
 		Log.Message(("[UPDATE_CHECK] Failure: " + ex.what()).c_str());
 	}
 }
