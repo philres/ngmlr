@@ -72,6 +72,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	//skipSave = false;
 	//updateCheck = false;
 	//writeUnmapped = true;
+	TCLAP::SwitchArg fastArg("", "fast", "Debug switch (don't use if you don't know what you do)", cmd, false);
 
 	cmd.add(queryArg);
 	cmd.add(refArg);
@@ -111,6 +112,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	lowQualitySplit = !nolowqualitysplitArg.getValue();
 	smallInversionDetection = !nosmallInversionArg.getValue();
 	printAllAlignments = printAllAlignmentsArg.getValue();
+	fast = fastArg.getValue();
 
 	std::stringstream fullCmd;
 	fullCmd << std::string(argv[0]);

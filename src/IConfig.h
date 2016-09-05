@@ -103,6 +103,10 @@ public:
 		return threads;
 	}
 
+	bool getFast() const {
+		return fast;
+	}
+
 	bool getBAM() const {
 		return bam;
 	}
@@ -189,6 +193,7 @@ public:
 		updateCheck = false;
 		verbose = false;
 		writeUnmapped = true;
+		fast = false; //Debug
 
 
 		queryFile = 0;
@@ -252,6 +257,8 @@ protected:
 	bool bam;
 
 	bool color;
+
+	bool fast; //Debug
 
 	bool hardClip;
 

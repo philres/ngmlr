@@ -14,6 +14,7 @@ configure_file( Version.h.in ${CMAKE_SOURCE_DIR}/src/Version.h )
  	
 add_executable(ngmlr
                     AlignmentMatrix.cpp
+                    AlignmentMatrixFast.cpp
                     ArgParser.cpp
 					../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
 					BamParser.cpp
@@ -23,6 +24,7 @@ add_executable(ngmlr
 					CS.cpp					
 					CSstatic.cpp
 					ConvexAlign.cpp
+					ConvexAlignFast.cpp
 					LinearRegression.cpp													
 					Logging.cpp
 					MappedRead.cpp
@@ -55,6 +57,7 @@ add_definitions(-D _BAM)
 
 add_executable(ngmlr-debug
                     AlignmentMatrix.cpp
+                    AlignmentMatrixFast.cpp
                     ArgParser.cpp
 					../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
 					BamParser.cpp
@@ -64,6 +67,7 @@ add_executable(ngmlr-debug
 					CS.cpp					
 					CSstatic.cpp
 					ConvexAlign.cpp
+					ConvexAlignFast.cpp
 					LinearRegression
 					Logging.cpp
 					MappedRead.cpp

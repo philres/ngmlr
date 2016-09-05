@@ -9,6 +9,7 @@
 #include "AlignmentBuffer.h"
 
 #include "ConvexAlign.h"
+#include "ConvexAlignFast.h"
 
 #undef module_name
 #define module_name "CS"
@@ -426,7 +427,12 @@ void CS::DoRun() {
 //	IAlignment * sswAligner = new StrippedSW();
 //	IAlignment * sswAligner = oclAligner;
 //	IAlignment * sswAligner = new SWCPUCor(0);
-	IAlignment * sswAligner = new Convex::ConvexAlign(0);
+	IAlignment * sswAligner = 0;
+	if(Config.getFast()) {
+		sswAligner = new Convex::ConvexAlignFast(0);
+	} else {
+		sswAligner = new Convex::ConvexAlign(0);
+	}
 
 	alignmentBuffer = new AlignmentBuffer(Config.getOutputFile(), sswAligner);
 	ScoreBuffer * scoreBuffer = new ScoreBuffer(oclAligner, alignmentBuffer);
