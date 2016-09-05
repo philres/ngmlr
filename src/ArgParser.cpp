@@ -142,9 +142,6 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	queryFile = fromString(queryArg.getValue());
 	referenceFile = fromString(refArg.getValue());
 	outputFile = fromString(outArg.getValue());
-	if(outputFile == outDefault) {
-		outputFile = 0;
-	}
 	vcfFile = fromString(vcfArg.getValue());
 	bedFile = fromString(bedfilterArg.getValue());
 
