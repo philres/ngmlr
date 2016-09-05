@@ -8,9 +8,11 @@ include_directories (../lib)
 
 configure_file( Version.h.in ${CMAKE_SOURCE_DIR}/src/Version.h )
 
-#SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-#SET(BUILD_SHARED_LIBRARIES OFF)
-#SET(CMAKE_EXE_LINKER_FLAGS "-static")
+#IF(NOT APPLE)
+#    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+#    SET(BUILD_SHARED_LIBRARIES OFF)
+#    SET(CMAKE_EXE_LINKER_FLAGS "-static")
+#endif()
  	
 add_executable(ngmlr
                     AlignmentMatrix.cpp
