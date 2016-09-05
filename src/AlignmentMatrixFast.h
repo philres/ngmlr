@@ -70,43 +70,16 @@ public:
 
 	inline MatrixElement * getElementUp(int const x, int const y)
 	{
-		//TODO: Make unnecessary w. loop unrolling
-		if (y < 0 || x < 0) {
-			return &empty;
-		}
-
-		if (x < lastCorridor.offset || x >= (lastCorridor.offset + lastCorridor.length)) {
-			return &empty;
-		}
-
 		return lastLine + (x - lastCorridor.offset);
-
-
 	}
 
 	inline MatrixElement * getElementCurr(int const x, int const y)
 	{
-		if (y < 0 || x < 0) {
-			return &empty;
-		}
-
-		if (x < currentCorridor.offset || x >= (currentCorridor.offset + currentCorridor.length)) {
-			return &empty;
-		}
-
 		return currentLine + (x - currentCorridor.offset);
 	}
 
 	inline MatrixElement * getElementEditCurr(int const x, int const y)
 	{
-		if (y < 0 || x < 0) {
-			throw "";
-		}
-
-		if (x < currentCorridor.offset || x >= (currentCorridor.offset + currentCorridor.length)) {
-			throw "";
-		}
-
 		return currentLine + (x - currentCorridor.offset);
 	}
 
@@ -114,7 +87,6 @@ public:
 		CorridorLine line = corridorLines[y];
 		return directionMatrix + line.offsetInMatrix + (x - line.offset);
 	}
-
 
 	//END FAST FUNCTIONS
 
