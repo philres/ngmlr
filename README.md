@@ -46,13 +46,13 @@ General:
     -R <int/float>,  --min-residues <int/float>
         Alignments containing less than <int> or (<float> * read length) residues will be discarded [50]
     --no-smallinv
-        Don't detect small inversions [false]
+        Do not detect small inversions [false]
     --no-lowqualitysplit
-        Don't split alignments with poor quality [false]
+        Do not split alignments with poor quality [false]
     --verbose
         Debug output [false]
     --no-progress
-        Don't print progress info while mapping [false]
+        Do not print progress info while mapping [false]
 
 Advanced:
     --match <int>
