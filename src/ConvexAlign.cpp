@@ -729,7 +729,7 @@ AlignmentMatrix::Score ConvexAlign::FastfwdFillMatrix(char const * const refSeq,
 
 		int xMax=std::min(xOffset + matrix->getCorridorLength(y),matrix->getWidth());
 
-		for (int x = xOffset; x < xMax; ++x) {
+		for (int x = std::max(0, xOffset); x < xMax; ++x) {
 
 			//MISSING: Check if x negative
 
