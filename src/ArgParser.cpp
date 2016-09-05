@@ -4,6 +4,8 @@
 #include <tclap/CmdLine.h>
 #include <sstream>
 
+#include "ArgParseOutput.h"
+#include "Version.h"
 #include "Log.h"
 #include "PlatformSpecifics.h"
 
@@ -11,6 +13,10 @@
 #define module_name "ARGPARSER"
 
 ArgParser::ArgParser(int argc, char * * argv) {
+
+	outDefault = "stdout";
+	noneDefault = "none";
+
 	ParseArguments(argc, (char const * *) argv);
 }
 
@@ -18,43 +24,66 @@ ArgParser::~ArgParser() {
 
 }
 
-char * fromString(std::string str) {
+char * ArgParser::fromString(std::string str) {
 	char * cstr = 0;
-	if(str.size() > 0) {
+	if(str.size() > 0 && str != outDefault && str != noneDefault) {
 		cstr = new char[str.size() + 1];
 		strcpy(cstr, str.c_str());
 	}
 	return cstr;
 }
 
+template<typename T>
+void printParameter(std::stringstream & usage, TCLAP::ValueArg<T> & arg) {
+
+	usage << "    " <<  arg.longID() << std::endl;
+	usage << "        " << arg.getDescription();
+	if(!arg.isRequired()) {
+		usage << " [" << arg.getValue() << "]";
+	}
+	usage << std::endl;
+}
+
+void printParameter(std::stringstream & usage, TCLAP::SwitchArg & arg) {
+
+	usage << "    " <<  arg.longID() << std::endl;
+	usage << "        " << arg.getDescription();
+	if(!arg.isRequired()) {
+		usage << " [" << (arg.getValue() ? "true" : "false") << "]";
+	}
+	usage << std::endl;
+}
+
 void ArgParser::ParseArguments(int argc, char const * argv[]) {
 
 	argv[0] = "ngmlr";
 
-	TCLAP::CmdLine cmd("", ' ', "", false);
+	TCLAP::CmdLine cmd("", ' ', "", true);
 
-	TCLAP::ValueArg<std::string> queryArg("q", "query", "Path to the read file (FASTA/Q, SAM/BAM)", true, "", "file");
-	TCLAP::ValueArg<std::string> refArg("r", "reference", "Path to the reference genome (FASTA/Q, can be gzipped)", true, "", "file");
-	TCLAP::ValueArg<std::string> outArg("o", "output", "Path to output file (stdout if omitted)", false, "", "file");
-	TCLAP::ValueArg<std::string> vcfArg("", "vcf", "SNPs will be taken into account when building reference index", false, "", "file");
-	TCLAP::ValueArg<std::string> bedfilterArg("", "bed-filter", "If specified, only reads in the regions specified by the BED file are read from the input BAM file (requires BAM input)", false, "", "file");
+	TCLAP::ValueArg<std::string> queryArg("q", "query", "Path to the read file (FASTA/Q, SAM/BAM)", true, noneDefault, "file", cmd);
+	TCLAP::ValueArg<std::string> refArg("r", "reference", "Path to the reference genome (FASTA/Q, can be gzipped)", true, noneDefault, "file", cmd);
+	TCLAP::ValueArg<std::string> outArg("o", "output", "Path to output file", false, outDefault, "file", cmd);
+	TCLAP::ValueArg<std::string> vcfArg("", "vcf", "SNPs will be taken into account when building reference index", false, noneDefault, "file", cmd);
+	TCLAP::ValueArg<std::string> bedfilterArg("", "bed-filter", "Only reads in the regions specified by the BED file are read from the input file (requires BAM input)", false, noneDefault, "file", cmd);
 
-	TCLAP::ValueArg<float> minIdentityArg("i", "min-identity", "All reads mapped with an identity lower than this threshold will be reported as unmapped (default: 0.65)", false, minIdentity, "0-1");
-	TCLAP::ValueArg<float> minResiduesArg("R", "min-residues", "All reads mapped with lower than <int> or <float> * read length residues will be reported as unmapped. (default: 50)", false, minResidues, "int/float");
-	TCLAP::ValueArg<float> sensitivityArg("s", "sensitivity", "", false, sensitivity, "0-1");
+	TCLAP::ValueArg<std::string> presetArgs("x", "presets", "Parameter presets for different sequencing technologies", false, "pacbio", "pacbio, ont", cmd);
 
-	TCLAP::ValueArg<int> threadsArg("t", "threads", "Number of threads", false, 1, "int");
+	TCLAP::ValueArg<float> minIdentityArg("i", "min-identity", "Alignments with an identity lower than this threshold will be discarded", false, minIdentity, "0-1", cmd);
+	TCLAP::ValueArg<float> minResiduesArg("R", "min-residues", "Alignments containing less than <int> or (<float> * read length) residues will be discarded", false, minResidues, "int/float", cmd);
+	TCLAP::ValueArg<float> sensitivityArg("s", "sensitivity", "", false, sensitivity, "0-1", cmd);
 
-	TCLAP::ValueArg<int> binSizeArg("", "bin-size", "Sets the size of the grid NextgenMap uses during CMR search to: 2^n (default: 4)", false, binSize, "int");
-	TCLAP::ValueArg<int> kmerLengthArg("k", "kmer-length", "Kmer length in bases. (default: 13)", false, kmerLength, "10-15");
-	TCLAP::ValueArg<int> kmerSkipArg("", "kmer-skip", "Number of k-mers to skip when building the lookup table from the reference (default: 2)", false, kmerSkip, "int");
-	TCLAP::ValueArg<int> scoreMatchArg("", "match", "Match score", false, scoreMatch, "int");
-	TCLAP::ValueArg<int> scoreMismatchArg("", "mismatch", "Mismatch score", false, scoreMismatch, "int");
-	TCLAP::ValueArg<int> scoreGapOpenArg("", "gap-open", "Gap open score", false, scoreGapOpen, "int");
-	TCLAP::ValueArg<int> scoreGapExtendArg("", "gap-extend", "Gap open extend", false, scoreGapExtend, "int");
-	TCLAP::ValueArg<int> stdoutArg("", "stdout", "Debug mode", false, stdoutMode, "0-7");
-	TCLAP::ValueArg<int> readpartLengthArg("", "subread-length", "Length of fragments reads are split to", false, readPartLength, "int");
-	TCLAP::ValueArg<int> readpartCorridorArg("", "subread-corridor", "Length of corridor sub-reads are aligned with", false, readPartCorridor, "int");
+	TCLAP::ValueArg<int> threadsArg("t", "threads", "Number of threads", false, 1, "int", cmd);
+
+	TCLAP::ValueArg<int> binSizeArg("", "bin-size", "Sets the size of the grid used during candidate search", false, binSize, "int", cmd);
+	TCLAP::ValueArg<int> kmerLengthArg("k", "kmer-length", "K-mer length in bases", false, kmerLength, "10-15", cmd);
+	TCLAP::ValueArg<int> kmerSkipArg("", "kmer-skip", "Number of k-mers to skip when building the lookup table from the reference", false, kmerSkip, "int", cmd);
+	TCLAP::ValueArg<int> scoreMatchArg("", "match", "Match score", false, scoreMatch, "int", cmd);
+	TCLAP::ValueArg<int> scoreMismatchArg("", "mismatch", "Mismatch score", false, scoreMismatch, "int", cmd);
+	TCLAP::ValueArg<int> scoreGapOpenArg("", "gap-open", "Gap open score", false, scoreGapOpen, "int", cmd);
+	TCLAP::ValueArg<int> scoreGapExtendArg("", "gap-extend", "Gap open extend", false, scoreGapExtend, "int", cmd);
+	TCLAP::ValueArg<int> stdoutArg("", "stdout", "Debug mode", false, stdoutMode, "0-7", cmd);
+	TCLAP::ValueArg<int> readpartLengthArg("", "subread-length", "Length of fragments reads are split into", false, readPartLength, "int", cmd);
+	TCLAP::ValueArg<int> readpartCorridorArg("", "subread-corridor", "Length of corridor sub-reads are aligned with", false, readPartCorridor, "int", cmd);
 	//csSearchTableLength = 0;
 	//logLevel = 0; //16383, 255
 	//minKmerHits = 0;
@@ -74,20 +103,48 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	//writeUnmapped = true;
 	TCLAP::SwitchArg fastArg("", "fast", "Debug switch (don't use if you don't know what you do)", cmd, false);
 
-	cmd.add(queryArg);
-	cmd.add(refArg);
-	cmd.add(outArg);
-	cmd.add(bedfilterArg);
-	cmd.add(vcfArg);
-	cmd.add(threadsArg);
-	cmd.add(minIdentityArg);
-	cmd.add(minResiduesArg);
+	std::stringstream usage;
+	usage << "" << std::endl;
+	usage << "Usage: ngmlr [options] -r <reference> -q <reads> [-o <output>]" << std::endl;
+	usage << "" << std::endl;
+	usage << "Input/Output:" << std::endl;
+	printParameter<std::string>(usage, refArg);
+	printParameter<std::string>(usage, queryArg);
+	printParameter<std::string>(usage, outArg);
+	usage << "" << std::endl;
+	usage << "General:" << std::endl;
+	printParameter<int>(usage, threadsArg);
+	printParameter<std::string>(usage, presetArgs);
+	printParameter<float>(usage, minIdentityArg);
+	printParameter<float>(usage, minResiduesArg);
+	printParameter(usage, nosmallInversionArg);
+	printParameter(usage, nolowqualitysplitArg);
+	printParameter(usage, verboseArg);
+	printParameter(usage, noprogressArg);
+	usage << "" << std::endl;
+	usage << "Advanced:" << std::endl;
+	printParameter<int>(usage, scoreMatchArg);
+	printParameter<int>(usage, scoreMismatchArg);
+	printParameter<int>(usage, scoreGapOpenArg);
+	printParameter<int>(usage, scoreGapExtendArg);
+	printParameter<int>(usage, kmerLengthArg);
+	printParameter<int>(usage, kmerSkipArg);
+	printParameter<int>(usage, binSizeArg);
+	printParameter<int>(usage, readpartLengthArg);
+	printParameter<int>(usage, readpartCorridorArg);
+	printParameter<std::string>(usage, vcfArg);
+	printParameter<std::string>(usage, bedfilterArg);
+
+	cmd.setOutput(new ArgParseOutput(usage.str(), ""));
 
 	cmd.parse(argc, argv);
 
 	queryFile = fromString(queryArg.getValue());
 	referenceFile = fromString(refArg.getValue());
 	outputFile = fromString(outArg.getValue());
+	if(outputFile == outDefault) {
+		outputFile = 0;
+	}
 	vcfFile = fromString(vcfArg.getValue());
 	bedFile = fromString(bedfilterArg.getValue());
 
@@ -113,6 +170,18 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	smallInversionDetection = !nosmallInversionArg.getValue();
 	printAllAlignments = printAllAlignmentsArg.getValue();
 	fast = fastArg.getValue();
+
+	if (presetArgs.getValue() == "pacbio") {
+		//Do nothing. Defaults are for Pacbio
+	} else if (presetArgs.getValue() == "ont") {
+		lowQualitySplit = (nolowqualitysplitArg.isSet()) ? lowQualitySplit : true;
+		scoreMatch = (scoreMatchArg.isSet()) ? scoreMatch : 1;
+		scoreMismatch = (scoreMatchArg.isSet()) ? scoreMismatch : -1;
+		scoreGapOpen = (scoreGapOpenArg.isSet()) ? scoreGapOpen : -1;
+		scoreGapExtend = (scoreGapExtendArg.isSet()) ? scoreGapExtend : -1;
+	} else {
+		std::cerr << "Preset " << presetArgs.getValue() << " not found" << std::endl;
+	}
 
 	std::stringstream fullCmd;
 	fullCmd << std::string(argv[0]);

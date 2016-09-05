@@ -3,12 +3,18 @@
 
 #include "IConfig.h"
 
+#include <string>
 
 class ArgParser : public IConfig
 {
 private:
 
+	std::string outDefault;
+	std::string noneDefault;
+
 	void ParseArguments(int argc, char const * * argv);
+
+	char * fromString(std::string str);
 
 public:
 
