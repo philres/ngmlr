@@ -50,6 +50,7 @@ int main(int argc, char * argv[]) {
 	version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
 
 	Log.Message("NextGenMap-LR %s%s (build: %s %s, start: %s)", version.str().c_str(), cDebug ? " debug" : "", __DATE__, __TIME__, currentDateTime().c_str());
+	Log.Message("Contact: philipp.rescheneder@univie.ac.at");
 
 	Timer tmr;
 	tmr.ST();
