@@ -25,7 +25,7 @@ NextGenMap-LR is a long-read mapper desigend to sensitively align PacBilo or Oxf
 
 ### Parameters
 
-```bash
+```
 Usage: ngmlr [options] -r <reference> -q <reads> [-o <output>]
 
 Input/Output:
