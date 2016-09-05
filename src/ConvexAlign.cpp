@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <algorithm>
 
-#include "IConfig.h"
+//#include "IConfig.h"
 
 //TODO: remove
 #define pRef pBuffer1
@@ -26,7 +26,8 @@ int NumberOfSetBits(uint32_t i) {
 
 ConvexAlign::ConvexAlign(int gpu_id) :
 		maxBinaryCigarLength(200000), pacbioDebug(false), stdoutPrintAlignCorridor(
-		Config.getStdoutMode() == 6) {
+		//Config.getStdoutMode() == 6) {
+		0) {
 
 	mat = 2.0f;
 	mis = -5.0f;
