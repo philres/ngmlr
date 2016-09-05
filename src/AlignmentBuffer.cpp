@@ -427,7 +427,7 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 			//Hack to pass readId to convex alignment class for plotting
 			//TODO: remove
 			align->svType = read->ReadId;
-			int const cigarLength = aligner->SingleAlign(alignmentId, corridorLines,
+			int const cigarLength = aligner->FastSingleAlign(alignmentId, corridorLines,
 					corridorHeight, (char const * const ) refSeq,
 					(char const * const ) readSeq, *align, externalQStart, externalQEnd, 0);
 
