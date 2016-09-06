@@ -18,8 +18,6 @@ add_executable(ngmlr
                     AlignmentMatrix.cpp
                     AlignmentMatrixFast.cpp
                     ArgParser.cpp
-					#BamParser.cpp
-					#BAMWriter.cpp
 					BitpalAligner.cpp
 					VcfParser.cpp																					
 					CS.cpp					
@@ -60,8 +58,6 @@ add_executable(ngmlr-debug
                     AlignmentMatrix.cpp
                     AlignmentMatrixFast.cpp
                     ArgParser.cpp
-					#BamParser.cpp
-					#BAMWriter.cpp
 					BitpalAligner.cpp
 					VcfParser.cpp																							
 					CS.cpp					

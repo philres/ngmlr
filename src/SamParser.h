@@ -25,7 +25,6 @@
 #include <zlib.h>
 #include <stdio.h>
 
-#include "SAMRecord.h"
 #include "kseq.h"
 
 int const buffer_size = 10000;

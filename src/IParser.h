@@ -27,7 +27,6 @@
 #include <iostream>
 
 #include "kseq.h"
-#include "SAMRecord.h"
 
 KSEQ_INIT(gzFile, gzread)
 
