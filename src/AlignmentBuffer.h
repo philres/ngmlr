@@ -268,10 +268,7 @@ public:
 			char * readPartSeq, Interval * leftOfInv, Interval * rightOfInv,
 			MappedRead * read);
 
-	int checkForSV(Align const * const align, Interval const * interval,
-			int startInv, int stopInv, int startInvRead, int stopInvRead,
-			char * fullReadSeq, Interval * leftOfInv, Interval * rightOfInv,
-			MappedRead * read);
+	int checkForSV(Align const * const align, Interval const * interval, char * fullReadSeq, uloc inversionMidpointOnRef, uloc inversionMidpointOnRead, int inversionLength, MappedRead * read);
 
 //	bool inversionDetectionArndt(Align const align, Interval const interval, int const length,
 //			char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv, Interval & inv, char const * const readName);

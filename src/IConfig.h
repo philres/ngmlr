@@ -179,7 +179,7 @@ public:
 		 * Default values
 		 */
 		minIdentity = 0.65f;
-		minResidues = 50.0f;
+		minResidues = 256.0f;
 		sensitivity = 0.8f;
 
 
