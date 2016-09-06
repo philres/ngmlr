@@ -28,7 +28,7 @@
 #include "ReadProvider.h"
 #include "PlainFileWriter.h"
 #include "SAMWriter.h"
-#include "BAMWriter.h"
+//#include "BAMWriter.h"
 #include "Timing.h"
 #include "BitpalAligner.h"
 
@@ -57,23 +57,23 @@ _NGM & _NGM::Instance() {
 _NGM::_NGM() : Stats(new NGMStats()), m_ActiveThreads(0), m_NextThread(0), m_CurStart(0), m_CurCount(0), m_SchedulerMutex(), m_SchedulerWait(), m_TrackUnmappedReads(false), m_UnmappedReads(0), m_MappedReads(0), m_WrittenReads(0), m_ReadReads(0), m_RefProvider(0), m_ReadProvider(0) {
 
 	char const * const output_name = Config.getOutputFile();
-	if (!Config.getBAM()) {
-		if (output_name != 0) {
-			Log.Message("Opening for output (SAM): %s", output_name);
-		} else {
-			Log.Message("Wrinting output (SAM) to stdout");
-		}
-
-		m_Output = new PlainFileWriter(output_name);
-
+//	if (!Config.getBAM()) {
+	if (output_name != 0) {
+		Log.Message("Opening for output (SAM): %s", output_name);
 	} else {
-		if (output_name != 0) {
-			Log.Message("Opening for output (BAM): %s", output_name);
-		} else {
-			Log.Message("Wrinting output (BAM) to stdout");
-		}
-		m_Output = new FileWriterBam(output_name);
+		Log.Message("Wrinting output (SAM) to stdout");
 	}
+
+	m_Output = new PlainFileWriter(output_name);
+
+//	} else {
+//		if (output_name != 0) {
+//			Log.Message("Opening for output (BAM): %s", output_name);
+//		} else {
+//			Log.Message("Wrinting output (BAM) to stdout");
+//		}
+//		m_Output = new FileWriterBam(output_name);
+//	}
 
 	Log.Verbose("NGM Core initialization");
 	NGMInitMutex(&m_Mutex);
@@ -134,11 +134,11 @@ void * _NGM::getWriter() {
 
 void _NGM::ReleaseWriter() {
 	if (m_Output != 0) {
-		if (!Config.getBAM()) {
-			delete (FileWriter*) m_Output;
-		} else {
-			delete (FileWriterBam*) m_Output;
-		}
+//		if (!Config.getBAM()) {
+		delete (FileWriter*) m_Output;
+//		} else {
+//			delete (FileWriterBam*) m_Output;
+//		}
 		m_Output = 0;
 	}
 }

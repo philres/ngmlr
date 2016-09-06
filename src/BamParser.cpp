@@ -237,7 +237,7 @@ void BamParser::parseSnifflesFile(char const * fileName) {
 
 }
 
-void BamParser::init(char const * fileName, bool const keepTags) {
+void BamParser::init(char const * fileName) {
 	std::vector<std::string> tmps;
 	tmps.push_back(fileName);
 
@@ -261,22 +261,8 @@ void BamParser::init(char const * fileName, bool const keepTags) {
 	}
 
 	tmp = kseq_init(fp);
-	parseAdditionalInfo = keepTags;
 
 	Log.Message("BAM parser initialized");
-
-//	int readOffset = Config.GetInt(READ_OFFSET);
-//	if (readOffset > 0) {
-//
-//		Log.Message("Skipping first %d reads", readOffset);
-//		int count = 0;
-//		while ((reader.GetNextAlignmentCore(al[0])) && count < readOffset) {
-//			if (isPrimary(al)) { // && readNames.find(al->Name) != readNames.end()) {
-//				count += 1;
-//			}
-//		}
-//		Log.Verbose("%d reads skipped", count);
-//	}
 }
 
 static inline char cpl(char c) {
@@ -356,59 +342,7 @@ int BamParser::doParseSingleRead(MappedRead * read, BamAlignment * al) {
 		tmp->qual.l = 0;
 	}
 
-	if (tmp->qual.l == tmp->seq.l
-			|| (tmp->qual.l == 1 && tmp->qual.s[0] == '*') || tmp->qual.l == 0) {
-
-		if (parseAdditionalInfo) {
-			size_t position = 0;
-
-			std::vector<std::string> tags = al->GetTagNames();
-
-			for (size_t i = 0; i < tags.size(); i++) {
-
-				char type = 0;
-				al->GetTagType(tags[i], type);
-				if (type == Constants::BAM_TAG_TYPE_INT8
-						|| type == Constants::BAM_TAG_TYPE_INT16
-						|| type == Constants::BAM_TAG_TYPE_INT32) {
-					int value = 0;
-					al->GetTag<int>(tags[i], value);
-					position += sprintf(additionalInfo + position, "\t%s:%c:%d",
-							tags[i].c_str(), type, value);
-				} else if (type == Constants::BAM_TAG_TYPE_UINT8
-						|| type == Constants::BAM_TAG_TYPE_UINT16
-						|| type == Constants::BAM_TAG_TYPE_UINT32) {
-					uint value = 0;
-					al->GetTag<uint>(tags[i], value);
-					position += sprintf(additionalInfo + position, "\t%s:%c:%u",
-							tags[i].c_str(), type, value);
-				} else if (type == Constants::BAM_TAG_TYPE_STRING
-						|| type == Constants::BAM_TAG_TYPE_ASCII) {
-					std::string value;
-					al->GetTag<std::string>(tags[i], value);
-					position += sprintf(additionalInfo + position, "\t%s:%c:%s",
-							tags[i].c_str(), type, value.c_str());
-				} else if (type == Constants::BAM_TAG_TYPE_FLOAT) {
-					float value = 0;
-					al->GetTag<float>(tags[i], value);
-					position += sprintf(additionalInfo + position, "\t%s:%c:%f",
-							tags[i].c_str(), type, value);
-				}
-
-				//					switch ( type ) {
-				//						case (Constants::BAM_TAG_TYPE_HEX) :
-				//						break;
-				//						case (Constants::BAM_TAG_TYPE_ARRAY) :
-				//						break;
-				//					}
-
-			}
-			if (position > 0) {
-				read->AdditionalInfo = new char[position + 1];
-				memcpy(read->AdditionalInfo, additionalInfo, position);
-				read->AdditionalInfo[position] = '\0';
-			}
-		}
+	if (tmp->qual.l == tmp->seq.l || (tmp->qual.l == 1 && tmp->qual.s[0] == '*') || tmp->qual.l == 0) {
 		return copyToRead(read, tmp, tmp->seq.l);
 	} else {
 		return copyToRead(read, tmp, -2);

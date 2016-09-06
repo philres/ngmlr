@@ -156,10 +156,6 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 		Print("*\t");
 	}
 
-	if(read->AdditionalInfo != 0) {
-		Print("%s\t", read->AdditionalInfo);
-	}
-
 	//Optional fields
 	if(RG != 0) {
 		Print("RG:Z:%s\t", RG);
@@ -348,10 +344,6 @@ void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read,
 
 		if(RG != 0) {
 			Print("\tRG:Z:%s", RG);
-		}
-
-		if(read->AdditionalInfo != 0) {
-			Print("%s", read->AdditionalInfo);
 		}
 
 		Print("\n");

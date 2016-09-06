@@ -2371,7 +2371,21 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 
 	bool overlapFound = false;
 	for (int i = 0; i < mappedSegements.size(); ++i) {
+
+//		static float minResidues = Config.getMinResidues();
+//		static float minIdentity = Config.getMinIdentity();
+//
+//		if (minResidues <= 1.0f) {
+//			minResidues = read->length * minResidues;
+//		}
+//
+//		read->Alignments[mappedSegements[i].value->id].skip = (read->Alignments[i].Identity < minIdentity) ||
+//				((float) (read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd) < minResidues);
+//
+//		mappedSegements[i].value->isProcessed = mappedSegements[i].value->isProcessed || read->Alignments[mappedSegements[i].value->id].skip;
+
 		if (!mappedSegements[i].value->isProcessed) {
+
 			if (pacbioDebug) {
 				Log.Message("Comparing to %d", mappedSegements[i].value->id);
 			}
@@ -2422,7 +2436,7 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 										mappedSegements[i].value) && isValidOverlapRead(results[j].value,
 										mappedSegements[i].value)) {
 							if(pacbioDebug) {
-								Log.Error("Mapped segment %d overlaps with %d on read %s and reference", mappedSegements[i].value->id, results[j].value->id, read->name);
+								Log.Message("Mapped segment %d overlaps with %d on read %s and reference", mappedSegements[i].value->id, results[j].value->id, read->name);
 								//Fatal();
 							}
 							results[j].value->isProcessed = true;

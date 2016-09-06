@@ -35,21 +35,6 @@
 
 class GenericReadWriter {
 
-public:
-
-	GenericReadWriter() {
-		writeBuffer = new char[BUFFER_SIZE];
-		bufferPosition = 0;
-
-		identity = Config.getMinIdentity();
-		writeUnmapped = Config.getWriteUnampped();
-	}
-	virtual ~GenericReadWriter() {
-		if (writeBuffer != 0) {
-			delete[] writeBuffer;
-			writeBuffer = 0;
-		}
-	}
 protected:
 
 	virtual void DoWriteProlog() = 0;
@@ -85,58 +70,38 @@ protected:
 		return done;
 	}
 
-private:
-
 public:
+
+	GenericReadWriter() {
+		writeBuffer = new char[BUFFER_SIZE];
+		bufferPosition = 0;
+
+		identity = Config.getMinIdentity();
+		writeUnmapped = Config.getWriteUnampped();
+	}
+	virtual ~GenericReadWriter() {
+		if (writeBuffer != 0) {
+			delete[] writeBuffer;
+			writeBuffer = 0;
+		}
+	}
+
 	void WriteProlog() {
 		DoWriteProlog();
 	}
 
 	void WriteRead(MappedRead const * const read, bool mapped = true) {
 
-		if (mapped) {
-			std::map<SequenceLocation, bool> iTable;
-			bool mappedOnce = false;
-			for (int i = 0; i < read->Calculated; ++i) {
-
-
-				float minResidues = Config.getMinResidues();
-
-				if (minResidues <= 1.0f) {
-					minResidues = read->length * minResidues;
-				}
-
-				mapped = mapped && (read->Alignments[i].Identity >= identity);
-				mapped = mapped && ((float) (read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd) >= minResidues);
-
-				Log.Debug(4, "READ_%d\tOUTPUT\tChecking alignment CRM_%d (read length: %d - %d - %d)\t%f >= %f\t%f >= %f", read->ReadId, i, read->length, read->Alignments[i].QStart, read->Alignments[i].QEnd, read->Alignments[i].Identity, identity, (float)(read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd), minResidues);
-
-				if (mapped) {
-					mappedOnce = true;
-					if (iTable.find(read->Scores[i].Location) == iTable.end()) {
-						iTable[read->Scores[i].Location] = true;
-						Log.Debug(4, "READ_%d\tOUTPUT\tWriting alignment CRM_%d", read->ReadId, i);
-						static const bool printAll = Config.getPrtintAll();
-						if (!read->Alignments[i].skip || printAll) {
-							DoWriteRead(read, i);
-						}
-					} else {
-						Log.Debug(4, "READ_%d\tOUTPUT\tIgnoring duplicated alignment CRM_%d", read->ReadId, i);
-					}
-				}
+		bool mappedOnce = false;
+		for (int i = 0; i < read->Calculated && mapped; ++i) {
+			mappedOnce = mappedOnce || !read->Alignments[i].skip;
+			if(!read->Alignments[i].skip) {
+				DoWriteRead(read, i);
 			}
-
-			if (mappedOnce) {
-				Log.Debug(4, "READ_%d\tOUTPUT\tRead was mapped", read->ReadId);
-				NGM.AddMappedRead(read->ReadId);
-			} else {
-				if(read->HasFlag(NGMNames::Empty)) {
-					Log.Debug(4, "READ_%d\tOUTPUT\tRead empty (discard read)", read->ReadId);
-				} else {
-					Log.Debug(4, "READ_%d\tOUTPUT\tRead unmapped", read->ReadId);
-					DoWriteUnmappedRead(read);
-				}
-			}
+		}
+		if (mappedOnce) {
+			Log.Debug(4, "READ_%d\tOUTPUT\tRead was mapped", read->ReadId);
+			NGM.AddMappedRead(read->ReadId);
 		} else {
 			if(read->HasFlag(NGMNames::Empty)) {
 				Log.Debug(4, "READ_%d\tOUTPUT\tRead empty (discard read)", read->ReadId);
@@ -145,7 +110,6 @@ public:
 				DoWriteUnmappedRead(read);
 			}
 		}
-
 	}
 
 	void WriteEpilog() {

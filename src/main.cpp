@@ -34,7 +34,7 @@
 #include "CS.h"
 #include "Version.h"
 #include "Timing.h"
-#include "UpdateCheck.h"
+//#include "UpdateCheck.h"
 #include "ArgParser.h"
 
 #undef module_name
@@ -89,10 +89,10 @@ int main(int argc, char * argv[]) {
 	_Log::Init(0, 0); // Inits logging to file
 #endif
 
-	if (Config.getUpdateCheck()) {
-		UpdateCheckInterface::remoteCheck();
-		exit(0);
-	}
+//	if (Config.getUpdateCheck()) {
+//		UpdateCheckInterface::remoteCheck();
+//		exit(0);
+//	}
 
 	_Log::setColor(Config.getColor());
 
@@ -128,9 +128,9 @@ int main(int argc, char * argv[]) {
 
 
 
-	if (! Config.getUpdateCheck()) {
-		UpdateCheckInterface::reminder();
-	}
+//	if (! Config.getUpdateCheck()) {
+//		UpdateCheckInterface::reminder();
+//	}
 
 	CS::Cleanup();
 	_SequenceProvider::Cleanup();

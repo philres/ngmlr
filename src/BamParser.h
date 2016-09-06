@@ -36,8 +36,6 @@ private:
 	BamAlignment* al;
 	kseq_t * tmp;
 
-	bool parseAdditionalInfo;
-
 	char additionalInfo[100000];
 
 	std::vector<BamRegion> regions;
@@ -52,7 +50,6 @@ public:
 		fp = 0;
 		al = 0;
 		tmp = 0;
-		parseAdditionalInfo = false;
 		parsedReads = 0;
 	}
 
@@ -73,7 +70,7 @@ public:
 
 	int doParseSingleRead(MappedRead * read, BamAlignment * al);
 
-	virtual void init(char const * fileName, bool const keepTags);
+	virtual void init(char const * fileName);
 	virtual int doParseRead(MappedRead * read);
 	virtual int doParseRead(SAMRecord * read);
 };

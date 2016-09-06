@@ -46,23 +46,23 @@ public:
 
 	}
 
-	virtual void init(char const * fileName, bool const keepTags) = 0;
+	virtual void init(char const * fileName) = 0;
 
 	int parseRead(MappedRead * pRead) {
 		assert(pRead != 0);
 		return doParseRead(pRead);
 	}
-	int parseSAMRecord(SAMRecord * pRead) {
-		assert(pRead != 0);
-		return doParseRead(pRead);
-	}
+//	int parseSAMRecord(SAMRecord * pRead) {
+//		assert(pRead != 0);
+//		return doParseRead(pRead);
+//	}
 
 protected:
 
 	int const qryMaxLen;
 
 	virtual int doParseRead(MappedRead * pRead) = 0;
-	virtual int doParseRead(SAMRecord * pRead) = 0;
+//	virtual int doParseRead(SAMRecord * pRead) = 0;
 
 	int copyToRead(MappedRead * read, kseq_t * kseq, int const l) {
 		int nameLength = 0;
@@ -132,31 +132,31 @@ protected:
 		return l;
 	}
 
-	int copyToRead(SAMRecord * read, kseq_t * kseq, int const l) {
-
-		if (l >= 0) {
-			if (kseq->seq.l == kseq->qual.l || kseq->qual.l == 0) {
-				read->set_read_name(string(kseq->name.s));
-				read->set_sequence(string(kseq->seq.s));
-				read->set_qualities(string(kseq->qual.s));
-			} else {
-				throw "Error while parsing. Read length not equal to length of quality values!";
-			}
-		} else {
-			switch (l) {
-			case -1:				//End of file
-				break;
-			case -2:
-				//Length of read not equal to length of quality values
-				read->set_read_name(string(kseq->name.s));
-				break;
-			default:
-				//Unknown error. Should not happen.
-				throw "Unknown error while parsing. Please check whether the input file is corrupted!";
-			}
-		}
-		return l;
-	}
+//	int copyToRead(SAMRecord * read, kseq_t * kseq, int const l) {
+//
+//		if (l >= 0) {
+//			if (kseq->seq.l == kseq->qual.l || kseq->qual.l == 0) {
+//				read->set_read_name(string(kseq->name.s));
+//				read->set_sequence(string(kseq->seq.s));
+//				read->set_qualities(string(kseq->qual.s));
+//			} else {
+//				throw "Error while parsing. Read length not equal to length of quality values!";
+//			}
+//		} else {
+//			switch (l) {
+//			case -1:				//End of file
+//				break;
+//			case -2:
+//				//Length of read not equal to length of quality values
+//				read->set_read_name(string(kseq->name.s));
+//				break;
+//			default:
+//				//Unknown error. Should not happen.
+//				throw "Unknown error while parsing. Please check whether the input file is corrupted!";
+//			}
+//		}
+//		return l;
+//	}
 
 }
 ;

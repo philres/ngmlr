@@ -123,37 +123,6 @@ void BAMWriter::translate_flag(BamAlignment * al, int flags) {
 	al->SetIsSecondMate(flags & 0x80);
 }
 
-void BAMWriter::addAdditionalInfo(const MappedRead * const read, BamAlignment * al) {
-
-	std::stringstream ss(read->AdditionalInfo);
-	std::string token;
-	char delim = '\t';
-	while (std::getline(ss, token, delim)) {
-		if (token.length() > 5) {
-			int first = token.find(':');
-			int last = token.rfind(':');
-			if (first > 0 && last > 0 && first < last) {
-				if (token.substr(first + 1, last - first - 1).size() == 1) {
-					char type = token.substr(first + 1, last - first - 1)[0];
-					if (type == Constants::BAM_TAG_TYPE_INT8 || type == Constants::BAM_TAG_TYPE_INT16
-							|| type == Constants::BAM_TAG_TYPE_INT32) {
-						al->AddTag(token.substr(0, first), token.substr(first + 1, last - first - 1),
-								atoi(token.substr(last + 1, token.length() - last).c_str()));
-					} else if (type == Constants::BAM_TAG_TYPE_UINT8 || type == Constants::BAM_TAG_TYPE_UINT16
-							|| type == Constants::BAM_TAG_TYPE_UINT32) {
-						//token.substr(first + 1, last - first - 1), atoi(token.substr(last + 1, token.length() - last).c_str());
-					} else if (type == Constants::BAM_TAG_TYPE_STRING || type == Constants::BAM_TAG_TYPE_ASCII) {
-						al->AddTag(token.substr(0, first), token.substr(first + 1, last - first - 1),
-								token.substr(last + 1, token.length() - last));
-					} else if (type == Constants::BAM_TAG_TYPE_FLOAT) {
-						//token.substr(first + 1, last - first - 1), atof(token.substr(last + 1, token.length() - last).c_str());
-					}
-				}
-			}
-		}
-	}
-}
-
 void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scoreId, int const pRef, int const pLoc, int const pDist, int const mappingQlty, int flags) {
 	NGM.AddWrittenRead(read->ReadId);
 	static bool const hardClip = Config.getHardClip();
@@ -225,10 +194,6 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 		al->Qualities = std::string(read->length - read->Alignments[scoreId].QStart - read->Alignments[scoreId].QEnd, ':');
 		else
 		al->Qualities = std::string(readlen, ':');
-	}
-
-	if (read->AdditionalInfo != 0) {
-		addAdditionalInfo(read, al);
 	}
 
 //	//Optional fields
@@ -319,10 +284,6 @@ void BAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read, int co
 		if (bufferIndex == (10000 - 1)) {
 			writer->SaveAlignment(buffer, bufferIndex);
 			bufferIndex = 0;
-		}
-
-		if (read->AdditionalInfo != 0) {
-			addAdditionalInfo(read, al);
 		}
 	}
 }

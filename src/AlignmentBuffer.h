@@ -24,14 +24,11 @@
 
 #include "ILog.h"
 #include "IConfig.h"
-#include "SAMWriter.h"
-#include "BAMWriter.h"
-#include "StrippedSW.h"
 #include "intervaltree/IntervalTree.h"
 #include "LinearRegression.h"
 #include "ConvexAlign.h"
 #include "ConvexAlignFast.h"
-
+#include "SAMWriter.h"
 
 #undef module_name
 #define module_name "OUTPUT"
@@ -299,11 +296,11 @@ public:
 
 		m_Writer = 0;
 
-		if (Config.getBAM()) {
-			m_Writer = (GenericReadWriter*) new BAMWriter((FileWriterBam*) NGM.getWriter(), filename);
-		} else {
-			m_Writer = (GenericReadWriter*) new SAMWriter((FileWriter*)NGM.getWriter());
-		}
+		//if (Config.getBAM()) {
+		//	m_Writer = (GenericReadWriter*) new BAMWriter((FileWriterBam*) NGM.getWriter(), filename);
+		//} else {
+		m_Writer = (GenericReadWriter*) new SAMWriter((FileWriter*) NGM.getWriter());
+		//}
 
 		if (first) {
 			m_Writer->WriteProlog();

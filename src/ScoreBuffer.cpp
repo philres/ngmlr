@@ -26,6 +26,7 @@
 #include "Timing.h"
 #include "CS.h"
 #include "AlignmentBuffer.h"
+#include "StrippedSW.h"
 
 float const MAX_MQ = 60.0f;
 

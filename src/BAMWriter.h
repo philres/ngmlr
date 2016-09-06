@@ -58,7 +58,6 @@ protected:
 
 private:
 	void translate_flag(BamTools::BamAlignment * al, int flags);
-	void addAdditionalInfo(const MappedRead* const read, BamTools::BamAlignment* al);
 
 	FileWriterBam * writer;
 
