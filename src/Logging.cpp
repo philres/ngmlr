@@ -230,7 +230,7 @@ void _Log::_Message(int lvl, char const * const title, char const * const s, ...
 			terminate = true;
 		}
 	}
-	if (lvl == 1) {
+	if (lvl == 2) {
 		fprintf(stderr, "Terminating\n");
 		terminate = true;
 	}
@@ -240,6 +240,7 @@ void _Log::_Message(int lvl, char const * const title, char const * const s, ...
 		if (fp != 0) {
 			gzclose(fp);
 		}
+		exit(1);
 	}
 
 }
