@@ -457,7 +457,10 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 			//Hack to pass readId to convex alignment class for plotting
 			//TODO: remove
 			align->svType = read->ReadId;
-			alignFast->svType = read->ReadId;
+
+			#ifdef TEST_ALIGNER
+				alignFast->svType = read->ReadId;
+			#endif
 
 #ifdef TEST_ALIGNER
 			Timer tmr1;
@@ -515,7 +518,9 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 		delete[] refSeq;
 		refSeq = 0;
 
-		delete alignFast; alignFast = 0;
+		#ifdef TEST_ALIGNER
+			delete alignFast; alignFast = 0;
+		#endif
 	} else {
 		Log.Error("Could not align reference sequence for read %s.", read->name);
 	}
