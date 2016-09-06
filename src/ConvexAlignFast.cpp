@@ -449,7 +449,7 @@ int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines,
 //
 ////	Timer t1;
 ////	t1.ST();
-		AlignmentMatrixFast::Score score = FastUnrolledfwdFillMatrix(refSeq, qrySeq, fwdResults,
+		AlignmentMatrixFast::Score score = FastfwdFillMatrix(refSeq, qrySeq, fwdResults,
 				mode);
 ////	fprintf(stderr, "fill: %f\n", t1.ET());
 //
