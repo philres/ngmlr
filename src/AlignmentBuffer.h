@@ -29,9 +29,14 @@
 #include "StrippedSW.h"
 #include "intervaltree/IntervalTree.h"
 #include "LinearRegression.h"
+#include "ConvexAlign.h"
+#include "ConvexAlignFast.h"
+
 
 #undef module_name
 #define module_name "OUTPUT"
+
+//#define TEST_ALIGNER
 
 // Non overlapping part of the reads that are mapped to the reference
 // using NextGenMap short-read mapping code (only candidate search and score computation)
@@ -138,6 +143,9 @@ private:
 	static bool first;
 
 	IAlignment * aligner;
+#ifdef TEST_ALIGNER
+	IAlignment * alignerFast;
+#endif
 
 	bool const pacbioDebug;
 
@@ -286,8 +294,8 @@ public:
 	REAL const m, REAL const b, REAL const r, float const score,
 			bool const isReverse, int const type, int const status);
 
-	AlignmentBuffer(const char* const filename, IAlignment * mAligner) :
-			aligner(mAligner), pacbioDebug(Config.getVerbose()), readCoordsTree(0), readPartLength(Config.getReadPartLength()), maxIntervalNumber(10) {
+	AlignmentBuffer(const char* const filename) :
+			pacbioDebug(Config.getVerbose()), readCoordsTree(0), readPartLength(Config.getReadPartLength()), maxIntervalNumber(10) {
 
 		m_Writer = 0;
 
@@ -326,14 +334,32 @@ public:
 		intervalBufferIndex = 0;
 		intervalBuffer = new Interval *[1000];
 
+
+		//	IAlignment * aligner = new StrippedSW();
+		if (Config.getFast()) {
+			aligner = new Convex::ConvexAlignFast(0);
+		} else {
+			aligner = new Convex::ConvexAlign(0);
+		}
+#ifdef TEST_ALIGNER
+		alignerFast = new Convex::ConvexAlignFast(0);
+#endif
 	}
 
 	virtual ~AlignmentBuffer() {
 		delete m_Writer;
+		m_Writer = 0;
 
 		delete[] intervalBuffer;
 		intervalBuffer = 0;
 
+		delete aligner;
+		aligner = 0;
+
+#ifdef TEST_ALIGNER
+		delete alignerFast;
+		alignerFast = 0;
+#endif
 	}
 
 	void DoRun();

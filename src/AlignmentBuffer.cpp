@@ -351,6 +351,9 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 	bool validAlignment = false;
 
 	Align * align = new Align();
+#ifdef TEST_ALIGNER
+	Align * alignFast = new Align();
+#endif
 
 	int refSeqLen = 0;
 	char * refSeq = extractReferenceSequenceForAlignment(interval, refSeqLen);
@@ -375,6 +378,14 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 		align->pBuffer2 = new char[readLength * 4];
 		align->pBuffer1[0] = '\0';
 		align->pBuffer2[0] = '\0';
+
+#ifdef TEST_ALIGNER
+		alignFast->pBuffer1 = new char[readLength * 4];
+		alignFast->pBuffer2 = new char[readLength * 4];
+		alignFast->pBuffer1[0] = '\0';
+		alignFast->pBuffer2[0] = '\0';
+#endif
+
 
 		int corridorMultiplier = 1;
 		while (!validAlignment
@@ -446,9 +457,39 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 			//Hack to pass readId to convex alignment class for plotting
 			//TODO: remove
 			align->svType = read->ReadId;
+
+#ifdef TEST_ALIGNER
+			Timer tmr1;
+			tmr1.ST();
+#endif
+
+
 			int const cigarLength = aligner->SingleAlign(alignmentId, corridorLines,
 					corridorHeight, (char const * const ) refSeq,
 					(char const * const ) readSeq, *align, externalQStart, externalQEnd, 0);
+
+#ifdef TEST_ALIGNER
+			float time1 = tmr1.ET();
+			Timer tmr2;
+			tmr2.ST();
+			int const cigarLengthFast = alignerFast->SingleAlign(alignmentId, corridorLines,
+					corridorHeight, (char const * const ) refSeq,
+					(char const * const ) readSeq, *alignFast, externalQStart, externalQEnd, 0);
+
+			float time2 = tmr2.ET();
+
+			Log.Message("%d/%d bp: %f - %f", strlen(refSeq), strlen(readSeq), time1, time2);
+
+			if(!(cigarLengthFast == cigarLength && alignFast->Score == align->Score && strcmp(align->pBuffer1, alignFast->pBuffer1) == 0 && strcmp(align->pBuffer2, alignFast->pBuffer2) == 0)) {
+				Log.Message("Ref:  %s", refSeq);
+				Log.Message("Read: %s", readSeq);
+				Log.Message("Convex:     %d %f %s", cigarLength, align->Score, align->pBuffer1);
+				Log.Message("ConvexFast: %d %f %s", cigarLengthFast, alignFast->Score, alignFast->pBuffer1);
+				Log.Error("Not equal");
+			}
+
+			delete alignFast; alignFast = 0;
+#endif
 
 			alignmentId += 1;
 

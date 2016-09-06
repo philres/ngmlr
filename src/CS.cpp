@@ -27,9 +27,6 @@
 #include "Timing.h"
 #include "AlignmentBuffer.h"
 
-#include "ConvexAlign.h"
-#include "ConvexAlignFast.h"
-
 #undef module_name
 #define module_name "CS"
 
@@ -427,33 +424,7 @@ void CS::DoRun() {
 	NGM.AquireOutputLock();
 	oclAligner = NGM.CreateAlignment(0);
 
-//	IAlignment * aligner = new SWCPUCor(0);
-//	Align align;
-//	align.pBuffer1 = new char[10000];
-//	align.pBuffer2 = new char[10000];
-//	//TODO: alloc align.pBuffer1
-//	char const * const ref = "TTTTGAATCGGGGGTAGGTGAGCCAGGTCAAAGGTCTGTGTTAGCGCACCCCCTTTT";
-//	char const * const read = "GAATCGGGGGTAGGTGCAGGTCAATTTAGGTCTGTGTTAGCGCACCCCC";
-//	aligner->SingleAlign(0, 8, ref, read, align, 0);
-//
-//	Log.Message("CIGAR: %s", align.pBuffer1);
-//	Log.Message("MD: %s", align.pBuffer2);
-//	Log.Message("Scores: %f", align.Score);
-//	Log.Message("ID: %f, NM: %d", align.Identity, align.NM);
-//	Log.Message("Offset: %d, QStart: %d, QEnd: %d", align.PositionOffset, align.QStart, align.QEnd);
-	//exit(0);
-
-//	IAlignment * sswAligner = new StrippedSW();
-//	IAlignment * sswAligner = oclAligner;
-//	IAlignment * sswAligner = new SWCPUCor(0);
-	IAlignment * sswAligner = 0;
-	if(Config.getFast()) {
-		sswAligner = new Convex::ConvexAlignFast(0);
-	} else {
-		sswAligner = new Convex::ConvexAlign(0);
-	}
-
-	alignmentBuffer = new AlignmentBuffer(Config.getOutputFile(), sswAligner);
+	alignmentBuffer = new AlignmentBuffer(Config.getOutputFile());
 	ScoreBuffer * scoreBuffer = new ScoreBuffer(oclAligner, alignmentBuffer);
 	NGM.ReleaseOutputLock();
 
@@ -529,9 +500,6 @@ void CS::DoRun() {
 	scoreBuffer = 0;
 	delete alignmentBuffer;
 	alignmentBuffer = 0;
-
-	delete sswAligner;
-	sswAligner = 0;
 
 	NGM.DeleteAlignment(oclAligner);
 	Log.Debug(LOG_CS_DETAILS, "CS Thread %i finished (%i reads processed, %i reads written, %i reads discarded)", m_TID, m_ProcessedReads, m_WrittenReads, m_DiscardedReads);
