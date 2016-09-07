@@ -175,52 +175,7 @@ public:
 	}
 
 	IConfig() {
-		/**
-		 * Default values
-		 */
-		minIdentity = 0.65f;
-		minResidues = 256.0f;
-		sensitivity = 0.8f;
 
-
-		binSize = 4;
-		csSearchTableLength = 0;
-		kmerLength = 13;
-		kmerSkip = 2;
-		logLevel = 0; //16383, 255
-		minKmerHits = 0;
-		maxCMRs = INT_MAX;
-		readPartCorridor = 40;
-		readPartLength = 256;
-		stdoutMode = 0;
-		scoreMatch = 1;
-		scoreMismatch = -4;
-		scoreGapOpen = -2;
-		scoreGapExtend = -2;
-		threads = 1;
-
-
-		bam = false;
-		color = false;
-		hardClip = false;
-		log = false;
-		lowQualitySplit = true;
-		printAllAlignments = false;
-		progress = true;
-		skipSave = false;
-		smallInversionDetection = true;
-		updateCheck = false;
-		verbose = false;
-		writeUnmapped = true;
-		fast = false; //Debug
-
-
-		queryFile = 0;
-		referenceFile = 0;
-		outputFile = 0;
-		bedFile = 0;
-		fullCommandLineCall = 0;
-		vcfFile = 0;
 	}
 
 	virtual ~IConfig() {
@@ -229,98 +184,53 @@ public:
 protected:
 
 	/**
-	 * Float parameters
+	 * Default values
 	 */
+	float minIdentity = 0.65f;
+	float minResidues = 256.0f;
+	float sensitivity = 0.8f;
 
-	float minIdentity;
-	float minResidues;
-	float sensitivity;
+	int binSize = 4;
+	int csSearchTableLength = 0;
+	int kmerLength = 13;
+	int kmerSkip = 2;
+	int logLevel = 0; //16383, 255
+	int minKmerHits = 0;
+	int maxCMRs = INT_MAX;
+	int readPartCorridor = 40;
+	int readPartLength = 256;
+	int stdoutMode = 0;
+	int scoreMatch = 1;
+	int scoreMismatch = -4;
+	int scoreGapOpen = -2;
+	int scoreGapExtend = -2;
+	int threads = 1;
 
-	/**
-	 * Int parameters
-	 */
+	bool bam = false;
+	bool color = false;
+	bool hardClip = false;
+	bool log = false;
+	bool lowQualitySplit = true;
+	bool printAllAlignments = false;
+	bool progress = true;
+	bool skipSave = false;
+	bool smallInversionDetection = true;
+	bool updateCheck = false;
+	bool verbose = false;
+	bool writeUnmapped = true;
+	bool fast = false; //Debug
 
-	int binSize;
-
-	int csSearchTableLength;
-
-	int kmerLength;
-
-	int kmerSkip;
-
-	int minKmerHits;
-
-	int logLevel;
-
-	int maxCMRs;
-
-	int readPartCorridor;
-
-	int readPartLength;
-
-	int scoreMatch;
-
-	int scoreMismatch;
-
-	int scoreGapOpen;
-
-	int scoreGapExtend;
-
-	int stdoutMode;
-
-	int threads;
-
-	/**
-	 * Bool parameters
-	 */
-	bool bam;
-
-	bool color;
-
-	bool fast; //Debug
-
-	bool hardClip;
-
-	bool log;
-
-	bool lowQualitySplit;
-
-	bool smallInversionDetection;
-
-	bool printAllAlignments; //Debug
-
-	bool progress;
-
-	bool skipSave;
-
-	bool updateCheck;
-
-	bool verbose;
-
-	bool writeUnmapped;
-
-	/**
-	 * String parameters
-	 */
-
+	char * queryFile = 0;
+	char * referenceFile = 0;
+	char * outputFile = 0;
 	/*
 	 * If specified, only reads in the regions specified
 	 * by the BED file are read from the input BAM file
 	 * (requires BAM input)
 	 */
-	char * bedFile;
-
-	char * fullCommandLineCall;
-
-	char * outputFile;
-
-	char * queryFile;
-
-	char * referenceFile;
-
-	char * vcfFile;
-
-
+	char * bedFile = 0;
+	char * fullCommandLineCall = 0;
+	char * vcfFile = 0;
 
 };
 
