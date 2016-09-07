@@ -47,7 +47,7 @@ public:
 		gzclose(fp);
 	}
 
-	virtual void init(char const * fileName, bool const keepTags) {
+	virtual void init(char const * fileName) {
 		fp = gzopen(fileName, "r");
 		tmp = kseq_init(fp);
 	}
@@ -57,10 +57,10 @@ public:
 		return copyToRead(read, tmp, l);
 	}
 
-	virtual int doParseRead(SAMRecord * read) {
-		int l = kseq_read(tmp);
-		return copyToRead(read, tmp, l);
-	}
+//	virtual int doParseRead(SAMRecord * read) {
+//		int l = kseq_read(tmp);
+//		return copyToRead(read, tmp, l);
+//	}
 };
 
 #endif /* FASTXPARSER_H_ */

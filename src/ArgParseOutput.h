@@ -54,6 +54,7 @@ public:
 		cerr << endl;
 		cerr << "For complete USAGE and HELP type:" << endl;
 		cerr << "    ngmlr --help" << endl;
+		cerr << endl;
 		exit(1);
 	}
 

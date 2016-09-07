@@ -31,7 +31,7 @@
 #include "CS.h"
 #include "MappedRead.h"
 #include "FastxParser.h"
-#include "BamParser.h"
+//#include "BamParser.h"
 #include "SamParser.h"
 
 using NGMNames::ReadStatus;
@@ -239,8 +239,9 @@ IParser * ReadProvider::DetermineParser(char const * fileName,
 		parser = new SamParser(qryMaxLen);
 	} else {
 		if (strncmp(buffer, "BAM", 3) == 0) {
-			Log.Message("Input is BAM");
-			parser= new BamParser(qryMaxLen);
+//			Log.Message("Input is BAM");
+//			parser= new BamParser(qryMaxLen);
+			Log.Error("BAM input is currently not supported!");
 		} else {
 			if (buffer[0] == '>') {
 				Log.Message("Input is Fasta");
@@ -252,7 +253,7 @@ IParser * ReadProvider::DetermineParser(char const * fileName,
 	}
 	gzclose(fp);
 	delete[] buffer;
-	parser->init(fileName, false);
+	parser->init(fileName);
 	return parser;
 }
 

@@ -25,7 +25,6 @@
 #include <zlib.h>
 #include <stdio.h>
 
-#include "SAMRecord.h"
 #include "kseq.h"
 
 int const buffer_size = 10000;
@@ -39,8 +38,6 @@ private:
 
 	kseq_t * tmp;
 
-	bool parseAdditionalInfo;
-
 public:
 
 	SamParser(int const p_qryMaxLen) : IParser(p_qryMaxLen) {
@@ -48,7 +45,6 @@ public:
 		parse_all = true;
 		buffer = 0;
 		tmp = 0;
-		parseAdditionalInfo = false;
 	}
 
 	virtual ~SamParser() {
@@ -61,9 +57,9 @@ public:
 		gzclose(fp);
 	}
 
-	virtual void init(char const * fileName, bool const keepTags);
+	virtual void init(char const * fileName);
 	virtual int doParseRead(MappedRead * read);
-	virtual int doParseRead(SAMRecord * read);
+//	virtual int doParseRead(SAMRecord * read);
 };
 
 #endif /* SAMPARSER_H_ */

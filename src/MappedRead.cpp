@@ -24,20 +24,17 @@
 #undef module_name
 #define module_name "READ"
 
-volatile int MappedRead::sInstanceCount = 0;
-
-#ifdef INSTANCE_COUNTING
-volatile int MappedRead::sInstanceCount = 0;
-volatile int LocationScore::sInstanceCount = 0;
-#endif
+//volatile int MappedRead::sInstanceCount = 0;
+//
+//#ifdef INSTANCE_COUNTING
+//volatile int MappedRead::sInstanceCount = 0;
+//volatile int LocationScore::sInstanceCount = 0;
+//#endif
 
 //volatile int Align::sInstanceCount = 0;
 
 MappedRead::MappedRead(int const readid, int const qrymaxlen) :
-		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), Scores(
-				0), Alignments(0), iScores(0), Status(0), mappingQlty(
-				255), s(0), length(0), RevSeq(0), Seq(0), qlty(0), name(0), group(0), AdditionalInfo(
-				0) {
+		ReadId(readid), Calculated(-1), qryMaxLen(qrymaxlen), Scores(0), Alignments(0), iScores(0), Status(0), mappingQlty(255), s(0), length(0), RevSeq(0), Seq(0), qlty(0), name(0), group(0) {
 //#ifdef INSTANCE_COUNTING
 //	AtomicInc(&sInstanceCount);
 //	maxSeqCount = std::max(sInstanceCount, maxSeqCount);
@@ -105,10 +102,6 @@ MappedRead::~MappedRead() {
 		Scores = 0;
 		iScores = 0;
 	}
-	if (AdditionalInfo != 0) {
-		delete[] AdditionalInfo;
-		AdditionalInfo = 0;
-	}
 	if (Alignments != 0) {
 		for (int i = 0; i < Calculated; ++i) {
 			if (Alignments[i].pBuffer1 != 0)
@@ -132,7 +125,7 @@ MappedRead::~MappedRead() {
 	}
 
 //#ifdef INSTANCE_COUNTING
-	AtomicDec(&sInstanceCount);
+//	AtomicDec(&sInstanceCount);
 //#endif
 }
 

@@ -82,7 +82,7 @@ public:
 	ReadGroup * group;
 
 //#ifdef INSTANCE_COUNTING
-	static volatile int sInstanceCount;
+//	static volatile int sInstanceCount;
 //#endif
 
 	MappedRead(int const readid, int const qrymaxlen);
