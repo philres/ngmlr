@@ -23,6 +23,7 @@
 #include <string.h>
 #include <cmath>
 #include <vector>
+#include <float.h> //Eclipse
 
 #include "Timing.h"
 #include "EndToEndAffine.h"
