@@ -36,7 +36,7 @@
 #undef module_name
 #define module_name "OUTPUT"
 
-//#define TEST_ALIGNER
+#define TEST_ALIGNER
 
 // Non overlapping part of the reads that are mapped to the reference
 // using NextGenMap short-read mapping code (only candidate search and score computation)

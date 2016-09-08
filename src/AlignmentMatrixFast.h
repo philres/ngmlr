@@ -85,11 +85,9 @@ public:
 	MatrixElement * getElementEdit(int const x, int const y);
 
 
-	//FAST FUNCTIONS
-
+	//SAFE FUNCTIONS
 	inline MatrixElement * getElementUp(int const x, int const y)
 	{
-		//TODO: Make unnecessary w. loop unrolling
 		if (y < 0 || x < 0) {
 		       return &empty;
 		}
@@ -108,6 +106,7 @@ public:
 		       return &empty;
 		}
 
+		
 		if (x < currentCorridor.offset || x >= (currentCorridor.offset + currentCorridor.length)) {
 		       return &empty;
 		}
@@ -121,6 +120,7 @@ public:
 		       throw "";
 		}
 
+
 		if (x < currentCorridor.offset || x >= (currentCorridor.offset + currentCorridor.length)) {
 		       throw "";
 		}
@@ -128,12 +128,31 @@ public:
 		return currentLine + (x - currentCorridor.offset);
 	}
 
+	//END SAFE FUNCTIONS
+
+	//FAST FUNCTIONS
+	inline MatrixElement * getElementUpFast(int const x, int const y)
+	{
+		return lastLine + (x - lastCorridor.offset);
+	}
+
+	inline MatrixElement * getElementCurrFast(int const x, int const y)
+	{
+		return currentLine + (x - currentCorridor.offset);
+	}
+
+	inline MatrixElement * getElementEditCurrFast(int const x, int const y)
+	{
+		return currentLine + (x - currentCorridor.offset);
+	}
+
+	//END FAST FUNCTIONS
+
+
 	inline char * getDirectionCurr(int const x, int const y) {
 		CorridorLine line = corridorLines[y];
 		return directionMatrix + line.offsetInMatrix + (x - line.offset);
 	}
-
-	//END FAST FUNCTIONS
 
 
 	char * getDirection(int const x, int const y);

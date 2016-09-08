@@ -145,6 +145,20 @@ private:
 	AlignmentMatrixFast::Score FastUnrolledfwdFillMatrix(char const * const refSeq,
 				char const * const qrySeq, FwdResults & fwdResults, int readId);
 
+	AlignmentMatrixFast::Score FastUnrolledfwdFillMatrixMaster(char const * const refSeq,
+				char const * const qrySeq, FwdResults & fwdResults, int readId);
+
+	AlignmentMatrixFast::Score FastUnrolledfwdFillMatrixLine(char const * const refSeq,
+				char const * const qrySeq, FwdResults & fwdResults, int readId,
+				AlignmentMatrixFast::Score diag_score,
+				AlignmentMatrixFast::MatrixElement const & up,
+				AlignmentMatrixFast::MatrixElement const & left,
+				AlignmentMatrixFast::MatrixElement * current,
+				char & currentDirection,
+				AlignmentMatrixFast::Score & curr_max,
+				int x,
+				int y);
+
 	/**
 	 * Follows direction matrix (backtracking)
 	 * Creates reversed binary representation of the cigar string
