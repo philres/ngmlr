@@ -163,10 +163,10 @@ private:
 	Interval ** intervalBuffer;
 
 	void debugAlgnFinished(MappedRead * read);
-	int alignmentCheckForInversion(int const inversionLength,
-			const int refCheckLength, SequenceLocation inversionCheckLocation,
-			uloc inversionMidpointOnRead, const char* const readName,
-			int inversionNumber, char* fullReadSeq);
+//	int alignmentCheckForInversion(int const inversionLength,
+//			const int refCheckLength, SequenceLocation inversionCheckLocation,
+//			uloc inversionMidpointOnRead, const char* const readName,
+//			int inversionNumber, char* fullReadSeq);
 
 public:
 
@@ -333,7 +333,14 @@ public:
 		if (Config.getFast()) {
 			aligner = new Convex::ConvexAlignFast(0);
 		} else {
-			aligner = new Convex::ConvexAlign(0);
+			aligner = new Convex::ConvexAlign(
+					Config.getStdoutMode(),
+					Config.getScoreMatch(),
+					Config.getScoreMismatch(),
+					Config.getScoreGapOpen(),
+					Config.getScoreExtendMax(),
+					Config.getScoreExtendMin(),
+					Config.getScoreGapDecay());
 		}
 #ifdef TEST_ALIGNER
 		alignerFast = new Convex::ConvexAlignFast(0);

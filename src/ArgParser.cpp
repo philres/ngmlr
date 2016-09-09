@@ -96,10 +96,11 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	TCLAP::ValueArg<int> binSizeArg("", "bin-size", "Sets the size of the grid used during candidate search", false, binSize, "int", cmd);
 	TCLAP::ValueArg<int> kmerLengthArg("k", "kmer-length", "K-mer length in bases", false, kmerLength, "10-15", cmd);
 	TCLAP::ValueArg<int> kmerSkipArg("", "kmer-skip", "Number of k-mers to skip when building the lookup table from the reference", false, kmerSkip, "int", cmd);
-	TCLAP::ValueArg<int> scoreMatchArg("", "match", "Match score", false, scoreMatch, "int", cmd);
-	TCLAP::ValueArg<int> scoreMismatchArg("", "mismatch", "Mismatch score", false, scoreMismatch, "int", cmd);
-	TCLAP::ValueArg<int> scoreGapOpenArg("", "gap-open", "Gap open score", false, scoreGapOpen, "int", cmd);
-	TCLAP::ValueArg<int> scoreGapExtendArg("", "gap-extend", "Gap open extend", false, scoreGapExtend, "int", cmd);
+	TCLAP::ValueArg<float> scoreMatchArg("", "match", "Match score", false, scoreMatch, "float", cmd);
+	TCLAP::ValueArg<float> scoreMismatchArg("", "mismatch", "Mismatch score", false, scoreMismatch, "float", cmd);
+	TCLAP::ValueArg<float> scoreGapOpenArg("", "gap-open", "Gap open score", false, scoreGapOpen, "float", cmd);
+	TCLAP::ValueArg<float> scoreGapExtendMaxArg("", "gap-extend-max", "Gap open extend max", false, scoreGapExtendMax, "float", cmd);
+	TCLAP::ValueArg<float> scoreGapExtendMinArg("", "gap-extend-min", "Gap open extend min", false, scoreGapExtendMin, "float", cmd);
 	TCLAP::ValueArg<int> stdoutArg("", "stdout", "Debug mode", false, stdoutMode, "0-7", cmd);
 	TCLAP::ValueArg<int> readpartLengthArg("", "subread-length", "Length of fragments reads are split into", false, readPartLength, "int", cmd);
 	TCLAP::ValueArg<int> readpartCorridorArg("", "subread-corridor", "Length of corridor sub-reads are aligned with", false, readPartCorridor, "int", cmd);
@@ -142,10 +143,11 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	printParameter(usage, noprogressArg);
 	usage << "" << std::endl;
 	usage << "Advanced:" << std::endl;
-	printParameter<int>(usage, scoreMatchArg);
-	printParameter<int>(usage, scoreMismatchArg);
-	printParameter<int>(usage, scoreGapOpenArg);
-	printParameter<int>(usage, scoreGapExtendArg);
+	printParameter<float>(usage, scoreMatchArg);
+	printParameter<float>(usage, scoreMismatchArg);
+	printParameter<float>(usage, scoreGapOpenArg);
+	printParameter<float>(usage, scoreGapExtendMaxArg);
+	printParameter<float>(usage, scoreGapExtendMinArg);
 	printParameter<int>(usage, kmerLengthArg);
 	printParameter<int>(usage, kmerSkipArg);
 	printParameter<int>(usage, binSizeArg);
@@ -174,7 +176,8 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	scoreMatch = scoreMatchArg.getValue();
 	scoreMismatch = scoreMismatchArg.getValue();
 	scoreGapOpen = scoreGapOpenArg.getValue();
-	scoreGapExtend = scoreGapExtendArg.getValue();
+	scoreGapExtendMax = scoreGapExtendMaxArg.getValue();
+	scoreGapExtendMin = scoreGapExtendMinArg.getValue();
 	stdoutMode = stdoutArg.getValue();
 	readPartCorridor = readpartCorridorArg.getValue();
 	readPartLength = readpartLengthArg.getValue();
@@ -194,7 +197,8 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 		scoreMatch = (scoreMatchArg.isSet()) ? scoreMatch : 1;
 		scoreMismatch = (scoreMatchArg.isSet()) ? scoreMismatch : -1;
 		scoreGapOpen = (scoreGapOpenArg.isSet()) ? scoreGapOpen : -1;
-		scoreGapExtend = (scoreGapExtendArg.isSet()) ? scoreGapExtend : -1;
+		scoreGapExtendMax = (scoreGapExtendMaxArg.isSet()) ? scoreGapExtendMax : -1;
+		scoreGapExtendMax = (scoreGapExtendMinArg.isSet()) ? scoreGapExtendMin : -1;
 	} else {
 		std::cerr << "Preset " << presetArgs.getValue() << " not found" << std::endl;
 	}

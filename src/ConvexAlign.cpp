@@ -25,8 +25,6 @@
 #include <stdio.h>
 #include <algorithm>
 
-//#include "IConfig.h"
-
 //TODO: remove
 #define pRef pBuffer1
 #define pQry pBuffer2
@@ -43,19 +41,21 @@ int NumberOfSetBits(uint32_t i) {
 	return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 }
 
-ConvexAlign::ConvexAlign(int gpu_id) :
-		maxBinaryCigarLength(200000), pacbioDebug(false), stdoutPrintAlignCorridor(
-		//Config.getStdoutMode() == 6) {
-		0) {
-
-	mat = 2.0f;
-	mis = -5.0f;
-	gap_open_read = -5.0f;
-	gap_open_ref = -5.0f;
-	gap_ext = -5.0f;
-	gap_decay = 0.15f;
-	gap_ext_min = -1.0f;
-
+ConvexAlign::ConvexAlign(int const stdOutMode,
+		float const match,
+		float const mismatch,
+		float const gapOpen,
+		float const gapExtend,
+		float const gapExtendMin,
+		float const gapDecay):
+		maxBinaryCigarLength(200000), pacbioDebug(false), stdoutPrintAlignCorridor(stdOutMode) {
+	mat = match;
+	mis = mismatch;
+	gap_open_read = gapOpen;
+	gap_open_ref = gapOpen;
+	gap_ext = gapExtend;
+	gap_decay = gapDecay;
+	gap_ext_min = gapExtendMin;
 	matrix = new AlignmentMatrix();
 
 	binaryCigar = new int[maxBinaryCigarLength];

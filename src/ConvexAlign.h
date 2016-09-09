@@ -30,7 +30,13 @@ namespace Convex {
 class ConvexAlign: public IAlignment {
 
 public:
-	ConvexAlign(int gpu_id);
+	ConvexAlign(int const stdOutMode,
+			float const match,
+			float const mismatch,
+			float const gapOpen,
+			float const gapExtend,
+			float const gapExtendMin,
+			float const gapDecay);
 
 	virtual ~ConvexAlign();
 

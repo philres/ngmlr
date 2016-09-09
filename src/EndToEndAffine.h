@@ -46,8 +46,9 @@ class EndToEndAffine: public IAlignment {
 public:
 	EndToEndAffine() : lDiag(0), uDiag(Config.getReadPartCorridor()) {
 
-		scoringScheme = Score<float, Simple>(Config.getScoreMatch(), Config.getScoreMismatch(), Config.getScoreExtend(), Config.getScoreGapOpen());
+		scoringScheme = Score<float, Simple>(Config.getScoreMatch(), Config.getScoreMismatch(), Config.getScoreExtendMax(), Config.getScoreGapOpen());
 
+		scoringScheme = Score<float, Simple>(1.0, -1.0, -1.0, -1.0);
 		//scoringScheme = Score<float, Simple>(5.0, -4.0, -0.5, -10.0);
 		//scoringScheme = Score<float, Simple>(10, -15, -5, -33);
 	}

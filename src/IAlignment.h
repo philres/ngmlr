@@ -74,6 +74,10 @@ public:
 	bool primary;
 	int svType;
 
+	int getAlignedReadBp(int const readLength) {
+		return readLength - QStart - QEnd;
+	}
+
 	void clearBuffer() {
 		if (pBuffer1 != 0) {
 			delete[] pBuffer1;

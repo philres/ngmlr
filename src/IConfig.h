@@ -24,170 +24,16 @@
 
 class IConfig {
 
-public:
-
-	char const * const getQueryFile() const {
-		return queryFile;
-	}
-
-	char const * const getReferenceFile() const {
-		return referenceFile;
-	}
-
-	char const * const getBedFile() const {
-		return bedFile;
-	}
-
-	char const * const getOutputFile() const {
-		return outputFile;
-	}
-
-	char const * const getFullCommandLineCall() const {
-		return fullCommandLineCall;
-	}
-
-	char const * const getVcfFile() const {
-		return vcfFile;
-	}
-
-	float getMinIdentity() const {
-		return minIdentity;
-	}
-
-	float getMinResidues() const {
-		return minResidues;
-	}
-
-	float getSensitivity() const {
-		return sensitivity;
-	}
-
-	int getBinSize() const {
-		return binSize;
-	}
-
-	int getCsSearchTableLength() const {
-		return csSearchTableLength;
-	}
-
-	int getKmerLength() const {
-		return kmerLength;
-	}
-
-	int getKmerSkip() const {
-		return kmerSkip;
-	}
-
-	int getLogLevel() const {
-		return logLevel;
-	}
-
-	int getMinKmerHits() const {
-		return minKmerHits;
-	}
-
-	int getMaxCMRs() const {
-		return maxCMRs;
-	}
-
-	int getReadPartCorridor() const {
-		return readPartCorridor;
-	}
-
-	int getReadPartLength() const {
-		return readPartLength;
-	}
-
-	int getScoreMatch() const {
-		return scoreMatch;
-	}
-
-	int getScoreMismatch() const {
-		return scoreMismatch;
-	}
-
-	int getScoreGapOpen() const {
-		return scoreGapOpen;
-	}
-
-	int getScoreExtend() const {
-		return scoreGapExtend;
-	}
-
-	int getStdoutMode() const {
-		return stdoutMode;
-	}
-
-	int getThreads() const {
-		return threads;
-	}
-
-	bool getFast() const {
-		return fast;
-	}
-
-	bool getBAM() const {
-		return bam;
-	}
-
-	bool getColor() const {
-		return color;
-	}
-
-	bool getHardClip() const {
-		return hardClip;
-	}
-
-	bool getLog() const {
-		return log;
-	}
-
-	bool getLowQualitySplit() const {
-		return lowQualitySplit;
-	}
-
-	bool getSmallInversionDetection() const {
-		return smallInversionDetection;
-	}
-
-	bool getPrtintAll() const {
-		return printAllAlignments;
-	}
-
-	bool getProgress() const {
-		return progress;
-	}
-
-	bool getSkipSave() const {
-		return skipSave;
-	}
-
-	bool getUpdateCheck() const {
-		return updateCheck;
-	}
-
-	bool getVerbose() const {
-		return verbose;
-	}
-
-	bool getWriteUnampped() const {
-		return writeUnmapped;
-	}
-
-	IConfig() {
-
-	}
-
-	virtual ~IConfig() {
-	}
-
 protected:
 
 	/**
-	 * Default values
+	 ******************
+	 * Default values *
+	 ******************
 	 */
+
 	float minIdentity = 0.65f;
-	float minResidues = 256.0f;
+	float minResidues = 50.0f;
 	float sensitivity = 0.8f;
 
 	int binSize = 4;
@@ -195,16 +41,21 @@ protected:
 	int kmerLength = 13;
 	int kmerSkip = 2;
 	int logLevel = 0; //16383, 255
+	int minInversionLength = 50; //Advanced
 	int minKmerHits = 0;
 	int maxCMRs = INT_MAX;
 	int readPartCorridor = 40;
 	int readPartLength = 256;
 	int stdoutMode = 0;
-	int scoreMatch = 1;
-	int scoreMismatch = -4;
-	int scoreGapOpen = -2;
-	int scoreGapExtend = -2;
-	int threads = 1;
+
+
+	float scoreMatch = 2.0f;
+	float scoreMismatch = -5.0f;
+	float scoreGapOpen = -5.0f;
+	float scoreGapExtendMax = -5.0f;
+	float scoreGapExtendMin = -1.0f;
+	float scoreGapDecay = 0.15f;;
+	float threads = 1;
 
 	bool bam = false;
 	bool color = false;
@@ -231,6 +82,176 @@ protected:
 	char * bedFile = 0;
 	char * fullCommandLineCall = 0;
 	char * vcfFile = 0;
+
+
+public:
+
+	char const * const getQueryFile() const {
+		return queryFile;
+	}
+
+	char const * const getReferenceFile() const {
+		return referenceFile;
+	}
+
+	char const * const getBedFile() const {
+		return bedFile;
+	}
+
+	char const * const getOutputFile() const {
+		return outputFile;
+	}
+
+	char const * const getFullCommandLineCall() const {
+		return fullCommandLineCall;
+	}
+
+	char const * const getVcfFile() const {
+		return vcfFile;
+	}
+
+	auto getMinIdentity() const {
+		return minIdentity;
+	}
+
+	auto getMinResidues() const {
+		return minResidues;
+	}
+
+	auto getSensitivity() const {
+		return sensitivity;
+	}
+
+	auto getBinSize() const {
+		return binSize;
+	}
+
+	auto getCsSearchTableLength() const {
+		return csSearchTableLength;
+	}
+
+	auto getKmerLength() const {
+		return kmerLength;
+	}
+
+	auto getKmerSkip() const {
+		return kmerSkip;
+	}
+
+	auto getLogLevel() const {
+		return logLevel;
+	}
+
+	auto getMinInversionLength() const {
+		return minInversionLength;
+	}
+
+	auto getMinKmerHits() const {
+		return minKmerHits;
+	}
+
+	auto getMaxCMRs() const {
+		return maxCMRs;
+	}
+
+	auto getReadPartCorridor() const {
+		return readPartCorridor;
+	}
+
+	auto getReadPartLength() const {
+		return readPartLength;
+	}
+
+	auto getScoreMatch() const {
+		return scoreMatch;
+	}
+
+	auto getScoreMismatch() const {
+		return scoreMismatch;
+	}
+
+	auto getScoreGapOpen() const {
+		return scoreGapOpen;
+	}
+
+	auto getScoreExtendMax() const {
+		return scoreGapExtendMax;
+	}
+
+	auto getScoreExtendMin() const {
+		return scoreGapExtendMin;
+	}
+
+	auto getScoreGapDecay() const {
+		return scoreGapDecay;
+	}
+
+	auto getStdoutMode() const {
+		return stdoutMode;
+	}
+
+	auto getThreads() const {
+		return threads;
+	}
+
+	auto getFast() const {
+		return fast;
+	}
+
+	auto getBAM() const {
+		return bam;
+	}
+
+	auto getColor() const {
+		return color;
+	}
+
+	auto getHardClip() const {
+		return hardClip;
+	}
+
+	auto getLog() const {
+		return log;
+	}
+
+	auto getLowQualitySplit() const {
+		return lowQualitySplit;
+	}
+
+	auto getSmallInversionDetection() const {
+		return smallInversionDetection;
+	}
+
+	auto getPrtintAll() const {
+		return printAllAlignments;
+	}
+
+	auto getProgress() const {
+		return progress;
+	}
+
+	auto getSkipSave() const {
+		return skipSave;
+	}
+
+	auto getUpdateCheck() const {
+		return updateCheck;
+	}
+
+	auto getVerbose() const {
+		return verbose;
+	}
+
+	auto getWriteUnampped() const {
+		return writeUnmapped;
+	}
+
+	IConfig() {
+
+	}
+
+	virtual ~IConfig() {
+	}
 
 };
 

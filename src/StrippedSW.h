@@ -32,10 +32,10 @@ public:
 	StrippedSW() {
 
 		//scoringScheme = Score<float, Simple>(Config.GetFloat(MATCH_BONUS), Config.GetFloat(MISMATCH_PENALTY) * -1.0f, Config.GetFloat(GAP_EXTEND_PENALTY) * -1.0f, Config.GetFloat(GAP_READ_PENALTY) * -1.0f);
-		gap_open = 1;
-		gap_extension = 1;
+		gap_open = -1;
+		gap_extension = -1;
 		match = 1;
-		mismatch = 2;
+		mismatch = -1;
 		int32_t l, m, k;	// default parameters for genome sequence alignment
 		// initialize scoring matrix for genome sequences
 		//  A  C  G  T	N (or other ambiguous code)
@@ -47,7 +47,7 @@ public:
 		mat = (int8_t*) calloc(25, sizeof(int8_t));
 		for (l = k = 0; l < 4; ++l) {
 			for (m = 0; m < 4; ++m)
-				mat[k++] = l == m ? match : -mismatch; /* weight_match : -weight_mismatch */
+				mat[k++] = l == m ? match : mismatch; /* weight_match : -weight_mismatch */
 			mat[k++] = 0; // ambiguous base: no penalty
 		}
 		for (m = 0; m < 5; ++m)
