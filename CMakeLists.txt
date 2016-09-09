@@ -28,8 +28,7 @@ file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 # Set a default build type for single-configuration
 # CMake generators if no build type is set.
 IF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-  message(STATUS "No build type specified. Using 'release'")
+  message(STATUS "No build type specified. Using 'Release'")
   SET(CMAKE_BUILD_TYPE Release)
 ENDIF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-
 add_subdirectory(src)

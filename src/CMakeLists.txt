@@ -45,50 +45,50 @@ add_executable(ngmlr
 					unix.cpp
 					unix_threads.cpp)										
 					
-#ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/main.cpp")
+ADD_CUSTOM_TARGET(recompile_always ALL touch "${CMAKE_SOURCE_DIR}/src/main.cpp")
 
-SET_TARGET_PROPERTIES(ngmlr PROPERTIES COMPILE_FLAGS " -g -O3 -DNDEBUG")
+#SET_TARGET_PROPERTIES(ngmlr PROPERTIES COMPILE_FLAGS " -g -O3 -DNDEBUG")
  
 TARGET_LINK_LIBRARIES(ngmlr ${ZLIB_LIBRARIES})
 TARGET_LINK_LIBRARIES(ngmlr ${CMAKE_THREAD_LIBS_INIT})
 
 install (TARGETS ngmlr DESTINATION bin)
 
-add_executable(ngmlr-debug
-                    AlignmentMatrix.cpp
-                    AlignmentMatrixFast.cpp
-                    ArgParser.cpp
-					BitpalAligner.cpp
-					VcfParser.cpp																							
-					CS.cpp					
-					CSstatic.cpp
-					ConvexAlign.cpp
-					ConvexAlignFast.cpp
-					LinearRegression
-					Logging.cpp
-					MappedRead.cpp
-					main.cpp
-					NGM.cpp
-					#UpdateCheck.cpp
-					NGMTask.cpp
-					AlignmentBuffer.cpp
-					PrefixTable.cpp														
-					ReadProvider.cpp
-					SamParser.cpp
-					SAMWriter.cpp
-					EndToEndAffine.cpp
-					SequenceProvider.cpp	
-					OutputReadBuffer.cpp				
-					ScoreBuffer.cpp
-					StrippedSW.cpp
-					../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
-					unix.cpp
-					unix_threads.cpp)
+#add_executable(ngmlr-debug
+#                    AlignmentMatrix.cpp
+#                    AlignmentMatrixFast.cpp
+#                    ArgParser.cpp
+#					BitpalAligner.cpp
+#					VcfParser.cpp																							
+#					CS.cpp					
+#					CSstatic.cpp
+#					ConvexAlign.cpp
+#					ConvexAlignFast.cpp
+#					LinearRegression
+#					Logging.cpp
+#					MappedRead.cpp
+#					main.cpp
+#					NGM.cpp
+#					#UpdateCheck.cpp
+#					NGMTask.cpp
+#					AlignmentBuffer.cpp
+#					PrefixTable.cpp														
+#					ReadProvider.cpp
+#					SamParser.cpp
+#					SAMWriter.cpp
+#					EndToEndAffine.cpp
+#					SequenceProvider.cpp	
+#					OutputReadBuffer.cpp				
+#					ScoreBuffer.cpp
+#					StrippedSW.cpp
+#					../lib/Complete-Striped-Smith-Waterman-Library/src/ssw.c
+#					unix.cpp
+#					unix_threads.cpp)
+#
+#SET_TARGET_PROPERTIES(ngmlr-debug PROPERTIES COMPILE_DEFINITIONS "DEBUGLOG")
+#SET_TARGET_PROPERTIES(ngmlr-debug PROPERTIES COMPILE_FLAGS " -g3 -O0")
 
-SET_TARGET_PROPERTIES(ngmlr-debug PROPERTIES COMPILE_DEFINITIONS "DEBUGLOG")
-SET_TARGET_PROPERTIES(ngmlr-debug PROPERTIES COMPILE_FLAGS " -g3 -O0")
+#TARGET_LINK_LIBRARIES(ngmlr-debug ${ZLIB_LIBRARIES})
+#TARGET_LINK_LIBRARIES(ngmlr-debug ${CMAKE_THREAD_LIBS_INIT})
 
-TARGET_LINK_LIBRARIES(ngmlr-debug ${ZLIB_LIBRARIES})
-TARGET_LINK_LIBRARIES(ngmlr-debug ${CMAKE_THREAD_LIBS_INIT})
-
-install (TARGETS ngmlr-debug DESTINATION bin)
+#install (TARGETS ngmlr-debug DESTINATION bin)
