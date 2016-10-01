@@ -477,6 +477,9 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 #endif
 
 
+			if(pacbioDebug) {
+				Log.Message("ExternalQstart: %d, ExternalQEnd: %d", externalQStart, externalQEnd);
+			}
 			int const cigarLength = aligner->SingleAlign(alignmentId, corridorLines,
 					corridorHeight, (char const * const ) refSeq,
 					(char const * const ) readSeq, *align, externalQStart, externalQEnd, 0);
@@ -506,7 +509,8 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 
 			if (pacbioDebug) {
 				Log.Message("Aligning took %f seconds", algnTimer.ET());
-				Log.Message("CIARG: %s", align->pBuffer1);
+				Log.Message("CIGAR: %s", align->pBuffer1);
+				Log.Message("MD:    %s", align->pBuffer2);
 			}
 			delete[] corridorLines;
 			corridorLines = 0;
