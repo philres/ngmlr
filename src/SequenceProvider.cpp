@@ -496,13 +496,17 @@ bool _SequenceProvider::DecodeRefSequenceExact(char * const sequence,
 		//Log.Message("Start diff: %llu", diff);
 		decode(decodeStartPosition, decodeEndPosition, sequence + diff);
 	} else if(decodeStartPosition < chr.start) {
-		Log.Verbose("Decoding startposition is in one of the spacer regions");
-		//Decoding startposition is in one of the spacer regions
-		//Start decoding at chrStartPos, everything before stays N
-		uloc diff = chr.start - decodeStartPosition;
-		//Log.Message("Start diff: %llu", diff);
-		decodeStartPosition += diff;
-		decode(decodeStartPosition, decodeEndPosition, sequence + diff);
+		if(decodeEndPosition > chr.start) {
+			Log.Verbose("Decoding startposition is in one of the spacer regions");
+			//Decoding startposition is in one of the spacer regions
+			//Start decoding at chrStartPos, everything before stays N
+			uloc diff = chr.start - decodeStartPosition;
+			//Log.Message("Start diff: %llu", diff);
+			decodeStartPosition += diff;
+			decode(decodeStartPosition, decodeEndPosition, sequence + diff);
+		} else {
+			Log.Verbose("Full interval is in spacer region!");
+		}
 	} else {
 		Log.Verbose("Full decode!");
 
