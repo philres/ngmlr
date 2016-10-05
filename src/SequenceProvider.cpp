@@ -187,7 +187,7 @@ int _SequenceProvider::readEncRefFromFile(char const * fileName,
 	uint refCount = 0;
 	uint cookie = 0;
 
-	FILE *fp;
+	FILE * fp = 0;
 	fp = fopen(fileName, "rb");
 
 	size_t read = 0;

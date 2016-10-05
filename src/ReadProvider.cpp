@@ -253,6 +253,7 @@ IParser * ReadProvider::DetermineParser(char const * fileName,
 	}
 	gzclose(fp);
 	delete[] buffer;
+	buffer = 0;
 	parser->init(fileName);
 	return parser;
 }
