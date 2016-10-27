@@ -1,9 +1,9 @@
 ### Quick start
 
-Download [binary](https://github.com/philres/nextgenmap-lr/releases/tag/0.1.4) from github
+Download [binary](https://github.com/philres/nextgenmap-lr/releases/tag/0.1.5) from github
 ```bash
-tar xvzf ngmlr-0.1.4.tar.gz
-ngmlr-0.1.4/ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam
+tar xvzf ngmlr-0.1.5.tar.gz
+ngmlr-0.1.5/ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam
 ```
 
 ### Intorduction
