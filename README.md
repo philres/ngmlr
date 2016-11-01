@@ -11,6 +11,10 @@ ngmlr-0.1.5/ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam
 NextGenMap-LR is a long-read mapper desigend to sensitively align PacBilo or Oxford Nanopore to (large) reference genomes. It was desigend to correctly align reads stemming from (complex) structural variations. NextGenMap-LR uses an SV aware k-mer search to find approximate mapping locations for a read and a banded Smith-Waterman alignment algorithm with a non-affine gap model that penalizes gap extensions for longer gaps less than for shorter ones to compute precise alignments. The gap model allows NextGenMap-LR to account for both the sequencing error and real genomic variations at the same time and makes it especially effective at more precisely identifying the position of breakpoints stemming from (complex) structural variations. The k-mer search helps to detect and split reads that cannot be aligned linearly, enabling NextGenMap-LR to reliably align reads to a wide range of different structural variations including nested SVs (e.g. inversions flanked by deletions).
 Currently NextGenMap-LR takes about 60 minutes (on a AMD Opteron 6348) and 10 GB RAM for aligning 1Gbp of Pacbio Reads when using 10 threads.
 
+##### Poster
+[NextGenMap-LR: Highly accurate read mapping of third generation sequencing reads for improved structural variation analysis](http://www.cibiv.at/~philipp_/files/gi2016_poster_phr.pdf) 
+Genome Informatics 2016, Wellcome Genome Campus Conference Centre, Hinxton, Cambridge, UK, 19.09.-2.09.2016.
+
 ### Parameters
 
 ```
