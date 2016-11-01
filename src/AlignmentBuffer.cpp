@@ -1347,7 +1347,10 @@ Interval * * AlignmentBuffer::infereCMRsfromAnchors(int & intervalsIndex,
 
 		// Try to align full read, only possible if one fragment, otherwise might align through SVs
 		// Could be extended to > 1 fragment: only extend left most and right most fragement into one direction
-		if(intervalsIndex == 1) {
+
+		int intervalReadLength = (interval->onReadStop - interval->onReadStart);
+
+		if(intervalReadLength >= (read->length * 0.9f)) {
 			addStart = interval->onReadStart - 1;
 			addEnd = read->length - interval->onReadStop - 1;
 		}
@@ -2329,10 +2332,10 @@ int AlignmentBuffer::computeMappingQuality(Align const & alignment,
 bool sortMappedSegements(IntervalTree::Interval<Interval *> a,
 		IntervalTree::Interval<Interval *> b) {
 //	return a.value.onReadStart < b.value.onReadStart;
-//	return a.value->score > b.value->score;
-	int aLen = a.value->onReadStop - a.value->onReadStart;
-	int bLen = b.value->onReadStop - b.value->onReadStart;
-	return (aLen == bLen && a.value->score > b.value->score) || aLen > bLen;
+	return a.value->score > b.value->score;
+//	int aLen = a.value->onReadStop - a.value->onReadStart;
+//	int bLen = b.value->onReadStop - b.value->onReadStart;
+//	return (aLen == bLen && a.value->score > b.value->score) || aLen > bLen;
 }
 
 bool isContainedOnRead(Interval * shortInterval, Interval * longInterval,
