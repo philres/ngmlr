@@ -101,6 +101,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	TCLAP::ValueArg<float> scoreGapOpenArg("", "gap-open", "Gap open score", false, scoreGapOpen, "float", cmd);
 	TCLAP::ValueArg<float> scoreGapExtendMaxArg("", "gap-extend-max", "Gap open extend max", false, scoreGapExtendMax, "float", cmd);
 	TCLAP::ValueArg<float> scoreGapExtendMinArg("", "gap-extend-min", "Gap open extend min", false, scoreGapExtendMin, "float", cmd);
+	TCLAP::ValueArg<float> scoreGapDecayArg("", "gap-decay", "Gap extend decay", false, scoreGapDecay, "float", cmd);
 	TCLAP::ValueArg<int> stdoutArg("", "stdout", "Debug mode", false, stdoutMode, "0-7", cmd);
 	TCLAP::ValueArg<int> readpartLengthArg("", "subread-length", "Length of fragments reads are split into", false, readPartLength, "int", cmd);
 	TCLAP::ValueArg<int> readpartCorridorArg("", "subread-corridor", "Length of corridor sub-reads are aligned with", false, readPartCorridor, "int", cmd);
@@ -148,6 +149,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	printParameter<float>(usage, scoreGapOpenArg);
 	printParameter<float>(usage, scoreGapExtendMaxArg);
 	printParameter<float>(usage, scoreGapExtendMinArg);
+	printParameter<float>(usage, scoreGapDecayArg);
 	printParameter<int>(usage, kmerLengthArg);
 	printParameter<int>(usage, kmerSkipArg);
 	printParameter<int>(usage, binSizeArg);
@@ -178,6 +180,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	scoreGapOpen = scoreGapOpenArg.getValue();
 	scoreGapExtendMax = scoreGapExtendMaxArg.getValue();
 	scoreGapExtendMin = scoreGapExtendMinArg.getValue();
+	scoreGapDecay = scoreGapDecayArg.getValue();
 	stdoutMode = stdoutArg.getValue();
 	readPartCorridor = readpartCorridorArg.getValue();
 	readPartLength = readpartLengthArg.getValue();
@@ -198,7 +201,8 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 		scoreMismatch = (scoreMatchArg.isSet()) ? scoreMismatch : -1;
 		scoreGapOpen = (scoreGapOpenArg.isSet()) ? scoreGapOpen : -1;
 		scoreGapExtendMax = (scoreGapExtendMaxArg.isSet()) ? scoreGapExtendMax : -1;
-		scoreGapExtendMax = (scoreGapExtendMinArg.isSet()) ? scoreGapExtendMin : -1;
+		scoreGapExtendMax = (scoreGapExtendMinArg.isSet()) ? scoreGapExtendMin : -0.5;
+		scoreGapDecay = (scoreGapDecayArg.isSet()) ? scoreGapDecay : 0.01;
 	} else {
 		std::cerr << "Preset " << presetArgs.getValue() << " not found" << std::endl;
 	}
