@@ -13,3 +13,4 @@ lib/libgff
 /cibiv.sh
 /cshl.sh
 /Release/
+/build-linux/
