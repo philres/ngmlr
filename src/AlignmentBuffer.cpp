@@ -360,193 +360,198 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 	bool validAlignment = false;
 
 	Align * align = new Align();
-#ifdef TEST_ALIGNER
-	Align * alignFast = new Align();
-#endif
 
-	int refSeqLen = 0;
-	char * refSeq = extractReferenceSequenceForAlignment(interval, refSeqLen);
+	try {
 
-	int alignedBp = 0;
+	#ifdef TEST_ALIGNER
+		Align * alignFast = new Align();
+	#endif
 
-	if (refSeq != 0) {
+		int refSeqLen = 0;
+		char * refSeq = extractReferenceSequenceForAlignment(interval, refSeqLen);
 
-		int retryCount = 5;
-		if (fullAlignment) {
-			retryCount = 1;
-		}
+		int alignedBp = 0;
 
-		// Corridor > refSeqLen * 2 doesn't make sense -> full matrix is computed already
-		int const maxCorridorSize = refSeqLen * 2;
-		corridor = std::min(corridor, maxCorridorSize);
+		if (refSeq != 0) {
 
-		int const minAlignedBp = 0.05f * std::min((int) readLength, refSeqLen);
-
-		//initialize arrays for CIGAR and MD string
-		align->pBuffer1 = new char[readLength * 4];
-		align->pBuffer2 = new char[readLength * 4];
-		align->pBuffer1[0] = '\0';
-		align->pBuffer2[0] = '\0';
-
-#ifdef TEST_ALIGNER
-		alignFast->pBuffer1 = new char[readLength * 4];
-		alignFast->pBuffer2 = new char[readLength * 4];
-		alignFast->pBuffer1[0] = '\0';
-		alignFast->pBuffer2[0] = '\0';
-#endif
-
-
-		int corridorMultiplier = 1;
-		while (!validAlignment
-				&& (corridor * corridorMultiplier) <= maxCorridorSize
-				&& retryCount-- > 0) {
-
-			//Local alignment
-			if (pacbioDebug) {
-				Log.Message("Aligning %d bp to %d bp (corridor %d)", readLength, refSeqLen, corridor * corridorMultiplier);
-				Log.Message("Ref: %s", refSeq);
-				Log.Message("Read: %s", readSeq);
+			int retryCount = 5;
+			if (fullAlignment) {
+				retryCount = 1;
 			}
 
-			int corridorHeight = 0;
-			//			CorridorLine * corridorLines = getCorridorLinear(corridor, readSeq,
-			//					corridorHeight);
-			// When realigning currently there are no anchors available -> larger corridor
-			//TODO: Use anchors from original interval, or extract anchors from first alignment!
-			CorridorLine * corridorLines = 0;
-			if(fullAlignment) {
-				corridorLines = getCorridorFull(refSeqLen, readSeq,
-						corridorHeight);
-			} else {
-				if(shortRead) {
-					corridorLines = getCorridorLinear(corridor * corridorMultiplier, readSeq,
+			// Corridor > refSeqLen * 2 doesn't make sense -> full matrix is computed already
+			int const maxCorridorSize = refSeqLen * 2;
+			corridor = std::min(corridor, maxCorridorSize);
+
+			int const minAlignedBp = 0.05f * std::min((int) readLength, refSeqLen);
+
+			//initialize arrays for CIGAR and MD string
+			align->pBuffer1 = new char[readLength * 4];
+			align->pBuffer2 = new char[readLength * 4];
+			align->pBuffer1[0] = '\0';
+			align->pBuffer2[0] = '\0';
+
+	#ifdef TEST_ALIGNER
+			alignFast->pBuffer1 = new char[readLength * 4];
+			alignFast->pBuffer2 = new char[readLength * 4];
+			alignFast->pBuffer1[0] = '\0';
+			alignFast->pBuffer2[0] = '\0';
+	#endif
+
+
+			int corridorMultiplier = 1;
+			while (!validAlignment
+					&& (corridor * corridorMultiplier) <= maxCorridorSize
+					&& retryCount-- > 0) {
+
+				//Local alignment
+				if (pacbioDebug) {
+					Log.Message("Aligning %d bp to %d bp (corridor %d)", readLength, refSeqLen, corridor * corridorMultiplier);
+					Log.Message("Ref: %s", refSeq);
+					Log.Message("Read: %s", readSeq);
+				}
+
+				int corridorHeight = 0;
+				//			CorridorLine * corridorLines = getCorridorLinear(corridor, readSeq,
+				//					corridorHeight);
+				// When realigning currently there are no anchors available -> larger corridor
+				//TODO: Use anchors from original interval, or extract anchors from first alignment!
+				CorridorLine * corridorLines = 0;
+				if(fullAlignment) {
+					corridorLines = getCorridorFull(refSeqLen, readSeq,
 							corridorHeight);
 				} else {
-					if(corridorMultiplier < 3 && !realign && interval->anchorLength > 0) {
-						corridorLines = getCorridorEndpointsWithAnchors(interval,
-								corridorMultiplier, refSeq, readSeq, corridorHeight, externalQStart, readPartLength, fullReadLength, realign);
+					if(shortRead) {
+						corridorLines = getCorridorLinear(corridor * corridorMultiplier, readSeq,
+								corridorHeight);
 					} else {
-						corridorLines = getCorridorEndpoints(interval,
-								corridor * corridorMultiplier, refSeq, readSeq, corridorHeight, realign);
+						if(corridorMultiplier < 3 && !realign && interval->anchorLength > 0) {
+							corridorLines = getCorridorEndpointsWithAnchors(interval,
+									corridorMultiplier, refSeq, readSeq, corridorHeight, externalQStart, readPartLength, fullReadLength, realign);
+						} else {
+							corridorLines = getCorridorEndpoints(interval,
+									corridor * corridorMultiplier, refSeq, readSeq, corridorHeight, realign);
+						}
 					}
 				}
-			}
 
-			Timer algnTimer;
-			algnTimer.ST();
+				Timer algnTimer;
+				algnTimer.ST();
 
-			if (stdoutPrintAlignCorridor) {
+				if (stdoutPrintAlignCorridor) {
 
-				for(int x = 0; x < interval->anchorLength; ++x) {
-					if(interval->anchors[x].isReverse) {
-						printf("%d\t%d\t%lld\t%d\t%d\n", alignmentId, read->ReadId, interval->anchors[x].onRef - interval->onRefStart,
-								fullReadLength - interval->anchors[x].onRead - (readPartLength) - externalQStart, 3);
-					} else {
-						printf("%d\t%d\t%lld\t%d\t%d\n", alignmentId, read->ReadId, interval->anchors[x].onRef - interval->onRefStart,
-								interval->anchors[x].onRead - externalQStart, 3);
+					for(int x = 0; x < interval->anchorLength; ++x) {
+						if(interval->anchors[x].isReverse) {
+							printf("%d\t%d\t%lld\t%d\t%d\n", alignmentId, read->ReadId, interval->anchors[x].onRef - interval->onRefStart,
+									fullReadLength - interval->anchors[x].onRead - (readPartLength) - externalQStart, 3);
+						} else {
+							printf("%d\t%d\t%lld\t%d\t%d\n", alignmentId, read->ReadId, interval->anchors[x].onRef - interval->onRefStart,
+									interval->anchors[x].onRead - externalQStart, 3);
+						}
 					}
+					printf("%d\t%d\t%d\t%s\t%d\n", alignmentId, read->ReadId, read->ReadId,
+							read->name, -4);
+					printf("%d\t%d\t%d\t%d\t%d\n", alignmentId, read->ReadId, interval->isReverse,
+							corridorLines[0].length, -5);
+					printf("%d\t%d\t%d\t%d\t%d\n", alignmentId, read->ReadId, externalQStart,
+							externalQEnd, -6);
+
 				}
-				printf("%d\t%d\t%d\t%s\t%d\n", alignmentId, read->ReadId, read->ReadId,
-						read->name, -4);
-				printf("%d\t%d\t%d\t%d\t%d\n", alignmentId, read->ReadId, interval->isReverse,
-						corridorLines[0].length, -5);
-				printf("%d\t%d\t%d\t%d\t%d\n", alignmentId, read->ReadId, externalQStart,
-						externalQEnd, -6);
 
-			}
-
-			if(pacbioDebug) {
-				int cellCount = 0;
-				for(int i = 0; i < corridorHeight; ++i) {
-					cellCount += corridorLines[i].length;
+				if(pacbioDebug) {
+					int cellCount = 0;
+					for(int i = 0; i < corridorHeight; ++i) {
+						cellCount += corridorLines[i].length;
+					}
+					Log.Message("Computing %d cells of alignment Matrix", cellCount);
 				}
-				Log.Message("Computing %d cells of alignment Matrix", cellCount);
-			}
 
-			//Hack to pass readId to convex alignment class for plotting
-			//TODO: remove
-			align->svType = read->ReadId;
+				//Hack to pass readId to convex alignment class for plotting
+				//TODO: remove
+				align->svType = read->ReadId;
+
+				#ifdef TEST_ALIGNER
+					alignFast->svType = read->ReadId;
+				#endif
+
+	#ifdef TEST_ALIGNER
+				Timer tmr1;
+				tmr1.ST();
+	#endif
+
+
+				if(pacbioDebug) {
+					Log.Message("ExternalQstart: %d, ExternalQEnd: %d", externalQStart, externalQEnd);
+				}
+				int const cigarLength = aligner->SingleAlign(alignmentId, corridorLines,
+						corridorHeight, (char const * const ) refSeq,
+						(char const * const ) readSeq, *align, externalQStart, externalQEnd, 0);
+
+	#ifdef TEST_ALIGNER
+				float time1 = tmr1.ET();
+				Timer tmr2;
+				tmr2.ST();
+				int const cigarLengthFast = alignerFast->SingleAlign(alignmentId, corridorLines,
+						corridorHeight, (char const * const ) refSeq,
+						(char const * const ) readSeq, *alignFast, externalQStart, externalQEnd, 0);
+
+				float time2 = tmr2.ET();
+
+				Log.Message("%d/%d bp: %f - %f", strlen(refSeq), strlen(readSeq), time1, time2);
+
+				if(!(cigarLengthFast == cigarLength && alignFast->Score == align->Score && strcmp(align->pBuffer1, alignFast->pBuffer1) == 0 && strcmp(align->pBuffer2, alignFast->pBuffer2) == 0)) {
+					Log.Message("Ref:  %s", refSeq);
+					Log.Message("Read: %s", readSeq);
+					Log.Message("Convex:     %d %f %s", cigarLength, align->Score, align->pBuffer1);
+					Log.Message("ConvexFast: %d %f %s", cigarLengthFast, alignFast->Score, alignFast->pBuffer1);
+					Log.Error("Not equal");
+				}
+	#endif
+
+				alignmentId += 1;
+
+				if (pacbioDebug) {
+					Log.Message("Aligning took %f seconds", algnTimer.ET());
+					Log.Message("CIGAR: %s", align->pBuffer1);
+					Log.Message("MD:    %s", align->pBuffer2);
+				}
+				delete[] corridorLines;
+				corridorLines = 0;
+
+				alignedBp = readLength - (align->QStart - externalQStart) - (align->QEnd - externalQEnd);
+
+				validAlignment = cigarLength == fullReadLength; // && alignedBp > minAlignedBp;
+
+				if(!validAlignment) {
+					//corridor = corridor * 2;
+					corridorMultiplier += 1;
+					if (pacbioDebug) {
+						Log.Message("Invalid alignment found. Running again with corridor %d, %d attempts left", corridor * corridorMultiplier, retryCount);
+					}
+					NGM.Stats->invalidAligmentCount += 1;
+				}
+			}
+			delete[] refSeq;
+			refSeq = 0;
 
 			#ifdef TEST_ALIGNER
-				alignFast->svType = read->ReadId;
+				delete alignFast; alignFast = 0;
 			#endif
+		} else {
+			Log.Error("Could not align reference sequence for read %s.", read->name);
+		}
 
-#ifdef TEST_ALIGNER
-			Timer tmr1;
-			tmr1.ST();
-#endif
-
-
-			if(pacbioDebug) {
-				Log.Message("ExternalQstart: %d, ExternalQEnd: %d", externalQStart, externalQEnd);
-			}
-			int const cigarLength = aligner->SingleAlign(alignmentId, corridorLines,
-					corridorHeight, (char const * const ) refSeq,
-					(char const * const ) readSeq, *align, externalQStart, externalQEnd, 0);
-
-#ifdef TEST_ALIGNER
-			float time1 = tmr1.ET();
-			Timer tmr2;
-			tmr2.ST();
-			int const cigarLengthFast = alignerFast->SingleAlign(alignmentId, corridorLines,
-					corridorHeight, (char const * const ) refSeq,
-					(char const * const ) readSeq, *alignFast, externalQStart, externalQEnd, 0);
-
-			float time2 = tmr2.ET();
-
-			Log.Message("%d/%d bp: %f - %f", strlen(refSeq), strlen(readSeq), time1, time2);
-
-			if(!(cigarLengthFast == cigarLength && alignFast->Score == align->Score && strcmp(align->pBuffer1, alignFast->pBuffer1) == 0 && strcmp(align->pBuffer2, alignFast->pBuffer2) == 0)) {
-				Log.Message("Ref:  %s", refSeq);
-				Log.Message("Read: %s", readSeq);
-				Log.Message("Convex:     %d %f %s", cigarLength, align->Score, align->pBuffer1);
-				Log.Message("ConvexFast: %d %f %s", cigarLengthFast, alignFast->Score, alignFast->pBuffer1);
-				Log.Error("Not equal");
-			}
-#endif
-
-			alignmentId += 1;
-
+		if (validAlignment) {
 			if (pacbioDebug) {
-				Log.Message("Aligning took %f seconds", algnTimer.ET());
-				Log.Message("CIGAR: %s", align->pBuffer1);
-				Log.Message("MD:    %s", align->pBuffer2);
+				Log.Message("%d of %d bp successfully aligned with score %f and identity %f", alignedBp, readLength, align->Score, align->Identity);
 			}
-			delete[] corridorLines;
-			corridorLines = 0;
-
-			alignedBp = readLength - (align->QStart - externalQStart) - (align->QEnd - externalQEnd);
-
-			validAlignment = cigarLength == fullReadLength; // && alignedBp > minAlignedBp;
-
-			if(!validAlignment) {
-				//corridor = corridor * 2;
-				corridorMultiplier += 1;
-				if (pacbioDebug) {
-					Log.Message("Invalid alignment found. Running again with corridor %d, %d attempts left", corridor * corridorMultiplier, retryCount);
-				}
-				NGM.Stats->invalidAligmentCount += 1;
-			}
+			NGM.Stats->alignmentCount += 1;
+		} else {
+			align->Score = -1.0f;
 		}
-		delete[] refSeq;
-		refSeq = 0;
-
-		#ifdef TEST_ALIGNER
-			delete alignFast; alignFast = 0;
-		#endif
-	} else {
-		Log.Error("Could not align reference sequence for read %s.", read->name);
+	} catch (...) {
+		Log.Message("Warning: could not compute alignment for read %s", read->name);
 	}
-
-	if (validAlignment) {
-		if (pacbioDebug) {
-			Log.Message("%d of %d bp successfully aligned with score %f and identity %f", alignedBp, readLength, align->Score, align->Identity);
-		}
-		NGM.Stats->alignmentCount += 1;
-	} else {
-		align->Score = -1.0f;
-	}
-
 	return align;
 }
 

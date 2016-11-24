@@ -619,7 +619,7 @@ private:
 
 	int NumberOfSetBits(uint32_t i);
 
-	void addPosition(Align & result, int & nmIndex, int posInRef, int posInRead, int Yi);
+	void addPosition(Align & result, int & nmIndex, int posInRef, int posInRead, int Yi, int & nmPerPositionLength);
 
 };
 

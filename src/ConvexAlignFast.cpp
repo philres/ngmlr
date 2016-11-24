@@ -78,8 +78,15 @@ int ConvexAlignFast::printCigarElement(char const op, int const length,
 }
 
 void ConvexAlignFast::addPosition(Align & result, int & nmIndex, int posInRef, int posInRead,
-		int Yi) {
+		int Yi, int & nmPerPositionLength) {
 	if (posInRead > 16 && posInRef > 16) {
+		if(nmIndex >= nmPerPositionLength) {
+			fprintf(stderr, "Debug: PositionNM reallocated.\n");
+			delete[] result.nmPerPosition;
+			result.nmPerPosition = 0;
+			nmPerPositionLength = nmPerPositionLength * 2;
+			result.nmPerPosition = new PositionNM[nmPerPositionLength];
+		}
 		result.nmPerPosition[nmIndex].readPosition = posInRead - 16;
 		result.nmPerPosition[nmIndex].refPosition = posInRef - 16;
 		result.nmPerPosition[nmIndex].nm = Yi;
@@ -159,8 +166,9 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 
 			//Produces: 	[0-9]+(([A-Z]+|\^[A-Z]+)[0-9]+)*
 			//instead of: 	[0-9]+(([A-Z]|\^[A-Z]+)[0-9]+)*
-			md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
 			for (int k = 0; k < cigarOpLength; ++k) {
+				md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
+				md_eq_length = 0;
 				md_offset += sprintf(result.pQry + md_offset, "%c",
 						refSeq[ref_index++]);
 
@@ -169,9 +177,8 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 
 				//				Yi = std::max(0, Yi + 1);
 				Yi = NumberOfSetBits(buffer);
-				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
+				addPosition(result, nmIndex, posInRef++, posInRead++, Yi, nmPerPositionLength);
 			}
-			md_eq_length = 0;
 
 			exactAlignmentLength += cigarOpLength;
 
@@ -179,7 +186,6 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 		case CIGAR_EQ:
 			cigar_m_length += cigarOpLength;
 			md_eq_length += cigarOpLength;
-			ref_index += cigarOpLength;
 			matches += cigarOpLength;
 
 			overallMatchCount += cigarOpLength;
@@ -188,8 +194,9 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 				buffer = buffer << 1;
 				//				Yi = std::max(0, Yi - 1);
 				Yi = NumberOfSetBits(buffer);
-				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
+				addPosition(result, nmIndex, posInRef++, posInRead++, Yi, nmPerPositionLength);
 			}
+			ref_index += cigarOpLength;
 
 			exactAlignmentLength += cigarOpLength;
 
@@ -215,7 +222,7 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 					buffer = buffer | 1;
 					Yi = std::max(0, Yi + 1);
 				}
-				addPosition(result, nmIndex, posInRef++, posInRead, Yi);
+				addPosition(result, nmIndex, posInRef++, posInRead, Yi, nmPerPositionLength);
 			}
 
 			exactAlignmentLength += cigarOpLength;
@@ -276,12 +283,13 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 	result.pRef[cigar_offset] = '\0';
 	result.pQry[md_offset] = '\0';
 
-	//	result.NM = perWindowSum * 1.0f / windowNumber;
+	result.NM = alignmentLength - matches;
 	result.alignmentLength = exactAlignmentLength;
 
 	if (nmPerPositionLength < exactAlignmentLength) {
 		fprintf(stderr, "Alignmentlength (%d) < exactAlingmentlength (%d)\n",
 				nmPerPositionLength, exactAlignmentLength);
+		throw 1;
 	}
 	//	fprintf(stderr, "\n==== Matches: %d of %d ====\n", overallMatchCount,
 	//			posInRead);
@@ -470,7 +478,7 @@ int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines,
 //			//		fprintf(stderr, "QStart: %d, Ref offset: %d, Binary cigar offset: %d\n",
 //			//				fwdResults.qstart, fwdResults.ref_position,
 //			//				fwdResults.alignment_offset);
-			finalCigarLength = convertCigar(refSeq, align, fwdResults,
+			finalCigarLength = convertCigar(refSeq + fwdResults.ref_position, align, fwdResults,
 					externalQStart, externalQEnd);
 //
 			align.PositionOffset = fwdResults.ref_position;

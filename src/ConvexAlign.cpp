@@ -58,6 +58,10 @@ ConvexAlign::ConvexAlign(int const stdOutMode,
 	gap_ext_min = gapExtendMin;
 	matrix = new AlignmentMatrix();
 
+	if(pacbioDebug) {
+		fprintf(stderr, "mat: %f mis: %f gap_open_read: %f gap_open_ref: %f gap_ext: %f gap_decay: %f gapExtendMin: %f\n", mat, mis, gap_open_read, gap_open_ref, gap_ext, gap_decay, gapExtendMin);
+	}
+
 	binaryCigar = new int[maxBinaryCigarLength];
 }
 
@@ -79,8 +83,15 @@ int ConvexAlign::printCigarElement(char const op, int const length,
 }
 
 void addPosition(Align & result, int & nmIndex, int posInRef, int posInRead,
-		int Yi) {
+		int Yi, int & nmPerPositionLength) {
 	if (posInRead > 16 && posInRef > 16) {
+		if(nmIndex >= nmPerPositionLength) {
+			fprintf(stderr, "Debug: PositionNM reallocated.\n");
+			delete[] result.nmPerPosition;
+			result.nmPerPosition = 0;
+			nmPerPositionLength = nmPerPositionLength * 2;
+			result.nmPerPosition = new PositionNM[nmPerPositionLength];
+		}
 		result.nmPerPosition[nmIndex].readPosition = posInRead - 16;
 		result.nmPerPosition[nmIndex].refPosition = posInRef - 16;
 		result.nmPerPosition[nmIndex].nm = Yi;
@@ -172,7 +183,7 @@ int ConvexAlign::convertCigar(char const * const refSeq, Align & result,
 
 				//				Yi = std::max(0, Yi + 1);
 				Yi = NumberOfSetBits(buffer);
-				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
+				addPosition(result, nmIndex, posInRef++, posInRead++, Yi, nmPerPositionLength);
 			}
 
 			exactAlignmentLength += cigarOpLength;
@@ -190,7 +201,7 @@ int ConvexAlign::convertCigar(char const * const refSeq, Align & result,
 				buffer = buffer << 1;
 				//				Yi = std::max(0, Yi - 1);
 				Yi = NumberOfSetBits(buffer);
-				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
+				addPosition(result, nmIndex, posInRef++, posInRead++, Yi, nmPerPositionLength);
 			}
 			ref_index += cigarOpLength;
 
@@ -219,7 +230,7 @@ int ConvexAlign::convertCigar(char const * const refSeq, Align & result,
 					buffer = buffer | 1;
 					Yi = std::max(0, Yi + 1);
 				}
-				addPosition(result, nmIndex, posInRef++, posInRead, Yi);
+				addPosition(result, nmIndex, posInRef++, posInRead, Yi, nmPerPositionLength);
 			}
 
 			exactAlignmentLength += cigarOpLength;
@@ -287,6 +298,7 @@ int ConvexAlign::convertCigar(char const * const refSeq, Align & result,
 	if (nmPerPositionLength < exactAlignmentLength) {
 		fprintf(stderr, "Alignmentlength (%d) < exactAlingmentlength (%d)\n",
 				nmPerPositionLength, exactAlignmentLength);
+		throw 1;
 	}
 	//	fprintf(stderr, "\n==== Matches: %d of %d ====\n", overallMatchCount,
 	//			posInRead);
@@ -341,7 +353,7 @@ bool ConvexAlign::revBacktrack(char const * const refSeq,
 			return false;
 		}
 
-		if (stdoutPrintAlignCorridor) {
+		if (stdoutPrintAlignCorridor == 6) {
 			printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, x, y, 2);
 		}
 
@@ -435,7 +447,7 @@ int ConvexAlign::SingleAlign(int const mode, CorridorLine * corridorLines,
 
 	int finalCigarLength = -1;
 
-	try {
+//	try {
 
 		int const refLen = strlen(refSeq);
 		int const qryLen = strlen(qrySeq);
@@ -447,7 +459,7 @@ int ConvexAlign::SingleAlign(int const mode, CorridorLine * corridorLines,
 		FwdResults fwdResults;
 
 		// Debug: rscript convex-align-vis.r
-		if (stdoutPrintAlignCorridor) {
+		if (stdoutPrintAlignCorridor == 6) {
 			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, refLen, qryLen,
 					-1);
 		}
@@ -484,14 +496,14 @@ int ConvexAlign::SingleAlign(int const mode, CorridorLine * corridorLines,
 ////		fprintf(stderr, "conv: %f\n", t3.ET());
 		}
 //
-		if (stdoutPrintAlignCorridor) {
+		if (stdoutPrintAlignCorridor == 6) {
 			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, (int) score,
 					finalCigarLength, -3);
 		}
-	} catch (...) {
-		align.Score = -1.0f;
-		finalCigarLength = -1;
-	}
+//	} catch (...) {
+//		align.Score = -1.0f;
+//		finalCigarLength = -1;
+//	}
 
 	matrix->clean();
 //	alignmentId += 1;
@@ -536,7 +548,7 @@ AlignmentMatrix::Score ConvexAlign::fwdFillMatrix(char const * const refSeq,
 		int xOffset = matrix->getCorridorOffset(y);
 
 		// Debug: rscript convex-align-vis.r
-		if (stdoutPrintAlignCorridor) {
+		if (stdoutPrintAlignCorridor == 6) {
 			printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, xOffset, y, 0);
 			printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId,
 					xOffset + matrix->getCorridorLength(y), y, 1);
