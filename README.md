@@ -1,8 +1,8 @@
 ### Quick start
 
-Download [binary](https://github.com/philres/nextgenmap-lr/releases/tag/0.1.6) from github
+Download [binary](https://github.com/philres/nextgenmap-lr/releases/tag/v0.1.6) from github
 ```bash
-tar xvzf ngmlr-0.1.6.tar.gz
+tar xvzf ngmlr-0.1.6-beta-linux-x86_64.tar.gz
 ngmlr-0.1.6/ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam
 ```
 
