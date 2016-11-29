@@ -1,9 +1,9 @@
 ### Quick start
 
-Download [binary](https://github.com/philres/nextgenmap-lr/releases/tag/0.1.5) from github
+Download [binary](https://github.com/philres/nextgenmap-lr/releases/tag/0.1.6) from github
 ```bash
-tar xvzf ngmlr-0.1.5.tar.gz
-ngmlr-0.1.5/ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam
+tar xvzf ngmlr-0.1.6.tar.gz
+ngmlr-0.1.6/ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam
 ```
 
 ### Intorduction
@@ -28,7 +28,7 @@ Input/Output:
     -r <file>,  --reference <file>
         (required)  Path to the reference genome (FASTA/Q, can be gzipped)
     -q <file>,  --query <file>
-        (required)  Path to the read file (FASTA/Q, SAM/BAM)
+        (required)  Path to the read file (FASTA/Q)
     -o <file>,  --output <file>
         Path to output file [stdout]
 
@@ -51,14 +51,18 @@ General:
         Do not print progress info while mapping [false]
 
 Advanced:
-    --match <int>
-        Match score [1]
-    --mismatch <int>
-        Mismatch score [-4]
-    --gap-open <int>
-        Gap open score [-2]
-    --gap-extend <int>
-        Gap open extend [-2]
+    --match <float>
+        Match score [2]
+    --mismatch <float>
+        Mismatch score [-5]
+    --gap-open <float>
+        Gap open score [-5]
+    --gap-extend-max <float>
+        Gap open extend max [-5]
+    --gap-extend-min <float>
+        Gap open extend min [-1]
+    --gap-decay <float>
+        Gap extend decay [0.15]
     -k <10-15>,  --kmer-length <10-15>
         K-mer length in bases [13]
     --kmer-skip <int>

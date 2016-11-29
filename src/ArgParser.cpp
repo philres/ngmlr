@@ -79,7 +79,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 
 	TCLAP::CmdLine cmd("", ' ', "", true);
 
-	TCLAP::ValueArg<std::string> queryArg("q", "query", "Path to the read file (FASTA/Q, SAM/BAM)", true, noneDefault, "file", cmd);
+	TCLAP::ValueArg<std::string> queryArg("q", "query", "Path to the read file (FASTA/Q)", true, noneDefault, "file", cmd);
 	TCLAP::ValueArg<std::string> refArg("r", "reference", "Path to the reference genome (FASTA/Q, can be gzipped)", true, noneDefault, "file", cmd);
 	TCLAP::ValueArg<std::string> outArg("o", "output", "Path to output file", false, outDefault, "file", cmd);
 	TCLAP::ValueArg<std::string> vcfArg("", "vcf", "SNPs will be taken into account when building reference index", false, noneDefault, "file", cmd);
