@@ -146,6 +146,10 @@ private:
 	AlignmentMatrixFast::Score FastUnrolledfwdFillMatrix(char const * const refSeq,
 				char const * const qrySeq, FwdResults & fwdResults, int readId);
 
+	AlignmentMatrixFast::Score fwdFillMatrixSSESimple(char const * const refSeq,
+				char const * const qrySeq, FwdResults & fwdResults, int readId);
+
+
 	/*AlignmentMatrixFast::Score FastUnrolledfwdFillMatrixMaster(char const * const refSeq,
 				char const * const qrySeq, FwdResults & fwdResults, int readId);
 
@@ -160,7 +164,7 @@ private:
 				int x,
 				int y);*/
 
-#define FILLMATRIX(DIAG_SCORE,UP_REF,LEFT_REF,CURRENT,CURRENT_DIR) {\
+/*#define FILLMATRIX(DIAG_SCORE,UP_REF,LEFT_REF,CURRENT,CURRENT_DIR) {\
 			diag_score=DIAG_SCORE;\
 			AlignmentMatrixFast::MatrixElement const & up = UP_REF;\
 			AlignmentMatrixFast::MatrixElement const & left = LEFT_REF;\
@@ -432,7 +436,7 @@ private:
 
 
 	 
-	// 		/*for (int x = std::max(0, xOffset); x < xMax; ++x) {
+	// 		for (int x = std::max(0, xOffset); x < xMax; ++x) {
 	// 			if(y==0 ||
 	// 			  (x-1 <= (matrix->getCorridorOffset(y-1)) ) ||
 	// 			  (x >= (matrix->getCorridorOffset(y-1)+matrix->getCorridorLength(y-1)) )  ) {
@@ -456,7 +460,7 @@ private:
 	// 					x,
 	// 					y);
 	// 			}
-	// 		}*/
+	// 		}
 
 	// 	}
 	// 	fwdResult.qend = (matrix->getHeight() - fwdResult.best_read_index) - 1;
@@ -520,7 +524,7 @@ private:
 	// 		max_cell = std::max(diag_cell, max_cell);
 	// 		max_cell = std::max(up_cell, max_cell);
 
-	// 		/*int a=del_run > 0 && max_cell == left_cell;
+	// 		int a=del_run > 0 && max_cell == left_cell;
 	// 		int b=(!a) && ins_run > 0 && max_cell == up_cell;
 	// 		int c=(!a && !b) && max_cell == diag_cell;
 	// 		int d=(!a && !b && !c) && max_cell == left_cell;
@@ -600,7 +604,7 @@ private:
 	// 			fwdResult.best_read_index = y;
 	// 			fwdResult.max_score = curr_max;
 	// 		}
-	// }
+	// }*/
 
 	/**
 	 * Follows direction matrix (backtracking)
@@ -619,7 +623,7 @@ private:
 
 	int NumberOfSetBits(uint32_t i);
 
-	void addPosition(Align & result, int & nmIndex, int posInRef, int posInRead, int Yi, int & nmPerPositionLength);
+	void addPosition(Align & result, int & nmIndex, int posInRef, int posInRead, int Yi);
 
 };
 

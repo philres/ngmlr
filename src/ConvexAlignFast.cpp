@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <algorithm>
+#include <x86intrin.h>
 
 //#include "IConfig.h"
 
@@ -78,15 +79,8 @@ int ConvexAlignFast::printCigarElement(char const op, int const length,
 }
 
 void ConvexAlignFast::addPosition(Align & result, int & nmIndex, int posInRef, int posInRead,
-		int Yi, int & nmPerPositionLength) {
+		int Yi) {
 	if (posInRead > 16 && posInRef > 16) {
-		if(nmIndex >= nmPerPositionLength) {
-			fprintf(stderr, "Debug: PositionNM reallocated.\n");
-			delete[] result.nmPerPosition;
-			result.nmPerPosition = 0;
-			nmPerPositionLength = nmPerPositionLength * 2;
-			result.nmPerPosition = new PositionNM[nmPerPositionLength];
-		}
 		result.nmPerPosition[nmIndex].readPosition = posInRead - 16;
 		result.nmPerPosition[nmIndex].refPosition = posInRef - 16;
 		result.nmPerPosition[nmIndex].nm = Yi;
@@ -166,9 +160,8 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 
 			//Produces: 	[0-9]+(([A-Z]+|\^[A-Z]+)[0-9]+)*
 			//instead of: 	[0-9]+(([A-Z]|\^[A-Z]+)[0-9]+)*
+			md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
 			for (int k = 0; k < cigarOpLength; ++k) {
-				md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
-				md_eq_length = 0;
 				md_offset += sprintf(result.pQry + md_offset, "%c",
 						refSeq[ref_index++]);
 
@@ -177,8 +170,9 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 
 				//				Yi = std::max(0, Yi + 1);
 				Yi = NumberOfSetBits(buffer);
-				addPosition(result, nmIndex, posInRef++, posInRead++, Yi, nmPerPositionLength);
+				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
 			}
+			md_eq_length = 0;
 
 			exactAlignmentLength += cigarOpLength;
 
@@ -186,6 +180,7 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 		case CIGAR_EQ:
 			cigar_m_length += cigarOpLength;
 			md_eq_length += cigarOpLength;
+			ref_index += cigarOpLength;
 			matches += cigarOpLength;
 
 			overallMatchCount += cigarOpLength;
@@ -194,9 +189,8 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 				buffer = buffer << 1;
 				//				Yi = std::max(0, Yi - 1);
 				Yi = NumberOfSetBits(buffer);
-				addPosition(result, nmIndex, posInRef++, posInRead++, Yi, nmPerPositionLength);
+				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
 			}
-			ref_index += cigarOpLength;
 
 			exactAlignmentLength += cigarOpLength;
 
@@ -222,7 +216,7 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 					buffer = buffer | 1;
 					Yi = std::max(0, Yi + 1);
 				}
-				addPosition(result, nmIndex, posInRef++, posInRead, Yi, nmPerPositionLength);
+				addPosition(result, nmIndex, posInRef++, posInRead, Yi);
 			}
 
 			exactAlignmentLength += cigarOpLength;
@@ -283,13 +277,12 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 	result.pRef[cigar_offset] = '\0';
 	result.pQry[md_offset] = '\0';
 
-	result.NM = alignmentLength - matches;
+	//	result.NM = perWindowSum * 1.0f / windowNumber;
 	result.alignmentLength = exactAlignmentLength;
 
 	if (nmPerPositionLength < exactAlignmentLength) {
 		fprintf(stderr, "Alignmentlength (%d) < exactAlingmentlength (%d)\n",
 				nmPerPositionLength, exactAlignmentLength);
-		throw 1;
 	}
 	//	fprintf(stderr, "\n==== Matches: %d of %d ====\n", overallMatchCount,
 	//			posInRead);
@@ -360,7 +353,7 @@ bool ConvexAlignFast::revBacktrack(char const * const refSeq,
 			x -= 1;
 		} else {
 			fprintf(stderr,
-					"Error in backtracking. Invalid CIGAR operation found\n");
+					"Error in backtracking. Invalid CIGAR operation found: %d\n",currentElement);
 //			throw "";
 			return false;
 		}
@@ -457,8 +450,7 @@ int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines,
 //
 ////	Timer t1;
 ////	t1.ST();
-		AlignmentMatrixFast::Score score = FastUnrolledfwdFillMatrixMaster(refSeq, qrySeq, fwdResults,
-				mode);
+		AlignmentMatrixFast::Score score = fwdFillMatrixSSESimple(refSeq, qrySeq, fwdResults, mode);
 ////	fprintf(stderr, "fill: %f\n", t1.ET());
 //
 //		//	matrix->printMatrix(refSeq, qrySeq);
@@ -478,7 +470,7 @@ int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines,
 //			//		fprintf(stderr, "QStart: %d, Ref offset: %d, Binary cigar offset: %d\n",
 //			//				fwdResults.qstart, fwdResults.ref_position,
 //			//				fwdResults.alignment_offset);
-			finalCigarLength = convertCigar(refSeq + fwdResults.ref_position, align, fwdResults,
+			finalCigarLength = convertCigar(refSeq, align, fwdResults,
 					externalQStart, externalQEnd);
 //
 			align.PositionOffset = fwdResults.ref_position;
@@ -526,8 +518,62 @@ int ConvexAlignFast::SingleAlign(int const mode, int const corridor,
 	throw "Not implemented";
 }
 
+//#define DEBUG_SSE
+
+#ifdef DEBUG_SSE
+#define SZ 100000
+float** scorematrix=0;
+float** upcellmatrix=0;
+float** diagcellmatrix=0;
+float** leftcellmatrix=0;
+float** maxcellmatrix=0;
+int** dirmatrix=0;
+int** runmatrix=0;
+int** insrunmatrix=0;
+int** delrunmatrix=0;
+
+int** alloci()
+{
+	int** ptr=new int*[SZ];
+	for(int i=0;i<SZ;++i)
+	{
+		ptr[i]=new int[SZ];
+	}
+	return ptr;	
+}
+
+float** allocf()
+{
+	float** ptr=new float*[SZ];
+	for(int i=0;i<SZ;++i)
+	{
+		ptr[i]=new float[SZ];
+	}
+	return ptr;	
+}
+
+#endif
+
+
 AlignmentMatrixFast::Score ConvexAlignFast::fwdFillMatrix(char const * const refSeq,
 		char const * const qrySeq, FwdResults & fwdResult, int readId) {
+
+	#ifdef DEBUG_SSE
+	if(scorematrix==0)
+	{
+		scorematrix=allocf();
+		upcellmatrix=allocf();
+		diagcellmatrix=allocf();
+		leftcellmatrix=allocf();
+		maxcellmatrix=allocf();
+		dirmatrix=alloci();
+		runmatrix=alloci();
+		insrunmatrix=alloci();
+		delrunmatrix=alloci();
+		fprintf(stderr,"Allocated debug matrices %dx%d\n",SZ,SZ);
+	}
+	#endif
+
 
 	AlignmentMatrixFast::Score curr_max = -1.0f;
 
@@ -643,6 +689,24 @@ AlignmentMatrixFast::Score ConvexAlignFast::fwdFillMatrix(char const * const ref
 				current->indelRun = 0;
 			}
 
+
+			#ifdef DEBUG_SSE
+			if(x<SZ && y<SZ)
+			{
+				scorematrix[x][y]=current->score;
+				dirmatrix[x][y]=current->direction;
+				runmatrix[x][y]=current->indelRun;
+				upcellmatrix[x][y]=up_cell;
+				leftcellmatrix[x][y]=left_cell;
+				diagcellmatrix[x][y]=diag_cell;
+				maxcellmatrix[x][y]=max_cell;
+				insrunmatrix[x][y]=ins_run;
+				delrunmatrix[x][y]=del_run;
+			}
+			#endif
+
+			//printf("x=%d, y=%d, score=%f, dir=%d, run=%d\n",x,y,current->score,current->direction,current->indelRun);
+
 			if (max_cell > curr_max) {
 				curr_max = max_cell;
 				fwdResult.best_ref_index = x;
@@ -726,7 +790,7 @@ AlignmentMatrixFast::Score ConvexAlignFast::FastfwdFillMatrix(char const * const
 
 			AlignmentMatrixFast::MatrixElement * current = matrix->getElementEditCurr(x,y);
 
-			char & currentDirection = *matrix->getDirectionCurrFast(x, y);
+			char & currentDirection = *matrix->getDirection(x, y);
 
 			if (del_run > 0 && max_cell == left_cell) {
 				current->score = max_cell;
@@ -783,6 +847,391 @@ AlignmentMatrixFast::Score ConvexAlignFast::FastfwdFillMatrix(char const * const
 	return curr_max;
 }
 
+
+#define SIMD_LEVEL 4
+
+typedef union
+{
+	__m128 v;
+	float a[SIMD_LEVEL];
+} SSEFloat;
+
+float ssat(__m128 d, int i)
+{
+	SSEFloat f;
+	f.v=d;
+	return f.a[i];
+}
+
+AlignmentMatrixFast::Score ConvexAlignFast::fwdFillMatrixSSESimple(char const * const refSeq,
+		char const * const qrySeq, FwdResults & fwdResult, int readId) {
+
+	#ifdef DEBUG_SSE
+	fwdFillMatrix(refSeq,qrySeq,fwdResult,readId);
+	#endif
+
+	AlignmentMatrixFast::Score curr_max = -1.0f;
+
+	__m128 mat_sse = _mm_set1_ps(mat);
+	__m128 mis_sse = _mm_set1_ps(mis);
+	__m128 CIGAR_I_SSE = _mm_set1_ps(CIGAR_I);
+	__m128 CIGAR_D_SSE = _mm_set1_ps(CIGAR_D);
+	__m128 CIGAR_STOP_SSE = _mm_set1_ps(CIGAR_STOP);
+	__m128 CIGAR_X_SSE = _mm_set1_ps(CIGAR_X);
+	__m128 CIGAR_EQ_SSE = _mm_set1_ps(CIGAR_EQ);
+
+	__m128 zero_sse = _mm_set1_ps(0);
+	__m128 one_sse = _mm_set1_ps(1);
+
+	__m128 gap_ext_min_sse = _mm_set1_ps(gap_ext_min);
+	__m128 gap_ext_sse = _mm_set1_ps(gap_ext);
+	__m128 gap_decay_sse = _mm_set1_ps(gap_decay);
+	__m128 gap_open_read_sse = _mm_set1_ps(gap_open_read);
+
+	for (int y = 0; y < matrix->getHeight(); ++y) {
+
+		matrix->prepareLine(y);
+
+		int xOffset = matrix->getCorridorOffset(y);
+
+		char const read_char_cache = qrySeq[y];
+
+		__m128 read_char_cache_sse = _mm_set1_ps((float)read_char_cache);
+
+		int xMax=std::min(xOffset + matrix->getCorridorLength(y),matrix->getWidth());
+
+		for (int x = std::max(0, xOffset); x < xMax-SIMD_LEVEL; x+=SIMD_LEVEL) {
+
+			//COMPUTE DIAGONAL SCORE
+			__m128 ref_char_cache_sse = _mm_setr_ps((float)refSeq[x],(float)refSeq[x+1],(float)refSeq[x+2],(float)refSeq[x+3]);
+
+			__m128 eq_sse = _mm_cmpeq_ps(read_char_cache_sse,ref_char_cache_sse);
+
+			__m128 diag_score_sse = _mm_setr_ps(matrix->getElementUp(x - 1, y - 1)->score,
+                                                            matrix->getElementUp(x + 0, y - 1)->score,
+                                                            matrix->getElementUp(x + 1, y - 1)->score,
+                                                            matrix->getElementUp(x + 2, y - 1)->score);
+
+			__m128 diag_cell_sse = _mm_add_ps(diag_score_sse,
+                                                          _mm_or_ps(_mm_and_ps(eq_sse, mat_sse),_mm_andnot_ps(eq_sse, mis_sse)));
+
+			const AlignmentMatrixFast::MatrixElement& up0 = *matrix->getElementUp(x,     y - 1);
+			const AlignmentMatrixFast::MatrixElement& up1 = *matrix->getElementUp(x + 1, y - 1);
+			const AlignmentMatrixFast::MatrixElement& up2 = *matrix->getElementUp(x + 2, y - 1);
+			const AlignmentMatrixFast::MatrixElement& up3 = *matrix->getElementUp(x + 3, y - 1);
+
+
+			//COMPUTE UP CELL
+			__m128 up_score_sse = _mm_setr_ps(up0.score,up1.score,up2.score,up3.score);
+			__m128 up_dir_sse =  _mm_setr_ps(up0.direction,up1.direction,up2.direction,up3.direction);
+			__m128 up_run_sse =  _mm_setr_ps(up0.indelRun,up1.indelRun,up2.indelRun,up3.indelRun);
+
+
+			//if (up.direction == CIGAR_I) {
+			//	ins_run = up.indelRun;
+			//	if (up.score == 0) {
+			//		up_cell = 0;
+			//	} else {
+			//		up_cell = up.score
+			//				+ std::min(gap_ext_min,
+			//						gap_ext + ins_run * gap_decay);
+			//	}
+			//} else {
+			//	up_cell = up.score + gap_open_read;
+	                //}
+	
+			__m128 up_dir_eq_cigari_sse=_mm_cmpeq_ps(up_dir_sse,CIGAR_I_SSE);
+			__m128 up_score_eq_zero_sse=_mm_cmpeq_ps(up_score_sse,zero_sse);
+			__m128 up_cell_sse=_mm_or_ps( _mm_andnot_ps(up_dir_eq_cigari_sse,_mm_add_ps(up_score_sse,gap_open_read_sse) ),
+                                            _mm_and_ps(up_dir_eq_cigari_sse,
+                                                      _mm_andnot_ps(up_score_eq_zero_sse,
+                                                                 _mm_add_ps(up_score_sse, 
+                                                                            _mm_min_ps(gap_ext_min_sse,
+                                                                                       _mm_add_ps(gap_ext_sse,
+                                                                                                   _mm_mul_ps(up_run_sse,gap_decay_sse) ) )  )  )  ) );			
+
+
+			//__m128 left_dir_eq_cigard_sse=_mm_cmpeq_ps(left_dir_sse,CIGAR_I_SSE);
+
+
+			//AlignmentMatrixFast::Score left_cell = 0;
+
+			//if (left.direction == CIGAR_D) {
+			//	del_run = left.indelRun;
+			//	if (left.score == 0) {
+			//		left_cell = 0;
+			//	} else {
+			//		left_cell = left.score
+			//				+ std::min(gap_ext_min,
+			//						gap_ext + del_run * gap_decay);
+			//	}
+			//} else {
+			//	left_cell = left.score + gap_open_ref;
+			//}
+
+			//__m128 curr_score_sse=zero_sse;
+			__m128 curr_dir_sse=CIGAR_STOP_SSE;
+			__m128 curr_run_sse=zero_sse;
+	
+			__m128 max_cell_sse=_mm_max_ps(zero_sse,_mm_max_ps(up_cell_sse,diag_cell_sse));
+
+			/*printf("X=%d\n",x);
+
+			
+			int theoffset=4-x;
+			if(theoffset<4 && y==4)
+{
+			printf("SSAT xy %d %d x+%d\n",x,y,theoffset);
+			printf("sse maxcell %f; upcell %f; diagcell %f, eq %f, refchar %f, readchar %f, upscore %d, updir %d\n",ssat(max_cell_sse,theoffset),ssat(up_cell_sse,theoffset),ssat(diag_cell_sse,theoffset),ssat(eq_sse,theoffset),ssat(ref_char_cache_sse,theoffset),ssat(read_char_cache_sse,theoffset),ssat(up_score_sse,theoffset),ssat(up_dir_sse,theoffset));
+}*/
+
+			//} else if (max_cell == up_cell) {
+			//	current->score = max_cell;
+			//	current->direction = CIGAR_I;
+			//	currentDirection = CIGAR_I;
+			//	current->indelRun = 1;
+
+			__m128 cmp_c_sse=_mm_cmpeq_ps(max_cell_sse,up_cell_sse);
+			
+			curr_dir_sse=_mm_or_ps( _mm_andnot_ps(cmp_c_sse,curr_dir_sse),
+                                                _mm_and_ps(cmp_c_sse,CIGAR_I_SSE ) );
+
+			curr_run_sse=_mm_or_ps( _mm_andnot_ps(cmp_c_sse,curr_run_sse),
+                                                _mm_and_ps(cmp_c_sse,one_sse) );
+
+
+			//} else if (max_cell == diag_cell) {
+			//	current->score = max_cell;
+			//	if (eq) {
+			//		current->direction = CIGAR_EQ;
+			//		currentDirection = CIGAR_EQ;
+			//	} else {
+			//		current->direction = CIGAR_X;
+			//		currentDirection = CIGAR_X;
+			//	}
+			//	current->indelRun = 0;
+			__m128 cmp_b_sse=_mm_cmpeq_ps(max_cell_sse,diag_cell_sse);
+			
+			curr_dir_sse=_mm_or_ps( _mm_andnot_ps(cmp_b_sse,curr_dir_sse),
+                                                _mm_and_ps(cmp_b_sse,
+                                                           _mm_or_ps( _mm_and_ps(eq_sse,CIGAR_EQ_SSE),
+                                                                      _mm_andnot_ps(eq_sse,CIGAR_X_SSE) ) ) );
+
+			curr_run_sse=_mm_or_ps( _mm_andnot_ps(cmp_b_sse,curr_run_sse),
+                                                _mm_and_ps(cmp_b_sse,zero_sse) );
+
+
+			//} else if (ins_run > 0 && max_cell == up_cell) {
+			//	current->score = max_cell;
+			//	current->direction = CIGAR_I;
+			//	currentDirection = CIGAR_I;
+			//	current->indelRun = ins_run + 1;
+			__m128 cmp_a_sse=_mm_and_ps(_mm_cmpgt_ps(up_run_sse,zero_sse), 
+                                                    _mm_cmpeq_ps(max_cell_sse,up_cell_sse));
+
+			curr_dir_sse=_mm_or_ps( _mm_andnot_ps(cmp_a_sse,curr_dir_sse),
+                                                _mm_and_ps(cmp_a_sse, CIGAR_I_SSE) );
+
+			curr_run_sse=_mm_or_ps( _mm_andnot_ps(cmp_a_sse,curr_run_sse),
+                                                _mm_and_ps(cmp_a_sse, _mm_add_ps(up_run_sse,one_sse) ) );
+
+
+			SSEFloat score_t;
+			score_t.v=max_cell_sse; //curr_score_sse;
+
+			SSEFloat dir_t;
+			dir_t.v=curr_dir_sse;
+
+			SSEFloat run_t;
+			run_t.v=curr_run_sse;
+
+			AlignmentMatrixFast::MatrixElement left = *matrix->getElementCurr(x-1,y);
+			for(int j=0;j<SIMD_LEVEL;++j)
+			{
+				float left_cell=0;
+				if (left.direction == CIGAR_D) {
+					if (left.score == 0) {
+						left_cell = 0;
+					} else {
+						left_cell = left.score
+								+ std::min(gap_ext_min,
+										gap_ext + left.indelRun * gap_decay);
+					}
+				} else {
+					left_cell = left.score + gap_open_ref;
+				}
+
+				AlignmentMatrixFast::MatrixElement& current = *matrix->getElementCurr(x+j,y);
+				char & currentDirection = *matrix->getDirection(x+j, y);
+
+				current.score = score_t.a[j];
+				current.direction = dir_t.a[j];
+				current.indelRun = run_t.a[j];
+				currentDirection = dir_t.a[j];
+
+				if(left_cell>=current.score)
+				{
+					if(left.indelRun > 0)
+					{
+						current.score=left_cell;
+						currentDirection=CIGAR_D;
+						current.direction=CIGAR_D;
+						current.indelRun=left.indelRun+1;
+					} else if ( left_cell>current.score || currentDirection==CIGAR_STOP || (currentDirection==CIGAR_I && ssat(up_run_sse,j)<=0)  ) {
+						current.score=left_cell;
+						currentDirection=CIGAR_D;
+						current.direction=CIGAR_D;
+						current.indelRun=1;
+					}
+				}
+
+				#ifdef DEBUG_SSE
+				if(x+j<SZ && y<SZ)
+				{
+					if(current.score!=scorematrix[x+j][y] || current.direction!=dirmatrix[x+j][y] || current.indelRun!=runmatrix[x+j][y])
+					{
+						printf("x=%d, y=%d\n",x+j,y);
+						printf("score:   %f normal, %f sse\n",scorematrix[x+j][y],current.score);
+						printf("dir:     %d normal, %d sse\n",dirmatrix[x+j][y],current.direction);
+						printf("run:     %d normal, %d sse\n",current.indelRun,current.indelRun);
+						printf("upcell   %f normal, %f sse\n",upcellmatrix[x+j][y],ssat(up_cell_sse,j));
+						printf("leftcell %f normal, %f sse\n",leftcellmatrix[x+j][y],left_cell);
+						printf("diagcell %f normal, %f sse\n",diagcellmatrix[x+j][y],ssat(diag_cell_sse,j));
+						printf("maxcell  %f normal, %f sse\n",maxcellmatrix[x+j][y],ssat(max_cell_sse,j));
+						printf("ldelrun  %d normal, %d sse\n",delrunmatrix[x+j][y],left.indelRun);
+						printf("uinsrun  %d normal, %f sse\n",insrunmatrix[x+j][y],ssat(up_run_sse,j));
+						printf("\n");
+						printf("CIGAR_EQ=%d CIGAR_X=%d CIGAR_I=%d CIGAR_D=%d CIGAR_STOP=%d\n",CIGAR_EQ,CIGAR_X,CIGAR_I,CIGAR_D,CIGAR_STOP);
+						while(true){}
+					}
+				}
+				#endif
+
+				if (current.score > curr_max) {
+					curr_max = current.score;
+					fwdResult.best_ref_index = x+j;
+					fwdResult.best_read_index = y;
+					fwdResult.max_score = curr_max;
+				}
+
+
+				left=current;
+			}
+
+		}
+
+
+		for (int x = xMax-SIMD_LEVEL; x < xMax; ++x) {
+		//for (int x = std::max(0,xOffset); x < xMax; ++x) {
+
+			AlignmentMatrixFast::Score diag_score = matrix->getElementUp(x - 1, y - 1)->score;
+			AlignmentMatrixFast::MatrixElement const & up = *matrix->getElementUp(x,y - 1);
+			AlignmentMatrixFast::MatrixElement const & left = *matrix->getElementCurr(x - 1, y);
+
+			bool const eq = read_char_cache == refSeq[x];
+			AlignmentMatrixFast::Score const diag_cell = diag_score
+					+ ((eq) ? mat : mis);
+
+			AlignmentMatrixFast::Score up_cell = 0;
+			AlignmentMatrixFast::Score left_cell = 0;
+
+			int ins_run = 0;
+			int del_run = 0;
+
+			if (up.direction == CIGAR_I) {
+				ins_run = up.indelRun;
+				if (up.score == 0) {
+					up_cell = 0;
+				} else {
+					up_cell = up.score
+							+ std::min(gap_ext_min,
+									gap_ext + ins_run * gap_decay);
+				}
+			} else {
+				up_cell = up.score + gap_open_read;
+			}
+
+			if (left.direction == CIGAR_D) {
+				del_run = left.indelRun;
+				if (left.score == 0) {
+					left_cell = 0;
+				} else {
+					left_cell = left.score
+							+ std::min(gap_ext_min,
+									gap_ext + del_run * gap_decay);
+				}
+			} else {
+				left_cell = left.score + gap_open_ref;
+			}
+
+			//find max
+			AlignmentMatrixFast::Score max_cell = 0;
+			max_cell = std::max(left_cell, max_cell);
+			max_cell = std::max(diag_cell, max_cell);
+			max_cell = std::max(up_cell, max_cell);
+
+			AlignmentMatrixFast::MatrixElement * current = matrix->getElementEditCurr(x,y);
+			char & currentDirection = *matrix->getDirection(x, y);
+
+
+			if (del_run > 0 && max_cell == left_cell) {
+				current->score = max_cell;
+				current->direction = CIGAR_D;
+				currentDirection = CIGAR_D;
+				current->indelRun = del_run + 1;
+			} else if (ins_run > 0 && max_cell == up_cell) {
+				current->score = max_cell;
+				current->direction = CIGAR_I;
+				currentDirection = CIGAR_I;
+				current->indelRun = ins_run + 1;
+			} else if (max_cell == diag_cell) {
+				current->score = max_cell;
+				if (eq) {
+					current->direction = CIGAR_EQ;
+					currentDirection = CIGAR_EQ;
+				} else {
+					current->direction = CIGAR_X;
+					currentDirection = CIGAR_X;
+				}
+				current->indelRun = 0;
+			} else if (max_cell == left_cell) {
+				current->score = max_cell;
+				current->direction = CIGAR_D;
+				currentDirection = CIGAR_D;
+				current->indelRun = 1;
+			} else if (max_cell == up_cell) {
+				current->score = max_cell;
+				current->direction = CIGAR_I;
+				currentDirection = CIGAR_I;
+				current->indelRun = 1;
+			} else {
+				current->score = 0;
+				current->direction = CIGAR_STOP;
+				currentDirection = CIGAR_STOP;
+				current->indelRun = 0;
+			}
+
+
+			if (max_cell > curr_max) {
+				curr_max = max_cell;
+				fwdResult.best_ref_index = x;
+				fwdResult.best_read_index = y;
+				fwdResult.max_score = curr_max;
+			}
+
+		}
+
+	}
+
+	fwdResult.qend = (matrix->getHeight() - fwdResult.best_read_index) - 1;
+	if (matrix->getHeight() == 0) {
+		fwdResult.best_read_index = fwdResult.best_ref_index = 0;
+	}
+
+	return curr_max;
+}
+
+/*
 AlignmentMatrixFast::Score ConvexAlignFast::FastUnrolledfwdFillMatrix(char const * const refSeq,
 		char const * const qrySeq, FwdResults & fwdResult, int readId) {
 
@@ -914,6 +1363,7 @@ AlignmentMatrixFast::Score ConvexAlignFast::FastUnrolledfwdFillMatrix(char const
 
 	return curr_max;
 }
+*/
 
 int ConvexAlignFast::BatchScore(int const mode, int const batchSize,
 		char const * const * const refSeqList,
