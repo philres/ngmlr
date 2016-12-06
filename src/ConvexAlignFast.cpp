@@ -1121,7 +1121,7 @@ AlignmentMatrixFast::Score ConvexAlignFast::fwdFillMatrixSSESimple(char const * 
 		}
 
 
-		for (int x = xMax-SIMD_LEVEL; x < xMax; ++x) {
+		for (int x = std::max(std::max(0,xOffset),xMax-SIMD_LEVEL-8); x < xMax; ++x) {
 		//for (int x = std::max(0,xOffset); x < xMax; ++x) {
 
 			AlignmentMatrixFast::Score diag_score = matrix->getElementUp(x - 1, y - 1)->score;
