@@ -895,37 +895,54 @@ AlignmentMatrixFast::Score ConvexAlignFast::fwdFillMatrixSSESimple(char const * 
 		int xOffset = matrix->getCorridorOffset(y);
 
 		char const read_char_cache = qrySeq[y];
-
 		__m128 read_char_cache_sse = _mm_set1_ps((float)read_char_cache);
 
 		int xMax=std::min(xOffset + matrix->getCorridorLength(y),matrix->getWidth());
 
 		for (int x = std::max(0, xOffset); x < xMax-SIMD_LEVEL; x+=SIMD_LEVEL) {
 
+
 			//COMPUTE DIAGONAL SCORE
 			__m128 ref_char_cache_sse = _mm_setr_ps((float)refSeq[x],(float)refSeq[x+1],(float)refSeq[x+2],(float)refSeq[x+3]);
-
 			__m128 eq_sse = _mm_cmpeq_ps(read_char_cache_sse,ref_char_cache_sse);
 
-			__m128 diag_score_sse = _mm_setr_ps(matrix->getElementUp(x - 1, y - 1)->score,
-                                                            matrix->getElementUp(x + 0, y - 1)->score,
-                                                            matrix->getElementUp(x + 1, y - 1)->score,
-                                                            matrix->getElementUp(x + 2, y - 1)->score);
 
-			__m128 diag_cell_sse = _mm_add_ps(diag_score_sse,
-                                                          _mm_or_ps(_mm_and_ps(eq_sse, mat_sse),_mm_andnot_ps(eq_sse, mis_sse)));
-
-			const AlignmentMatrixFast::MatrixElement& up0 = *matrix->getElementUp(x,     y - 1);
-			const AlignmentMatrixFast::MatrixElement& up1 = *matrix->getElementUp(x + 1, y - 1);
-			const AlignmentMatrixFast::MatrixElement& up2 = *matrix->getElementUp(x + 2, y - 1);
-			const AlignmentMatrixFast::MatrixElement& up3 = *matrix->getElementUp(x + 3, y - 1);
+			__m128 diag_score_sse;
+			__m128 diag_cell_sse;
+			__m128 up_score_sse;
+			__m128 up_dir_sse;
+			__m128 up_run_sse;
 
 
 			//COMPUTE UP CELL
-			__m128 up_score_sse = _mm_setr_ps(up0.score,up1.score,up2.score,up3.score);
-			__m128 up_dir_sse =  _mm_setr_ps(up0.direction,up1.direction,up2.direction,up3.direction);
-			__m128 up_run_sse =  _mm_setr_ps(up0.indelRun,up1.indelRun,up2.indelRun,up3.indelRun);
+			if(x<1 || y==0 || x-1 < matrix->lastCorridor.offset || x+3 >= (matrix->lastCorridor.offset + matrix->lastCorridor.length) )
+			{
+				const AlignmentMatrixFast::MatrixElement& up0 = *matrix->getElementUp(x,     y - 1);
+				const AlignmentMatrixFast::MatrixElement& up1 = *matrix->getElementUp(x + 1, y - 1);
+				const AlignmentMatrixFast::MatrixElement& up2 = *matrix->getElementUp(x + 2, y - 1);
+				const AlignmentMatrixFast::MatrixElement& up3 = *matrix->getElementUp(x + 3, y - 1);
+			
+				diag_score_sse = _mm_setr_ps(matrix->getElementUp(x - 1, y - 1)->score,up0.score,up1.score,up2.score);
+				diag_cell_sse = _mm_add_ps(diag_score_sse,
+                                                          _mm_or_ps(_mm_and_ps(eq_sse, mat_sse),_mm_andnot_ps(eq_sse, mis_sse)));
 
+				up_score_sse = _mm_setr_ps(up0.score,up1.score,up2.score,up3.score);
+				up_dir_sse =  _mm_setr_ps(up0.direction,up1.direction,up2.direction,up3.direction);
+				up_run_sse =  _mm_setr_ps(up0.indelRun,up1.indelRun,up2.indelRun,up3.indelRun);
+			} else {
+				const AlignmentMatrixFast::MatrixElement& up0 = *matrix->getElementUpUnprotected(x,     y - 1);
+				const AlignmentMatrixFast::MatrixElement& up1 = *matrix->getElementUpUnprotected(x + 1, y - 1);
+				const AlignmentMatrixFast::MatrixElement& up2 = *matrix->getElementUpUnprotected(x + 2, y - 1);
+				const AlignmentMatrixFast::MatrixElement& up3 = *matrix->getElementUpUnprotected(x + 3, y - 1);
+			
+				diag_score_sse = _mm_setr_ps(matrix->getElementUpUnprotected(x - 1, y - 1)->score,up0.score,up1.score,up2.score);
+				diag_cell_sse = _mm_add_ps(diag_score_sse,
+                                                          _mm_or_ps(_mm_and_ps(eq_sse, mat_sse),_mm_andnot_ps(eq_sse, mis_sse)));
+
+				up_score_sse = _mm_setr_ps(up0.score,up1.score,up2.score,up3.score);
+				up_dir_sse =  _mm_setr_ps(up0.direction,up1.direction,up2.direction,up3.direction);
+				up_run_sse =  _mm_setr_ps(up0.indelRun,up1.indelRun,up2.indelRun,up3.indelRun);
+			}	
 
 			//if (up.direction == CIGAR_I) {
 			//	ins_run = up.indelRun;
@@ -969,21 +986,11 @@ AlignmentMatrixFast::Score ConvexAlignFast::fwdFillMatrixSSESimple(char const * 
 			//	left_cell = left.score + gap_open_ref;
 			//}
 
-			//__m128 curr_score_sse=zero_sse;
 			__m128 curr_dir_sse=CIGAR_STOP_SSE;
 			__m128 curr_run_sse=zero_sse;
 	
 			__m128 max_cell_sse=_mm_max_ps(zero_sse,_mm_max_ps(up_cell_sse,diag_cell_sse));
 
-			/*printf("X=%d\n",x);
-
-			
-			int theoffset=4-x;
-			if(theoffset<4 && y==4)
-{
-			printf("SSAT xy %d %d x+%d\n",x,y,theoffset);
-			printf("sse maxcell %f; upcell %f; diagcell %f, eq %f, refchar %f, readchar %f, upscore %d, updir %d\n",ssat(max_cell_sse,theoffset),ssat(up_cell_sse,theoffset),ssat(diag_cell_sse,theoffset),ssat(eq_sse,theoffset),ssat(ref_char_cache_sse,theoffset),ssat(read_char_cache_sse,theoffset),ssat(up_score_sse,theoffset),ssat(up_dir_sse,theoffset));
-}*/
 
 			//} else if (max_cell == up_cell) {
 			//	current->score = max_cell;
@@ -1037,7 +1044,7 @@ AlignmentMatrixFast::Score ConvexAlignFast::fwdFillMatrixSSESimple(char const * 
 
 
 			SSEFloat score_t;
-			score_t.v=max_cell_sse; //curr_score_sse;
+			score_t.v=max_cell_sse;
 
 			SSEFloat dir_t;
 			dir_t.v=curr_dir_sse;
@@ -1061,7 +1068,7 @@ AlignmentMatrixFast::Score ConvexAlignFast::fwdFillMatrixSSESimple(char const * 
 					left_cell = left.score + gap_open_ref;
 				}
 
-				AlignmentMatrixFast::MatrixElement& current = *matrix->getElementCurr(x+j,y);
+				AlignmentMatrixFast::MatrixElement& current = *matrix->getElementCurrUnprotected(x+j,y);
 				char & currentDirection = *matrix->getDirection(x+j, y);
 
 				current.score = score_t.a[j];

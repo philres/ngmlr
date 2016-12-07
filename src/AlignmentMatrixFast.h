@@ -103,6 +103,12 @@ public:
 		return lastLine + (x - lastCorridor.offset);
 	}
 
+	inline MatrixElement * getElementUpUnprotected(int const x, int const y)
+	{
+		return lastLine + (x - lastCorridor.offset);
+	}
+
+
 	inline MatrixElement * getElementCurr(int const x, int const y)
 	{
 		if (y < 0 || x < 0) {
@@ -116,6 +122,11 @@ public:
 		if (x < 0) {
 		       return &empty;
 		}
+		return currentLine + (x - currentCorridor.offset);
+	}
+
+	inline MatrixElement * getElementCurrUnprotected(int const x, int const y)
+	{
 		return currentLine + (x - currentCorridor.offset);
 	}
 
