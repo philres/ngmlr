@@ -123,7 +123,7 @@ private:
 	 * aligment corridor visualization
 	 * to stdout
 	 */
-	bool const stdoutPrintAlignCorridor;
+	int const stdoutPrintAlignCorridor;
 
 	/**
 	 * Print CIGAR element to cigar string
