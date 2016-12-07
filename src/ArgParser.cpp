@@ -96,6 +96,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	TCLAP::ValueArg<int> binSizeArg("", "bin-size", "Sets the size of the grid used during candidate search", false, binSize, "int", cmd);
 	TCLAP::ValueArg<int> kmerLengthArg("k", "kmer-length", "K-mer length in bases", false, kmerLength, "10-15", cmd);
 	TCLAP::ValueArg<int> kmerSkipArg("", "kmer-skip", "Number of k-mers to skip when building the lookup table from the reference", false, kmerSkip, "int", cmd);
+	TCLAP::ValueArg<int> maxInitialSegmentsArg("", "max-segments", "Max number of segments allowed for a read", false, maxInitialSegments, "int", cmd);
 	TCLAP::ValueArg<float> scoreMatchArg("", "match", "Match score", false, scoreMatch, "float", cmd);
 	TCLAP::ValueArg<float> scoreMismatchArg("", "mismatch", "Mismatch score", false, scoreMismatch, "float", cmd);
 	TCLAP::ValueArg<float> scoreGapOpenArg("", "gap-open", "Gap open score", false, scoreGapOpen, "float", cmd);
@@ -153,10 +154,11 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	printParameter<int>(usage, kmerLengthArg);
 	printParameter<int>(usage, kmerSkipArg);
 	printParameter<int>(usage, binSizeArg);
+	printParameter<int>(usage, maxInitialSegmentsArg);
 	printParameter<int>(usage, readpartLengthArg);
 	printParameter<int>(usage, readpartCorridorArg);
-	printParameter<std::string>(usage, vcfArg);
-	printParameter<std::string>(usage, bedfilterArg);
+	//printParameter<std::string>(usage, vcfArg);
+	//printParameter<std::string>(usage, bedfilterArg);
 
 	cmd.setOutput(new ArgParseOutput(usage.str(), ""));
 
@@ -175,6 +177,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	kmerLength = kmerLengthArg.getValue();
 	threads = threadsArg.getValue();
 	kmerSkip = kmerSkipArg.getValue();
+	maxInitialSegments = maxInitialSegmentsArg.getValue();
 	scoreMatch = scoreMatchArg.getValue();
 	scoreMismatch = scoreMismatchArg.getValue();
 	scoreGapOpen = scoreGapOpenArg.getValue();

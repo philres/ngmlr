@@ -44,10 +44,10 @@ protected:
 	int minInversionLength = 50; //Advanced
 	int minKmerHits = 0;
 	int maxCMRs = INT_MAX;
+	int maxInitialSegments = 10;
 	int readPartCorridor = 40;
 	int readPartLength = 256;
 	int stdoutMode = 0;
-
 
 	float scoreMatch = 2.0f;
 	float scoreMismatch = -5.0f;
@@ -149,6 +149,11 @@ public:
 	auto getMinKmerHits() const {
 		return minKmerHits;
 	}
+
+	auto getMaxInitialSegments() const {
+		return maxInitialSegments;
+	}
+
 
 	auto getMaxCMRs() const {
 		return maxCMRs;

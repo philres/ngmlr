@@ -289,7 +289,7 @@ public:
 			bool const isReverse, int const type, int const status);
 
 	AlignmentBuffer(const char* const filename) :
-			pacbioDebug(Config.getVerbose()), readCoordsTree(0), readPartLength(Config.getReadPartLength()), maxIntervalNumber(10) {
+			pacbioDebug(Config.getVerbose()), readCoordsTree(0), readPartLength(Config.getReadPartLength()), maxIntervalNumber(Config.getMaxInitialSegments()) {
 
 		m_Writer = 0;
 
