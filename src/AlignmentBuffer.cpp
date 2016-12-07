@@ -900,25 +900,37 @@ Interval * AlignmentBuffer::mergeIntervals(Interval * a, Interval * b) {
 bool AlignmentBuffer::constructMappedSegements(MappedSegment * segments,
 		Interval * interval, size_t & segmentsIndex) {
 
+	if(pacbioDebug) {
+		Log.Message("Adding interval to segments");
+	}
+
 	for (int i = 0; i < segmentsIndex; ++i) {
+		if(pacbioDebug) {
+			Log.Message("\tSegment %d", i);
+		}
 		Interval * * intervals = segments[i].list;
 		int initialLength = segments[i].length;
 
 		for (int j = 0; j < initialLength; ++j) {
+			if(pacbioDebug) {
+				fprintf(stderr, "\t\t");
+				intervals[j]->printOneLine();
+
+			}
 			if (isContained(interval, intervals[j])) {
 				if (pacbioDebug) {
-					Log.Message("Interval is contained in %d", j);
+					Log.Message("Interval is contained in %d. Add and exit.", j);
 				}
 				//Do not add
 				return true;
 			} else {
 				if (pacbioDebug) {
-					Log.Message("Interval not contained in %d", j);
+					Log.Message("Interval not contained in %d. Continue looking.", j);
 				}
 
 				if(isCompatible(interval, intervals[j])) {
 					if (pacbioDebug) {
-						Log.Message("Adding interval to segment");
+						Log.Message("Is compatible. Adding interval to segment and exit");
 					}
 					if (segments[i].length < 1000) {
 						intervals[segments[i].length++] = interval;
@@ -928,7 +940,7 @@ bool AlignmentBuffer::constructMappedSegements(MappedSegment * segments,
 					}
 				} else {
 					if (pacbioDebug) {
-						Log.Message("Is NOT compatible");
+						Log.Message("Is NOT compatible. Continue looking");
 					}
 					//Add
 				}
@@ -937,7 +949,7 @@ bool AlignmentBuffer::constructMappedSegements(MappedSegment * segments,
 	}
 
 	if (pacbioDebug) {
-		Log.Message("Creating new segment from interval");
+		Log.Message("Creating new segment %d from interval", segmentsIndex);
 	}
 	segments[segmentsIndex].list[0] = interval;
 	segments[segmentsIndex++].length = 1;
@@ -945,51 +957,39 @@ bool AlignmentBuffer::constructMappedSegements(MappedSegment * segments,
 	return true;
 }
 
+// Overlap on ref coordinates >= readPartLength
+// Overlap on read coordinadtes <= readPartLength
+// Difference in overlap must be > 0
+// a and b must be on same strand!
 bool AlignmentBuffer::isDuplication(Interval const * a, int ttt,
 		Interval const * b) {
 
-//	Log.Message("A: %lld, %lld", a.onRefStart, a.onRefStop);
-//	Log.Message("B: %lld, %lld", b.onRefStart, b.onRefStop);
+	if (pacbioDebug) {
+		Log.Message("\t\t\tisDuplication:");
+		fprintf(stderr, "\t\t\t");
+		a->printOneLine();
+		fprintf(stderr, "\t\t\t");
+		b->printOneLine();
+	}
 
-	int diffOnRead = abs(b->onReadStop - a->onReadStart);
-	loc diffOnRef = 0;
+	int overlapOnRead = std::max(0, std::min(a->onReadStop, b->onReadStop) - std::max(a->onReadStart, b->onReadStart));
+	loc overlapOnRef = 0;
+
 	if (a->isReverse) {
-		if (b->onRefStop < a->onRefStop) {
-			Interval const * tmp = a;
-			a = b;
-			b = tmp;
-		}
-
-		//Log.Message("IsDuplication reverse:");
-		//Log.Message("Diff on Ref: %lld", b.onRefStop - a.onRefStart);
-		//Log.Message("Diff on Read: %d", b.onReadStop - a.onReadStart);
-
-//		diffOnRead = abs(b.onReadStop - a.onReadStart);
-		diffOnRef = b->onRefStop - a->onRefStart;
-
+		// if a and b are on reverse strand, refstart and refstop must be switched
+		overlapOnRef = std::max(0ll, std::min(a->onRefStart, b->onRefStart) - std::max(a->onRefStop, b->onRefStop));
 	} else {
-
-		if (b->onRefStart < a->onRefStart) {
-			Interval const * tmp = a;
-			a = b;
-			b = tmp;
-		}
-
-//		diffOnRead = abs(b.onReadStart - a.onReadStop);
-		diffOnRef = b->onRefStart - a->onRefStop;
-
+		overlapOnRef = std::max(0ll, std::min(a->onRefStop, b->onRefStop) - std::max(a->onRefStart, b->onRefStart));
 	}
 
 	if (pacbioDebug) {
-		Log.Message("Diff on Ref: %lld", diffOnRef);
-		Log.Message("Diff on Read: %d", diffOnRead);
-		Log.Message("IsDuplication: %d", diffOnRef < (int)(-1.5f * readPartLength) && diffOnRead <= (int)(readPartLength * 1.5f));
-
-		Log.Message("===========================");
+		Log.Message("\t\t\toverlap on read: %d, overlap on ref: %lld", overlapOnRead, overlapOnRef);
 	}
 
-	return diffOnRef < (int) (-1.5f * readPartLength)
-			&& diffOnRead < (int) (readPartLength * 1.5f);
+	loc overlapDiff = std::max(0ll, overlapOnRef - overlapOnRead);
+
+	return overlapOnRef >= (int) (1.0f * readPartLength)
+			&& overlapOnRead <= (int) (readPartLength * 1.0f) && overlapDiff > 0ll;
 }
 
 bool sortIntervalsInSegment(Interval const * a, Interval const * b) {
@@ -1000,17 +1000,25 @@ Interval * * AlignmentBuffer::consolidateSegments(MappedSegment * segments,
 		size_t segmentsIndex, int & intervalsIndex) {
 
 	if (pacbioDebug) {
-		Log.Message("============================");
+		Log.Message("==+==========================");
+		Log.Message("=====consolidateSegments=====");
+		Log.Message("===+=========================");
 	}
 
 	int maxIntervalCount = 0;
 	for (int i = 0; i < segmentsIndex; ++i) {
 		maxIntervalCount += segments[i].length;
+
+		if(pacbioDebug) {
+			Log.Message("Segment %d consists of %d intervals", i, segments[i].length);
+		}
+
 	}
 
 	Interval * * intervals = new Interval * [maxIntervalCount + 1];
 
 	for (int i = 0; i < segmentsIndex; ++i) {
+
 
 		std::sort(segments[i].list, segments[i].list + segments[i].length,
 				sortIntervalsInSegment);
@@ -1018,8 +1026,8 @@ Interval * * AlignmentBuffer::consolidateSegments(MappedSegment * segments,
 		if (pacbioDebug) {
 			Log.Message("Segment %d: ", i);
 			for(int j = 0; j < segments[i].length; ++j) {
-				Log.Message("\tInterval %d: ", j);
-				segments[i].list[j]->print();
+				fprintf(stderr, "\tInterval %d: ", j);
+				segments[i].list[j]->printOneLine();
 			}
 		}
 
@@ -1028,14 +1036,27 @@ Interval * * AlignmentBuffer::consolidateSegments(MappedSegment * segments,
 
 		for (int j = 1; j < segments[i].length; ++j) {
 			currentInterval = segments[i].list[j];
+			if(pacbioDebug) {
+				Log.Message("\tCurrent interval is: %d", j);
+			}
 			if (isSameDirection(currentInterval, lastInterval)
 					&& !isDuplication(currentInterval, 0, lastInterval)) {
 				lastInterval = mergeIntervals(currentInterval, lastInterval);
+				if(pacbioDebug) {
+					Log.Message("\t\tMerging with last interval");
+				}
 			} else {
 				//If not single assigned index
+				// Single mapped subreads are added to segment.
+				// If they merge with an interval -> included
+				// If not -> discarded
 				if(!currentInterval->isAssigned) {
 					//Add lastInterval
 					if(!lastInterval->isAssigned) {
+						if(pacbioDebug) {
+							fprintf(stderr, "\t\tAdding interval: ");
+							lastInterval->printOneLine();
+						}
 						intervals[intervalsIndex++] = lastInterval;
 					}
 					lastInterval = currentInterval;
@@ -1043,12 +1064,18 @@ Interval * * AlignmentBuffer::consolidateSegments(MappedSegment * segments,
 			}
 		}
 		if(!lastInterval->isAssigned) {
+			if(pacbioDebug) {
+				fprintf(stderr, "\tAdding interval %d: ", intervalsIndex);
+				lastInterval->printOneLine();
+			}
 			intervals[intervalsIndex++] = lastInterval;
 		}
 
 	}
 	if (pacbioDebug) {
-		Log.Message("============================");
+		Log.Message("=============================");
+		Log.Message("===consolidateSegments end===");
+		Log.Message("=============================");
 	}
 
 	return intervals;
@@ -1260,6 +1287,7 @@ Interval * * AlignmentBuffer::infereCMRsfromAnchors(int & intervalsIndex,
 				//TODO: check chromosome borders
 
 				if (pacbioDebug) {
+					Log.Message("New interval:");
 					interval->print();
 				}
 
