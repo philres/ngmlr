@@ -73,10 +73,6 @@ Advanced:
         Length of fragments reads are split into [256]
     --subread-corridor <int>
         Length of corridor sub-reads are aligned with [40]
-    --vcf <file>
-        SNPs will be taken into account when building reference index [none]
-    --bed-filter <file>
-        Only reads in the regions specified by the BED file are read from the input file (requires BAM input) [none]
 ```
 
 ### Building NextGenMap-LR from source
