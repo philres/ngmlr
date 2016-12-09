@@ -2464,7 +2464,7 @@ float getBestSegmentCombination(int const maxLength, std::vector<Interval *> con
 		// Find fragment (combination) with the highest score that fits into interval 0 to i
 		for (int j = 0; j < mappedSegements.size(); ++j) {
 
-			if (!mappedSegements[j]->isProcessed && mappedSegements[j]->onReadStop <= i) {
+			if (!mappedSegements[j]->isProcessed && mappedSegements[j]->onReadStop <= i && abs(mappedSegements[j]->onReadStop - mappedSegements[j]->onReadStart) > maxOverlap) {
 
 				int const start = std::min(maxLength, mappedSegements[j]->onReadStart + maxOverlap);
 				float currentScore = mappedSegements[j]->score + bestScore[start];
