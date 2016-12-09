@@ -48,6 +48,9 @@ struct Anchor {
 	bool isReverse;
 	// Used for visualization only!
 	int type; //0: normal, 1: repetitive, 2: nothing found, 3: socre too low, 4: no coordinates
+	// Unique anchors can be used as single intervals, non-unique anchors won't form
+	// intervals alone during cLIS
+	bool isUnique;
 };
 
 static bool sortAnchorOnRead(Anchor a, Anchor b) {
@@ -223,6 +226,10 @@ public:
 	Interval * * infereCMRsfromAnchors(int & intervalsIndex,
 			Anchor * allFwdAnchors, int allFwdAnchorsLength,
 			Anchor * allRevAnchors, int allRevAnchorsLength, MappedRead * read);
+	Interval * * getIntervalsFromAnchors(int & intervalsIndex,
+			Anchor * allFwdAnchors, int allFwdAnchorsLength, Anchor * allRevAnchors,
+			int allRevAnchorsLength, MappedRead * read);
+
 
 	Align computeAlignment(MappedRead* read, int const scoreId,
 			int const corridor);
