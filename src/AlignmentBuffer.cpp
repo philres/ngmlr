@@ -2362,10 +2362,10 @@ int AlignmentBuffer::computeMappingQuality(Align const & alignment,
 	return (int) (mqSum * 1.0f / mqCount);
 }
 
-bool sortMappedSegements(IntervalTree::Interval<Interval *> a,
-		IntervalTree::Interval<Interval *> b) {
+bool sortMappedSegements(Interval * a,
+		Interval * b) {
 //	return a.value.onReadStart < b.value.onReadStart;
-	return a.value->score > b.value->score;
+	return a->score > b->score;
 //	int aLen = a.value->onReadStop - a.value->onReadStart;
 //	int bLen = b.value->onReadStop - b.value->onReadStart;
 //	return (aLen == bLen && a.value->score > b.value->score) || aLen > bLen;
@@ -2440,9 +2440,70 @@ bool isValidOverlapRead(Interval * shortInterval, Interval * longInterval) {
 			&& (shortInterval->onReadStop - longInterval->onReadStart) > 50;
 }
 
+float getBestSegmentCombination(int const maxLength, std::vector<Interval *> const & mappedSegements, std::vector<int> & segmentList) {
+
+	float result = 0.0f;
+
+	// field i = score for best fragment (combination) in range 0 to i
+	float * bestScore = new float[maxLength];
+	int * lastBest = new int[maxLength];
+	int * lastFragment = new int[maxLength];
+
+	int const maxOverlap = 50;
+
+	bestScore[0] = 0;
+	lastFragment[0] = -1;
+	lastBest[0] = 0;
+	for (int i = 1; i < maxLength; ++i) {
+
+		// Init
+		bestScore[i] = bestScore[i - 1];
+		lastFragment[i] = lastFragment[i - 1];
+		lastBest[i] = lastBest[i - 1];
+
+		// Find fragment (combination) with the highest score that fits into interval 0 to i
+		for (int j = 0; j < mappedSegements.size(); ++j) {
+
+			if (!mappedSegements[j]->isProcessed && mappedSegements[j]->onReadStop <= i) {
+
+				int const start = std::min(maxLength, mappedSegements[j]->onReadStart + maxOverlap);
+				float currentScore = mappedSegements[j]->score + bestScore[start];
+				if (currentScore > bestScore[i]) {
+					bestScore[i] = currentScore;
+					lastFragment[i] = j;
+					lastBest[i] = start;
+				}
+			} else {
+				// Fragment doesn't fit into range 0 to i
+			}
+
+		}
+
+	}
+
+	int i = maxLength - 1;
+	result = bestScore[i];
+
+	while (lastFragment[i] > -1) {
+
+		//Log.Message("Fragment: %d", lastFragment[i]);
+		segmentList.push_back(lastFragment[i]);
+		i = lastBest[i];
+	}
+
+	delete[] bestScore;
+	bestScore = 0;
+	delete[] lastBest;
+	lastBest = 0;
+	delete[] lastFragment;
+	lastFragment = 0;
+
+	return result;
+}
+
 void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 
-	std::vector<IntervalTree::Interval<Interval *> > mappedSegements;
+	std::vector<Interval *> mappedSegements;
 
 	MappedRead * read = group->fullRead;
 
@@ -2451,7 +2512,7 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 	bool readIsReverse = read->Scores[0].Location.isReverse();
 
 	if (pacbioDebug) {
-		Log.Message("Reconciling read: %s (%d)", read->name, read->ReadId);
+		Log.Message("Reconciling read: %s with length %d (%d)", read->name, read->length, read->ReadId);
 	}
 	// Convert Score + Alignment info to Interval (mappedSegement) object
 	// mappedSegemnts will be used to detect overlaps in alignments
@@ -2480,9 +2541,7 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 			mappedSegement->onReadStop = read->length - read->Alignments[i].QEnd
 					- 1;
 		}
-		mappedSegements.push_back(
-				IntervalTree::Interval<Interval *>(mappedSegement->onReadStart,
-						mappedSegement->onReadStop, mappedSegement));
+		mappedSegements.push_back(mappedSegement);
 
 		if (stdoutPrintMappedSegments) {
 			fprintf(stdout, "%s\t%d\t%d\t%d\t%d\t%d\t%d\t%f\n", read->name, i,
@@ -2493,149 +2552,115 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 		}
 	}
 
-	IntervalTree::IntervalTree<Interval *> mappedSegmentsTree(mappedSegements);
 
-	std::sort(mappedSegements.begin(), mappedSegements.end(),
-			sortMappedSegements);
+//	// Sort segments by score
+//	std::sort(mappedSegements.begin(), mappedSegements.end(),
+//			sortMappedSegements);
+
+
+	// DEBUG code: print segments for dotplot and log
 	for (int i = 0; i < mappedSegements.size(); ++i) {
 		if (pacbioDebug) {
-			Log.Message("%d: Read: %d - %d, Ref: %llu - %llu (%d) - %f (%f, %d) - %d", mappedSegements[i].value->id, mappedSegements[i].value->onReadStart, mappedSegements[i].value->onReadStop, mappedSegements[i].value->onRefStart, mappedSegements[i].value->onRefStop, mappedSegements[i].value->isReverse, mappedSegements[i].value->score, read->Alignments[mappedSegements[i].value->id].Identity, (read->length - read->Alignments[mappedSegements[i].value->id].QStart - read->Alignments[mappedSegements[i].value->id].QEnd), mappedSegements[i].value->isProcessed);
+			Log.Message("%d: Read: %d - %d, Ref: %llu - %llu (%d) - %f (%f, %d) - %d", mappedSegements[i]->id, mappedSegements[i]->onReadStart, mappedSegements[i]->onReadStop, mappedSegements[i]->onRefStart, mappedSegements[i]->onRefStop, mappedSegements[i]->isReverse, mappedSegements[i]->score, read->Alignments[mappedSegements[i]->id].Identity, (read->length - read->Alignments[mappedSegements[i]->id].QStart - read->Alignments[mappedSegements[i]->id].QEnd), mappedSegements[i]->isProcessed);
 		}
 
 		if(!readIsReverse) {
 			printDotPlotLine(read->ReadId, read->name,
-					mappedSegements[i].value->onReadStart,
-					mappedSegements[i].value->onReadStop,
-					mappedSegements[i].value->onRefStart,
-					mappedSegements[i].value->onRefStop,
-					mappedSegements[i].value->score,
-					mappedSegements[i].value->isReverse,
-					DP_TYPE_RESULT + mappedSegements[i].value->id, DP_STATUS_OK);
+					mappedSegements[i]->onReadStart,
+					mappedSegements[i]->onReadStop,
+					mappedSegements[i]->onRefStart,
+					mappedSegements[i]->onRefStop,
+					mappedSegements[i]->score,
+					mappedSegements[i]->isReverse,
+					DP_TYPE_RESULT + mappedSegements[i]->id, DP_STATUS_OK);
 		} else {
 			printDotPlotLine(read->ReadId, read->name,
-					mappedSegements[i].value->onReadStop,
-					mappedSegements[i].value->onReadStart,
-					mappedSegements[i].value->onRefStart,
-					mappedSegements[i].value->onRefStop,
-					mappedSegements[i].value->score,
-					mappedSegements[i].value->isReverse,
-					DP_TYPE_RESULT + mappedSegements[i].value->id, DP_STATUS_OK);
+					mappedSegements[i]->onReadStop,
+					mappedSegements[i]->onReadStart,
+					mappedSegements[i]->onRefStart,
+					mappedSegements[i]->onRefStop,
+					mappedSegements[i]->score,
+					mappedSegements[i]->isReverse,
+					DP_TYPE_RESULT + mappedSegements[i]->id, DP_STATUS_OK);
 		}
 	}
 
-	if (mappedSegements.size() > 0) {
-		read->Alignments[mappedSegements[0].value->id].primary = true;
+
+	int const maxLength = read->length;
+
+
+	std::vector<int> bestSegments;
+	float bestScore = getBestSegmentCombination(maxLength, mappedSegements, bestSegments);
+
+	if (pacbioDebug) {
+		Log.Message("Best score: %f", bestScore);
 	}
 
-	bool overlapFound = false;
+	float topFragmentScore = 0.0f;
+	int fragmentWithHighestScore = 0;
+
+	for(int i = 0; i < bestSegments.size(); ++i) {
+		int index = bestSegments[i];
+
+		if (pacbioDebug) {
+			Log.Message("\tFragment: %d", index);
+		}
+		mappedSegements[index]->isProcessed = true;
+
+		if(mappedSegements[index]->score > topFragmentScore) {
+			fragmentWithHighestScore = index;
+		}
+	}
+	// Set the alignment with the higest score as primary
+	if(bestSegments.size() > 0) {
+		read->Alignments[mappedSegements[fragmentWithHighestScore]->id].primary = true;
+	}
+
+	bestSegments.clear();
+	float secondBestScore = getBestSegmentCombination(maxLength, mappedSegements, bestSegments);
+	if(pacbioDebug) {
+		Log.Message("Second best score: %f", secondBestScore);
+	}
+
+	// Mark remaining as skipped (will not be written to SAM file)
 	for (int i = 0; i < mappedSegements.size(); ++i) {
-
-//		static float minResidues = Config.getMinResidues();
-//		static float minIdentity = Config.getMinIdentity();
-//
-//		if (minResidues <= 1.0f) {
-//			minResidues = read->length * minResidues;
-//		}
-//
-//		read->Alignments[mappedSegements[i].value->id].skip = (read->Alignments[i].Identity < minIdentity) ||
-//				((float) (read->length - read->Alignments[i].QStart - read->Alignments[i].QEnd) < minResidues);
-//
-//		mappedSegements[i].value->isProcessed = mappedSegements[i].value->isProcessed || read->Alignments[mappedSegements[i].value->id].skip;
-
-		if (!mappedSegements[i].value->isProcessed) {
-
-			if (pacbioDebug) {
-				Log.Message("Comparing to %d", mappedSegements[i].value->id);
-			}
-			std::vector<IntervalTree::Interval<Interval *> > results;
-			mappedSegements[i].value->isProcessed = true;
-
-			mappedSegmentsTree.findOverlapping(
-					mappedSegements[i].value->onReadStart,
-					mappedSegements[i].value->onReadStop, results);
-			for (int j = 0; j < results.size(); ++j) {
-				if (/*!(results[j].value == mappedSegements[i].value) &&*/!results[j].value->isProcessed
-						&& isValidOverlap(results[j].value,
-								mappedSegements[i].value)) {
-					if (pacbioDebug) {
-						Log.Message("Overlap found with %d", results[j].value->id);
-					}
-					if (isFullyContainedOnRead(results[j].value,
-									mappedSegements[i].value)) {
-						if (isFullyContainedOnRef(results[j].value,
-										mappedSegements[i].value)) {
-							if (pacbioDebug) {
-								Log.Message("%d is fully contained in %d on read and ref", results[j].value->id, mappedSegements[i].value->id);
-							}
-							read->Alignments[results[j].value->id].skip = true;
-							results[j].value->isProcessed = true;
-						} else {
-							read->Alignments[results[j].value->id].MQ = 0;
-							if(pacbioDebug) {
-								Log.Message("%d is fully contained in %d on read", results[j].value->id, mappedSegements[i].value->id);
-							}
-							results[j].value->isProcessed = true;
-							read->Alignments[results[j].value->id].skip = true;
-						}
-					} else {
-//						Log.Message("%d vs %d", results[j].value->id, mappedSegements[i].value->id);
-						if(isContainedOnRead(results[j].value,
-										mappedSegements[i].value, 0.5f)) {
-
-							//read->Alignments[results[j].value->id].MQ = 0;
-							if(pacbioDebug) {
-								Log.Message("%d is contained in %d on read", results[j].value->id, mappedSegements[i].value->id);
-							}
-							results[j].value->isProcessed = true;
-							read->Alignments[results[j].value->id].skip = true;
-
-						}
-						if(isValidOverlapRef(results[j].value,
-										mappedSegements[i].value) && isValidOverlapRead(results[j].value,
-										mappedSegements[i].value)) {
-							if(pacbioDebug) {
-								Log.Message("Mapped segment %d overlaps with %d on read %s and reference", mappedSegements[i].value->id, results[j].value->id, read->name);
-								//Fatal();
-							}
-							results[j].value->isProcessed = true;
-							overlapFound = true;
-							read->Alignments[results[j].value->id].skip = true;
-						}
-					}
-				}
-			}
+		if(!mappedSegements[i]->isProcessed) {
+			read->Alignments[mappedSegements[i]->id].skip = true;
 		}
 	}
 
+	// DEBUG code: print final list of mappeg segments
 	for (int i = 0; i < read->Calculated; ++i) {
-		if (!read->Alignments[mappedSegements[i].value->id].skip) {
+		if (!read->Alignments[mappedSegements[i]->id].skip) {
 			if (!readIsReverse) {
 				printDotPlotLine(read->ReadId, read->name,
-						mappedSegements[i].value->onReadStart,
-						mappedSegements[i].value->onReadStop,
-						mappedSegements[i].value->onRefStart,
-						mappedSegements[i].value->onRefStop,
-						mappedSegements[i].value->score,
-						mappedSegements[i].value->isReverse,
-						DP_TYPE_RESULT_CONS + mappedSegements[i].value->id,
+						mappedSegements[i]->onReadStart,
+						mappedSegements[i]->onReadStop,
+						mappedSegements[i]->onRefStart,
+						mappedSegements[i]->onRefStop,
+						mappedSegements[i]->score,
+						mappedSegements[i]->isReverse,
+						DP_TYPE_RESULT_CONS + mappedSegements[i]->id,
 						DP_STATUS_OK);
 			} else {
 				printDotPlotLine(read->ReadId, read->name,
-						mappedSegements[i].value->onReadStop,
-						mappedSegements[i].value->onReadStart,
-						mappedSegements[i].value->onRefStart,
-						mappedSegements[i].value->onRefStop,
-						mappedSegements[i].value->score,
-						mappedSegements[i].value->isReverse,
-						DP_TYPE_RESULT_CONS + mappedSegements[i].value->id,
+						mappedSegements[i]->onReadStop,
+						mappedSegements[i]->onReadStart,
+						mappedSegements[i]->onRefStart,
+						mappedSegements[i]->onRefStop,
+						mappedSegements[i]->score,
+						mappedSegements[i]->isReverse,
+						DP_TYPE_RESULT_CONS + mappedSegements[i]->id,
 						DP_STATUS_OK);
 			}
 		}
 	}
 
+
+	// Delete all mapped segments
 	for (int i = 0; i < mappedSegements.size(); ++i) {
-		delete mappedSegements[i].value;
-		mappedSegements[i].value = 0;
+		delete mappedSegements[i];
+		mappedSegements[i] = 0;
 	}
 }
 
