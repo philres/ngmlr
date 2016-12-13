@@ -1038,6 +1038,11 @@ bool sortIntervalsInSegment(Interval const * a, Interval const * b) {
 	return a->onReadStart < b->onReadStart;
 }
 
+bool sortIntervalsByLength(Interval const * a, Interval const * b) {
+	return a->< b->onReadStart;
+}
+
+
 Interval * * AlignmentBuffer::consolidateSegments(MappedSegment * segments,
 		size_t segmentsIndex, int & intervalsIndex) {
 
@@ -1225,18 +1230,6 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 								maxOnRead = onRead + readPartLength;
 								maxOnRef = allFwdAnchors[lis[posInLIS]].onRef;
 							}
-
-							if(lisLength > 1 || isUnique) {
-								printDotPlotLine(read->ReadId, read->name,
-										onRead,
-										onRead + readPartLength,
-										allFwdAnchors[lis[posInLIS]].onRef + readPartLength,
-										allFwdAnchors[lis[posInLIS]].onRef,
-										allFwdAnchors[lis[posInLIS]].score,
-										allFwdAnchors[lis[posInLIS]].isReverse,
-										DP_TYPE_CLIS + cLISRunNumber, DP_STATUS_OK);
-							}
-
 						} else {
 
 							if(onRead < minOnRead) {
@@ -1248,25 +1241,11 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 								maxOnRead = onRead + readPartLength;
 								maxOnRef = allFwdAnchors[lis[posInLIS]].onRef + readPartLength;
 							}
-
-							if(lisLength > 1 || isUnique) {
-								printDotPlotLine(read->ReadId, read->name,
-										onRead,
-										onRead + readPartLength,
-										allFwdAnchors[lis[posInLIS]].onRef,
-										allFwdAnchors[lis[posInLIS]].onRef + readPartLength,
-										allFwdAnchors[lis[posInLIS]].score,
-										allFwdAnchors[lis[posInLIS]].isReverse,
-										DP_TYPE_CLIS + cLISRunNumber, DP_STATUS_OK);
-							}
-
 						}
 
 						regY[pointNumber] = onRead;
 						if(isReverse) {
 							regX[pointNumber] = allFwdAnchors[lis[posInLIS]].onRef + readPartLength;
-							//						regX[pointNumber] = allFwdAnchors[lis[posInLIS]].onRef;
-							//						regY[pointNumber] = readLenth - onRead;
 						} else {
 							regX[pointNumber] = allFwdAnchors[lis[posInLIS]].onRef;
 						}
@@ -1281,52 +1260,73 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 					}
 				}
 
-				// Linear regression for segment
-				REAL m,b,r;
-				if(pointNumber == 1) {
-					regX[0] = minOnRef;
-					regY[0] = minOnRead;
-					regX[1] = maxOnRef;
-					regY[1] = maxOnRead;
-					pointNumber = 2;
-				}
-				linreg(pointNumber,regX,regY,&m,&b,&r);
-				delete[] regX; regX = 0;
-				delete[] regY; regY = 0;
-				if(pacbioDebug) {
-					Log.Message("Regression: m=%.*f b=%.*f r=%.*f\n", DBL_DIG,m,DBL_DIG,b,DBL_DIG,r);
-				}
-
-				interval->isReverse = isReverse;
-				interval->score = intervalScore;
-
-				interval->onReadStart = minOnRead;
-				interval->onReadStop = maxOnRead;
-
-				interval->onRefStart = minOnRef;
-				interval->onRefStop = maxOnRef;
-
-				interval->m = m;
-				interval->b = b;
-				interval->r = r;
-
 				if(isUnique) {
+
+					//Debug print anchors used in cLIS
+					for(int i = 0; i < interval->anchorLength; ++i) {
+						Anchor & anchor = interval->anchors[i];
+						if(anchor.isReverse) {
+							printDotPlotLine(read->ReadId, read->name,
+									anchor.onRead,
+									anchor.onRead + readPartLength,
+									anchor.onRef + readPartLength,
+									anchor.onRef,
+									anchor.score,
+									anchor.isReverse,
+									DP_TYPE_CLIS + cLISRunNumber, DP_STATUS_OK);
+						} else {
+							printDotPlotLine(read->ReadId, read->name,
+									anchor.onRead,
+									anchor.onRead + readPartLength,
+									anchor.onRef,
+									anchor.onRef + readPartLength,
+									anchor.score,
+									anchor.isReverse,
+									DP_TYPE_CLIS + cLISRunNumber, DP_STATUS_OK);
+						}
+					}
+
+
+					// Linear regression for segment
+					REAL m,b,r;
+					if(pointNumber == 1) {
+						regX[0] = minOnRef;
+						regY[0] = minOnRead;
+						regX[1] = maxOnRef;
+						regY[1] = maxOnRead;
+						pointNumber = 2;
+					}
+					linreg(pointNumber,regX,regY,&m,&b,&r);
+					delete[] regX; regX = 0;
+					delete[] regY; regY = 0;
+					if(pacbioDebug) {
+						Log.Message("Regression: m=%.*f b=%.*f r=%.*f\n", DBL_DIG,m,DBL_DIG,b,DBL_DIG,r);
+					}
+
+					interval->isReverse = isReverse;
+					interval->score = intervalScore;
+
+					interval->onReadStart = minOnRead;
+					interval->onReadStop = maxOnRead;
+
+					interval->onRefStart = minOnRef;
+					interval->onRefStop = maxOnRef;
+
+					interval->m = m;
+					interval->b = b;
+					interval->r = r;
+
 					intervals[intervalsIndex++] = interval;
 					cLISRunNumber += 1;
 
-					if(interval->m != 0.0) {
-						printDotPlotLine(read->ReadId, read->name,
-								interval->m, interval->b, r,
-								interval->score,
-								interval->isReverse,
-								DP_TYPE_SEQMENTS_REG + cLISRunNumber, DP_STATUS_NOCOORDS);
-
-						//				printDotPlotLine(id, name,
-						//						-1 * interval.m, -1 * interval.b, r,
-						//						interval.score,
-						//						interval.isReverse,
-						//						DP_TYPE_SEQMENTS_REG + cLISRunNumber * 2 + 1, DP_STATUS_NOCOORDS);
-					}
+//					if(interval->m != 0.0) {
+//						printDotPlotLine(read->ReadId, read->name,
+//								interval->m, interval->b, r,
+//								interval->score,
+//								interval->isReverse,
+//								DP_TYPE_SEQMENTS_REG + cLISRunNumber, DP_STATUS_NOCOORDS);
+//
+//					}
 
 					printDotPlotLine(read->ReadId, read->name,
 							interval->onReadStart,
@@ -3285,8 +3285,12 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 		Interval * * intervals = getIntervalsFromAnchors(nIntervals, anchorsFwd,
 						anchorFwdIndex, anchorsRev, anchorRevIndex, group->fullRead);
 
+		std::sort(intervals, intervals + nIntervals,
+						sortIntervalsInSegment);
+
+
 		if (pacbioDebug) {
-			Log.Message("================Intervalls found================");
+			Log.Message("================Intervalls after cLIS================");
 			for (int i = 0; i < nIntervals; ++i) {
 				Interval * interval = intervals[i];
 				interval->printOneLine();
@@ -3294,6 +3298,21 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			Log.Message("================++++++++++++++++================");
 		}
 
+
+		//Interval * * mergedIntervals = new Interval * [nIntervals];
+		for (int i = 0; i < nIntervals - 1; ++i) {
+
+			for (int j = 0; j < nIntervals - 1; ++j) {
+
+				Interval * a = intervals[i];
+				Interval * b = intervals[j];
+
+
+
+
+			}
+
+		}
 
 //		Interval * * intervals = infereCMRsfromAnchors(nIntervals, anchorsFwd,
 //				anchorFwdIndex, anchorsRev, anchorRevIndex, group->fullRead);
