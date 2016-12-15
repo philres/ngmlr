@@ -2852,10 +2852,12 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 					if ((part->Scores[k].Score.f / readPartLength) > minScore) {
 						// Anchor is valid and will be used
 						if (anchorFwdIndex >= (maxAnchorNumber - 1)) {
-							Log.Message("Anchor array too small - reallocating.");
+							if (pacbioDebug) {
+								Log.Message("Anchor array too small - reallocating.");
+							}
 							maxAnchorNumber = maxAnchorNumber * 2;
 							Anchor * anchorsTmp = new Anchor[maxAnchorNumber];
-							memcpy(anchorsTmp, anchorsFwd, anchorFwdIndex * sizeof(Anchor *));
+							memcpy(anchorsTmp, anchorsFwd, anchorFwdIndex * sizeof(Anchor));
 							delete[] anchorsFwd;
 							anchorsFwd = anchorsTmp;
 							delete[] anchorsRev;
