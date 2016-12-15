@@ -58,7 +58,7 @@ void AlignmentMatrixFast::prepare(int const width, int const height,
 				corridorLines[i].length);
 	}
 	if (matrixSize > privateMatrixSize) {
-		fprintf(stderr, "Reallocating matrix for alignment (size %llu)\n\n", matrixSize);
+//		fprintf(stderr, "Reallocating matrix for alignment (size %llu)\n\n", matrixSize);
 		delete[] directionMatrix;
 		directionMatrix = 0;
 		directionMatrix = new char[matrixSize];
