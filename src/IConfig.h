@@ -69,7 +69,7 @@ protected:
 	bool updateCheck = false;
 	bool verbose = false;
 	bool writeUnmapped = true;
-	bool fast = false; //Debug
+	bool nosse = false; //Debug
 
 	char * queryFile = 0;
 	char * referenceFile = 0;
@@ -199,8 +199,8 @@ public:
 		return threads;
 	}
 
-	auto getFast() const {
-		return fast;
+	auto getNoSSE() const {
+		return nosse;
 	}
 
 	auto getBAM() const {

@@ -41,18 +41,25 @@ int ConvexAlignFast::NumberOfSetBits(uint32_t i) {
 	return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 }
 
-ConvexAlignFast::ConvexAlignFast(int gpu_id) :
-		maxBinaryCigarLength(200000), pacbioDebug(false), stdoutPrintAlignCorridor(
-		//Config.GetInt(STDOUT) == 6) {
-		0) {
+ConvexAlignFast::ConvexAlignFast(int const stdOutMode,
+		float const match,
+		float const mismatch,
+		float const gapOpen,
+		float const gapExtend,
+		float const gapExtendMin,
+		float const gapDecay):
+		maxBinaryCigarLength(200000), pacbioDebug(false), stdoutPrintAlignCorridor(stdOutMode) {
+	mat = match;
+	mis = mismatch;
+	gap_open_read = gapOpen;
+	gap_open_ref = gapOpen;
+	gap_ext = gapExtend;
+	gap_decay = gapDecay;
+	gap_ext_min = gapExtendMin;
 
-	mat = 2.0f;
-	mis = -5.0f;
-	gap_open_read = -5.0f;
-	gap_open_ref = -5.0f;
-	gap_ext = -5.0f;
-	gap_decay = 0.15f;
-	gap_ext_min = -1.0f;
+	if(pacbioDebug) {
+		fprintf(stderr, "mat: %f mis: %f gap_open_read: %f gap_open_ref: %f gap_ext: %f gap_decay: %f gapExtendMin: %f\n", mat, mis, gap_open_read, gap_open_ref, gap_ext, gap_decay, gapExtendMin);
+	}
 
 	matrix = new AlignmentMatrixFast();
 
@@ -81,6 +88,20 @@ int ConvexAlignFast::printCigarElement(char const op, int const length,
 void ConvexAlignFast::addPosition(Align & result, int & nmIndex, int posInRef, int posInRead,
 		int Yi) {
 	if (posInRead > 16 && posInRef > 16) {
+		if(nmIndex >= result.nmPerPostionLength) {
+			fprintf(stderr, "Debug: PositionNM reallocated.\n");
+
+			int const tmpLength = result.nmPerPostionLength * 2;
+			PositionNM * tmp = new PositionNM[tmpLength];
+
+			if(result.nmPerPosition != 0) {
+				memcpy(tmp, result.nmPerPosition, result.nmPerPostionLength * sizeof(PositionNM));
+				delete[] result.nmPerPosition;
+				result.nmPerPosition = 0;
+			}
+			result.nmPerPosition = tmp;
+			result.nmPerPostionLength = tmpLength;
+		}
 		result.nmPerPosition[nmIndex].readPosition = posInRead - 16;
 		result.nmPerPosition[nmIndex].refPosition = posInRef - 16;
 		result.nmPerPosition[nmIndex].nm = Yi;
@@ -103,8 +124,6 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 	//General init
 	//*********************//
 
-	int nmPerPositionLength = (matrix->getHeight() + 1) * 2;
-	result.nmPerPosition = new PositionNM[nmPerPositionLength];
 	int nmIndex = 0;
 	int exactAlignmentLength = 0;
 
@@ -160,8 +179,9 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 
 			//Produces: 	[0-9]+(([A-Z]+|\^[A-Z]+)[0-9]+)*
 			//instead of: 	[0-9]+(([A-Z]|\^[A-Z]+)[0-9]+)*
-			md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
 			for (int k = 0; k < cigarOpLength; ++k) {
+				md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
+				md_eq_length = 0;
 				md_offset += sprintf(result.pQry + md_offset, "%c",
 						refSeq[ref_index++]);
 
@@ -172,7 +192,6 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 				Yi = NumberOfSetBits(buffer);
 				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
 			}
-			md_eq_length = 0;
 
 			exactAlignmentLength += cigarOpLength;
 
@@ -180,7 +199,6 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 		case CIGAR_EQ:
 			cigar_m_length += cigarOpLength;
 			md_eq_length += cigarOpLength;
-			ref_index += cigarOpLength;
 			matches += cigarOpLength;
 
 			overallMatchCount += cigarOpLength;
@@ -191,6 +209,7 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 				Yi = NumberOfSetBits(buffer);
 				addPosition(result, nmIndex, posInRef++, posInRead++, Yi);
 			}
+			ref_index += cigarOpLength;
 
 			exactAlignmentLength += cigarOpLength;
 
@@ -277,13 +296,14 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 	result.pRef[cigar_offset] = '\0';
 	result.pQry[md_offset] = '\0';
 
-	//	result.NM = perWindowSum * 1.0f / windowNumber;
+	result.NM = alignmentLength - matches;
 	result.alignmentLength = exactAlignmentLength;
 
-	if (nmPerPositionLength < exactAlignmentLength) {
-		fprintf(stderr, "Alignmentlength (%d) < exactAlingmentlength (%d)\n",
-				nmPerPositionLength, exactAlignmentLength);
-	}
+//	if (nmPerPositionLength < exactAlignmentLength) {
+//		fprintf(stderr, "Alignmentlength (%d) < exactAlingmentlength (%d)\n",
+//				nmPerPositionLength, exactAlignmentLength);
+//		throw 1;
+//	}
 	//	fprintf(stderr, "\n==== Matches: %d of %d ====\n", overallMatchCount,
 	//			posInRead);
 
@@ -337,7 +357,7 @@ bool ConvexAlignFast::revBacktrack(char const * const refSeq,
 			return false;
 		}
 
-		if (stdoutPrintAlignCorridor) {
+		if (stdoutPrintAlignCorridor == 6) {
 			printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, x, y, 2);
 		}
 
@@ -353,8 +373,7 @@ bool ConvexAlignFast::revBacktrack(char const * const refSeq,
 			x -= 1;
 		} else {
 			fprintf(stderr,
-					"Error in backtracking. Invalid CIGAR operation found: %d\n",currentElement);
-//			throw "";
+					"Error in backtracking. Invalid CIGAR operation found\n");
 			return false;
 		}
 
@@ -363,12 +382,6 @@ bool ConvexAlignFast::revBacktrack(char const * const refSeq,
 		} else {
 			binaryCigar[binaryCigarIndex--] = (cigar_element_length << 4
 					| cigar_element);
-
-//			if (binaryCigarIndex < 0) {
-//				fprintf(stderr,
-//						"Error in backtracking. CIGAR buffer not long enough\n");
-//				throw "";
-//			}
 
 			cigar_element = currentElement;
 			cigar_element_length = 1;
@@ -427,7 +440,6 @@ int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines,
 	alignmentId = align.svType;
 
 	align.Score = -1.0f;
-//	return 0;
 
 	int finalCigarLength = -1;
 
@@ -443,53 +455,41 @@ int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines,
 		FwdResults fwdResults;
 
 		// Debug: rscript convex-align-vis.r
-		if (stdoutPrintAlignCorridor) {
+		if (stdoutPrintAlignCorridor == 6) {
 			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, refLen, qryLen,
 					-1);
 		}
-//
-////	Timer t1;
-////	t1.ST();
+
 		AlignmentMatrixFast::Score score = fwdFillMatrixSSESimple(refSeq, qrySeq, fwdResults, mode);
-////	fprintf(stderr, "fill: %f\n", t1.ET());
-//
-//		//	matrix->printMatrix(refSeq, qrySeq);
-//		//	fprintf(stderr, "Best y: %d, Best x: %d, Score: %d, QEnd: %d\n",
-//		//			fwdResults.best_read_index, fwdResults.best_ref_index,
-//		//			fwdResults.max_score, fwdResults.qend);
-//
-////	Timer t2;
-////	t2.ST();
+
 		bool validAlignment = revBacktrack(refSeq, qrySeq, fwdResults, mode);
-////	fprintf(stderr, "fill: %f\n", t2.ET());
-//
 		if (validAlignment) {
-//
-////		Timer t3;
-////		t3.ST();
-//			//		fprintf(stderr, "QStart: %d, Ref offset: %d, Binary cigar offset: %d\n",
-//			//				fwdResults.qstart, fwdResults.ref_position,
-//			//				fwdResults.alignment_offset);
-			finalCigarLength = convertCigar(refSeq, align, fwdResults,
+			finalCigarLength = convertCigar(refSeq + fwdResults.ref_position, align, fwdResults,
 					externalQStart, externalQEnd);
-//
 			align.PositionOffset = fwdResults.ref_position;
 			align.Score = score;
-////		fprintf(stderr, "conv: %f\n", t3.ET());
+		} else {
+//			matrix->printMatrix(refSeq, qrySeq);
+//			fprintf(stderr, "%d, %d, %d, %d\n", fwdResults.best_read_index, fwdResults.best_ref_index, fwdResults.ref_position, fwdResults.alignment_offset);
+			if(pacbioDebug) {
+				fprintf(stderr, "Could not backtrack alignment with score %f\n", score);
+			}
+
+			align.Score = -1.0f;
+			finalCigarLength = -1;
 		}
-//
-		if (stdoutPrintAlignCorridor) {
+		if (stdoutPrintAlignCorridor == 6) {
 			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, (int) score,
 					finalCigarLength, -3);
 		}
 	} catch (...) {
+		fprintf(stderr, "Exception in singlealign\n");
 		align.Score = -1.0f;
 		finalCigarLength = -1;
 	}
 
 	matrix->clean();
-//	alignmentId += 1;
-//	align.Score = -1.0f;
+
 	return finalCigarLength;
 }
 
@@ -497,23 +497,6 @@ int ConvexAlignFast::SingleAlign(int const mode, int const corridor,
 		char const * const refSeq, char const * const qrySeq, Align & align,
 		void * extData) {
 
-//	int corridorWidth = corridor;
-//	int const qryLen = strlen(qrySeq);
-//
-//	int corridorHeight = qryLen;
-//	CorridorLine * corridorLines = new CorridorLine[corridorHeight];
-//
-//	for (int i = 0; i < corridorHeight; ++i) {
-//		corridorLines[i].offset = i - corridorWidth / 2;
-//		corridorLines[i].length = corridorWidth;
-//	}
-//
-//	int returnValue = SingleAlign(mode, corridorLines, corridorHeight, refSeq,
-//			qrySeq, align, extData);
-//	delete[] corridorLines;
-//	corridorLines = 0;
-//
-//	return returnValue;
 	fprintf(stderr, "SingleAlign not implemented");
 	throw "Not implemented";
 }
@@ -584,7 +567,7 @@ AlignmentMatrixFast::Score ConvexAlignFast::fwdFillMatrix(char const * const ref
 		int xOffset = matrix->getCorridorOffset(y);
 
 		// Debug: rscript convex-align-vis.r
-		if (stdoutPrintAlignCorridor) {
+		if (stdoutPrintAlignCorridor == 6) {
 			printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId, xOffset, y, 0);
 			printf("%d\t%d\t%d\t%d\t%d\n", readId, alignmentId,
 					xOffset + matrix->getCorridorLength(y), y, 1);

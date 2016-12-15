@@ -46,7 +46,7 @@ public:
 //	static volatile int sInstanceCount;
 
 	Align() :
-			pBuffer1(0), pBuffer2(0), nmPerPosition(0), ExtendedData(0), alignmentLength(
+			pBuffer1(0), pBuffer2(0), nmPerPosition(0), nmPerPostionLength(0), alignmentLength(
 					0), PositionOffset(0), QStart(0), QEnd(0), Score(0.0f), Identity(
 					0.0f), NM(0), MQ(0), skip(false), primary(false), svType(0) {
 
@@ -59,9 +59,10 @@ public:
 	char * pBuffer1; // = pCigar = pRef
 	char * pBuffer2; // = pMD = pQry
 	PositionNM * nmPerPosition;
-	void * ExtendedData;
+//	void * ExtendedData;
 	PositionNM firstPosition;
 	PositionNM lastPosition;
+	int nmPerPostionLength;
 	int alignmentLength;
 	int PositionOffset; // Position in Ref, an der das Alignment beginnt
 	int QStart; // Anzahl Basen, die beim Qry am Anfang abgeschnitten wurden
@@ -93,6 +94,7 @@ public:
 		if (nmPerPosition != 0) {
 			delete[] nmPerPosition;
 			nmPerPosition = 0;
+			nmPerPostionLength = 0;
 		}
 	}
 

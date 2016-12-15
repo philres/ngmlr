@@ -233,7 +233,7 @@ public:
 			bool const realign, bool const fullAlignment, bool const shortRead);
 
 	int estimateCorridor(Interval const * interval);
-	char * const extractReadSeq(const size_t& readSeqLen,
+	char * const extractReadSeq(int const readSeqLen,
 			Interval const * interval, MappedRead* read, bool const revComp);
 
 	Align * alignInterval(MappedRead const * const read,
@@ -330,17 +330,24 @@ public:
 
 
 		//	IAlignment * aligner = new StrippedSW();
-		if (Config.getFast()) {
-			aligner = new Convex::ConvexAlignFast(0);
-		} else {
+		if (Config.getNoSSE()) {
 			aligner = new Convex::ConvexAlign(
-					Config.getStdoutMode(),
-					Config.getScoreMatch(),
-					Config.getScoreMismatch(),
-					Config.getScoreGapOpen(),
-					Config.getScoreExtendMax(),
-					Config.getScoreExtendMin(),
-					Config.getScoreGapDecay());
+								Config.getStdoutMode(),
+								Config.getScoreMatch(),
+								Config.getScoreMismatch(),
+								Config.getScoreGapOpen(),
+								Config.getScoreExtendMax(),
+								Config.getScoreExtendMin(),
+								Config.getScoreGapDecay());
+		} else {
+			aligner = new Convex::ConvexAlignFast(
+								Config.getStdoutMode(),
+								Config.getScoreMatch(),
+								Config.getScoreMismatch(),
+								Config.getScoreGapOpen(),
+								Config.getScoreExtendMax(),
+								Config.getScoreExtendMin(),
+								Config.getScoreGapDecay());
 		}
 #ifdef TEST_ALIGNER
 		alignerFast = new Convex::ConvexAlignFast(0);

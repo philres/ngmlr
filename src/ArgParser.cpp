@@ -123,7 +123,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	//skipSave = false;
 	//updateCheck = false;
 	//writeUnmapped = true;
-	TCLAP::SwitchArg fastArg("", "fast", "Debug switch (don't use if you don't know what you do)", cmd, false);
+	TCLAP::SwitchArg noSSEArg("", "nosse", "Debug switch (don't use if you don't know what you are doing)", cmd, false);
 
 	std::stringstream usage;
 	usage << "" << std::endl;
@@ -194,18 +194,19 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	lowQualitySplit = !nolowqualitysplitArg.getValue();
 	smallInversionDetection = !nosmallInversionArg.getValue();
 	printAllAlignments = printAllAlignmentsArg.getValue();
-	fast = fastArg.getValue();
+	nosse = noSSEArg.getValue();
 
 	if (presetArgs.getValue() == "pacbio") {
 		//Do nothing. Defaults are for Pacbio
 	} else if (presetArgs.getValue() == "ont") {
-		lowQualitySplit = (nolowqualitysplitArg.isSet()) ? lowQualitySplit : true;
-		scoreMatch = (scoreMatchArg.isSet()) ? scoreMatch : 1;
-		scoreMismatch = (scoreMatchArg.isSet()) ? scoreMismatch : -1;
-		scoreGapOpen = (scoreGapOpenArg.isSet()) ? scoreGapOpen : -1;
-		scoreGapExtendMax = (scoreGapExtendMaxArg.isSet()) ? scoreGapExtendMax : -1;
-		scoreGapExtendMax = (scoreGapExtendMinArg.isSet()) ? scoreGapExtendMin : -0.5;
-		scoreGapDecay = (scoreGapDecayArg.isSet()) ? scoreGapDecay : 0.01;
+		lowQualitySplit = (nolowqualitysplitArg.isSet()) ? lowQualitySplit : false;
+		smallInversionDetection = (nosmallInversionArg.isSet()) ? smallInversionDetection : false;
+		scoreMatch = (scoreMatchArg.isSet()) ? scoreMatch : 5;
+		//scoreMismatch = (scoreMatchArg.isSet()) ? scoreMismatch : -1;
+		//scoreGapOpen = (scoreGapOpenArg.isSet()) ? scoreGapOpen : -1;
+		//scoreGapExtendMax = (scoreGapExtendMaxArg.isSet()) ? scoreGapExtendMax : -1;
+		//scoreGapExtendMax = (scoreGapExtendMinArg.isSet()) ? scoreGapExtendMin : -0.5;
+		//scoreGapDecay = (scoreGapDecayArg.isSet()) ? scoreGapDecay : 0.01;
 	} else {
 		std::cerr << "Preset " << presetArgs.getValue() << " not found" << std::endl;
 	}

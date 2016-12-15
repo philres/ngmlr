@@ -49,7 +49,7 @@ void AlignmentMatrixFast::prepare(int const width, int const height,
 
 	corridorLines = corridor;
 
-	ulong matrixSize = 0;
+	uloc matrixSize = 0;
 	int maxCorridorLength = 0;
 	for (int i = 0; i < corridorHeight; ++i) {
 		corridorLines[i].offsetInMatrix = matrixSize;
@@ -58,7 +58,7 @@ void AlignmentMatrixFast::prepare(int const width, int const height,
 				corridorLines[i].length);
 	}
 	if (matrixSize > privateMatrixSize) {
-		//fprintf(stderr, "Reallocating matrix for alignment\n");
+		fprintf(stderr, "Reallocating matrix for alignment (size %llu)\n\n", matrixSize);
 		delete[] directionMatrix;
 		directionMatrix = 0;
 		directionMatrix = new char[matrixSize];
@@ -225,7 +225,8 @@ bool AlignmentMatrixFast::validPath(int const x, int const y) {
 	int width = corridorLines[y].length;
 	int minCorridor = corridorLines[y].offset + 0.1f * width;
 	int maxCorridor = minCorridor + width - 0.1f * width;
-
+//	fprintf(stderr, "offest: %d, length: %d\n", corridorLines[y].offset, width);
+//	fprintf(stderr, "%d < %d < %d\n", minCorridor, x, maxCorridor);
 	return x > minCorridor && x < maxCorridor;
 }
 

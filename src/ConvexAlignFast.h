@@ -33,7 +33,13 @@ namespace Convex {
 class ConvexAlignFast: public IAlignment {
 
 public:
-	ConvexAlignFast(int gpu_id);
+	ConvexAlignFast(int const stdOutMode,
+			float const match,
+			float const mismatch,
+			float const gapOpen,
+			float const gapExtend,
+			float const gapExtendMin,
+			float const gapDecay);
 
 	virtual ~ConvexAlignFast();
 

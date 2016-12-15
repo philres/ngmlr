@@ -104,12 +104,18 @@ MappedRead::~MappedRead() {
 	}
 	if (Alignments != 0) {
 		for (int i = 0; i < Calculated; ++i) {
-			if (Alignments[i].pBuffer1 != 0)
+			if (Alignments[i].pBuffer1 != 0) {
 				delete[] Alignments[i].pBuffer1;
-			Alignments[i].pBuffer1 = 0;
-			if (Alignments[i].pBuffer2 != 0)
+				Alignments[i].pBuffer1 = 0;
+			}
+			if (Alignments[i].pBuffer2 != 0) {
 				delete[] Alignments[i].pBuffer2;
-			Alignments[i].pBuffer2 = 0;
+				Alignments[i].pBuffer2 = 0;
+			}
+			if (Alignments[i].nmPerPosition != 0) {
+				delete[] Alignments[i].nmPerPosition;
+				Alignments[i].nmPerPosition = 0;
+			}
 		}
 		delete[] Alignments;
 		Alignments = 0;

@@ -214,7 +214,7 @@ public:
 	/**
 	 * Default size of alignment (char) matrix
 	 */
-	ulong const defaultMatrixSize;
+	uloc const defaultMatrixSize;
 
 	/**
 	 * Height of the alignment matrix
@@ -233,7 +233,7 @@ public:
 	 * After finishing the alignment, the matrix is
 	 * reallocated again with defaultMatrixSize.
 	 */
-	ulong privateMatrixSize;
+	uloc privateMatrixSize;
 
 	/**
 	 * The row of the matrix that is filled.
