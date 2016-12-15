@@ -402,8 +402,11 @@ void _NGM::MainLoop() {
 				avgCorridor = NGM.Stats->corridorLen / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
 				alignSuccessRatio = NGM.Stats->alignmentCount * 1.0f / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
 			}
-			//Log.Progress("Mapped: %d, CMR/R: %d, CS: %d (%d), R/S: %d, Time: %.2f %.2f %.2f, Reads: %d (%d)", processed, NGM.Stats->avgnCRMS, NGM.Stats->csLength, NGM.Stats->csOverflows, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, NGM.Stats->readsInProcess, MappedRead::sInstanceCount);
-			Log.Progress("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f, Align ratio: %.2f, Corridor: %d", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio, avgCorridor);
+			float avgAlignPerc = 0.0f;
+			if(processed  > 0) {
+				avgAlignPerc = NGM.Stats->avgAlignPerc / processed;
+			}
+			Log.Progress("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f, Align: %.2f, %d, %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio, avgCorridor, avgAlignPerc);
 		}
 	}
 
@@ -415,7 +418,11 @@ void _NGM::MainLoop() {
 			alignSuccessRatio = NGM.Stats->alignmentCount * 1.0f / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
 			avgCorridor = NGM.Stats->corridorLen / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
 		}
-		Log.Message("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f, Align ratio: %.2f, Corridor: %d", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio, avgCorridor);
+		float avgAlignPerc = 0.0f;
+		if(processed > 0) {
+			avgAlignPerc = NGM.Stats->avgAlignPerc / processed;
+		}
+		Log.Message("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f, Align: %.2f, %d, %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio, avgCorridor, avgAlignPerc);
 	}
 }
 

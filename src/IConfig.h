@@ -33,7 +33,7 @@ protected:
 	 */
 
 	float minIdentity = 0.65f;
-	float minResidues = 50.0f;
+	float minResidues = 0.25f;
 	float sensitivity = 0.8f;
 
 	int binSize = 4;

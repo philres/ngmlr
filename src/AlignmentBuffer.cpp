@@ -1874,9 +1874,6 @@ char* const AlignmentBuffer::extractReadSeq(int const readSeqLen,
 		Log.Message("Allocating %d bytes", readSeqLen + 1);
 	}
 
-	if((readSeqLen + 1) == 0 || (readSeqLen + 1) > 100000) {
-		Log.Message("1: %u", readSeqLen + 1);
-	}
 	char * readSeq = new char[readSeqLen + 1];
 	if (interval->isReverse) {
 		read->computeReverseSeq();
@@ -1894,7 +1891,6 @@ char* const AlignmentBuffer::extractReadSeq(int const readSeqLen,
 	}
 
 	if(revComp) {
-		Log.Message("2: %u", readSeqLen + 1);
 		char * tmp = new char[readSeqLen + 1];
 		computeReverseSeq(readSeq, tmp, readSeqLen);
 		delete[] readSeq;
@@ -2165,7 +2161,8 @@ int AlignmentBuffer::realign(int const svTypeDetected,
 }
 
 bool satisfiesConstraints(Align * align, int const readLength) {
-	static float minResidues = Config.getMinResidues();
+	//TODO: check threshold
+	static float minResidues = 50.0f;//Config.getMinResidues();
 	static float minIdentity = Config.getMinIdentity();
 
 	if (minResidues <= 1.0f) {
@@ -2482,7 +2479,9 @@ float getBestSegmentCombination(int const maxLength, std::vector<Interval *> con
 	return result;
 }
 
-void AlignmentBuffer::reconcileRead(ReadGroup * group) {
+bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
+
+	bool mapped = false;
 
 	std::vector<Interval *> mappedSegements;
 
@@ -2589,7 +2588,7 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 		}
 		mappedSegements[index]->isProcessed = true;
 
-		alignedBpSum += (mappedSegements[index]->onReadStop - mappedSegements[index]->onReadStop);
+		alignedBpSum += (mappedSegements[index]->onReadStop - mappedSegements[index]->onReadStart);
 		if(mappedSegements[index]->score > topFragmentScore) {
 			fragmentWithHighestScore = index;
 		}
@@ -2598,9 +2597,15 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 	if(bestSegments.size() > 0) {
 		read->Alignments[mappedSegements[fragmentWithHighestScore]->id].primary = true;
 	}
+	float aligned = alignedBpSum * 1.0f / read->length;
 	if(pacbioDebug) {
-		Log.Message("Aligned %f % of read", alignedBpSum * 100.0f / read->length);
+		Log.Message("Aligned %.2f%% of read", aligned * 100.0f);
 	}
+	mapped = aligned > Config.getMinResidues();
+	if (pacbioDebug) {
+		Log.Message("%f > %f = %d", aligned, Config.getMinResidues(), mapped);
+	}
+	NGM.Stats->avgAlignPerc += aligned;
 	bestSegments.clear();
 	float secondBestScore = getBestSegmentCombination(maxLength, mappedSegements, bestSegments);
 	if(pacbioDebug) {
@@ -2647,6 +2652,8 @@ void AlignmentBuffer::reconcileRead(ReadGroup * group) {
 		delete mappedSegements[i];
 		mappedSegements[i] = 0;
 	}
+
+	return mapped;
 }
 
 void sortRead(ReadGroup * group) {
@@ -3045,12 +3052,9 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 				Log.Message("==========================");
 			}
 			if (read->Calculated > 0) {
-
-				reconcileRead(group);
-
+				bool mapped = reconcileRead(group);
 				sortRead(group);
-
-				WriteRead(group->fullRead, true);
+				WriteRead(group->fullRead, mapped);
 			} else {
 				WriteRead(group->fullRead, false);
 			}

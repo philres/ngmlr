@@ -257,7 +257,7 @@ public:
 
 //	bool sortMappedSegements(IntervalTree::Interval<Interval> a, IntervalTree::Interval<Interval> b);
 
-	void reconcileRead(ReadGroup * group);
+	bool reconcileRead(ReadGroup * group);
 
 	Interval * * consolidateSegments(MappedSegment * segments,
 			size_t segmentsIndex, int & intervalsIndex);
