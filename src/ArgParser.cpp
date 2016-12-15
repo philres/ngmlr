@@ -179,11 +179,35 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	kmerSkip = kmerSkipArg.getValue();
 	maxInitialSegments = maxInitialSegmentsArg.getValue();
 	scoreMatch = scoreMatchArg.getValue();
+	if(scoreMatch < 0.0f) {
+		Log.Message("--match must not be smaller than zero. changing from %f to %f", scoreMatch, scoreMatch * -1.0f);
+		scoreMatch = scoreMatch * -1.0f;
+	}
 	scoreMismatch = scoreMismatchArg.getValue();
+	if (scoreMismatch > 0.0f) {
+		Log.Message("--mismatch must not be greater than zero. changing from %f to %f", scoreMismatch, scoreMismatch * -1.0f);
+		scoreMismatch = scoreMismatch * -1.0f;
+	}
 	scoreGapOpen = scoreGapOpenArg.getValue();
+	if (scoreGapOpen > 0.0f) {
+		Log.Message("--gap-open must not be greater than zero. changing from %f to %f", scoreGapOpen, scoreGapOpen * -1.0f);
+		scoreGapOpen = scoreGapOpen * -1.0f;
+	}
 	scoreGapExtendMax = scoreGapExtendMaxArg.getValue();
+	if (scoreGapExtendMax > 0.0f) {
+		Log.Message("--gap-extend-max must not be greater than zero. changing from %f to %f", scoreGapExtendMax, scoreGapExtendMax * -1.0f);
+		scoreGapExtendMax = scoreGapExtendMax * -1.0f;
+	}
 	scoreGapExtendMin = scoreGapExtendMinArg.getValue();
+	if (scoreGapExtendMin > 0.0f) {
+		Log.Message("--gap-extend-min must not be greater than zero. changing from %f to %f", scoreGapExtendMin, scoreGapExtendMin * -1.0f);
+		scoreGapExtendMin = scoreGapExtendMin * -1.0f;
+	}
 	scoreGapDecay = scoreGapDecayArg.getValue();
+	if (scoreGapDecay < 0.0f) {
+		Log.Message("--gap-decay must not be smaller than zero. changing from %f to %f", scoreGapDecay, scoreGapDecay * -1.0f);
+		scoreGapDecay = scoreGapDecay * -1.0f;
+	}
 	stdoutMode = stdoutArg.getValue();
 	readPartCorridor = readpartCorridorArg.getValue();
 	readPartLength = readpartLengthArg.getValue();
