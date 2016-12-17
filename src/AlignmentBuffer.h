@@ -101,6 +101,14 @@ public:
 
 	}
 
+	int lengthOnRead() const {
+		return onReadStop - onReadStart;
+	}
+
+	loc lengthOnRef() const {
+		return llabs(onRefStop - onRefStart);
+	}
+
 	virtual ~Interval() {
 		if (anchors != 0) {
 			delete[] anchors;
@@ -162,8 +170,8 @@ private:
 	int const readPartLength;
 
 	int const maxIntervalNumber;
-	int intervalBufferIndex;
-	Interval ** intervalBuffer;
+//	int intervalBufferIndex;
+//	Interval ** intervalBuffer;
 
 	void debugAlgnFinished(MappedRead * read);
 //	int alignmentCheckForInversion(int const inversionLength,
@@ -197,7 +205,10 @@ public:
 	// algorithm
 	// TODO: remove fixed length!
 	struct MappedSegment {
-		Interval * list[1000];
+
+		static int const maxLength = 1000;
+
+		Interval * list[maxLength];
 		size_t length;
 
 		MappedSegment() {
@@ -214,14 +225,45 @@ public:
 
 	void addAnchorAsInterval(Anchor const & anchor, MappedSegment & segment);
 	Interval * toInterval(Anchor const & anchor);
+
 	bool isCompatible(Interval const * a, Interval const * b);
 	bool isCompatible(Anchor const & anchor, MappedSegment const & segment);
 	bool isCompatible(Anchor const & anchor, Interval const * interval);
 	bool isContained(Interval const * a, Interval const * b);
-//	bool isContainedOnRead(Interval a, Interval b);
 	bool isSameDirection(Interval const * a, Interval const * b);
 	bool isDuplication(Interval const *, int, Interval const *);
-//	Interval splitInterval(Interval a, Interval const & b);
+
+	/**
+	 * Returns the number of overlapping read bps between the two intervals
+	 */
+	int getOverlapOnRead(Interval const * a, Interval const * b);
+
+	/**
+	 * Prints message if --verbose is specified.
+	 * Adds <tabs> tabstops before printing
+	 */
+	void verbose(int const tabs, bool const newLine, char const * const s, ...);
+
+	/**
+	 * Print interval if --verbose is specified
+	 */
+	void verbose(int const tabs, char const * const s, Interval * interval);
+
+	/**
+	 * Removes <readBp> bp from the start of an interval.
+	 * RefBp are estimated from the ratio of total ref and read bp in
+	 * the interval.
+	 */
+	bool shortenIntervalStart(Interval * interval, int const readBp, bool readOnly = false);
+
+	/**
+	 * Removes <readBp> bp from the end of an interval.
+	 * RefBp are estimated from the ratio of total ref and read bp in
+	 * the interval.
+	 */
+	bool shortenIntervalEnd(Interval * interval, int const readBp, bool readOnly = false);
+
+
 	Interval * mergeIntervals(Interval * a, Interval * b);
 	Interval * * infereCMRsfromAnchors(int & intervalsIndex,
 			Anchor * allFwdAnchors, int allFwdAnchorsLength,
@@ -254,15 +296,8 @@ public:
 			Interval * leftOfInv, Interval * rightOfInv, MappedRead * read,
 			Align * tmpAling, int & alignIndex, LocationScore * tmp, int mq);
 
-//	bool constructMappedSegements(Interval * intervals,
-//			Interval interval, int & intervalsIndex);
-
 	bool constructMappedSegements(MappedSegment * segments, Interval * interval,
 			size_t & segmentsIndex);
-
-//	bool sortIntervalsInSegment(Interval a, Interval b);
-
-//	bool sortMappedSegements(IntervalTree::Interval<Interval> a, IntervalTree::Interval<Interval> b);
 
 	bool reconcileRead(ReadGroup * group);
 
@@ -277,8 +312,7 @@ public:
 
 	int checkForSV(Align const * const align, Interval const * interval, char * fullReadSeq, uloc inversionMidpointOnRef, uloc inversionMidpointOnRead, int inversionLength, MappedRead * read);
 
-//	bool inversionDetectionArndt(Align const align, Interval const interval, int const length,
-//			char * fullReadSeq, Interval & leftOfInv, Interval & rightOfInv, Interval & inv, char const * const readName);
+	void resolveReadOverlap(Interval * first, Interval * second);
 
 	void processLongRead(ReadGroup * group);
 	void processLongReadLIS(ReadGroup * group);
@@ -300,11 +334,7 @@ public:
 
 		m_Writer = 0;
 
-		//if (Config.getBAM()) {
-		//	m_Writer = (GenericReadWriter*) new BAMWriter((FileWriterBam*) NGM.getWriter(), filename);
-		//} else {
 		m_Writer = (GenericReadWriter*) new SAMWriter((FileWriter*) NGM.getWriter());
-		//}
 
 		if (first) {
 			m_Writer->WriteProlog();
@@ -314,8 +344,6 @@ public:
 		processTime = 0.0f;
 //		overallTime = 0.0f;
 		alignTime = 0.0f;
-		//}
-		//}
 
 		if (first) {
 			m_Writer->WriteProlog();
@@ -331,10 +359,6 @@ public:
 		stdoutPrintScores = Config.getStdoutMode() == 7;
 
 		Log.Verbose("Alignment batchsize = %i", batchSize);
-
-		intervalBufferIndex = 0;
-		intervalBuffer = new Interval *[1000];
-
 
 		//	IAlignment * aligner = new StrippedSW();
 		if (Config.getNoSSE()) {
@@ -365,8 +389,8 @@ public:
 		delete m_Writer;
 		m_Writer = 0;
 
-		delete[] intervalBuffer;
-		intervalBuffer = 0;
+//		delete[] intervalBuffer;
+//		intervalBuffer = 0;
 
 		delete aligner;
 		aligner = 0;

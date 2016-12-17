@@ -768,13 +768,13 @@ bool isIntervalInCorridor(REAL k, REAL d, REAL corridor,
 }
 
 Interval * AlignmentBuffer::toInterval(Anchor const & anchor) {
-	if (intervalBufferIndex >= 1000) {
-		return 0;
-	}
+//	if (intervalBufferIndex >= 1000) {
+//		return 0;
+//	}
 
 	Interval * interval = new Interval();
 
-	intervalBuffer[intervalBufferIndex++] = interval;
+//	intervalBuffer[intervalBufferIndex++] = interval;
 
 	interval->isReverse = anchor.isReverse;
 	interval->score = anchor.score;
@@ -1014,7 +1014,7 @@ bool AlignmentBuffer::isDuplication(Interval const * a, int ttt,
 		b->printOneLine();
 	}
 
-	int overlapOnRead = std::max(0, std::min(a->onReadStop, b->onReadStop) - std::max(a->onReadStart, b->onReadStart));
+	int overlapOnRead = getOverlapOnRead(a, b);
 	loc overlapOnRef = 0;
 
 	if (a->isReverse) {
@@ -1038,102 +1038,16 @@ bool sortIntervalsInSegment(Interval const * a, Interval const * b) {
 	return a->onReadStart < b->onReadStart;
 }
 
-bool sortIntervalsByLength(Interval const * a, Interval const * b) {
-	return a->< b->onReadStart;
-}
+//bool sortIntervalsByLength(Interval const * a, Interval const * b) {
+//	return a->< b->onReadStart;
+//}
 
-
-Interval * * AlignmentBuffer::consolidateSegments(MappedSegment * segments,
-		size_t segmentsIndex, int & intervalsIndex) {
-
-	if (pacbioDebug) {
-		Log.Message("==+==========================");
-		Log.Message("=====consolidateSegments=====");
-		Log.Message("===+=========================");
-	}
-
-	int maxIntervalCount = 0;
-	for (int i = 0; i < segmentsIndex; ++i) {
-		maxIntervalCount += segments[i].length;
-
-		if(pacbioDebug) {
-			Log.Message("Segment %d consists of %d intervals", i, segments[i].length);
-		}
-
-	}
-
-	Interval * * intervals = new Interval * [maxIntervalCount + 1];
-
-	for (int i = 0; i < segmentsIndex; ++i) {
-
-
-		std::sort(segments[i].list, segments[i].list + segments[i].length,
-				sortIntervalsInSegment);
-
-		if (pacbioDebug) {
-			Log.Message("Segment %d: ", i);
-			for(int j = 0; j < segments[i].length; ++j) {
-				fprintf(stderr, "\tInterval %d: ", j);
-				segments[i].list[j]->printOneLine();
-			}
-		}
-
-		Interval * lastInterval = segments[i].list[0];
-		Interval * currentInterval = 0;
-
-		for (int j = 1; j < segments[i].length; ++j) {
-			currentInterval = segments[i].list[j];
-			if(pacbioDebug) {
-				Log.Message("\tCurrent interval is: %d", j);
-			}
-			if (isSameDirection(currentInterval, lastInterval)
-					&& !isDuplication(currentInterval, 0, lastInterval)) {
-				lastInterval = mergeIntervals(currentInterval, lastInterval);
-				if(pacbioDebug) {
-					Log.Message("\t\tMerging with last interval");
-				}
-			} else {
-				//If not single assigned index
-				// Single mapped subreads are added to segment.
-				// If they merge with an interval -> included
-				// If not -> discarded
-				if(!currentInterval->isAssigned) {
-					//Add lastInterval
-					if(!lastInterval->isAssigned) {
-						if(pacbioDebug) {
-							fprintf(stderr, "\t\tAdding interval: ");
-							lastInterval->printOneLine();
-						}
-						intervals[intervalsIndex++] = lastInterval;
-					}
-					lastInterval = currentInterval;
-				}
-			}
-		}
-		if(!lastInterval->isAssigned) {
-			if(pacbioDebug) {
-				fprintf(stderr, "\tAdding interval %d: ", intervalsIndex);
-				lastInterval->printOneLine();
-			}
-			intervals[intervalsIndex++] = lastInterval;
-		}
-
-	}
-	if (pacbioDebug) {
-		Log.Message("=============================");
-		Log.Message("===consolidateSegments end===");
-		Log.Message("=============================");
-	}
-
-	return intervals;
-}
 
 Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anchor * allFwdAnchors, int allFwdAnchorsLength, Anchor * allRevAnchors, int allRevAnchorsLength, MappedRead * read) {
 
 	if (pacbioDebug) {
 		Log.Message("Finding LIS for read %d", read->ReadId);
 	}
-
 
 	//Sort by position on read. Probably not necessary!!
 	std::sort(allFwdAnchors, allFwdAnchors + allFwdAnchorsLength,
@@ -1143,23 +1057,11 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 	Interval * * intervals = new Interval * [maxcLISRunNumber];
 	intervalsIndex = 0;
 
-
 	int cLISRunNumber = 0;
 	bool finished = false;
 	// TODO: find better stop criteria!
 	while (cLISRunNumber <= maxcLISRunNumber && !finished) {
 		if (allFwdAnchorsLength > 0) {
-
-//			//Print remaining elements
-//			if (pacbioDebug) {
-//				std::cerr << "Elements: (i:onRead:onref:isReverse) ";
-//				for (int i = 0; i < allFwdAnchorsLength; ++i) {
-//					std::cerr << i << ":" << allFwdAnchors[i].onRead << ":"
-//					<< allFwdAnchors[i].onRef << ":"
-//					<< allFwdAnchors[i].isReverse << ", ";
-//				}
-//				std::cerr << std::endl;
-//			}
 
 			//Find constrained LIS
 			int lisLength = 0;
@@ -1316,7 +1218,13 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 					interval->b = b;
 					interval->r = r;
 
-					intervals[intervalsIndex++] = interval;
+					if(interval->lengthOnRead() > 0 && interval->lengthOnRef() > 0ll) {
+						intervals[intervalsIndex++] = interval;
+					} else {
+						if(pacbioDebug) {
+							Log.Message("Skipping interval. Too short.");
+						}
+					}
 					cLISRunNumber += 1;
 
 //					if(interval->m != 0.0) {
@@ -1362,423 +1270,8 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 			finished = true;
 		}
 	}
-
-//	if (allFwdAnchorsLength > 0) {
-//
-//		Timer anchorTimer;
-//		anchorTimer.ST();
-//		if (pacbioDebug) {
-//			Log.Message("Unassigned anchors (%d):", allFwdAnchorsLength);
-//			std::cerr << "Elements: (i:onRead:onref:isReverse) ";
-//			for (int i = 0; i < allFwdAnchorsLength; ++i) {
-//				std::cerr << i << ":" << allFwdAnchors[i].onRead << ":"
-//				<< allFwdAnchors[i].onRef << ":"
-//				<< allFwdAnchors[i].isReverse << ", ";
-//			}
-//			std::cerr << std::endl;
-//		}
-//
-//		int assigned = 0;
-//		for(int i = 0; i < allFwdAnchorsLength; ++i) {
-//			bool added = false;
-//			for(int j = 0; j < segementsIndex && !added; ++j) {
-//				if(isCompatible(allFwdAnchors[i], segments[j])) {
-//					//Add anchor to segement
-//					added = true;
-//					assigned += 1;
-//					addAnchorAsInterval(allFwdAnchors[i], segments[j]);
-//				}
-//				//allFwdAnchors[i]
-//			}
-//		}
-//
-//		if(pacbioDebug) {
-//			Log.Message("Assigned anchors: %d (took %fs", assigned, anchorTimer.ET());
-//		}
-//	}
-
-//	intervalsIndex = 0;
-//	Interval * * intervals = consolidateSegments(segments, segementsIndex, intervalsIndex);
-//	delete[] segments;
-//	segments = 0;
-
-//	// Extend all intervals to account for unmapped anchors at the end
-//	for(int i = 0; i < intervalsIndex; ++i) {
-//		Interval * interval = intervals[i];
-//
-//		// If possible add 512 bp to start end end
-//		// min to avoid extending beyond the ends of the read
-//		int addStart = std::min(1 * readPartLength, interval->onReadStart);
-//		int addEnd = std::min(1 * readPartLength, read->length - interval->onReadStop);
-//
-//		// Try to align full read, only possible if one fragment, otherwise might align through SVs
-//		// Could be extended to > 1 fragment: only extend left most and right most fragement into one direction
-//
-//		int intervalReadLength = (interval->onReadStop - interval->onReadStart);
-//
-//		if(intervalReadLength >= (read->length * 0.9f)) {
-//			addStart = interval->onReadStart - 1;
-//			addEnd = read->length - interval->onReadStop - 1;
-//		}
-//
-//		// Try to match the slope of the interval when extending
-//		double lengthRatio = (interval->onReadStop - interval->onReadStart) * 1.0f / llabs(interval->onRefStop - interval->onRefStart) * 1.0f;
-//
-//		if(interval->isReverse) {
-//			interval->onReadStart -= addStart;
-//			interval->onRefStart += (int) round(addStart / lengthRatio);
-//
-//			interval->onReadStop += addEnd;
-//			interval->onRefStop -= (int) round(addEnd / lengthRatio);
-//		} else {
-//			interval->onReadStart -= addStart;
-//			interval->onRefStart -= (int) round(addStart / lengthRatio);
-//
-//			interval->onReadStop += addEnd;
-//			interval->onRefStop += (int) round(addEnd / lengthRatio);
-//
-//		}
-//	}
-
 	return intervals;
 
-}
-
-/* Takes all anchors found for the read and transforms it in to intervals.
- * Intervals are continues candidate mapping for a read or parts of the
- * read. Contains repeatedly computing cLIS and reconciling of the found
- * intervals. */
-Interval * * AlignmentBuffer::infereCMRsfromAnchors(int & intervalsIndex,
-		Anchor * allFwdAnchors, int allFwdAnchorsLength, Anchor * allRevAnchors,
-		int allRevAnchorsLength, MappedRead * read) {
-
-	if (pacbioDebug) {
-		Log.Message("Finding LIS for read %d", read->ReadId);
-	}
-
-	//TODO: remove fixed length
-	int const maxMappedSegementCount = maxIntervalNumber;
-	MappedSegment * segments = new MappedSegment[maxMappedSegementCount];
-	size_t segementsIndex = 0;
-
-	//Sort by position on read. Probably not necessary!!
-	std::sort(allFwdAnchors, allFwdAnchors + allFwdAnchorsLength,
-			sortAnchorOnRead);
-
-	int const maxcLISRunNumber = maxIntervalNumber;
-	int cLISRunNumber = 0;
-	bool finished = false;
-	while (!finished) {
-		if (allFwdAnchorsLength > 0) {
-
-			//Print remaining elements
-			if (pacbioDebug) {
-				std::cerr << "Elements: (i:onRead:onref:isReverse) ";
-				for (int i = 0; i < allFwdAnchorsLength; ++i) {
-					std::cerr << i << ":" << allFwdAnchors[i].onRead << ":"
-					<< allFwdAnchors[i].onRef << ":"
-					<< allFwdAnchors[i].isReverse << ", ";
-				}
-				std::cerr << std::endl;
-			}
-
-			//Find constrained LIS
-			int lisLength = 0;
-			int * lis = cLIS(allFwdAnchors, allFwdAnchorsLength, lisLength);
-
-			if(lisLength >= 1) {
-				int minOnRead = 999999;
-				int maxOnRead = 0;
-
-				loc minOnRef = 999999999999;
-				loc maxOnRef = 0;
-
-				bool isReverse = false;
-
-				float intervalScore = 0.0f;
-
-				if (pacbioDebug) {
-					std::cerr << "cLIS" << cLISRunNumber << ":     ";
-				}
-				//Remove LIS from candidates
-				int posInLIS = lisLength - 1;
-				allRevAnchorsLength = 0;
-
-				REAL * regX = new REAL[std::max(2, allFwdAnchorsLength)];
-				REAL * regY = new REAL[std::max(2, allFwdAnchorsLength)];
-				int pointNumber = 0;
-
-				//Find intervall that covers all anchors best
-				Interval * interval = new Interval();
-				// This is terrible. It is a result of the overall terrible code design here.
-				// It tracks all created intervals and is only used to delete them
-				// before processLongRead terminates
-				intervalBuffer[intervalBufferIndex++] = interval;
-
-				interval->anchors = new Anchor[lisLength + 1];
-				interval->anchorLength = 0;
-
-				for (int i = 0; i < allFwdAnchorsLength; ++i) {
-					if (posInLIS >= 0 && i == lis[posInLIS]) {
-
-						interval->anchors[interval->anchorLength++] = allFwdAnchors[lis[posInLIS]];
-
-						int onRead = allFwdAnchors[lis[posInLIS]].onRead;
-
-						//Print current LIS
-						if (pacbioDebug) {
-							std::cerr << lis[posInLIS] << ", ";
-						}
-
-						isReverse = allFwdAnchors[lis[posInLIS]].isReverse;
-						intervalScore += allFwdAnchors[lis[posInLIS]].score;
-
-						if(isReverse) {
-							if(onRead < minOnRead) {
-								minOnRead = onRead;
-								minOnRef = allFwdAnchors[lis[posInLIS]].onRef + readPartLength;
-							}
-
-							if((onRead + readPartLength) > maxOnRead) {
-								maxOnRead = onRead + readPartLength;
-								maxOnRef = allFwdAnchors[lis[posInLIS]].onRef;
-							}
-
-							printDotPlotLine(read->ReadId, read->name,
-									onRead,
-									onRead + readPartLength,
-									allFwdAnchors[lis[posInLIS]].onRef + readPartLength,
-									allFwdAnchors[lis[posInLIS]].onRef,
-									allFwdAnchors[lis[posInLIS]].score,
-									allFwdAnchors[lis[posInLIS]].isReverse,
-									DP_TYPE_CLIS + cLISRunNumber, DP_STATUS_OK);
-
-						} else {
-
-							if(onRead < minOnRead) {
-								minOnRead = onRead;
-								minOnRef = allFwdAnchors[lis[posInLIS]].onRef;
-							}
-
-							if((onRead + readPartLength) > maxOnRead) {
-								maxOnRead = onRead + readPartLength;
-								maxOnRef = allFwdAnchors[lis[posInLIS]].onRef + readPartLength;
-							}
-
-							printDotPlotLine(read->ReadId, read->name,
-									onRead,
-									onRead + readPartLength,
-									allFwdAnchors[lis[posInLIS]].onRef,
-									allFwdAnchors[lis[posInLIS]].onRef + readPartLength,
-									allFwdAnchors[lis[posInLIS]].score,
-									allFwdAnchors[lis[posInLIS]].isReverse,
-									DP_TYPE_CLIS + cLISRunNumber, DP_STATUS_OK);
-
-						}
-
-						regY[pointNumber] = onRead;
-						if(isReverse) {
-							regX[pointNumber] = allFwdAnchors[lis[posInLIS]].onRef + readPartLength;
-//						regX[pointNumber] = allFwdAnchors[lis[posInLIS]].onRef;
-//						regY[pointNumber] = readLenth - onRead;
-						} else {
-							regX[pointNumber] = allFwdAnchors[lis[posInLIS]].onRef;
-						}
-
-						pointNumber += 1;
-
-						//Remove from remaining elements
-						posInLIS -= 1;
-					} else {
-						//Add to second array
-						allRevAnchors[allRevAnchorsLength++] = allFwdAnchors[i];
-					}
-				}
-
-				// Linear regression for segment
-				REAL m,b,r;
-				if(pointNumber == 1) {
-					regX[0] = minOnRef;
-					regY[0] = minOnRead;
-					regX[1] = maxOnRef;
-					regY[1] = maxOnRead;
-					pointNumber = 2;
-				}
-				linreg(pointNumber,regX,regY,&m,&b,&r);
-				delete[] regX; regX = 0;
-				delete[] regY; regY = 0;
-				if(pacbioDebug) {
-					Log.Message("Regression: m=%.*f b=%.*f r=%.*f\n", DBL_DIG,m,DBL_DIG,b,DBL_DIG,r);
-				}
-
-				interval->isReverse = isReverse;
-				interval->score = intervalScore;
-
-				interval->onReadStart = minOnRead;
-				interval->onReadStop = maxOnRead;
-
-				interval->onRefStart = minOnRef;
-				interval->onRefStop = maxOnRef;
-
-				interval->m = m;
-				interval->b = b;
-				interval->r = r;
-
-				if(interval->m != 0.0) {
-					printDotPlotLine(read->ReadId, read->name,
-							interval->m, interval->b, r,
-							interval->score,
-							interval->isReverse,
-							DP_TYPE_SEQMENTS_REG + cLISRunNumber, DP_STATUS_NOCOORDS);
-
-//				printDotPlotLine(id, name,
-//						-1 * interval.m, -1 * interval.b, r,
-//						interval.score,
-//						interval.isReverse,
-//						DP_TYPE_SEQMENTS_REG + cLISRunNumber * 2 + 1, DP_STATUS_NOCOORDS);
-				}
-
-				printDotPlotLine(read->ReadId, read->name,
-						interval->onReadStart,
-						interval->onReadStop,
-						interval->onRefStart,
-						interval->onRefStop,
-						interval->score,
-						interval->isReverse,
-						DP_TYPE_SEQMENTS + cLISRunNumber, DP_STATUS_OK);
-
-				//TODO: check chromosome borders
-
-				if (pacbioDebug) {
-					Log.Message("New interval:");
-					interval->print();
-				}
-
-				if(abs(interval->onReadStop - interval->onReadStart) > 0 &&
-						llabs(interval->onRefStart - interval->onRefStop) > 0) {
-					if(!constructMappedSegements(segments, interval, segementsIndex)) {
-						Log.Error("Too many intervals found (>1000). Ignoring all others");
-					}
-				} else {
-					if(pacbioDebug) {
-						Log.Message("Interval too short.");
-					}
-				}
-				if(pacbioDebug) {
-					Log.Message("%d segments in list", segementsIndex);
-				}
-
-				//Switch first with second list
-				Anchor * tmp = allFwdAnchors;
-				allFwdAnchors = allRevAnchors;
-				allFwdAnchorsLength = allRevAnchorsLength;
-				allRevAnchors = tmp;
-				allRevAnchorsLength = 0;
-			}
-
-			lisLength = 0;
-			if(lis != 0) {
-				delete[] lis;
-				lis = 0;
-			}
-
-			cLISRunNumber += 1;
-			if (cLISRunNumber == maxcLISRunNumber) {
-				// Max number of runs reached
-				// TODO: find better stop criteria!
-				finished = true;
-			}
-		} else {
-			// If no unprocessed anchors are found anymore
-			finished = true;
-		}
-	}
-
-	if (allFwdAnchorsLength > 0) {
-
-		Timer anchorTimer;
-		anchorTimer.ST();
-		if (pacbioDebug) {
-			Log.Message("Unassigned anchors (%d):", allFwdAnchorsLength);
-			std::cerr << "Elements: (i:onRead:onref:isReverse) ";
-			for (int i = 0; i < allFwdAnchorsLength; ++i) {
-				std::cerr << i << ":" << allFwdAnchors[i].onRead << ":"
-				<< allFwdAnchors[i].onRef << ":"
-				<< allFwdAnchors[i].isReverse << ", ";
-			}
-			std::cerr << std::endl;
-		}
-
-		int assigned = 0;
-		for(int i = 0; i < allFwdAnchorsLength; ++i) {
-			bool added = false;
-			for(int j = 0; j < segementsIndex && !added; ++j) {
-				if(isCompatible(allFwdAnchors[i], segments[j])) {
-					//Add anchor to segement
-					added = true;
-					assigned += 1;
-					addAnchorAsInterval(allFwdAnchors[i], segments[j]);
-				}
-				//allFwdAnchors[i]
-			}
-		}
-
-		if(pacbioDebug) {
-			Log.Message("Assigned anchors: %d (took %fs", assigned, anchorTimer.ET());
-		}
-	}
-
-	intervalsIndex = 0;
-	Interval * * intervals = consolidateSegments(segments, segementsIndex, intervalsIndex);
-	delete[] segments;
-	segments = 0;
-
-	// Extend all intervals to account for unmapped anchors at the end
-	for(int i = 0; i < intervalsIndex; ++i) {
-		Interval * interval = intervals[i];
-
-		// If possible add 512 bp to start end end
-		// min to avoid extending beyond the ends of the read
-		int addStart = std::min(1 * readPartLength, interval->onReadStart);
-		int addEnd = std::min(1 * readPartLength, read->length - interval->onReadStop);
-
-		// Try to match the slope of the interval when extending
-		double lengthRatio = (interval->onReadStop - interval->onReadStart) * 1.0f / llabs(interval->onRefStop - interval->onRefStart) * 1.0f;
-
-		// Try to align full read, only possible if one fragment, otherwise might align through SVs
-		// Could be extended to > 1 fragment: only extend left most and right most fragement into one direction
-		int intervalReadLength = (interval->onReadStop - interval->onReadStart);
-
-//		if(intervalReadLength >= (read->length * 0.9f)) {
-//			addStart = interval->onReadStart - 1;
-//			addEnd = read->length - interval->onReadStop - 1;
-////			if(interval->isReverse) {
-////
-////			} else {
-////
-////			}
-//		}
-
-
-		if(interval->isReverse) {
-			interval->onReadStart -= addStart;
-			interval->onRefStart += (int) round(addStart / lengthRatio);
-
-			interval->onReadStop += addEnd;
-			//interval->onRefStop -= (int) round(addEnd / lengthRatio);
-			interval->onRefStop = std::max(0ll, interval->onRefStop - (int) round(addEnd / lengthRatio));
-		} else {
-			interval->onReadStart -= addStart;
-			//interval->onRefStart -= (int) round(addStart / lengthRatio);
-			interval->onRefStart = std::max(0ll, interval->onRefStart - (int) round(addStart / lengthRatio));
-
-			interval->onReadStop += addEnd;
-			interval->onRefStop += (int) round(addEnd / lengthRatio);
-
-		}
-	}
-
-	return intervals;
 }
 
 static inline char cplBase(char c) {
@@ -3000,6 +2493,117 @@ void sortRead(ReadGroup * group) {
 	}
 }
 
+int AlignmentBuffer::getOverlapOnRead(Interval const * a, Interval const * b) {
+	return std::max(0, std::min(a->onReadStop, b->onReadStop) - std::max(a->onReadStart, b->onReadStart));
+}
+
+
+void AlignmentBuffer::verbose(int const tabs, char const * const s, Interval * interval) {
+	verbose(tabs, false, "%s", s);
+	verbose(0, true, "Interval: %d - %d on read, %lu - %lu on ref, Reverse: %d, Score: %f, Anchors: %d", interval->onReadStart, interval->onReadStop, interval->onRefStart, interval->onRefStop, interval->isReverse, interval->score, interval->anchorLength);
+}
+
+
+void AlignmentBuffer::verbose(int const tabs, bool const newLine, char const * const s, ...) {
+	if(pacbioDebug) {
+		for(int i = 0; i < tabs; ++i) {
+			fprintf(stderr, "\t");
+		}
+		va_list args;
+
+		va_start(args, s);
+		if (args != 0)
+			vfprintf(stderr, s, args);
+		else
+			fprintf(stderr, "%s", s);
+		va_end(args);
+
+		if(newLine) {
+			fprintf(stderr, "\n");
+		}
+	}
+}
+
+bool AlignmentBuffer::shortenIntervalStart(Interval * interval, int const readBp, bool readOnly) {
+
+	bool shortened = false;
+
+	double lengthRatio = interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f;
+
+	int newOnReadStart = interval->onReadStart + readBp;
+
+	if(newOnReadStart < interval->onReadStop) {
+
+		interval->onReadStart = newOnReadStart;
+		shortened = true;
+		if(!readOnly) {
+			loc newOnRef = 0ll;
+			Log.Error("shortenIntervalStart with readOnly = false not implemented yet");
+			exit(-1);
+		}
+	}
+
+	return shortened;
+}
+
+bool AlignmentBuffer::shortenIntervalEnd(Interval * interval, int const readBp, bool readOnly) {
+
+	bool shortened = false;
+
+	double lengthRatio = interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f;
+
+	int newOnReadStop = interval->onReadStop - readBp;
+
+	if(newOnReadStop > interval->onReadStart) {
+		interval->onReadStop = newOnReadStop;
+		shortened = true;
+		if(!readOnly) {
+			loc newOnRef = 0ll;
+			Log.Error("shortenIntervalEnd with readOnly = false not implemented yet");
+			exit(-1);
+		}
+	}
+
+	return shortened;
+}
+
+void AlignmentBuffer::resolveReadOverlap(Interval * first, Interval * second) {
+
+	int const verboseTabs = 3;
+	verbose(verboseTabs, true, "Checking overlaps on reads %d %f %s", 1, 2.0f, "3");
+	verbose(verboseTabs, "1: ", first);
+	verbose(verboseTabs, "2: ", second);
+
+	int overlapOnRead = getOverlapOnRead(first, second);
+	if(overlapOnRead > 0) {
+		verbose(verboseTabs, true, "Overlap of %d bp found", overlapOnRead);
+
+		//TODO: Align overlapping parts seperately to get scores
+		float score1 = 100.0f;
+		float score2 = 200.0f;
+
+		if(score1 > score2) {
+			bool success = shortenIntervalStart(second, overlapOnRead, true);
+			if(success) {
+				verbose(verboseTabs, true, "Interval 2 shortend successfully");
+			} else {
+				verbose(verboseTabs, true, "Could not shorten interval 2");
+			}
+		} else {
+			bool success = shortenIntervalEnd(first, overlapOnRead, true);
+			if (success) {
+				verbose(verboseTabs, true, "Interval 1 shortened successfully");
+			} else {
+				verbose(verboseTabs, true, "Could not shorten interval 2");
+			}
+		}
+
+
+	} else {
+		verbose(verboseTabs, true, "No overlap found", overlapOnRead);
+	}
+}
+
 void AlignmentBuffer::processShortRead(MappedRead * read) {
 	// Read is shorter then anchor length
 
@@ -3113,23 +2717,27 @@ void AlignmentBuffer::processShortRead(MappedRead * read) {
 
 void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
+	MappedRead * read = group->fullRead;
+
 	int maxAnchorNumber = 10000;
 	// Get all mapping positions from anchors (non overlapping 512bp parts of reads)
 	// and convert them to Anchor objects
 	// TODO: remove fixed length of 100
 	int maxCandidatesPerReadPart = 100;
 
+	bool pacbioDebug = true;
 
 	Timer overallTmr;
 	overallTmr.ST();
 
-	if (group->fullRead->length > readPartLength) {
+	if (read->length > readPartLength) {
 
 		// Parts of read that were aligned plus MQ of subalignments
 //		std::vector<IntervalTree::Interval<int> > treeIntervals;
 
 		if (pacbioDebug) {
-			Log.Message("Processing LongReadLIS: %d - %s (lenght %d)", group->fullRead->ReadId, group->fullRead->name, group->fullRead->length);
+			Log.Message("Processing LongReadLIS: %d - %s (length %d)", read->ReadId, read->name, read->length);
+			Log.Message("Anchor list:");
 		}
 
 
@@ -3154,6 +2762,10 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 							part->Scores[0].Score.f * 0.9 : 0.0f)
 					/ readPartLength;
 			minScore = 0.0f;
+
+			if (pacbioDebug) {
+				fprintf(stderr, "\t%d: ", positionOnRead);
+			}
 
 			for (int k = 0; k < part->numScores(); ++k) {
 
@@ -3214,9 +2826,13 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 									DP_TYPE_UNFILTERED, anchor.isUnique ? DP_STATUS_OK : DP_STATUS_LOWSCORE);
 						}
 
-						if (pacbioDebug) {
-							Log.Message("\t%d\t%f at %llu", j, part->Scores[k].Score.f, part->Scores[k].Location.m_Location);
-						}
+				if (pacbioDebug) {
+					if(k < 3) {
+						fprintf(stderr, "%f at %llu, ", part->Scores[k].Score.f, part->Scores[k].Location.m_Location);
+					} else if(k == 3) {
+						fprintf(stderr, "...");
+					}
+				}
 
 //					} else {
 //						//Score too low
@@ -3267,10 +2883,14 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			if (part->numScores() == 0) {
 				//No hits found
 				if (pacbioDebug) {
-					Log.Message("No hits found for part %d", positionOnRead);
+//					Log.Message("No hits found for part %d", positionOnRead);
+					fprintf(stderr, "no hits found");
 				}
 				printDotPlotLine(group->fullRead->ReadId, group->fullRead->name,
 						positionOnRead, positionOnRead + readPartLength, 0, 0, 0.0f, 0, DP_TYPE_UNFILTERED, DP_STATUS_NOHIT);
+			}
+			if (pacbioDebug) {
+				fprintf(stderr, "\n");
 			}
 		}
 
@@ -3285,21 +2905,147 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 		Interval * * intervals = getIntervalsFromAnchors(nIntervals, anchorsFwd,
 						anchorFwdIndex, anchorsRev, anchorRevIndex, group->fullRead);
 
-		std::sort(intervals, intervals + nIntervals,
-						sortIntervalsInSegment);
-
-
 		if (pacbioDebug) {
-			Log.Message("================Intervalls after cLIS================");
+			Log.Message("\nIntervals after cLIS:");
 			for (int i = 0; i < nIntervals; ++i) {
 				Interval * interval = intervals[i];
 				interval->printOneLine();
 			}
-			Log.Message("================++++++++++++++++================");
+			Log.Message("");
 		}
 
 
-		//Interval * * mergedIntervals = new Interval * [nIntervals];
+		if(pacbioDebug) {
+			Log.Message("\n\nBuilding segments:\n");
+		}
+		// A segment is a list of intervals that are located in on alignment corridor
+		// Intervals that are contained in others will be deleted. All the others
+		// will be added to a segment
+		int const maxMappedSegementCount = maxIntervalNumber;
+		MappedSegment * segments = new MappedSegment[maxMappedSegementCount];
+		size_t segementsIndex = 0;
+		for (int i = 0; i < nIntervals; ++i) {
+			Interval * interval = intervals[i];
+			bool intervalProcessed = false;
+			if (pacbioDebug) {
+				fprintf(stderr, "Current interval: ");
+				interval->printOneLine();
+			}
+
+			for(int j = 0; j < segementsIndex && !intervalProcessed; ++j) {
+				if (pacbioDebug) {
+					Log.Message("\tChecking segment %d", j);
+				}
+
+				for(int k = 0; k < segments[j].length && !intervalProcessed; ++k) {
+					Interval * processedInterval = segments[j].list[k];
+					fprintf(stderr, "\t\tComparing to interval: ");
+					processedInterval->printOneLine();
+					if(isContained(interval, processedInterval)) {
+						// Interval is contained in already processed interval and therefore ignored
+						intervalProcessed = true;
+						Log.Message("\t\t\tIs contained. Deleting interval.");
+						delete intervals[i];
+						intervals[i] = 0;
+						interval = 0;
+
+					} else {
+						if(isCompatible(interval, intervals[j])) {
+							Log.Message("\t\t\tIs compatible");
+							// Interval fits corridor of segment
+							if(segments[j].length < segments[j].maxLength) {
+								segments[j].list[segments[j].length++] = interval;
+								intervalProcessed = true;
+							}
+						} else {
+							Log.Message("\t\t\tNot contained and not compatible");
+						}
+					}
+				}
+
+			}
+
+			if(!intervalProcessed) {
+				// Creating new segment for interval
+				Log.Message("\tCreating new segment %d", segementsIndex);
+				segments[segementsIndex].list[0] = interval;
+				segments[segementsIndex++].length = 1;
+			}
+
+		}
+
+		// All intervals are either deleted or added to segments.
+		delete[] intervals;
+		intervals = 0;
+
+
+		// Join segments
+		Log.Message("\nSegments identified: %d", segementsIndex);
+		for(int i = 0; i < segementsIndex; ++i) {
+			Log.Message("Segment %d contains %d intervals", i, segments[i].length);
+		}
+
+		Log.Message("\n\nMerging segments:\n");
+		// Final interval list
+		intervals = new Interval * [maxIntervalNumber + 1];
+		nIntervals = 0;
+
+		Log.Message("Joining segments to intervals:");
+		for(int i = 0; i < segementsIndex; ++i) {
+
+			// Sort intervals by position on read
+			std::sort(segments[i].list, segments[i].list + segments[i].length,
+							sortIntervalsInSegment);
+
+			if(pacbioDebug) {
+				Log.Message("Segment %d:", i);
+				for(int j = 0; j < segments[i].length; ++j) {
+					fprintf(stderr, "\tInterval: ");
+					segments[i].list[j]->printOneLine();
+				}
+				Log.Message("##############################");
+			}
+
+			Interval * lastInterval = segments[i].list[0];
+			Interval * currentInterval = 0;
+
+			for (int j = 1; j < segments[i].length; ++j) {
+				currentInterval = segments[i].list[j];
+				verbose(1, "Last: ", lastInterval);
+				verbose(1, "Last: ", currentInterval);
+				if (isSameDirection(currentInterval, lastInterval)) {
+					verbose(2, true, "Same direction.");
+					if(!isDuplication(currentInterval, 0, lastInterval)) {
+						verbose(2, true, "Not a duplication. Merging current and last interval. Deleting current interval.");
+						lastInterval = mergeIntervals(lastInterval, currentInterval);
+						delete segments[i].list[j];
+						segments[i].list[j] = 0;
+						currentInterval = 0;
+					} else {
+						verbose(2, true, "Covers possible duplication.");
+						resolveReadOverlap(lastInterval, currentInterval);
+						verbose(2, true, "Saving last interval. Using current to go on.");
+						//Add lastInterval
+						intervals[nIntervals++] = lastInterval;
+						lastInterval = currentInterval;
+					}
+				} else {
+					verbose(2, true, "Not in same direction.");
+					resolveReadOverlap(lastInterval, currentInterval);
+					verbose(2, true, "Saving last interval. Using current to go on.");
+					//Add lastInterval
+					intervals[nIntervals++] = lastInterval;
+					lastInterval = currentInterval;
+				}
+			}
+			verbose(2, true, "Saving last interval.");
+			intervals[nIntervals++] = lastInterval;
+		}
+
+		delete[] segments;
+		segments = 0;
+
+		// Remove overlaps on read and ref
 		for (int i = 0; i < nIntervals - 1; ++i) {
 
 			for (int j = 0; j < nIntervals - 1; ++j) {
@@ -3312,6 +3058,18 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 			}
 
+		}
+		verbose(0, true, "\nFinal intervals:");
+		for (int i = 0; i < nIntervals; ++i) {
+			verbose(1, true, "", intervals[i]);
+			printDotPlotLine(read->ReadId, read->name,
+					intervals[i]->onReadStart,
+					intervals[i]->onReadStop,
+					intervals[i]->onRefStart,
+					intervals[i]->onRefStop,
+					intervals[i]->score,
+					intervals[i]->isReverse,
+					DP_TYPE_SEQMENTS_CONS + i, DP_STATUS_OK);
 		}
 
 //		Interval * * intervals = infereCMRsfromAnchors(nIntervals, anchorsFwd,
@@ -3440,6 +3198,14 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 	//TODO: remove
 	WriteRead(group->fullRead, false);
+
+
+	if(pacbioDebug) {
+		Log.Message("###########################################");
+		Log.Message("###########################################");
+		Log.Message("###########################################");
+		Log.Message("");
+	}
 }
 
 void AlignmentBuffer::SaveRead(MappedRead * read, bool mapped) {
