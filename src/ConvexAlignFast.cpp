@@ -89,7 +89,7 @@ void ConvexAlignFast::addPosition(Align & result, int & nmIndex, int posInRef, i
 		int Yi) {
 	if (posInRead > 16 && posInRef > 16) {
 		if(nmIndex >= result.nmPerPostionLength) {
-			fprintf(stderr, "Debug: PositionNM reallocated.\n");
+//			fprintf(stderr, "Debug: PositionNM reallocated.\n");
 
 			int const tmpLength = result.nmPerPostionLength * 2;
 			PositionNM * tmp = new PositionNM[tmpLength];
