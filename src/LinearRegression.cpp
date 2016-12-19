@@ -22,7 +22,9 @@
 #include <stdlib.h>
 #include <math.h>                           /* math functions                */
 
-int linreg(int n, const REAL x[], const REAL y[], REAL* m, REAL* b, REAL* r) {
+
+int linreg(int n, std::unique_ptr<REAL[]> const & x, std::unique_ptr<REAL[]> const & y, REAL* m, REAL* b, REAL* r) {
+//int linreg(int n, const REAL x[], const REAL y[], REAL* m, REAL* b, REAL* r) {
 	REAL sumx = 0.0; /* sum of x                      */
 	REAL sumx2 = 0.0; /* sum of x**2                   */
 	REAL sumxy = 0.0; /* sum of x * y                  */

@@ -22,6 +22,8 @@
 
 #include "GenericReadWriter.h"
 
+#include <memory>
+
 #include "ILog.h"
 #include "IConfig.h"
 #include "intervaltree/IntervalTree.h"
@@ -33,6 +35,8 @@
 #undef module_name
 #define module_name "OUTPUT"
 
+
+using std::unique_ptr;
 //#define TEST_ALIGNER
 
 // Non overlapping part of the reads that are mapped to the reference
@@ -234,6 +238,10 @@ public:
 	bool isDuplication(Interval const *, int, Interval const *);
 
 	/**
+	 * Distance between two intervals on read
+	 */
+	int getDistanceOnRead(Interval const * a, Interval const * b);
+	/**
 	 * Returns the number of overlapping read bps between the two intervals
 	 */
 	int getOverlapOnRead(Interval const * a, Interval const * b);
@@ -247,7 +255,7 @@ public:
 	/**
 	 * Print interval if --verbose is specified
 	 */
-	void verbose(int const tabs, char const * const s, Interval * interval);
+	void verbose(int const tabs, char const * const s, Interval const * const interval);
 
 	/**
 	 * Removes <readBp> bp from the start of an interval.
@@ -277,16 +285,16 @@ public:
 			int const corridor);
 
 	Align * computeAlignment(Interval const * interval, int const corridor,
-			char * const readSeq, size_t const readLength, int const QStart,
+			char const * const readSeq, size_t const readLength, int const QStart,
 			int const QEnd, int fullReadLength, MappedRead const * const read,
 			bool const realign, bool const fullAlignment, bool const shortRead);
 
 	int estimateCorridor(Interval const * interval);
-	char * const extractReadSeq(int const readSeqLen,
-			Interval const * interval, MappedRead* read, bool const revComp);
+	unique_ptr<char const []> extractReadSeq(int const readSeqLen,
+			Interval const * interval, MappedRead* read, bool const revComp = false);
 
 	Align * alignInterval(MappedRead const * const read,
-			Interval const * interval, char * const readSeq,
+			Interval const * interval, char const * const readSeq,
 			size_t const readSeqLen, bool const realign, bool const fullAlignment);
 	void alignSingleOrMultipleIntervals(MappedRead * read,
 			Interval const * const interval, LocationScore * tmp,
@@ -307,10 +315,10 @@ public:
 			MappedSegment segment);
 
 	int detectMisalignment(Align const * const align, Interval const * interval,
-			char * readPartSeq, Interval * leftOfInv, Interval * rightOfInv,
+			char const * const readPartSeq, Interval * leftOfInv, Interval * rightOfInv,
 			MappedRead * read);
 
-	int checkForSV(Align const * const align, Interval const * interval, char * fullReadSeq, uloc inversionMidpointOnRef, uloc inversionMidpointOnRead, int inversionLength, MappedRead * read);
+	int checkForSV(Align const * const align, Interval const * interval, char const * const fullReadSeq, uloc inversionMidpointOnRef, uloc inversionMidpointOnRead, int inversionLength, MappedRead * read);
 
 	void resolveReadOverlap(Interval * first, Interval * second);
 
