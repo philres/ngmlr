@@ -20,6 +20,14 @@
 #ifndef __IALIGNMENT_H__
 #define __IALIGNMENT_H__
 
+#include <stdlib.h>
+
+// Signed position on the reference
+// For cLIS reverse positions are represented as negative
+// numbers (TODO: check whether this in neccessary!)
+typedef long long loc;
+
+
 struct PositionNM {
 
 	PositionNM() :
@@ -39,6 +47,83 @@ struct CorridorLine {
 	unsigned long offsetInMatrix;
 };
 
+// Non overlapping part of the reads that are mapped to the reference
+// using NextGenMap short-read mapping code (only candidate search and score computation)
+struct Anchor {
+	// Position of anchor on the read
+	int onRead;
+	// Position of anchor on the reference
+	loc onRef;
+	// Alignment score of anchor
+	float score;
+	// Anchor was mapped to the reverse strand
+	bool isReverse;
+	// Used for visualization only!
+	int type; //0: normal, 1: repetitive, 2: nothing found, 3: socre too low, 4: no coordinates
+	// Unique anchors can be used as single intervals, non-unique anchors won't form
+	// intervals alone during cLIS
+	bool isUnique;
+};
+
+struct Interval {
+
+public:
+	Anchor * anchors;
+	int anchorLength;
+	int onReadStart;
+	int onReadStop;
+	loc onRefStart;
+	loc onRefStop;
+	double m;
+	double b;
+	double r;
+	float score;
+	short id;
+	bool isReverse;
+	bool isProcessed;
+	bool isAssigned;
+
+	Interval() {
+		anchors = 0;
+		anchorLength = 0;
+		onReadStart = 0;
+		onReadStop = 0;
+		onRefStart = 0;
+		onRefStop = 0;
+		m = 0.0;
+		b = 0.0;
+		r = 0.0;
+		score = 0.0f;
+		id = 0;
+		isReverse = false;
+		isProcessed = false;
+		isAssigned = false;
+
+	}
+
+	int lengthOnRead() const {
+		return onReadStop - onReadStart;
+	}
+
+	loc lengthOnRef() const {
+		return llabs(onRefStop - onRefStart);
+	}
+
+	virtual ~Interval() {
+		if (anchors != 0) {
+			delete[] anchors;
+			anchors = 0;
+			anchorLength = 0;
+		}
+	}
+
+private:
+	Interval(const Interval & src);
+
+};
+
+
+
 struct Align {
 
 public:
@@ -46,7 +131,7 @@ public:
 //	static volatile int sInstanceCount;
 
 	Align() :
-			pBuffer1(0), pBuffer2(0), nmPerPosition(0), nmPerPostionLength(0), alignmentLength(
+			pBuffer1(0), pBuffer2(0), mappedInterval(0), nmPerPosition(0), nmPerPostionLength(0), alignmentLength(
 					0), PositionOffset(0), QStart(0), QEnd(0), Score(0.0f), Identity(
 					0.0f), NM(0), MQ(0), skip(false), primary(false), svType(0) {
 
@@ -60,6 +145,7 @@ public:
 	char * pBuffer2; // = pMD = pQry
 	PositionNM * nmPerPosition;
 //	void * ExtendedData;
+	Interval * mappedInterval;
 	PositionNM firstPosition;
 	PositionNM lastPosition;
 	int nmPerPostionLength;
@@ -87,6 +173,10 @@ public:
 		if (pBuffer2 != 0) {
 			delete[] pBuffer2;
 			pBuffer2 = 0;
+		}
+		if (mappedInterval != 0) {
+			delete[] mappedInterval;
+			mappedInterval = 0;
 		}
 	}
 

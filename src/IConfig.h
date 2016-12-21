@@ -61,7 +61,7 @@ protected:
 	bool color = false;
 	bool hardClip = false;
 	bool log = false;
-	bool lowQualitySplit = true;
+	bool lowQualitySplit = false;
 	bool printAllAlignments = false;
 	bool progress = true;
 	bool skipSave = false;

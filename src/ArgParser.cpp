@@ -117,7 +117,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	TCLAP::SwitchArg colorArg("", "color", "Colored command line output", cmd, false);
 	//hardClip = false;
 	//log = false;
-	TCLAP::SwitchArg nolowqualitysplitArg("", "no-lowqualitysplit", "Don't split alignments with poor quality", cmd, false);
+	TCLAP::SwitchArg lowqualitysplitArg("", "lowqualitysplit", "Split alignments with poor quality", cmd, false);
 	TCLAP::SwitchArg nosmallInversionArg("", "no-smallinv", "Don't detect small inversions", cmd, false);
 	TCLAP::SwitchArg printAllAlignmentsArg("", "print-all", "Print all alignments. Disable filtering. (debug)", cmd, false);
 	//skipSave = false;
@@ -140,7 +140,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	printParameter<float>(usage, minIdentityArg);
 	printParameter<float>(usage, minResiduesArg);
 	printParameter(usage, nosmallInversionArg);
-	printParameter(usage, nolowqualitysplitArg);
+	printParameter(usage, lowqualitysplitArg);
 	printParameter(usage, verboseArg);
 	printParameter(usage, noprogressArg);
 	usage << "" << std::endl;
@@ -215,7 +215,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	progress = !noprogressArg.getValue();
 	color = colorArg.getValue();
 	verbose = verboseArg.getValue();
-	lowQualitySplit = !nolowqualitysplitArg.getValue();
+	lowQualitySplit = lowqualitysplitArg.getValue();
 	smallInversionDetection = !nosmallInversionArg.getValue();
 	printAllAlignments = printAllAlignmentsArg.getValue();
 	nosse = noSSEArg.getValue();
@@ -223,7 +223,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	if (presetArgs.getValue() == "pacbio") {
 		//Do nothing. Defaults are for Pacbio
 	} else if (presetArgs.getValue() == "ont") {
-		lowQualitySplit = (nolowqualitysplitArg.isSet()) ? lowQualitySplit : false;
+		lowQualitySplit = (lowqualitysplitArg.isSet()) ? lowQualitySplit : false;
 		smallInversionDetection = (nosmallInversionArg.isSet()) ? smallInversionDetection : false;
 		scoreMatch = (scoreMatchArg.isSet()) ? scoreMatch : 5;
 		//scoreMismatch = (scoreMatchArg.isSet()) ? scoreMismatch : -1;

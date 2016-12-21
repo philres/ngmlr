@@ -30,6 +30,7 @@
 #include "LinearRegression.h"
 #include "ConvexAlign.h"
 #include "ConvexAlignFast.h"
+#include "StrippedSW.h"
 #include "SAMWriter.h"
 
 #undef module_name
@@ -38,24 +39,6 @@
 
 using std::unique_ptr;
 //#define TEST_ALIGNER
-
-// Non overlapping part of the reads that are mapped to the reference
-// using NextGenMap short-read mapping code (only candidate search and score computation)
-struct Anchor {
-	// Position of anchor on the read
-	int onRead;
-	// Position of anchor on the reference
-	loc onRef;
-	// Alignment score of anchor
-	float score;
-	// Anchor was mapped to the reverse strand
-	bool isReverse;
-	// Used for visualization only!
-	int type; //0: normal, 1: repetitive, 2: nothing found, 3: socre too low, 4: no coordinates
-	// Unique anchors can be used as single intervals, non-unique anchors won't form
-	// intervals alone during cLIS
-	bool isUnique;
-};
 
 static bool sortAnchorOnRead(Anchor a, Anchor b) {
 	return a.onRead < b.onRead;
@@ -69,73 +52,6 @@ static bool sortAnchorOnRef(Anchor a, Anchor b) {
 	return a.onRef < b.onRef;
 }
 
-struct Interval {
-
-public:
-	Anchor * anchors;
-	int anchorLength;
-	int onReadStart;
-	int onReadStop;
-	loc onRefStart;
-	loc onRefStop;
-	double m;
-	double b;
-	double r;
-	float score;
-	short id;
-	bool isReverse;
-	bool isProcessed;
-	bool isAssigned;
-
-	Interval() {
-		anchors = 0;
-		anchorLength = 0;
-		onReadStart = 0;
-		onReadStop = 0;
-		onRefStart = 0;
-		onRefStop = 0;
-		m = 0.0;
-		b = 0.0;
-		r = 0.0;
-		score = 0.0f;
-		id = 0;
-		isReverse = false;
-		isProcessed = false;
-		isAssigned = false;
-
-	}
-
-	int lengthOnRead() const {
-		return onReadStop - onReadStart;
-	}
-
-	loc lengthOnRef() const {
-		return llabs(onRefStop - onRefStart);
-	}
-
-	virtual ~Interval() {
-		if (anchors != 0) {
-			delete[] anchors;
-			anchors = 0;
-			anchorLength = 0;
-		}
-	}
-
-	void printOneLine() const {
-		Log.Message("Interval: %d - %d on read, %lu - %lu on ref, Reverse: %d, Score: %f, Anchors: %d", onReadStart, onReadStop, onRefStart, onRefStop, isReverse, score, anchorLength);
-
-	}
-
-	void print() const {
-		Log.Message("Interval with %d anchors on read: %d - %d (diff: %d)", anchorLength, onReadStart, onReadStop, (onReadStop - onReadStart));
-		Log.Message("\tAnchor on ref: %lu - %lu (diff: %d)", onRefStart, onRefStop, onRefStop - onRefStart);
-		Log.Message("\tReverse: %d, Score: %f", isReverse, score);
-	}
-
-private:
-	Interval(const Interval & src);
-
-};
 
 class AlignmentBuffer {
 
@@ -158,6 +74,7 @@ private:
 #ifdef TEST_ALIGNER
 	IAlignment * alignerFast;
 #endif
+	IAlignment * overlapCheckAligner;
 
 	bool const pacbioDebug;
 
@@ -220,11 +137,6 @@ public:
 		}
 	};
 
-	// Signed position on the reference
-	// For cLIS reverse positions are represented as negative
-	// numbers (TODO: check whether this in neccessary!)
-	typedef long long loc;
-
 	int * cLIS(Anchor * anchors, int const anchorsLenght, int & lisLength);
 
 	void addAnchorAsInterval(Anchor const & anchor, MappedSegment & segment);
@@ -235,7 +147,7 @@ public:
 	bool isCompatible(Anchor const & anchor, Interval const * interval);
 	bool isContained(Interval const * a, Interval const * b);
 	bool isSameDirection(Interval const * a, Interval const * b);
-	bool isDuplication(Interval const *, int, Interval const *);
+	bool isDuplication(Interval const *, Interval const *);
 
 	/**
 	 * Distance between two intervals on read
@@ -262,15 +174,53 @@ public:
 	 * RefBp are estimated from the ratio of total ref and read bp in
 	 * the interval.
 	 */
-	bool shortenIntervalStart(Interval * interval, int const readBp, bool readOnly = false);
+	bool shortenIntervalStart(Interval * interval, int const readBp);
 
 	/**
 	 * Removes <readBp> bp from the end of an interval.
 	 * RefBp are estimated from the ratio of total ref and read bp in
 	 * the interval.
 	 */
-	bool shortenIntervalEnd(Interval * interval, int const readBp, bool readOnly = false);
+	bool shortenIntervalEnd(Interval * interval, int const readBp);
 
+	bool extendIntervalStart(Interval * interval, int const readBp, bool readOnly);
+
+	bool extendIntervalStop(Interval * interval, int const readBp, int const readLength, bool readOnly);
+
+	/**
+	 * Check if gap between first and second interval overlaps with another interval
+	 */
+	bool gapOverlapsWithInterval(Interval * first, Interval * second, IntervalTree::IntervalTree<Interval *> * intervalsTree, MappedRead * read);
+
+	/**
+	 * Checks if interval overlaps with any other interval in interval tree
+	 */
+	bool gapOverlapsWithInterval(Interval * gap, IntervalTree::IntervalTree<Interval *> * intervalsTree, MappedRead * read);
+
+	/**
+	 * Checks if gap between second and read end overlaps with any other interval
+	 */
+	bool gapToEndOverlapsWithInterval(Interval * second, int const readLength, IntervalTree::IntervalTree<Interval *> * intervalsTree, MappedRead * read);
+
+	/**
+	 * Checks if gap between read start and second overlaps with any other interval
+	 */
+	bool gapFromStartOverlapsWithInterval(Interval * second, IntervalTree::IntervalTree<Interval *> * intervalsTree, MappedRead * read);
+
+	/**
+	 * Extends both intervals to close the gap on the read
+	 */
+	void closeGapOnRead(Interval * first, Interval * second, int const readLength);
+
+	/**
+	 * Extends interval to read start, if not overlapping with other interval
+	 */
+	void extendToReadStart(Interval * interval, int const readLength, IntervalTree::IntervalTree<Interval *> * intervalsTree, MappedRead * read);
+
+	/**
+	 * Extends interval to read stop, if not overlapping with other interval
+	 */
+	void extendToReadStop(Interval * interval, int const readLength, IntervalTree::IntervalTree<Interval *> * intervalsTree, MappedRead * read);
 
 	Interval * mergeIntervals(Interval * a, Interval * b);
 	Interval * * infereCMRsfromAnchors(int & intervalsIndex,
@@ -290,8 +240,13 @@ public:
 			bool const realign, bool const fullAlignment, bool const shortRead);
 
 	int estimateCorridor(Interval const * interval);
+
 	unique_ptr<char const []> extractReadSeq(int const readSeqLen,
 			Interval const * interval, MappedRead* read, bool const revComp = false);
+
+	unique_ptr<char const []> extractReadSeq(int const readSeqLen,
+			int const onReadStart, bool const isReverse, MappedRead* read,
+			bool const revComp);
 
 	Align * alignInterval(MappedRead const * const read,
 			Interval const * interval, char const * const readSeq,
@@ -309,6 +264,8 @@ public:
 
 	bool reconcileRead(ReadGroup * group);
 
+	Interval * getIntervalFromAlign(Align const * const align, LocationScore const * const score, int const i, int const readLength);
+
 	Interval * * consolidateSegments(MappedSegment * segments,
 			size_t segmentsIndex, int & intervalsIndex);
 	void consolidateSegment(Interval * interval, int & intervalsIndex,
@@ -320,9 +277,37 @@ public:
 
 	int checkForSV(Align const * const align, Interval const * interval, char const * const fullReadSeq, uloc inversionMidpointOnRef, uloc inversionMidpointOnRead, int inversionLength, MappedRead * read);
 
-	void resolveReadOverlap(Interval * first, Interval * second);
+//	/**
+//	 * Compute score for prefix or suffix of interval
+//	 */
+//	float scoreOverlappingPart(Interval * interval, int const overlap, bool first, MappedRead * read);
 
-	void processLongRead(ReadGroup * group);
+	/**
+	 * Align interval using StrippedSW and return score
+	 */
+	float scoreInterval(Interval * interval, MappedRead * read);
+
+	/**
+	 * Set pointer to interval in interval tree to
+	 */
+	void setZeroInTree(Interval * interval, IntervalTree::IntervalTree<Interval *> * intervalsTree);
+
+//	/**
+//	 * For intervals that overlap on read an reference:
+//	 * Remove overlapping read bp from interval that aligns worst
+//	 */
+//	void resolveReadOverlap(Interval * first, Interval * second, MappedRead * read);
+
+	/**
+	 * Extracts sequence from reference genome
+	 */
+	char const * const extractReferenceSequenceForAlignment(Interval const*& interval, int & refSeqLength);
+
+	/**
+	 * Extracts sequence from reference genome
+	 */
+	char const * const extractReferenceSequenceForAlignment(loc const onRefStart, loc const onRefStop, int & refSeqLength);
+
 	void processLongReadLIS(ReadGroup * group);
 	void processShortRead(MappedRead * read);
 
@@ -391,22 +376,25 @@ public:
 #ifdef TEST_ALIGNER
 		alignerFast = new Convex::ConvexAlignFast(0);
 #endif
+
+		overlapCheckAligner = new StrippedSW();
 	}
 
 	virtual ~AlignmentBuffer() {
 		delete m_Writer;
-		m_Writer = 0;
-
-//		delete[] intervalBuffer;
-//		intervalBuffer = 0;
+		m_Writer = nullptr;
 
 		delete aligner;
-		aligner = 0;
+		aligner = nullptr;
 
 #ifdef TEST_ALIGNER
 		delete alignerFast;
-		alignerFast = 0;
+		alignerFast = nullptr;
 #endif
+		if(overlapCheckAligner != nullptr) {
+			delete overlapCheckAligner;
+			overlapCheckAligner = nullptr;
+		}
 	}
 
 	void DoRun();
