@@ -31,6 +31,8 @@
 //#include "BAMWriter.h"
 #include "Timing.h"
 #include "BitpalAligner.h"
+#include "EndToEndAffine.h"
+#include "StrippedSW.h"
 
 #undef module_name
 #define module_name "NGM"
@@ -231,11 +233,13 @@ std::vector<MappedRead*> _NGM::GetNextReadBatch(int desBatchSize) {
 		if (!eof) {
 			if (read1 != 0) {
 				count += 1;
+				Stats->readLengthSum += read1->length;
 				if (read1->group == 0) {
 					// Short read found: not split into read group
 					list.push_back(read1);
 				} else {
 					// Long read found: push subreads
+
 					for (int j = 0; j < read1->group->readNumber; ++j) {
 						list.push_back(read1->group->reads[j]);
 					}
@@ -363,8 +367,20 @@ void _NGM::StartCS(int cs_threadcount) {
 IAlignment * _NGM::CreateAlignment(int const mode) {
 	IAlignment * instance = 0;
 
-	instance = new BitpalAligner();
-
+	switch (Config.getSubreadAligner()) {
+	case 0:
+		instance = new BitpalAligner();
+		break;
+	case 1:
+		instance = new EndToEndAffine();
+		break;
+	case 2:
+		instance = new StrippedSW();
+		break;
+	default:
+		Log.Error("Invalid subread alignerd: %d", Config.getSubreadAligner());
+		throw "";
+	}
 	return instance;
 }
 
@@ -403,10 +419,14 @@ void _NGM::MainLoop() {
 				alignSuccessRatio = NGM.Stats->alignmentCount * 1.0f / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
 			}
 			float avgAlignPerc = 0.0f;
+			int avgReadLenght = 0;
+			float alignRate = 0.0f;
 			if(processed  > 0) {
-				avgAlignPerc = NGM.Stats->avgAlignPerc / processed;
+				avgAlignPerc = NGM.Stats->avgAlignPerc / std::max(1, NGM.GetMappedReadCount());
+				avgReadLenght = (int)(NGM.Stats->readLengthSum / processed);
+				alignRate = NGM.GetMappedReadCount() * 1.0f / processed;
 			}
-			Log.Progress("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f, Align: %.2f, %d, %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio, avgCorridor, avgAlignPerc);
+			Log.Progress("Processed: %d (%.2f), R/S: %.2f, RL: %d, Time: %.2f %.2f %.2f, Align: %.2f, %d, %.2f", processed, alignRate, readsPerSecond, avgReadLenght, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio, avgCorridor, avgAlignPerc);
 		}
 	}
 
@@ -419,10 +439,14 @@ void _NGM::MainLoop() {
 			avgCorridor = NGM.Stats->corridorLen / (NGM.Stats->alignmentCount + NGM.Stats->invalidAligmentCount);
 		}
 		float avgAlignPerc = 0.0f;
+		int avgReadLenght = 0;
+		float alignRate = 0.0f;
 		if(processed > 0) {
-			avgAlignPerc = NGM.Stats->avgAlignPerc / processed;
+			avgAlignPerc = NGM.Stats->avgAlignPerc / std::max(1, NGM.GetMappedReadCount());
+			avgReadLenght = (int)(NGM.Stats->readLengthSum / processed);
+			alignRate = NGM.GetMappedReadCount() * 1.0f / processed;
 		}
-		Log.Message("Processed: %d (%.2f r/s), Time: %.2f %.2f %.2f, Align: %.2f, %d, %.2f", processed, readsPerSecond, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio, avgCorridor, avgAlignPerc);
+		Log.Message("Processed: %d (%.2f), R/S: %.2f, RL: %d, Time: %.2f %.2f %.2f, Align: %.2f, %d, %.2f", processed, alignRate, readsPerSecond, avgReadLenght, NGM.Stats->csTime, NGM.Stats->scoreTime, NGM.Stats->alignTime, alignSuccessRatio, avgCorridor, avgAlignPerc);
 	}
 }
 

@@ -139,12 +139,25 @@ public:
 
 	int * cLIS(Anchor * anchors, int const anchorsLenght, int & lisLength);
 
+	/**
+	 * Checks if shorter interval is long enough to span deletion/insertion
+	 * (if present). Only if intervals are close on read or on reference.
+	 * Returns true if there is a large gap between intervals
+	 */
+	bool canSpanDeletionInsertion(Interval const * a, Interval const * b, REAL corridorSize);
+
 	void addAnchorAsInterval(Anchor const & anchor, MappedSegment & segment);
 	Interval * toInterval(Anchor const & anchor);
 
-	bool isCompatible(Interval const * a, Interval const * b);
-	bool isCompatible(Anchor const & anchor, MappedSegment const & segment);
-	bool isCompatible(Anchor const & anchor, Interval const * interval);
+	/**
+	 * Test if interval is contained in corridor
+	 */
+	bool isIntervalInCorridor(REAL k, REAL d, REAL corridor,
+			Interval const * testee, bool const switched);
+
+	bool isCompatible(Interval const * a, Interval const * b, REAL corridorSize = 8192.0);
+//	bool isCompatible(Anchor const & anchor, MappedSegment const & segment);
+//	bool isCompatible(Anchor const & anchor, Interval const * interval);
 	bool isContained(Interval const * a, Interval const * b);
 	bool isSameDirection(Interval const * a, Interval const * b);
 	bool isDuplication(Interval const *, Interval const *);
@@ -153,6 +166,10 @@ public:
 	 * Distance between two intervals on read
 	 */
 	int getDistanceOnRead(Interval const * a, Interval const * b);
+	/**
+	 * Distance between two intervals on ref
+	 */
+	loc getDistanceOnRef(Interval const * a, Interval const * b);
 	/**
 	 * Returns the number of overlapping read bps between the two intervals
 	 */
@@ -183,9 +200,9 @@ public:
 	 */
 	bool shortenIntervalEnd(Interval * interval, int const readBp);
 
-	bool extendIntervalStart(Interval * interval, int const readBp, bool readOnly);
+	bool extendIntervalStart(Interval * interval, int const readBp);
 
-	bool extendIntervalStop(Interval * interval, int const readBp, int const readLength, bool readOnly);
+	bool extendIntervalStop(Interval * interval, int const readBp, int const readLength);
 
 	/**
 	 * Check if gap between first and second interval overlaps with another interval
@@ -277,26 +294,10 @@ public:
 
 	int checkForSV(Align const * const align, Interval const * interval, char const * const fullReadSeq, uloc inversionMidpointOnRef, uloc inversionMidpointOnRead, int inversionLength, MappedRead * read);
 
-//	/**
-//	 * Compute score for prefix or suffix of interval
-//	 */
-//	float scoreOverlappingPart(Interval * interval, int const overlap, bool first, MappedRead * read);
-
 	/**
 	 * Align interval using StrippedSW and return score
 	 */
 	float scoreInterval(Interval * interval, MappedRead * read);
-
-	/**
-	 * Set pointer to interval in interval tree to
-	 */
-	void setZeroInTree(Interval * interval, IntervalTree::IntervalTree<Interval *> * intervalsTree);
-
-//	/**
-//	 * For intervals that overlap on read an reference:
-//	 * Remove overlapping read bp from interval that aligns worst
-//	 */
-//	void resolveReadOverlap(Interval * first, Interval * second, MappedRead * read);
 
 	/**
 	 * Extracts sequence from reference genome
@@ -313,14 +314,10 @@ public:
 
 	int computeMappingQuality(Align const & alignment, int readLength);
 
-	void printDotPlotLine(int const id, char const * const name,
-			int const onReadStart, int const onReadStop, loc const onRefStart,
-			loc const onRefStop, float const score, bool const isReverse,
-			int const type, int const status);
+	void printDotPlotLine(int const id, char const * const name, int const onReadStart, int const onReadStop, loc const onRefStart, loc const onRefStop, float const score, bool const isReverse, int const type, int const status);
 
 	void printDotPlotLine(int const id, char const * const name,
-	REAL const m, REAL const b, REAL const r, float const score,
-			bool const isReverse, int const type, int const status);
+	REAL const m, REAL const b, REAL const r, float const score, bool const isReverse, int const type, int const status);
 
 	AlignmentBuffer(const char* const filename) :
 			pacbioDebug(Config.getVerbose()), readCoordsTree(0), readPartLength(Config.getReadPartLength()), maxIntervalNumber(Config.getMaxInitialSegments()) {
@@ -397,8 +394,6 @@ public:
 		}
 	}
 
-	void DoRun();
-
 	int GetStage() const {
 		return 4;
 	}
@@ -406,9 +401,6 @@ public:
 	inline const char* GetName() const {
 		return "Output";
 	}
-
-	void addRead(MappedRead * read, int scoreID);
-	void flush();
 
 	float getTime() {
 //		float tmp = overallTime;

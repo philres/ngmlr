@@ -104,6 +104,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	TCLAP::ValueArg<float> scoreGapExtendMinArg("", "gap-extend-min", "Gap open extend min", false, scoreGapExtendMin, "float", cmd);
 	TCLAP::ValueArg<float> scoreGapDecayArg("", "gap-decay", "Gap extend decay", false, scoreGapDecay, "float", cmd);
 	TCLAP::ValueArg<int> stdoutArg("", "stdout", "Debug mode", false, stdoutMode, "0-7", cmd);
+	TCLAP::ValueArg<int> subreadAligner("", "subread-aligner", "Choose subread aligning method", false, subreadaligner, "0-3", cmd);
 	TCLAP::ValueArg<int> readpartLengthArg("", "subread-length", "Length of fragments reads are split into", false, readPartLength, "int", cmd);
 	TCLAP::ValueArg<int> readpartCorridorArg("", "subread-corridor", "Length of corridor sub-reads are aligned with", false, readPartCorridor, "int", cmd);
 	//csSearchTableLength = 0;
@@ -208,6 +209,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 		Log.Message("--gap-decay must not be smaller than zero. changing from %f to %f", scoreGapDecay, scoreGapDecay * -1.0f);
 		scoreGapDecay = scoreGapDecay * -1.0f;
 	}
+	subreadaligner = subreadAligner.getValue();
 	stdoutMode = stdoutArg.getValue();
 	readPartCorridor = readpartCorridorArg.getValue();
 	readPartLength = readpartLengthArg.getValue();
@@ -225,12 +227,12 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	} else if (presetArgs.getValue() == "ont") {
 		lowQualitySplit = (lowqualitysplitArg.isSet()) ? lowQualitySplit : false;
 		smallInversionDetection = (nosmallInversionArg.isSet()) ? smallInversionDetection : false;
-		scoreMatch = (scoreMatchArg.isSet()) ? scoreMatch : 5;
-		//scoreMismatch = (scoreMatchArg.isSet()) ? scoreMismatch : -1;
+		scoreMatch = (scoreMatchArg.isSet()) ? scoreMatch : 3;
+		scoreMismatch = (scoreMatchArg.isSet()) ? scoreMismatch : -7;
 		//scoreGapOpen = (scoreGapOpenArg.isSet()) ? scoreGapOpen : -1;
 		//scoreGapExtendMax = (scoreGapExtendMaxArg.isSet()) ? scoreGapExtendMax : -1;
 		//scoreGapExtendMax = (scoreGapExtendMinArg.isSet()) ? scoreGapExtendMin : -0.5;
-		//scoreGapDecay = (scoreGapDecayArg.isSet()) ? scoreGapDecay : 0.01;
+		scoreGapDecay = (scoreGapDecayArg.isSet()) ? scoreGapDecay : 0.10;
 	} else {
 		std::cerr << "Preset " << presetArgs.getValue() << " not found" << std::endl;
 	}

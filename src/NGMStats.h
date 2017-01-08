@@ -35,6 +35,8 @@ struct NGMStats
 
 	long long corridorLen;
 
+	long long readLengthSum;
+
 	int readsInProcess;
 
 	uint invalidAligmentCount;
@@ -50,6 +52,7 @@ public:
 		avgnCRMS = 0;
 		avgAlignPerc = 0.0f;
 		corridorLen = 0;
+		readLengthSum = 0ll;
 
 		readsInProcess = 0;
 

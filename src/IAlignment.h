@@ -159,7 +159,16 @@ public:
 	int MQ;
 	bool skip;
 	bool primary;
+	/**
+	 * Bitflag:
+	 * 		0x1 - Start clipping because of N
+	 * 		0x2 - End clipping because of N
+	 */
 	int svType;
+
+	void setBitFlag(int const i) {
+		svType = svType | i;
+	}
 
 	int getAlignedReadBp(int const readLength) {
 		return readLength - QStart - QEnd;

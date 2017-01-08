@@ -37,11 +37,6 @@ using std::vector;
 bool AlignmentBuffer::first = true;
 
 
-void AlignmentBuffer::flush() {
-//	DoRun();
-//	nReads = 0;
-}
-
 void AlignmentBuffer::debugAlgnFinished(MappedRead * read) {
 	Log.Debug(32, "READ_%d\tALGN\tAll alignments computed (%d)", read->ReadId, read->numScores());
 
@@ -66,123 +61,6 @@ void AlignmentBuffer::debugAlgnFinished(MappedRead * read) {
 	int refNameLength = 0;
 	fprintf(cmrBed, "%s\t%d\t%d\t%s_%d\t%f\t%c\n", SequenceProvider.GetRefName(rloc.getrefId(), refNameLength), rloc.m_Location - (corridor >> 1), rloc.m_Location - (corridor >> 1) + refMaxLen, cur_read->name, scoreId, cur_read->Scores[scoreId].Score.f, (rloc.isReverse()) ? '-' : '+');
 #endif
-}
-
-void AlignmentBuffer::addRead(MappedRead * read, int scoreID) {
-//	if (argos) {
-//		SaveRead(read, read->hasCandidates());
-//	} else {
-//		if (!read->hasCandidates() || read->mappingQlty < min_mq) {
-//			//If read has no CMRs or mapping quality is lower than min mapping quality, output unmapped read
-//			//read->clearScores(-1);
-//			SaveRead(read, false);
-//		} else {
-//			Log.Debug(512, "READ_%d\tALGN_BUFFER\tCMR_%d %f (location %llu) added to alignment buffer at position %d", read->ReadId, scoreID, read->Scores[scoreID].Score.f, read->Scores[scoreID].Location.m_Location, nReads);
-//			//add alignment computations to buffer. if buffer is full, submit to CPU/GPU
-//			reads[nReads].scoreId = scoreID;
-//			reads[nReads++].read = read;
-//			if (nReads == batchSize) {
-//				DoRun();
-//				nReads = 0;
-//			}
-//		}
-//	}
-	throw "Not implemented AlignmentBuffer::addRead";
-}
-
-void AlignmentBuffer::DoRun() {
-
-//	int count = nReads;
-//
-//	if (count > 0) {
-//		Log.Debug(32, "INFO\tALGN\tSubmitting %d alignment computations.", count);
-//		Timer tmr;
-//		tmr.ST();
-//		for (int i = 0; i < count; ++i) {
-//			MappedRead * cur_read = reads[i].read;
-//			int scoreID = reads[i].scoreId;
-//
-//			assert(cur_read->hasCandidates());
-//
-//			//Initialize
-//			if (cur_read->Scores[scoreID].Location.isReverse()) {
-//				qryBuffer[i] = cur_read->RevSeq;
-//
-//				if (cur_read->Paired != 0) {
-//					m_DirBuffer[i] = !(cur_read->ReadId & 1);
-//				} else {
-//					m_DirBuffer[i] = 1;
-//				}
-//
-//			} else {
-//				qryBuffer[i] = cur_read->Seq;
-//				if (cur_read->Paired != 0) {
-//					m_DirBuffer[i] = cur_read->ReadId & 1; //0 if first pair
-//				} else {
-//					m_DirBuffer[i] = 0;
-//				}
-//			}
-//
-//			//decode reference sequence
-//			if (!SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), 0,
-//							cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), refMaxLen)) {
-////							cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor)) {
-//				Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
-//				//Log.Warning("Read sequence: %s", cur_read->Seq);
-//				memset(const_cast<char *>(refBuffer[i]), 'N', refMaxLen);
-//			}
-////			//decode reference sequence
-////			SequenceProvider.DecodeRefSequence(const_cast<char *>(refBuffer[i]), 0,
-////					cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), refMaxLen);
-//
-//			//initialize arrays for CIGAR and MD string
-//			Log.Error("Should not be here. AlignmentBuffer DoRun");
-//			Fatal();
-//			static int const qryMaxLen = Config.GetInt("qry_max_len");
-//			alignBuffer[i].pBuffer1 = new char[std::max(1, qryMaxLen) * 4];
-//			alignBuffer[i].pBuffer2 = new char[std::max(1, qryMaxLen) * 4];
-//			*(int*) alignBuffer[i].pBuffer1 = 0x212121;
-//			*(int*) alignBuffer[i].pBuffer2 = 0x212121;
-//
-//			//Log.Message("Ref:  %s\nRead: %s", refBuffer[i], qryBuffer[i]);
-//
-//		}
-//
-//		//start alignment
-//		int aligned = aligner->BatchAlign(alignmode | (std::max(outputformat, 1) << 8), count, refBuffer, qryBuffer, alignBuffer,
-//				(m_EnableBS) ? m_DirBuffer : 0);
-//
-//		Log.Debug(32, "INFO\tALGN\t%d alignments computed (out of %d)", aligned, count);
-//
-//		if (aligned != count)
-//		Log.Error("Error aligning outputs (%i of %i aligned)", aligned, count);
-//
-//		//process results
-//		for (int i = 0; i < aligned; ++i) {
-//			MappedRead * cur_read = reads[i].read;
-//			int scoreID = reads[i].scoreId;
-//			int id = cur_read->ReadId;
-//
-//			assert(cur_read->hasCandidates());
-//			cur_read->Scores[scoreID].Location.m_Location += alignBuffer[i].PositionOffset - (corridor >> 1);
-//
-//			cur_read->Alignments[scoreID] = alignBuffer[i];
-//
-//			Log.Debug(2048, "READ_%d\tALGN_DETAILS\tCMR_%d\t%f\t%f\t%llu\t%.*s\t%s", cur_read->ReadId, scoreID, cur_read->Scores[scoreID].Score.f, alignBuffer[i].Identity, alignBuffer[i].NM, refMaxLen, refBuffer[i], qryBuffer[i]);
-//
-//			if ((cur_read->Calculated - 1) == scoreID) {
-//
-//				debugAlgnFinished(cur_read);
-//
-//				SaveRead(cur_read);
-//			}
-//
-//		}
-////		overallTime += tmr.ET();
-//	} else {
-//		Log.Debug(1, "INFO\tALGN\tEmpty buffer submitted.");
-//	}
-	throw "Not implemented AlignmentBuffer:DoRun()";
 }
 
 CorridorLine * getCorridorOriginal(int const corridor, char const * readSeq,
@@ -331,20 +209,6 @@ CorridorLine * getCorridorEndpointsWithAnchors(Interval const * interval,
 }
 
 char const * const AlignmentBuffer::extractReferenceSequenceForAlignment(Interval const*& interval, int & refSeqLength) {
-//	char * refSeq = 0;
-//	refSeqLength = interval->onRefStop - interval->onRefStart + 1;
-//	if (refSeqLength > 0) {
-//		//TODO: check why decoded/SequenceProvider writes outside of refSeqLen: This makes + 100 necessary
-//		refSeq = new char[refSeqLength + 100];
-//		//decode reference refSeqLength
-//		if (!SequenceProvider.DecodeRefSequenceExact(refSeq, interval->onRefStart, refSeqLength, 0)) {
-//			//Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
-//			Log.Warning("Could not decode reference for alignment");
-//			delete[] refSeq;
-//			refSeq = 0;
-//		}
-//	}
-//	return refSeq;
 	return extractReferenceSequenceForAlignment(interval->onRefStart, interval->onRefStop, refSeqLength);
 }
 
@@ -732,7 +596,7 @@ bool isAnchorInCorridor(REAL k, REAL d, REAL corridor, Anchor const & testee) {
 	return inCorridor;
 }
 
-bool isIntervalInCorridor(REAL k, REAL d, REAL corridor,
+bool AlignmentBuffer::isIntervalInCorridor(REAL k, REAL d, REAL corridor,
 		Interval const * testee, bool const switched) {
 
 	loc onRefStart = testee->onRefStart;
@@ -754,6 +618,8 @@ bool isIntervalInCorridor(REAL k, REAL d, REAL corridor,
 		lowerRefStart = tmp;
 	}
 
+	verbose(3, true, "%llu <= %llu && %llu >= %llu", onRefStart, upperRefStart, onRefStart, lowerRefStart);
+	verbose(3, true, "onRefStart <= upperRefStart = %d, onRefStart >= lowerRefStart = %d", onRefStart <= upperRefStart, onRefStart >= lowerRefStart);
 	inCorridor = inCorridor
 			|| (onRefStart <= upperRefStart && onRefStart >= lowerRefStart);
 //	Log.Message("Start: %llu <= %llu <= %llu", testee.onRefStart, lowerRefStart, upperRefStart);
@@ -770,6 +636,8 @@ bool isIntervalInCorridor(REAL k, REAL d, REAL corridor,
 
 	inCorridor = inCorridor
 			&& (onRefStop <= upperRefStop && onRefStop >= lowerRefStop);
+	verbose(3, true, "%llu <= %llu && %llu >= %llu", onRefStop, upperRefStop, onRefStop, lowerRefStop);
+	verbose(3, true, "onRefStop <= upperRefStop = %d, onRefStop >= lowerRefStop = %d", onRefStop <= upperRefStop, onRefStop >= lowerRefStop);
 //	Log.Message("Stop: %llu <= %llu <= %llu", testee.onRefStop, lowerRefStop, upperRefStop);
 
 //TODO: add max distance on read
@@ -812,40 +680,40 @@ void AlignmentBuffer::addAnchorAsInterval(Anchor const & anchor,
 	}
 }
 
-bool AlignmentBuffer::isCompatible(Anchor const & anchor,
-		Interval const * interval) {
-	bool isCompatible = false;
+//bool AlignmentBuffer::isCompatible(Anchor const & anchor,
+//		Interval const * interval) {
+//	bool isCompatible = false;
+//
+//	REAL corridorSize = 512;
+//
+//	if (anchor.isReverse == interval->isReverse) {
+////		isCompatible = (anchor.onRead < interval->onReadStart
+////				|| anchor.onRead > interval->onReadStop)
+////				&& (anchor.onRef < interval->onRefStart
+////						|| anchor.onRef > interval->onRefStop);
+//
+//		isCompatible = isAnchorInCorridor(interval->m, interval->b,
+//				corridorSize, anchor);
+//	}
+//
+//	return isCompatible;
+//}
 
-	REAL corridorSize = 512;
-
-	if (anchor.isReverse == interval->isReverse) {
-//		isCompatible = (anchor.onRead < interval->onReadStart
-//				|| anchor.onRead > interval->onReadStop)
-//				&& (anchor.onRef < interval->onRefStart
-//						|| anchor.onRef > interval->onRefStop);
-
-		isCompatible = isAnchorInCorridor(interval->m, interval->b,
-				corridorSize, anchor);
-	}
-
-	return isCompatible;
-}
-
-bool AlignmentBuffer::isCompatible(Anchor const & anchor,
-		MappedSegment const & segment) {
-	bool compatible = false;
-
-	for (int i = 0; i < segment.length && !compatible; ++i) {
-
-		compatible = isCompatible(anchor, segment.list[i]);
-	}
-
-	return compatible;
-}
+//bool AlignmentBuffer::isCompatible(Anchor const & anchor,
+//		MappedSegment const & segment) {
+//	bool compatible = false;
+//
+//	for (int i = 0; i < segment.length && !compatible; ++i) {
+//
+//		compatible = isCompatible(anchor, segment.list[i]);
+//	}
+//
+//	return compatible;
+//}
 
 // Checks whether a is compatible (is located in the "corridor"
 // of b.
-bool AlignmentBuffer::isCompatible(Interval const * a, Interval const * b) {
+bool AlignmentBuffer::isCompatible(Interval const * a, Interval const * b, REAL corridorSize) {
 
 	bool isCompatible = false;
 	// Trade off (at the moment):
@@ -854,7 +722,7 @@ bool AlignmentBuffer::isCompatible(Interval const * a, Interval const * b) {
 	// Smaller corridor: reads are split, SVs are not visible in one alignment
 	// TODO: after alignment add check if whole read was aligned. if not,
 	// realign unanligned part
-	REAL corridorSize = 2048;
+//	REAL corridorSize = 2048 * 4;
 
 	// Check if regression worked on read
 	if (b->m != 0 && b->b != 0 && (b->r * b->r) > 0.8f) {
@@ -890,6 +758,29 @@ bool AlignmentBuffer::isCompatible(Interval const * a, Interval const * b) {
 	return isCompatible;
 }
 
+bool AlignmentBuffer::canSpanDeletionInsertion(Interval const * a, Interval const * b, REAL corridorSize) {
+
+	bool merge = true;
+
+	int distanceOnRead = getDistanceOnRead(a, b);
+	loc distanceOnRef = getDistanceOnRef(a, b);
+
+	verbose(3, true, "DistOnRef: %llu, DistOnRead: %d, Corridor: %f", distanceOnRef, distanceOnRead, corridorSize);
+	if(distanceOnRead < (2 * readPartLength)) {
+		//Possible deletion
+		merge = (distanceOnRef - distanceOnRead) < corridorSize;
+	} else if(distanceOnRef < (2 * readPartLength)) {
+		//Possible insertion
+		merge = (distanceOnRead - distanceOnRef) < corridorSize;
+	} else {
+		/**
+		 * Do nothing, intervals show a larger gap. Probably, poor quality read.
+		 * Better to merge than to risk fragmented alignments
+		 */
+	}
+	return merge;
+}
+
 bool AlignmentBuffer::isContained(Interval const * a, Interval const * b) {
 	return a->onReadStart >= b->onReadStart && a->onReadStop <= b->onReadStop
 
@@ -897,29 +788,8 @@ bool AlignmentBuffer::isContained(Interval const * a, Interval const * b) {
 			&& a->isReverse == b->isReverse;
 }
 
-//bool AlignmentBuffer::isContainedOnRead(Interval a, Interval b) {
-//	if (abs(a.onReadStop - a.onReadStart) > abs(b.onReadStop - b.onReadStart)) {
-//		Interval tmp;
-//		tmp = a;
-//		a = b;
-//		b = tmp;
-//	}
-//	bool isContained = a.onReadStart >= b.onReadStart
-//			&& a.onReadStop <= b.onReadStop;
-//
-//	return isContained;
-//}
 
 Interval * AlignmentBuffer::mergeIntervals(Interval * a, Interval * b) {
-//	if (a.onReadStart > b.onReadStart) {
-//		a.onReadStart = b.onReadStart;
-//		a.onRefStart = b.onRefStart;
-//
-//	}
-//	if (a.onReadStop < b.onReadStop) {
-//		a.onReadStop = b.onReadStop;
-//		a.onRefStop = b.onRefStop;
-//	}
 
 	if (a->onReadStart > b->onReadStart) {
 		a->onReadStart = b->onReadStart;
@@ -988,12 +858,6 @@ bool sortIntervalsByScore(Interval const * a, Interval const * b) {
 	return a->score > b->score;
 }
 
-
-//bool sortIntervalsByLength(Interval const * a, Interval const * b) {
-//	return a->< b->onReadStart;
-//}
-
-
 Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anchor * allFwdAnchors, int allFwdAnchorsLength, Anchor * allRevAnchors, int allRevAnchorsLength, MappedRead * read) {
 
 	if (pacbioDebug) {
@@ -1051,6 +915,12 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 				interval->anchors = new Anchor[lisLength + 1];
 				interval->anchorLength = 0;
 
+				/**
+				 * Only intervals that have at least one
+				 * unique (only on mapping position) anchor
+				 * are considered.
+				 */
+//				bool isUnique = lisLength >= 4;
 				bool isUnique = false;
 				for (int i = 0; i < allFwdAnchorsLength; ++i) {
 					if (posInLIS >= 0 && i == lis[posInLIS]) {
@@ -1393,6 +1263,13 @@ int AlignmentBuffer::detectMisalignment(Align const * const align,
 	//Half of window size used to compute NM in SWCPU.cpp
 	int const inversionPositionShift = 0;
 
+	/**
+	 * Max number of peaks allowed for read.
+	 * If more peaks are found, read is considered to be
+	 * of bad quality and no split is performed
+	 */
+	int const maxCheckCount = std::max(1, (int)((read->length / 1000.0f) / 2.0f));
+
 //Peaks (isInversion(nm) == true) that are less than maxDistance apart will be merged
 	int const maxDistance = 20;
 	int distance = maxDistance;
@@ -1414,6 +1291,11 @@ int AlignmentBuffer::detectMisalignment(Align const * const align,
 			printf("%s\t%llu\t%d\t%s\n", SequenceProvider.GetRefName(mappingLocation.getrefId(), len), mappingLocation.m_Location + align->nmPerPosition[i].refPosition, align->nmPerPosition[i].nm, read->name);
 		}
 	}
+
+	/**
+	 * Reconds number of detected peaks
+	 */
+	int checkCount = 0;
 
 	// Extremely simple "peak-finding" algorithm
 	int len = 0;
@@ -1475,6 +1357,7 @@ int AlignmentBuffer::detectMisalignment(Align const * const align,
 //					Log.Message("Inv read sequence: %s", test);
 //					Log.Message("Inv read sequence: %s", refSeq);
 
+					checkCount += 1;
 					result = checkForSV(align, alignedInterval, readPartSeq, inversionMidpointOnRef, inversionMidpointOnRead, inversionLength, read);
 
 					if(bestResult == SV_NONE || result == SV_INVERSION) {
@@ -1495,53 +1378,58 @@ int AlignmentBuffer::detectMisalignment(Align const * const align,
 		}
 	}
 
-	if (bestResult != SV_NONE) {
-		if (alignedInterval->isReverse) {
+	if(checkCount <= maxCheckCount) {
+		if (bestResult != SV_NONE) {
+			if (alignedInterval->isReverse) {
 
-			// alignStartOnRead is not relative to the full read, but to the part (interval)
-			// that was aligned in the first place (the alignemnt that is scanned for an inversion)
-			// Qstart is realtive to the full read.
-			// However leftOfInv must be relative to the full read as well.
-			// To define the stop position (start on the fwd strand) QStart can be used
-			// For the start position (stop on the fwd strand) we use the position were
-			// the inversion was detected. Since this position in relative to the aligned part
-			// of the read (interval) we have to add additionalQstart
-			int additionalQStart = align->QStart - align->firstPosition.readPosition;
-			leftOfInv->onReadStop = read->length - (align->QStart);
-			leftOfInv->onReadStart = read->length - (additionalQStart + bestInversionMidpointOnRead);
+				// alignStartOnRead is not relative to the full read, but to the part (interval)
+				// that was aligned in the first place (the alignemnt that is scanned for an inversion)
+				// Qstart is realtive to the full read.
+				// However leftOfInv must be relative to the full read as well.
+				// To define the stop position (start on the fwd strand) QStart can be used
+				// For the start position (stop on the fwd strand) we use the position were
+				// the inversion was detected. Since this position in relative to the aligned part
+				// of the read (interval) we have to add additionalQstart
+				int additionalQStart = align->QStart - align->firstPosition.readPosition;
+				leftOfInv->onReadStop = read->length - (align->QStart);
+				leftOfInv->onReadStart = read->length - (additionalQStart + bestInversionMidpointOnRead);
 
-			// Position on the reference works perfectly with the mapping position
-			// from the intial alignment. No need to account for the fact that only
-			// a part of the read was aligned
-			leftOfInv->onRefStart = alignedInterval->onRefStart + align->PositionOffset + align->firstPosition.refPosition;
-			leftOfInv->onRefStop = alignedInterval->onRefStart + align->PositionOffset + bestInversionMidpointOnRef;
+				// Position on the reference works perfectly with the mapping position
+				// from the intial alignment. No need to account for the fact that only
+				// a part of the read was aligned
+				leftOfInv->onRefStart = alignedInterval->onRefStart + align->PositionOffset + align->firstPosition.refPosition;
+				leftOfInv->onRefStop = alignedInterval->onRefStart + align->PositionOffset + bestInversionMidpointOnRef;
 
-			leftOfInv->isReverse = alignedInterval->isReverse;
+				leftOfInv->isReverse = alignedInterval->isReverse;
 
-			// Same as for leftOfInv
-			rightOfInv->onReadStart = read->length - (align->lastPosition.readPosition + additionalQStart);
-			rightOfInv->onReadStop = read->length - (bestInversionMidpointOnRead + additionalQStart);
+				// Same as for leftOfInv
+				rightOfInv->onReadStart = read->length - (align->lastPosition.readPosition + additionalQStart);
+				rightOfInv->onReadStop = read->length - (bestInversionMidpointOnRead + additionalQStart);
 
-			rightOfInv->onRefStart = alignedInterval->onRefStart + align->PositionOffset + bestInversionMidpointOnRef;
-			rightOfInv->onRefStop = alignedInterval->onRefStart + align->PositionOffset + align->lastPosition.refPosition;
+				rightOfInv->onRefStart = alignedInterval->onRefStart + align->PositionOffset + bestInversionMidpointOnRef;
+				rightOfInv->onRefStop = alignedInterval->onRefStart + align->PositionOffset + align->lastPosition.refPosition;
 
-			rightOfInv->isReverse = alignedInterval->isReverse;
-		} else {
-			leftOfInv->onReadStart = alignedInterval->onReadStart + align->firstPosition.readPosition;
-			leftOfInv->onReadStop = alignedInterval->onReadStart + bestInversionMidpointOnRead;
+				rightOfInv->isReverse = alignedInterval->isReverse;
+			} else {
+				leftOfInv->onReadStart = alignedInterval->onReadStart + align->firstPosition.readPosition;
+				leftOfInv->onReadStop = alignedInterval->onReadStart + bestInversionMidpointOnRead;
 
-			leftOfInv->onRefStart = alignedInterval->onRefStart + align->PositionOffset + align->firstPosition.refPosition;
-			leftOfInv->onRefStop = alignedInterval->onRefStart + align->PositionOffset + bestInversionMidpointOnRef;
-			leftOfInv->isReverse = alignedInterval->isReverse;
+				leftOfInv->onRefStart = alignedInterval->onRefStart + align->PositionOffset + align->firstPosition.refPosition;
+				leftOfInv->onRefStop = alignedInterval->onRefStart + align->PositionOffset + bestInversionMidpointOnRef;
+				leftOfInv->isReverse = alignedInterval->isReverse;
 
-			rightOfInv->onReadStart = alignedInterval->onReadStart + bestInversionMidpointOnRead;
-			rightOfInv->onReadStop = alignedInterval->onReadStart + align->lastPosition.readPosition;
+				rightOfInv->onReadStart = alignedInterval->onReadStart + bestInversionMidpointOnRead;
+				rightOfInv->onReadStop = alignedInterval->onReadStart + align->lastPosition.readPosition;
 
-			rightOfInv->onRefStart = alignedInterval->onRefStart + align->PositionOffset + bestInversionMidpointOnRef;
-			rightOfInv->onRefStop = alignedInterval->onRefStart + align->PositionOffset + align->lastPosition.refPosition;
-			rightOfInv->isReverse = alignedInterval->isReverse;
+				rightOfInv->onRefStart = alignedInterval->onRefStart + align->PositionOffset + bestInversionMidpointOnRef;
+				rightOfInv->onRefStop = alignedInterval->onRefStart + align->PositionOffset + align->lastPosition.refPosition;
+				rightOfInv->isReverse = alignedInterval->isReverse;
+			}
+
 		}
-
+	} else {
+		verbose(0, true, "Too many peaks detected! %d > %d allowed for read length of %d", checkCount, maxCheckCount, read->length);
+		bestResult = SV_NONE;
 	}
 
 	return bestResult;
@@ -1661,16 +1549,10 @@ int AlignmentBuffer::realign(int const svTypeDetected,
 	/**********************************************/
 	verbose(0, "Left Interval:", leftOfInv);
 	int readSeqLen = leftOfInv->onReadStop - leftOfInv->onReadStart;
-//	char * readSeq = extractReadSeq(readSeqLen, leftOfInv, read);
-//	auto readSeq = ;
 
 	Align * alignLeft = 0;
-//	if(readSeq != 0) {
 	alignLeft = alignInterval(read, leftOfInv, extractReadSeq(readSeqLen, leftOfInv, read).get(), readSeqLen, true, false);
-//		alignInterval(read, leftOfInv, readSeq, readSeqLen, true, false);
-//		delete[] readSeq;
-//		readSeq = 0;
-//	}
+
 	LocationScore scoreLeft;
 	Align * alignRight = 0;
 	LocationScore scoreRight;
@@ -1685,7 +1567,6 @@ int AlignmentBuffer::realign(int const svTypeDetected,
 	Interval * inv = new Interval();
 	if (alignLeft != 0 && alignLeft->Score > 0.0f) {
 		alignLeft->MQ = mq;
-		//tmpAling[alignIndex] = alignLeft;
 
 		scoreLeft.Location.m_Location = leftOfInv->onRefStart
 		+ alignLeft->PositionOffset;//- (corridor >> 1); handled in computeAlingment
@@ -1709,12 +1590,6 @@ int AlignmentBuffer::realign(int const svTypeDetected,
 		verbose(0, "Right Interval: ", rightOfInv);
 		readSeqLen = rightOfInv->onReadStop - rightOfInv->onReadStart;
 		alignRight = alignInterval(read, rightOfInv, extractReadSeq(readSeqLen, rightOfInv, read).get(), readSeqLen, true, false);
-//		readSeq = extractReadSeq(readSeqLen, rightOfInv, read);
-//		if(readSeq != 0) {
-//			alignRight = alignInterval(read, rightOfInv, readSeq.get(), readSeqLen, true, false);
-//			delete[] readSeq;
-//			readSeq = 0;
-//		}
 
 		if (alignRight != 0 && alignRight->Score > 0.0f) {
 			alignRight->MQ = mq;
@@ -1745,47 +1620,29 @@ int AlignmentBuffer::realign(int const svTypeDetected,
 				inv->onReadStop = tmp;
 			}
 			// Extend
-			//int inversionLength = inv->onReadStop - inv->onReadStart;
 			int inversionLength = llabs(inv->onRefStop - inv->onRefStart);
 			int const minInversionLength = Config.getMinInversionLength();
-//			int extLength = (int) round((inv->onReadStop - inv->onReadStart) * 0.2f);
-//			inv->onReadStart = std::max(0, inv->onReadStart - extLength);
-//			inv->onReadStop = std::min(read->length, inv->onReadStop + extLength);
-//			inv->onRefStart -= extLength;
-//			inv->onRefStop += extLength;
 
-//			if(svTypeDetected == SV_INVERSION) {
 			verbose(0, true, "Length of inversion is %d", inversionLength);
 			verbose(0, "Inverted Interval: ", inv);
 			if(inversionLength > minInversionLength) {
 				readSeqLen = inv->onReadStop - inv->onReadStart;
 				alignInv = alignInterval(read, inv, extractReadSeq(readSeqLen, inv, read).get(), readSeqLen, true, true);
-//				readSeq = extractReadSeq(readSeqLen, inv, read);
-//				if(readSeq != 0) {
-//					alignInterval(read, inv, readSeq, readSeqLen, true, true);
-//					delete[] readSeq;
-//					readSeq = 0;
-//				}
+
 				if(pacbioDebug && alignInv != 0) {
 					Log.Message("Inversion alignment score: %f", alignInv->Score);
 				}
 
-
 				Align * alignInvRev = 0;
 				alignInvRev = alignInterval(read, inv, extractReadSeq(readSeqLen, inv, read, true).get(), readSeqLen, true, true);
-//				char * revReadSeq = extractReadSeq(readSeqLen, inv, read, true);
-//				if(revReadSeq != 0) {
-//					alignInterval(read, inv, revReadSeq, readSeqLen, true, true);
-//					delete[] revReadSeq;
-//					revReadSeq = 0;
-//				}
+
 				if(pacbioDebug && alignInvRev != 0) {
 					Log.Message("Inversion alignment score: %f", alignInvRev->Score);
 				}
 
 				if (alignInv != 0 && alignInv->Score > 0.0f && alignInv->getAlignedReadBp(read->length) > minInversionLength && (alignInvRev == 0 || alignInvRev->Score < alignInv->Score)) {
 					alignInv->MQ = mq;
-					alignInv->svType = SV_INVERSION;
+//					alignInv->svType = SV_INVERSION;
 
 					scoreInv.Location.m_Location = inv->onRefStart
 					+ alignInv->PositionOffset;	//- (corridor >> 1); handled in computeAlingment
@@ -1800,8 +1657,6 @@ int AlignmentBuffer::realign(int const svTypeDetected,
 					SequenceProvider.convert(inversionStopRef);
 
 					realignScore += alignInv->Score;
-					//int len = 0;
-					//printf("%s\t%llu\t%llu\n", SequenceProvider.GetRefName(inversionStartRef.getrefId(), len), inversionStartRef.m_Location, inversionStopRef.m_Location);
 
 					svTypeResult = SV_INVERSION;
 				} else {
@@ -1934,9 +1789,6 @@ void AlignmentBuffer::alignSingleOrMultipleIntervals(MappedRead * read, Interval
 					bool inversionAligned = false;
 					svType = detectMisalignment(align, interval, readPartSeq.get(), leftOfInv, rightOfInv, read);
 
-					//TODO: remove
-//					svType = SV_NONE;
-
 					if (svType != SV_NONE) {
 						int mq = computeMappingQuality(*align, read->length);
 						int assumedSvType = svType;
@@ -2021,7 +1873,6 @@ int AlignmentBuffer::computeMappingQuality(Align const & alignment,
 
 bool sortMappedSegements(Interval * a,
 		Interval * b) {
-//	return a.value.onReadStart < b.value.onReadStart;
 	return a->score > b->score;
 //	int aLen = a.value->onReadStop - a.value->onReadStart;
 //	int bLen = b.value->onReadStop - b.value->onReadStart;
@@ -2423,6 +2274,23 @@ int AlignmentBuffer::getDistanceOnRead(Interval const * a, Interval const * b) {
 	}
 }
 
+loc AlignmentBuffer::getDistanceOnRef(Interval const * a, Interval const * b) {
+	if (b->isReverse) {
+		if (b->onRefStop < a->onRefStop) {
+			return std::max(0ll, a->onRefStop - b->onRefStart);
+		} else {
+			return std::max(0ll, b->onRefStop - a->onRefStart);
+		}
+	} else {
+		if (b->onRefStart < a->onRefStart) {
+			return std::max(0ll, a->onRefStart - b->onRefStop);
+		} else {
+			return std::max(0ll, b->onRefStart - a->onRefStop);
+		}
+	}
+}
+
+
 void AlignmentBuffer::verbose(int const tabs, char const * const s, Interval const * const interval) {
 	verbose(tabs, false, "%s", s);
 	verbose(0, true, "Interval: %d - %d on read, %lu - %lu on ref, Reverse: %d, Score: %f, Anchors: %d", interval->onReadStart, interval->onReadStop, interval->onRefStart, interval->onRefStop, interval->isReverse, interval->score, interval->anchorLength);
@@ -2449,11 +2317,11 @@ void AlignmentBuffer::verbose(int const tabs, bool const newLine, char const * c
 	}
 }
 
-bool AlignmentBuffer::extendIntervalStop(Interval * interval, int const readBp, int const readLength, bool readOnly) {
+bool AlignmentBuffer::extendIntervalStop(Interval * interval, int const readBp, int const readLength) {
 	bool extended = false;
 
-	double lengthRatio = interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f;
-	lengthRatio = 1.0;
+	double lengthRatio = std::min(1.0f, interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f);
+//	lengthRatio = 1.0;
 
 	int extendOnRead = std::min(readLength - interval->onReadStop, readBp);
 	int extendOnRef = (int) round(extendOnRead / lengthRatio);
@@ -2470,22 +2338,20 @@ bool AlignmentBuffer::extendIntervalStop(Interval * interval, int const readBp, 
 
 	interval->onReadStop += extendOnRead;
 	extended = true;
-	if (!readOnly) {
-		if (interval->isReverse) {
-			interval->onRefStop -= extendOnRef;
-		} else {
-			interval->onRefStop += extendOnRef;
-		}
+	if (interval->isReverse) {
+		interval->onRefStop -= extendOnRef;
+	} else {
+		interval->onRefStop += extendOnRef;
 	}
 
 	return extended;
 }
 
-bool AlignmentBuffer::extendIntervalStart(Interval * interval, int const readBp, bool readOnly) {
+bool AlignmentBuffer::extendIntervalStart(Interval * interval, int const readBp) {
 	bool extended = false;
 
-	double lengthRatio = interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f;
-	lengthRatio = 1.0;
+	double lengthRatio = std::min(1.0f, interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f);
+//	lengthRatio = 1.0;
 
 	int extendOnRead = std::min(interval->onReadStart, readBp);
 	int extendOnRef = (int) round(extendOnRead / lengthRatio);
@@ -2501,12 +2367,10 @@ bool AlignmentBuffer::extendIntervalStart(Interval * interval, int const readBp,
 
 	interval->onReadStart -= extendOnRead;
 	extended = true;
-	if (!readOnly) {
-		if (interval->isReverse) {
-			interval->onRefStart += extendOnRef;
-		} else {
-			interval->onRefStart -= extendOnRef;
-		}
+	if (interval->isReverse) {
+		interval->onRefStart += extendOnRef;
+	} else {
+		interval->onRefStart -= extendOnRef;
 	}
 
 	return extended;
@@ -2518,8 +2382,8 @@ bool AlignmentBuffer::shortenIntervalStart(Interval * interval, int const readBp
 	bool shortened = false;
 
 	if (interval->onReadStart < interval->onReadStop) {
-		double lengthRatio = interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f;
-		lengthRatio = 1.0;
+		double lengthRatio = std::max(1.1f, interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f);
+//		lengthRatio = 1.1;
 
 		int refBp = (int) round(readBp / lengthRatio);
 
@@ -2539,8 +2403,8 @@ bool AlignmentBuffer::shortenIntervalEnd(Interval * interval, int const readBp) 
 	bool shortened = false;
 
 	if (interval->onReadStart < interval->onReadStop) {
-		double lengthRatio = interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f;
-		lengthRatio = 1.0;
+		double lengthRatio = std::max(1.1f, interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f);
+//		lengthRatio = 1.1;
 
 		int refBp = (int) round(readBp / lengthRatio);
 
@@ -2588,101 +2452,6 @@ float AlignmentBuffer::scoreInterval(Interval * interval, MappedRead * read) {
 	}
 	return score;
 }
-
-//float AlignmentBuffer::scoreOverlappingPart(Interval * interval, int const overlap, bool first, MappedRead * read) {
-//	float score = 0.0f;
-//	int const tabs = 3;
-//	if (interval->onReadStart < interval->onReadStop) {
-//		if (first) {
-//			int onReadStart = std::max(0, interval->onReadStop - overlap);
-//			int onReadStop = interval->onReadStop;
-//
-//			auto readSeq = extractReadSeq(overlap, onReadStart, interval->isReverse, read, false);
-//
-//			loc onRefStart = interval->isReverse ? interval->onRefStop : std::max(0ll, interval->onRefStop - overlap);
-//			loc onRefStop = interval->isReverse ? interval->onRefStop + overlap : interval->onRefStop;
-//			int refSeqLength = 0;
-//			auto refSeq = extractReferenceSequenceForAlignment(onRefStart, onRefStop, refSeqLength);
-//
-//			if (readSeq != nullptr) {
-//				if (refSeq != nullptr) {
-//					verbose(tabs, true, "RefSeq: %s", refSeq);
-//					verbose(tabs, true, "ReadSeq: %s", readSeq.get());
-//
-//					overlapCheckAligner->SingleScore(0, 0, refSeq, readSeq.get(), score, 0);
-//
-//					delete[] refSeq;
-//					refSeq = 0;
-//				}
-//			}
-//		} else {
-//			int onReadStart = interval->onReadStart;
-//			int onReadStop = std::min(read->length, interval->onReadStart + overlap);;
-//
-//			auto readSeq = extractReadSeq(overlap, onReadStart, interval->isReverse, read, false);
-//
-//			loc onRefStart = interval->isReverse ? std::max(0ll, interval->onRefStart - overlap) : interval->onRefStart;
-//			loc onRefStop = interval->isReverse ? interval->onRefStart : interval->onRefStart + overlap;
-//			int refSeqLength = 0;
-//			auto refSeq = extractReferenceSequenceForAlignment(onRefStart, onRefStop, refSeqLength);
-//
-//			if (readSeq != nullptr) {
-//				if (refSeq != nullptr) {
-//					verbose(tabs, true, "RefSeq: %s", refSeq);
-//					verbose(tabs, true, "ReadSeq: %s", readSeq.get());
-//
-//					overlapCheckAligner->SingleScore(0, 0, refSeq, readSeq.get(), score, 0);
-//
-//					delete[] refSeq;
-//					refSeq = 0;
-//				}
-//			}
-//		}
-//	}
-//	return score;
-//}
-
-//void AlignmentBuffer::resolveReadOverlap(Interval * first, Interval * second, MappedRead * read) {
-//
-//	int const verboseTabs = 3;
-//	verbose(verboseTabs, true, "Checking overlaps on reads %d %f %s", 1, 2.0f, "3");
-//	verbose(verboseTabs, "1: ", first);
-//	verbose(verboseTabs, "2: ", second);
-//
-//	int overlapOnRead = getOverlapOnRead(first, second);
-//	if(overlapOnRead > 0) {
-//		verbose(verboseTabs, true, "Overlap of %d bp found", overlapOnRead);
-//
-//		//TODO: Align overlapping parts seperately to get scores
-//
-//		float score1 = scoreOverlappingPart(first, overlapOnRead, true, read);
-//		float score2 = scoreOverlappingPart(second, overlapOnRead, false, read);
-//		verbose(verboseTabs, true, "score1: %f, score 2: %f", score1, score2);
-//		/**
-//		 * Interval with smaller score will be shortened
-//		 * If scores are equal, longer interval will be shortend
-//		 */
-//		if((score1 == score2 && second->lengthOnRead() > first->lengthOnRead()) || score1 > score2) {
-//			bool success = shortenIntervalStart(second, overlapOnRead, true);
-//			if(success) {
-//				verbose(verboseTabs, true, "Interval 2 shortend successfully");
-//			} else {
-//				verbose(verboseTabs, true, "Could not shorten interval 2");
-//			}
-//		} else {
-//			bool success = shortenIntervalEnd(first, overlapOnRead, true);
-//			if (success) {
-//				verbose(verboseTabs, true, "Interval 1 shortened successfully");
-//			} else {
-//				verbose(verboseTabs, true, "Could not shorten interval 2");
-//			}
-//		}
-//
-//
-//	} else {
-//		verbose(verboseTabs, true, "No overlap found", overlapOnRead);
-//	}
-//}
 
 void AlignmentBuffer::processShortRead(MappedRead * read) {
 	// Read is shorter then anchor length
@@ -2807,45 +2576,57 @@ bool AlignmentBuffer::gapOverlapsWithInterval(Interval * first, Interval * secon
 bool AlignmentBuffer::gapOverlapsWithInterval(Interval * gap, IntervalTree::IntervalTree<Interval *> * intervalsTree, MappedRead * read) {
 	float const minOverlap = 50.0;
 	int const maxLengthAlignmentCheck = 1000;
+	int const minGapLength = (int) (readPartLength * 1.5f);
 	bool overlaps = false;
 
 	if (gap->onReadStart < gap->onReadStop) {
 		verbose(2, true, "Looking for overlap on read: %d - %d", gap->onReadStart, gap->onReadStop);
 
-		std::vector<IntervalTree::Interval<Interval *> > results;
-		intervalsTree->findOverlapping(gap->onReadStart, gap->onReadStop, results);
+		if (gap->lengthOnRead() > minGapLength) {
+			std::vector<IntervalTree::Interval<Interval *> > results;
+			intervalsTree->findOverlapping(gap->onReadStart, gap->onReadStop, results);
 
-		for (auto node : results) {
-			if (!node.value->isProcessed) {
-				Interval * interval = new Interval();
+			for (auto node : results) {
+				if (!node.value->isProcessed) {
+					verbose(3, "", node.value);
+					Interval * interval = new Interval();
 
-				interval->onReadStart = gap->onReadStart;
-				interval->onReadStop = gap->onReadStop;
-				interval->onRefStart = node.value->onRefStart;
-				interval->onRefStop = node.value->onRefStop;
-				interval->isReverse = node.value->isReverse;
+					interval->onReadStart = gap->onReadStart;
+					interval->onReadStop = gap->onReadStop;
+					interval->onRefStart = node.value->onRefStart;
+					interval->onRefStop = node.value->onRefStop;
+					interval->isReverse = node.value->isReverse;
 
-				if (node.value->lengthOnRead() < 2 * gap->lengthOnRead()) {
-					int overlap = getOverlapOnRead(interval, gap);
-					float overlapPercent = overlap * 100.0f / gap->lengthOnRead();
-					verbose(3, "", interval);
-					verbose(3, true, "Overlap: %d (%f %%)", overlap, overlapPercent);
+					/**
+					 * Long matches to different region (e.g. secondary mappings) should not count as overlap
+					 */
+					//if (node.value->lengthOnRead() < (2 * readPartLength + gap->lengthOnRead())) {
+					if (node.value->lengthOnRead() < ((int)(4.5f * readPartLength) + gap->lengthOnRead())) {
+						int overlap = getOverlapOnRead(node.value, gap);
+						float overlapPercent = overlap * 100.0f / gap->lengthOnRead();
+						verbose(3, "DEBUG: ", interval);
+						verbose(3, true, "Overlap: %d (%f %%)", overlap, overlapPercent);
 
-					bool betterScore = true;
-					if (overlapPercent > minOverlap) {
-						if (read != 0 && gap->lengthOnRead() < maxLengthAlignmentCheck) {
-							// Check scores
-							float score1 = scoreInterval(interval, read) / interval->lengthOnRead();
-							float score2 = scoreInterval(gap, read) / gap->lengthOnRead();
-							verbose(3, "true", "Short overlap found. Verifying with alignment score per position: %f vs %f", score1, score2);
-							betterScore = score1 > score2;
+						bool betterScore = true;
+						if (overlapPercent > minOverlap) {
+							if (read != 0 && gap->lengthOnRead() < maxLengthAlignmentCheck) {
+								// Check scores
+								float score1 = scoreInterval(interval, read) / interval->lengthOnRead();
+								float score2 = scoreInterval(gap, read) / gap->lengthOnRead();
+								verbose(3, "true", "Short overlap found. Verifying with alignment score per position: %f vs %f", score1, score2);
+								betterScore = score1 > score2;
+							}
 						}
+						overlaps = overlaps || (overlapPercent > minOverlap && betterScore);
+					} else {
+						verbose(3, true, "Overlapping interval too long (%d >= %d)", node.value->lengthOnRead(), (2 * readPartLength + gap->lengthOnRead()));
 					}
-					overlaps = overlaps || (overlapPercent > minOverlap && betterScore);
+					delete interval;
+					interval = 0;
 				}
-				delete interval;
-				interval = 0;
 			}
+		} else {
+			verbose(2, true, "Gap too short (%d bp), skipping check", gap->lengthOnRead());
 		}
 	}
 	return overlaps;
@@ -2878,19 +2659,21 @@ bool AlignmentBuffer::gapFromStartOverlapsWithInterval(Interval * second, Interv
 }
 
 void AlignmentBuffer::closeGapOnRead(Interval * first, Interval * second, int const readLength) {
-	if(first->onReadStop < second->onReadStop) {
+	if (first->onReadStop < second->onReadStop) {
 
 		int distance = getDistanceOnRead(first, second);
 
-		verbose(3, true, "Closing gap of %d bp", distance);
-		verbose(3, "First:  ", first);
-		verbose(3, "Second: ", second);
+		if (distance > 0) {
+			verbose(3, true, "Closing gap of %d bp", distance);
+			verbose(3, "First:  ", first);
+			verbose(3, "Second: ", second);
 
-		extendIntervalStop(first, distance, readLength, false);
-		extendIntervalStart(second, distance, false);
+			extendIntervalStop(first, distance, readLength);
+			extendIntervalStart(second, distance);
 
-		verbose(3, "New first:  ", first);
-		verbose(3, "New second: ", second);
+			verbose(3, "New first:  ", first);
+			verbose(3, "New second: ", second);
+		}
 	}
 }
 
@@ -2901,12 +2684,12 @@ void AlignmentBuffer::extendToReadStart(Interval * interval, int const readLengt
 	int extend = interval->onReadStart;
 
 	if (extend > 0) {
-		if (extend > readPartLength) {
+		if (extend > (readPartLength)) {
 			verbose(2, true, "Extending to read start: %d < %d (%d, %d)", extend, maxExtend, (int) round(readLength * maxReadStartExtend), interval->lengthOnRead());
 			if (extend <= maxExtend) {
 				if (!gapFromStartOverlapsWithInterval(interval, intervalsTree, read)) {
 					verbose(2, true, "Extending first interval to read start");
-					extendIntervalStart(interval, extend, false);
+					extendIntervalStart(interval, extend);
 				} else {
 					verbose(2, true, "Not extending first interval to read start. Overlaps with other interval.");
 				}
@@ -2915,7 +2698,7 @@ void AlignmentBuffer::extendToReadStart(Interval * interval, int const readLengt
 			}
 		} else {
 			verbose(2, true, "Extending first interval to read start");
-			extendIntervalStart(interval, extend, false);
+			extendIntervalStart(interval, extend);
 		}
 	}
 }
@@ -2927,12 +2710,12 @@ void AlignmentBuffer::extendToReadStop(Interval * interval, int const readLength
 	int extend = readLength - interval->onReadStop;
 
 	if (extend > 0) {
-		if (extend > readPartLength) {
+		if (extend > (readPartLength)) {
 			verbose(2, true, "Extending to read stop: %d < %d (%d, %d)", extend, maxExtend, (int) round(readLength * maxReadStopExtend), interval->lengthOnRead());
 			if (extend <= maxExtend) {
 				if (!gapToEndOverlapsWithInterval(interval, readLength, intervalsTree, read)) {
 					verbose(2, true, "Extending last interval to read stop");
-					extendIntervalStop(interval, extend, readLength, false);
+					extendIntervalStop(interval, extend, readLength);
 				} else {
 					verbose(2, true, "Not extending last interval to read stop. Overlaps with other interval.");
 				}
@@ -2941,33 +2724,9 @@ void AlignmentBuffer::extendToReadStop(Interval * interval, int const readLength
 			}
 		} else {
 			verbose(2, true, "Extending last interval to read stop");
-			extendIntervalStart(interval, extend, false);
+			extendIntervalStart(interval, extend);
 		}
 	}
-}
-
-void AlignmentBuffer::setZeroInTree(Interval * interval, IntervalTree::IntervalTree<Interval *> * intervalsTree) {
-
-	Log.Message("Setting interval in tree to zero");
-	std::vector<IntervalTree::Interval<Interval *> > results;
-
-	intervalsTree->findOverlapping(interval->onReadStart, interval->onReadStop, results);
-
-	for(auto node : results) {
-		if(node.value != nullptr && node.value->onRefStart == interval->onRefStart && node.value->onRefStop == interval->onRefStop) {
-			node.value = nullptr;
-		}
-	}
-
-	std::vector<IntervalTree::Interval<Interval *> > results2;
-	intervalsTree->findOverlapping(interval->onReadStart, interval->onReadStop, results2);
-
-	for(auto node : results2) {
-		if(node.value != nullptr && node.value->onRefStart == interval->onRefStart && node.value->onRefStop == interval->onRefStop) {
-			Log.Message("Found again");
-		}
-	}
-
 }
 
 void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
@@ -3197,7 +2956,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 		}
 
 		Interval * lastInterval = segments[i].list[0];
-		extendIntervalStart(lastInterval, 2 * readPartLength, false);
+		extendIntervalStart(lastInterval, 2 * readPartLength);
 		bool isFirstInterval = true;
 		Interval * currentInterval = 0;
 
@@ -3210,54 +2969,87 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 				if (!isDuplication(currentInterval, lastInterval)) {
 
 					if(gapOverlapsWithInterval(lastInterval, currentInterval, intervalsTree, read)) {
+						/***
+						 * Possible translocation
+						 */
 						verbose(2, true, "Overlap found in other corridor.");
 						verbose(2, true, "Saving last interval. Using current to go on.");
 
-						//TODO: close gap on read (imporve)
 						if (isFirstInterval) {
 							extendToReadStart(lastInterval, read->length, intervalsTree, read);
 							isFirstInterval = false;
 						}
-						extendIntervalStop(lastInterval, 2 * readPartLength, read->length, false);
-						extendIntervalStart(currentInterval, 2 * readPartLength, false);
+						//TODO: close gap on read (imporve)
+						extendIntervalStop(lastInterval, 2 * readPartLength, read->length);
+						extendIntervalStart(currentInterval, 2 * readPartLength);
 						//Add lastInterval
 						intervals[nIntervals++] = lastInterval;
 						lastInterval = currentInterval;
 					} else {
-						verbose(2, true, "Not a duplication, not overlapping with other corridor. Merging current and last interval. Deleting current interval.");
-						lastInterval = mergeIntervals(lastInterval, currentInterval);
-//						setZeroInTree(segments[i].list[j], intervalsTree);
-						segments[i].list[j]->isProcessed = true;
-						delIntervals[nDelIntervals++] = segments[i].list[j];
-//						delete segments[i].list[j];
-//						segments[i].list[j] = 0;
-//						currentInterval = 0;
+						/**
+						 * Insertion, deletion or gap
+						 */
+						REAL const corridorSize = std::min(4096, std::min(currentInterval->lengthOnRead(), lastInterval->lengthOnRead()));
+						verbose(2, true, "IsContained in corridor of %f.", corridorSize);
+						if (canSpanDeletionInsertion(currentInterval, lastInterval, corridorSize)) {
+							/**
+							 *  Deletion or insertion small enough for alignment without split
+							 */
+							verbose(2, true, "Not a duplication, not overlapping with other corridor. Merging current and last interval. Deleting current interval.");
+							lastInterval = mergeIntervals(lastInterval, currentInterval);
+							segments[i].list[j]->isProcessed = true;
+							delIntervals[nDelIntervals++] = segments[i].list[j];
+						} else {
+							/**
+							 * Deletion, insertion or gap
+							 */
+							verbose(2, true, "Diagonal offset between intervals too big (max %f).", corridorSize);
+							verbose(2, true, "Saving last interval. Using current to go on.");
+
+							if (isFirstInterval) {
+								extendToReadStart(lastInterval, read->length, intervalsTree, read);
+								isFirstInterval = false;
+							}
+							closeGapOnRead(lastInterval, currentInterval, read->length);
+							extendIntervalStop(lastInterval, 2 * readPartLength, read->length);
+							extendIntervalStart(currentInterval, 2 * readPartLength);
+							//Add lastInterval
+							intervals[nIntervals++] = lastInterval;
+							lastInterval = currentInterval;
+						}
 					}
 				} else {
+					/**
+					 * Duplication
+					 */
 					verbose(2, true, "Covers possible duplication.");
-					closeGapOnRead(lastInterval, currentInterval, read->length);
 					verbose(2, true, "Saving last interval. Using current to go on.");
-					//TODO: close gap on read
 					if (isFirstInterval) {
 						extendToReadStart(lastInterval, read->length, intervalsTree, read);
 						isFirstInterval = false;
 					}
-					extendIntervalStop(lastInterval, 2 * readPartLength, read->length, false);
-					extendIntervalStart(currentInterval, 2 * readPartLength, false);
+					closeGapOnRead(lastInterval, currentInterval, read->length);
+					// Extension necessary since border can be wrong even if there is no gap on the read
+					extendIntervalStop(lastInterval, 2 * readPartLength, read->length);
+					extendIntervalStart(currentInterval, 2 * readPartLength);
+
 					//Add lastInterval
 					intervals[nIntervals++] = lastInterval;
 					lastInterval = currentInterval;
 				}
 			} else {
+				/**
+				 * Inversion
+				 */
 				verbose(2, true, "Not in same direction.");
 				verbose(2, true, "Saving last interval. Using current to go on.");
-				//TODO: close gap on read
 				if (isFirstInterval) {
 					extendToReadStart(lastInterval, read->length, intervalsTree, read);
 					isFirstInterval = false;
 				}
-				extendIntervalStop(lastInterval, 2 * readPartLength, read->length, false);
-				extendIntervalStart(currentInterval, 2 * readPartLength, false);
+				closeGapOnRead(lastInterval, currentInterval, read->length);
+				extendIntervalStop(lastInterval, 2 * readPartLength, read->length);
+				extendIntervalStart(currentInterval, 2 * readPartLength);
 				//Add lastInterval
 				intervals[nIntervals++] = lastInterval;
 				lastInterval = currentInterval;
@@ -3267,7 +3059,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			extendToReadStart(lastInterval, read->length, intervalsTree, read);
 			isFirstInterval = false;
 		}
-		extendIntervalStop(lastInterval, 2 * readPartLength, read->length, false);
+		extendIntervalStop(lastInterval, 2 * readPartLength, read->length);
 		verbose(2, true, "Extending last interval to read end", intervalsTree);
 		extendToReadStop(lastInterval, read->length, intervalsTree, read);
 		verbose(1, "Last: ", lastInterval);
@@ -3288,6 +3080,35 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	delete[] delIntervals;
 	delIntervals = 0;
 	nDelIntervals = 0;
+
+	verbose(0, true, "Joined intervals:");
+	for (int i = 0; i < nIntervals; ++i) {
+		verbose(1, "", intervals[i]);
+	}
+	verbose(0, true, "Sorting intervals by read start");
+	std::sort(intervals, intervals + nIntervals, sortIntervalsInSegment);
+
+	if (nIntervals > 0) {
+		Interval * lastInterval = intervals[0];
+		for (int i = 1; i < nIntervals; ++i) {
+			Interval * currentIntervl = intervals[i];
+
+			if (currentIntervl->anchorLength > 1) {
+				verbose(1, "a:", lastInterval);
+				verbose(1, "b: ", currentIntervl);
+				if (!isCompatible(lastInterval, currentIntervl) && getDistanceOnRead(lastInterval, currentIntervl) > 0 && (currentIntervl->anchorLength > 2 || lastInterval->anchorLength > 2)) {
+					verbose(1, true, "Closing gap between:");
+					closeGapOnRead(lastInterval, currentIntervl, read->length);
+				} else {
+					verbose(1, true, "Skip");
+				}
+			}
+
+			if (currentIntervl->anchorLength > 1 || lastInterval->anchorLength == 1) {
+				lastInterval = currentIntervl;
+			}
+		}
+	}
 
 	verbose(0, true, "Sorting intervals by score");
 	std::sort(intervals, intervals + nIntervals, sortIntervalsByScore);
@@ -3345,7 +3166,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 				int overlap = getOverlapOnRead(currentInterval, alignedInterval);
 				verbose(1, true, "Overlap: %d", overlap);
-				if (overlap > 0 && overlap < currentInterval->lengthOnRead() * 0.5f) {
+				if (overlap > 0 && overlap < currentInterval->lengthOnRead() * 0.95f) {
 					verbose(0, true, "Adjusting interval");
 
 					if (currentInterval->onReadStart < alignedInterval->onReadStart) {

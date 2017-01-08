@@ -69,17 +69,12 @@ ReadProvider::~ReadProvider() {
 
 void ReadProvider::splitRead(MappedRead * read) {
 
-//	Log.Message("New read with length: %d", read->length);
 
 	int splitNumber = read->length / readPartLength;
 
-	int nameLength = strlen(read->name);
+//	int splitNumber = read->length / (readPartLength / 2);
 
-//	printf("Name: %s\n", read->name);
-//	printf("ID: %d\n", read->ReadId);
-//	printf("Length: %d\n", read->length);
-//	printf("Parts: %d\n", splitNumber);
-//	printf("Seq: %s\n", read->Seq);
+	int nameLength = strlen(read->name);
 
 	ReadGroup * group = new ReadGroup();
 	group->fullRead = read;
@@ -120,7 +115,6 @@ void ReadProvider::splitRead(MappedRead * read) {
 		readPart->group = group;
 		group->reads[0] = readPart;
 
-//		readBuffer[readsInBuffer++] = readPart;
 	} else {
 		group->readNumber = splitNumber;
 		group->reads = new MappedRead *[splitNumber];
@@ -130,7 +124,6 @@ void ReadProvider::splitRead(MappedRead * read) {
 			MappedRead * readPart = new MappedRead(read->ReadId + i,
 					readPartLength + 16);
 
-//			readPart->name = new char[nameLength + 1];
 			strcpy(readPart->name, read->name);
 
 			int length = std::min(readPartLength,
@@ -139,24 +132,16 @@ void ReadProvider::splitRead(MappedRead * read) {
 
 			readPart->Seq = new char[readPartLength + 16];
 			memset(readPart->Seq, '\0', readPartLength + 16);
-//			memset(readPart->Seq, 'N', readPartLength);
 			strncpy(readPart->Seq, read->Seq + i * readPartLength, length);
 
-			//readPart->qlty = new char[readPartLength + 1];
-			//memset(readPart->qlty, '\0', readPartLength + 1);
-			//strncpy(readPart->qlty, read->qlty + i * readPartLength, length);
+//			strncpy(readPart->Seq, read->Seq + i * (readPartLength / 2), length);
+
 			readPart->qlty = 0;
 
 			readPart->group = group;
 
 			readPart->group->reads[i] = readPart;
 
-//		printf("Name: %s\n", readPart->name);
-//		printf("ID: %d\n", readPart->ReadId);
-//		printf("Length: %d\n", readPart->length);
-//		printf("Seq: %s\n", readPart->Seq);
-
-//			readBuffer[readsInBuffer++] = readPart;
 		}
 	}
 }

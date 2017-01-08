@@ -41,20 +41,21 @@ protected:
 	int kmerLength = 13;
 	int kmerSkip = 2;
 	int logLevel = 0; //16383, 255
-	int minInversionLength = 50; //Advanced
+	int minInversionLength = 70; //Advanced
 	int minKmerHits = 0;
 	int maxCMRs = INT_MAX;
 	int maxInitialSegments = 10;
 	int readPartCorridor = 40;
 	int readPartLength = 256;
 	int stdoutMode = 0;
+	int subreadaligner = 2;
 
 	float scoreMatch = 2.0f;
 	float scoreMismatch = -5.0f;
 	float scoreGapOpen = -5.0f;
 	float scoreGapExtendMax = -5.0f;
 	float scoreGapExtendMin = -1.0f;
-	float scoreGapDecay = 0.15f;;
+	float scoreGapDecay = 0.15f;
 	float threads = 1;
 
 	bool bam = false;
@@ -193,6 +194,10 @@ public:
 
 	auto getStdoutMode() const {
 		return stdoutMode;
+	}
+
+	auto getSubreadAligner() const {
+		return subreadaligner;
 	}
 
 	auto getThreads() const {
