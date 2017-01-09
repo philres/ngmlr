@@ -118,7 +118,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	TCLAP::SwitchArg colorArg("", "color", "Colored command line output", cmd, false);
 	//hardClip = false;
 	//log = false;
-	TCLAP::SwitchArg lowqualitysplitArg("", "lowqualitysplit", "Split alignments with poor quality", cmd, false);
+	TCLAP::SwitchArg lowqualitysplitArg("", "no-lowqualitysplit", "Split alignments with poor quality", cmd, false);
 	TCLAP::SwitchArg nosmallInversionArg("", "no-smallinv", "Don't detect small inversions", cmd, false);
 	TCLAP::SwitchArg printAllAlignmentsArg("", "print-all", "Print all alignments. Disable filtering. (debug)", cmd, false);
 	//skipSave = false;
@@ -217,7 +217,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	progress = !noprogressArg.getValue();
 	color = colorArg.getValue();
 	verbose = verboseArg.getValue();
-	lowQualitySplit = lowqualitysplitArg.getValue();
+	lowQualitySplit = !lowqualitysplitArg.getValue();
 	smallInversionDetection = !nosmallInversionArg.getValue();
 	printAllAlignments = printAllAlignmentsArg.getValue();
 	nosse = noSSEArg.getValue();
