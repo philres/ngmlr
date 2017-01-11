@@ -322,8 +322,6 @@ public:
 	AlignmentBuffer(const char* const filename) :
 			pacbioDebug(Config.getVerbose()), readCoordsTree(0), readPartLength(Config.getReadPartLength()), maxIntervalNumber(Config.getMaxInitialSegments()) {
 
-		m_Writer = 0;
-
 		m_Writer = (GenericReadWriter*) new SAMWriter((FileWriter*) NGM.getWriter());
 
 		if (first) {
@@ -334,11 +332,6 @@ public:
 		processTime = 0.0f;
 //		overallTime = 0.0f;
 		alignTime = 0.0f;
-
-		if (first) {
-			m_Writer->WriteProlog();
-			first = false;
-		}
 
 		stdoutPrintDotPlot = Config.getStdoutMode() == 1;
 		stdoutInversionBed = Config.getStdoutMode() == 2;

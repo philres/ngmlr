@@ -622,7 +622,7 @@ private:
 	/**
 	 * Converts CIGAR to text and computes MD flag + stats
 	 */
-	int convertCigar(char const * const refSeq, Align & result,
+	int convertCigar(char const * const refSeq, int const refSeqLength, Align & result,
 			FwdResults & fwdResults, int const externalQStart,
 			int const externalQEnd);
 

@@ -109,7 +109,7 @@ void ConvexAlignFast::addPosition(Align & result, int & nmIndex, int posInRef, i
 	}
 }
 
-int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
+int ConvexAlignFast::convertCigar(char const * const refSeq, int const refSeqLength, Align & result,
 		FwdResults & fwdResults, int const externalQStart,
 		int const externalQEnd) {
 
@@ -134,6 +134,7 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, Align & result,
 
 	int binaryCigarIndex = fwdResults.alignment_offset;
 
+	result.svType = 0;
 	//*********************//
 	// Set QStart
 	//*********************//
@@ -439,6 +440,7 @@ int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines,
 
 	alignmentId = align.svType;
 
+	align.svType = 0;
 	align.Score = -1.0f;
 
 	int finalCigarLength = -1;
@@ -464,14 +466,52 @@ int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines,
 
 		bool validAlignment = revBacktrack(refSeq, qrySeq, fwdResults, mode);
 		if (validAlignment) {
-			finalCigarLength = convertCigar(refSeq + fwdResults.ref_position, align, fwdResults,
-					externalQStart, externalQEnd);
+			finalCigarLength = convertCigar(refSeq + fwdResults.ref_position, refLen - fwdResults.ref_position, align, fwdResults, externalQStart, externalQEnd);
 			align.PositionOffset = fwdResults.ref_position;
 			align.Score = score;
+
+			/**
+			 * Check if Qstart clipping was caused by N in reference
+			 */
+			int const ntestLength = 100;
+			int nCount = 0;
+			int probeCount = 0;
+			for (int k = fwdResults.ref_position; k > std::max(0, fwdResults.ref_position - ntestLength); --k) {
+				/**
+				 * Decode from SequenceProvider decodes N to X
+				 */
+				if (refSeq[k] == 'X') {
+					nCount += 1;
+				}
+				probeCount += 1;
+			}
+
+			if (nCount > (probeCount * 0.8f)) {
+				align.setBitFlag(0x1);
+			}
+			/**
+			 * Check if QEnd clipping was caused by N in reference
+			 */
+			nCount = 0;
+			probeCount = 0;
+			for (int k = align.lastPosition.refPosition; k < std::min(align.lastPosition.refPosition + ntestLength, refLen - fwdResults.ref_position); ++k) {
+				/**
+				 * Decode from SequenceProvider decodes N to X
+				 */
+				if (refSeq[fwdResults.ref_position + k] == 'X') {
+					nCount += 1;
+				}
+				probeCount += 1;
+			}
+			if (nCount > (probeCount * 0.8f)) {
+				align.setBitFlag(0x1);
+			}
+
+
 		} else {
 //			matrix->printMatrix(refSeq, qrySeq);
 //			fprintf(stderr, "%d, %d, %d, %d\n", fwdResults.best_read_index, fwdResults.best_ref_index, fwdResults.ref_position, fwdResults.alignment_offset);
-			if(pacbioDebug) {
+			if (pacbioDebug) {
 				fprintf(stderr, "Could not backtrack alignment with score %f\n", score);
 			}
 

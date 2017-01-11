@@ -898,9 +898,8 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 
 				float intervalScore = 0.0f;
 
-				if (pacbioDebug) {
-					std::cerr << "cLIS" << cLISRunNumber << ":     ";
-				}
+				verbose(1, false, "cLIS %d:", cLISRunNumber);
+
 				//Remove LIS from candidates
 				int posInLIS = lisLength - 1;
 				allRevAnchorsLength = 0;
@@ -932,9 +931,7 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 						int onRead = allFwdAnchors[lis[posInLIS]].onRead;
 
 						//Print current LIS
-						if (pacbioDebug) {
-							std::cerr << lis[posInLIS] << ", ";
-						}
+						verbose(0, false, "%d, ", lis[posInLIS]);
 
 						isReverse = allFwdAnchors[lis[posInLIS]].isReverse;
 						intervalScore += allFwdAnchors[lis[posInLIS]].score;
@@ -978,6 +975,7 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 						allRevAnchors[allRevAnchorsLength++] = allFwdAnchors[i];
 					}
 				}
+				verbose(0, true, "");
 
 				if(isUnique) {
 
@@ -1033,10 +1031,7 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 
 					if(interval->lengthOnRead() > 0 && interval->lengthOnRef() > 0ll) {
 						verbose(0, true, "New interval: ");
-						verbose(1, "Not extended: ", interval);
-//						extendIntervalStart(interval, readPartLength, false);
-//						extendIntervalStop(interval, readPartLength, read->length, false);
-//						verbose(1, "Extended:     ", interval);
+						verbose(1, "", interval);
 						intervals[intervalsIndex++] = interval;
 					} else {
 						if(pacbioDebug) {
@@ -1069,13 +1064,13 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 
 					//TODO: check chromosome borders
 				} else {
-//					verbose(0, true, "Interval is not unique. Deleting");
 					if(interval != 0) {
 						delete interval;
 						interval = 0;
 					}
-//					delete[] regX; regX = 0;
-//					delete[] regY; regY = 0;
+//					if(lisLength == 1) {
+//						finished = true;
+//					}
 				}
 
 				//Switch first with second list
@@ -1085,7 +1080,6 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 				allRevAnchors = tmp;
 				allRevAnchorsLength = 0;
 			}
-//			}
 
 			lisLength = 0;
 			delete[] lis;
@@ -2202,9 +2196,14 @@ bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
 		}
 	}
 
-	// DEBUG code: print final list of mappeg segments
+	// Set 0x1 (full read is aligned) + debug code
 	for (int i = 0; i < read->Calculated; ++i) {
 		if (!read->Alignments[mappedSegements[i]->id].skip) {
+
+			if(aligned > 0.95f) {
+				read->Alignments[mappedSegements[i]->id].setBitFlag(0x2);
+			}
+
 			if (!readIsReverse) {
 				printDotPlotLine(read->ReadId, read->name,
 						mappedSegements[i]->onReadStart,
@@ -2734,6 +2733,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	MappedRead * read = group->fullRead;
 
 	int maxAnchorNumber = 10000;
+	int const maxNumScores = 1000;
 
 	/**
 	 * Get all mapping positions from anchors (non overlapping 256bp parts of reads)
@@ -2761,6 +2761,28 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	Anchor * anchorsFwd = new Anchor[maxAnchorNumber];
 	int anchorFwdIndex = 0;
 
+
+//	float * bestScores = new float[group->readNumber];
+//	int bestScoresIndex = 0;
+//	for (int j = 0; j < group->readNumber; ++j) {
+//		MappedRead * part = group->reads[j];
+//		if(part->numScores() > 0) {
+//			bestScores[bestScoresIndex++] = part->Scores[0].Score.f;
+//		}
+//	}
+//
+//	std::sort(bestScores, bestScores + bestScoresIndex);
+//
+//	for(int i = 0; i < bestScoresIndex; ++i) {
+//		verbose(1, false, "%f, ", bestScores[i]);
+//	}
+//	verbose(0, true, "");
+//	float const minScore = bestScores[(int)(bestScoresIndex * 0.8f)];
+//	verbose(1, true, "Min score: %f", minScore);
+//
+//	delete[] bestScores;
+//	bestScores = 0;
+
 	for (int j = 0; j < group->readNumber; ++j) {
 		MappedRead * part = group->reads[j];
 
@@ -2772,70 +2794,72 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 		 */
 		treeIntervals.push_back(IntervalTree::Interval<int>(positionOnRead, positionOnRead + readPartLength, part->mappingQlty));
 
-		// Min score required to consider an anchor for the candidate search
-		float minScore = ((part->numScores() > 0) ? part->Scores[0].Score.f * 0.9 : 0.0f) / readPartLength;
-		minScore = 0.0f;
-
 		verbose(1, false, "%d: ", positionOnRead);
 
-		for (int k = 0; k < part->numScores(); ++k) {
+		if (part->numScores() < maxNumScores) {
+			for (int k = 0; k < part->numScores(); ++k) {
 
-			if (stdoutPrintScores) {
-				printf("%f\n", part->Scores[k].Score.f);
+				if (stdoutPrintScores) {
+					printf("%f\n", part->Scores[k].Score.f);
+				}
+
+				/**
+				 * Anchor is valid and will be used
+				 */
+				if (anchorFwdIndex >= (maxAnchorNumber - 1)) {
+					verbose(0, true, "Anchor array too small - reallocating.");
+					maxAnchorNumber = maxAnchorNumber * 2;
+					Anchor * anchorsTmp = new Anchor[maxAnchorNumber];
+					memcpy(anchorsTmp, anchorsFwd, anchorFwdIndex * sizeof(Anchor));
+					delete[] anchorsFwd;
+					anchorsFwd = anchorsTmp;
+				}
+				Anchor & anchor = anchorsFwd[anchorFwdIndex++];
+
+				anchor.score = part->Scores[k].Score.f;
+				anchor.isReverse = part->Scores[k].Location.isReverse();
+				anchor.type = DP_STATUS_OK;
+				anchor.isUnique = part->numScores() == 1; // || anchor.score > minScore;
+
+				/**
+				 * It would be best to convert reads or read parts that map to the negative strand
+				 * Immediately to plus strand.
+				 * If somebody tells me how to do this properly, I'll happily change this.
+				 * For now Anchors can be on the plus or minus strand!
+				 * Problem: Transforming coordinates from negative anchors to plus strand
+				 * is not possible without knowing if the read originates from the plus
+				 * or the minus strand. This is difficult for reads with few matching anchors
+				 * and reads that originate from e.g. an inverted translocation.
+				 */
+				anchor.onRead = positionOnRead;
+				anchor.onRef = part->Scores[k].Location.m_Location;
+				if (anchor.isReverse) {
+					printDotPlotLine(group->fullRead->ReadId, group->fullRead->name, anchor.onRead, anchor.onRead + readPartLength, part->Scores[k].Location.m_Location + readPartLength, part->Scores[k].Location.m_Location, part->Scores[k].Score.f,
+							part->Scores[k].Location.isReverse(),
+							DP_TYPE_UNFILTERED, anchor.isUnique ? DP_STATUS_OK : DP_STATUS_LOWSCORE);
+				} else {
+					printDotPlotLine(group->fullRead->ReadId, group->fullRead->name, anchor.onRead, anchor.onRead + readPartLength, part->Scores[k].Location.m_Location, part->Scores[k].Location.m_Location + readPartLength, part->Scores[k].Score.f,
+							part->Scores[k].Location.isReverse(),
+							DP_TYPE_UNFILTERED, anchor.isUnique ? DP_STATUS_OK : DP_STATUS_LOWSCORE);
+				}
+
+				if (k < 3) {
+					verbose(0, false, "%f at %llu, ", part->Scores[k].Score.f, part->Scores[k].Location.m_Location);
+				} else if (k == 3) {
+					verbose(0, false, "... (%d)", part->numScores());
+				}
 			}
 
-			/**
-			 * Anchor is valid and will be used
-			 */
-			if (anchorFwdIndex >= (maxAnchorNumber - 1)) {
-				verbose(0, true, "Anchor array too small - reallocating.");
-				maxAnchorNumber = maxAnchorNumber * 2;
-				Anchor * anchorsTmp = new Anchor[maxAnchorNumber];
-				memcpy(anchorsTmp, anchorsFwd, anchorFwdIndex * sizeof(Anchor));
-				delete[] anchorsFwd;
-				anchorsFwd = anchorsTmp;
-			}
-			Anchor & anchor = anchorsFwd[anchorFwdIndex++];
-
-			anchor.score = part->Scores[k].Score.f;
-			anchor.isReverse = part->Scores[k].Location.isReverse();
-			anchor.type = DP_STATUS_OK;
-			anchor.isUnique = part->numScores() == 1;
-
-			/**
-			 * It would be best to convert reads or read parts that map to the negative strand
-			 * Immediately to plus strand.
-			 * If somebody tells me how to do this properly, I'll happily change this.
-			 * For now Anchors can be on the plus or minus strand!
-			 * Problem: Transforming coordinates from negative anchors to plus strand
-			 * is not possible without knowing if the read originates from the plus
-			 * or the minus strand. This is difficult for reads with few matching anchors
-			 * and reads that originate from e.g. an inverted translocation.
-			 */
-			anchor.onRead = positionOnRead;
-			anchor.onRef = part->Scores[k].Location.m_Location;
-			if (anchor.isReverse) {
-				printDotPlotLine(group->fullRead->ReadId, group->fullRead->name, anchor.onRead, anchor.onRead + readPartLength, part->Scores[k].Location.m_Location + readPartLength, part->Scores[k].Location.m_Location, part->Scores[k].Score.f,
-						part->Scores[k].Location.isReverse(),
-						DP_TYPE_UNFILTERED, anchor.isUnique ? DP_STATUS_OK : DP_STATUS_LOWSCORE);
+			if (part->numScores() == 0) {
+				verbose(0, true, "no hits found");
+				printDotPlotLine(group->fullRead->ReadId, group->fullRead->name, positionOnRead, positionOnRead + readPartLength, 0, 0, 0.0f, 0, DP_TYPE_UNFILTERED, DP_STATUS_NOHIT);
 			} else {
-				printDotPlotLine(group->fullRead->ReadId, group->fullRead->name, anchor.onRead, anchor.onRead + readPartLength, part->Scores[k].Location.m_Location, part->Scores[k].Location.m_Location + readPartLength, part->Scores[k].Score.f,
-						part->Scores[k].Location.isReverse(),
-						DP_TYPE_UNFILTERED, anchor.isUnique ? DP_STATUS_OK : DP_STATUS_LOWSCORE);
+				verbose(0, true, "");
 			}
-
-			if (k < 3) {
-				verbose(0, false, "%f at %llu, ", part->Scores[k].Score.f, part->Scores[k].Location.m_Location);
-			} else if (k == 3) {
-				verbose(0, false, "...");
-			}
-		}
-
-		if (part->numScores() == 0) {
-			verbose(0, true, "no hits found");
+		} else {
+			verbose(0, true, "too many hits found");
 			printDotPlotLine(group->fullRead->ReadId, group->fullRead->name, positionOnRead, positionOnRead + readPartLength, 0, 0, 0.0f, 0, DP_TYPE_UNFILTERED, DP_STATUS_NOHIT);
 		}
-		verbose(0, true, "");
 	}
 
 	Anchor * anchorsRev = new Anchor[maxAnchorNumber];
