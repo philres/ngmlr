@@ -115,6 +115,8 @@ public:
 
 	void FinishStage( int tid );
 
+	void FinishThread( int tid );
+
 	NGMStats * Stats;
 
 	static char const * AppName;
@@ -125,8 +127,6 @@ private:
 	static void Init();
 
 	friend void NGMTask::FinishStage();
-
-	void FinishThread( int tid );
 
 	void StartCS(int threads);
 

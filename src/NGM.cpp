@@ -267,19 +267,20 @@ NGMTHREADFUNC _NGM::ThreadFunc(void* data) {
 	NGMTask * task = (NGMTask*) data;
 	int tid = task->m_TID;
 
-	//try {
-	Log.Verbose("Running thread %i", tid);
+	try {
+		Log.Verbose("Running thread %i", tid);
 
-	task->Run();
+		task->Run();
 
-	Log.Verbose("Thread %i run return, finishing", tid);
+		Log.Verbose("Thread %i run return, finishing", tid);
 
-	NGM.FinishThread(tid);
+		NGM.FinishThread(tid);
 
-	Log.Verbose("Thread %i finished", tid);
-//	} catch (...) {
-//		Log.Error("Unhandled exception in thread %i", tid);
-//	}
+		Log.Verbose("Thread %i finished", tid);
+	} catch (...) {
+		Log.Error("Unhandled exception in thread %i", tid);
+		NGM.FinishThread(tid);
+	}
 
 	Log.Verbose("ThreadFunc on thread %i returning", tid);
 
