@@ -443,18 +443,23 @@ void CS::DoRun() {
 
 	m_RefProvider = 0;
 
+	int batchId = 0;
+
 	Timer tmr;
 	tmr.ST();
 	m_RefProvider = NGM.GetRefProvider(m_TID);
 	AllocRefEntryChain();
 	while (NGM.ThreadActive(m_TID, GetStage()) && ((m_CurrentBatch = NGM.GetNextReadBatch(m_BatchSize)), (m_CurrentBatch.size() > 0))) {
 		Log.Debug(LOG_CS_DETAILS, "CS Thread %i got batch (len %i)", m_TID, m_CurrentBatch.size());
+//		Log.Message("CS Thread %i got batch %d (len %i)", m_TID, ++batchId, m_CurrentBatch.size());
 
 		int nCRMsSum = RunBatch(scoreBuffer, alignmentBuffer);
+		Log.Verbose("CS Thread %i flushing scoreBuffer for batch %d", m_TID, batchId);
 		scoreBuffer->flush();
 
 		float elapsed = tmr.ET();
 		Log.Debug(LOG_CS_DETAILS, "CS Thread %i finished batch (len %i) with %i overflows, length %d (elapsed: %.3fs)", m_TID, m_CurrentBatch.size(), m_Overflows, c_SrchTableBitLen, elapsed);
+//		Log.Message("CS Thread %i finished batch %d (len %i) with %i overflows, length %d (elapsed: %.3fs)", m_TID, batchId, m_CurrentBatch.size(), m_Overflows, c_SrchTableBitLen, elapsed);
 
 		float alignmentTime = alignmentBuffer->getAlignTime();
 		float longReadProcessingTime = alignmentBuffer->getProcessTime() - alignmentTime;
@@ -503,6 +508,7 @@ void CS::DoRun() {
 
 	NGM.DeleteAlignment(oclAligner);
 	Log.Debug(LOG_CS_DETAILS, "CS Thread %i finished (%i reads processed, %i reads written, %i reads discarded)", m_TID, m_ProcessedReads, m_WrittenReads, m_DiscardedReads);
+//	Log.Message("CS Thread %i finished (%i reads processed, %i reads written, %i reads discarded)", m_TID, m_ProcessedReads, m_WrittenReads, m_DiscardedReads);
 }
 void CS::Init() {
 	prefixBasecount = Config.getKmerLength();
@@ -514,7 +520,8 @@ CS::CS(bool useBuffer) :
 		m_CSThreadID((useBuffer) ? (AtomicInc(&s_ThreadCount) - 1) : -1), m_BatchSize(
 				cBatchSize), m_ProcessedReads(0), m_WrittenReads(0), m_DiscardedReads(
 				0), m_Overflows(0), m_entry(0), m_PrefixBaseSkip(
-				0), m_Fallback(false) // cTableLen <= 0 means always use fallback
+				0), m_Fallback(false), alignmentBuffer(0), c_SrchTableLen(0), rListLength(0), m_CurrentSeq(0), c_SrchTableBitLen(0), oclAligner(0),
+				m_CurrentReadLength(0), hpoc(0), m_CsSensitivity(0.0f), maxHitNumber(0.0f), rList(0), m_entryCount(0), c_BitShift(0), m_RefProvider(0), currentThresh(0.0f)
 {
 
 	SetSearchTableBitLen(Config.getCsSearchTableLength() != 0 ? Config.getCsSearchTableLength() : 16);

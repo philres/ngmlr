@@ -68,7 +68,6 @@ protected:
 	int m_WrittenReads;
 	int m_DiscardedReads;
 	//	volatile int m_Candidates;
-	int m_Mode;
 
 	int m_Overflows;
 	//float weightSum;
@@ -107,7 +106,6 @@ protected:
 	float m_CsSensitivity;
 	float currentThresh;
 	float maxHitNumber;
-	int reducedBinSize;
 
 	uint hpoc;
 
@@ -154,10 +152,6 @@ public:
 	static uint prefixBasecount;
 	static uint prefixBits;
 	static ulong prefixMask;
-
-	inline const int GetMode() {
-		return m_Mode;
-	}
 
 	inline static const uint GetPrefixLength() {
 		return prefixBasecount;
