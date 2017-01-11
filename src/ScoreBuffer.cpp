@@ -191,7 +191,7 @@ void ScoreBuffer::topNSE(MappedRead* read) {
 	int numScores = read->numScores();
 
 	if(numScores > 1) {
-		float const minScore = read->Scores[0].Score.f * 0.5f;
+		float const minScore = read->Scores[0].Score.f * 0.75f;
 		int i = 1;
 		while(i < numScores && read->Scores[i].Score.f > minScore) {
 			i += 1;
