@@ -114,7 +114,7 @@ static inline char dec4(char c) {
 	case 3:
 		return 'C';
 	case 4:
-		return 'X';
+		return 'N';
 	}
 	throw "Error in ref encoding!";
 }
