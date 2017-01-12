@@ -45,6 +45,7 @@ protected:
 	int minKmerHits = 0;
 	int maxCMRs = INT_MAX;
 	int maxInitialSegments = 10;
+	int maxCLISRuns = 100;
 	int readPartCorridor = 40;
 	int readPartLength = 256;
 	int stdoutMode = 0;
@@ -155,6 +156,9 @@ public:
 		return maxInitialSegments;
 	}
 
+	auto getMaxCLISRuns() const {
+		return maxCLISRuns;
+	}
 
 	auto getMaxCMRs() const {
 		return maxCMRs;
