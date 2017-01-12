@@ -873,9 +873,11 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 	intervalsIndex = 0;
 
 	int cLISRunNumber = 0;
+	int const maxRunNumber = Config.getMaxCLISRuns();
+	int runNumber = 0;
 	bool finished = false;
 	// TODO: find better stop criteria!
-	while (cLISRunNumber < maxcLISRunNumber && !finished) {
+	while (cLISRunNumber < maxcLISRunNumber && !finished && ++runNumber < maxRunNumber) {
 		if (allFwdAnchorsLength > 0) {
 
 			//Find constrained LIS
@@ -1856,13 +1858,32 @@ int AlignmentBuffer::computeMappingQuality(Align const & alignment,
 
 	readCoordsTree->findOverlapping(alignment.QStart,
 			readLength - alignment.QEnd, results);
+	int mq = 0;
+
+	verbose(0, true, "Computing mq (readlength %d): ", readLength);
+	int * mqs = new int[results.size()];
+	for (int j = 0; j < results.size(); ++j) {
+		mqs[j] = results[j].value;
+		verbose(1, false, "%d, ", mqs[j]);
+	}
+	std::sort(mqs, mqs + results.size(), std::greater<int>());
+
+	int length = std::min((int)results.size(), std::max(2, (int)(results.size() * 0.2f + 0.5f)));
+	verbose(1, false, "\nUsing (%d): ", length);
+
 	int mqSum = 0;
 	int mqCount = 0;
-	for (int j = 0; j < results.size(); ++j) {
-		mqSum += results[j].value;
+	for (int j = 0; j < length; ++j) {
+		mqSum += mqs[j];
 		mqCount += 1;
+		verbose(0, false, "%d, ", mqs[j]);
 	}
-	return (int) (mqSum * 1.0f / mqCount);
+	mq = (int) (mqSum * 1.0f / mqCount);
+	verbose(1, true, "\nMapping quality: %d", mq);
+
+	delete[] mqs; mqs = 0;
+
+	return mq;
 }
 
 bool sortMappedSegements(Interval * a,
