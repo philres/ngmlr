@@ -1,6 +1,6 @@
 ### Quick start
 
-Download [binary](https://github.com/philres/nextgenmap-lr/releases/tag/v0.2.1) from github
+Download [binary](https://github.com/philres/ngmlr/releases/tag/v0.2.1) from github
 ```bash
 tar xvzf ngmlr-0.2.1-beta-linux-x86_64.tar.gz
 ngmlr-0.2.1/ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam
@@ -8,8 +8,8 @@ ngmlr-0.2.1/ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam
 
 ### Intorduction
  
-NGMLR is a long-read mapper desigend to sensitively align PacBilo or Oxford Nanopore to (large) reference genomes. It was desigend to correctly align reads stemming from (complex) structural variations. NGMLR uses an SV aware k-mer search to find approximate mapping locations for a read and a banded Smith-Waterman alignment algorithm with a non-affine gap model that penalizes gap extensions for longer gaps less than for shorter ones to compute precise alignments. The gap model allows NGMLR to account for both the sequencing error and real genomic variations at the same time and makes it especially effective at more precisely identifying the position of breakpoints stemming from (complex) structural variations. The k-mer search helps to detect and split reads that cannot be aligned linearly, enabling NGMLR to reliably align reads to a wide range of different structural variations including nested SVs (e.g. inversions flanked by deletions).
-Currently NGMLR takes about 60 minutes (on a AMD Opteron 6348) and 10 GB RAM for aligning 1Gbp of Pacbio Reads when using 10 threads.
+Ngmlr is a long-read mapper desigend to sensitively align PacBilo or Oxford Nanopore to (large) reference genomes. It was desigend to correctly align reads stemming from (complex) structural variations. Ngmlr uses an SV aware k-mer search to find approximate mapping locations for a read and a banded Smith-Waterman alignment algorithm with a non-affine gap model that penalizes gap extensions for longer gaps less than for shorter ones to compute precise alignments. The gap model allows ngmlr to account for both the sequencing error and real genomic variations at the same time and makes it especially effective at more precisely identifying the position of breakpoints stemming from (complex) structural variations. The k-mer search helps to detect and split reads that cannot be aligned linearly, enabling ngmlr to reliably align reads to a wide range of different structural variations including nested SVs (e.g. inversions flanked by deletions).
+Currently ngmlr takes about 60 minutes (on a AMD Opteron 6348) and 10 GB RAM for aligning 1Gbp of Pacbio Reads when using 10 threads.
 
 **Poster & Talks:**
 
@@ -75,12 +75,12 @@ Advanced:
         Length of corridor sub-reads are aligned with [40]
 ```
 
-### Building NGMLR from source
+### Building ngmlr from source
 OS: Linux and Mac OSX (experimental):
 Requirements: zlib-dev, cmake, gcc/g++ (>=5.1)
 
 ```bash
-git clone https://github.com/philres/nextgenmap-lr.git
+git clone https://github.com/philres/ngmlr.git
 cd ngmlr/
 mkdir -p build
 cd build/
@@ -89,4 +89,12 @@ make
 
 cd ../bin/ngmlr-*/
 ./ngmlr
+```
+
+### Building ngmlr for linux with docker
+```bash
+git clone https://github.com/philres/ngmlr.git
+mkdir -p ngmlr/build
+docker run -v `pwd`/ngmlr:/ngmlr philres/nextgenmaplr-buildenv bash -c "cd /ngmlr/build && cmake .. &&  make"
+`pwd`/ngmlr/bin/ngmlr-0.2.1/ngmlr
 ```
