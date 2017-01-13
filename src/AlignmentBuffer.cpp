@@ -1492,7 +1492,7 @@ Align * AlignmentBuffer::alignInterval(MappedRead const * const read,
 	return align;
 }
 
-unique_ptr<char const []> AlignmentBuffer::extractReadSeq(int const readSeqLen,
+unique_ptr<char []> AlignmentBuffer::extractReadSeq(int const readSeqLen,
 		int const onReadStart, bool const isReverse, MappedRead* read,
 		bool const revComp) {
 
@@ -1522,7 +1522,7 @@ unique_ptr<char const []> AlignmentBuffer::extractReadSeq(int const readSeqLen,
 }
 
 
-unique_ptr<char const []> AlignmentBuffer::extractReadSeq(int const readSeqLen,
+unique_ptr<char []> AlignmentBuffer::extractReadSeq(int const readSeqLen,
 		Interval const * interval, MappedRead* read,
 		bool const revComp) {
 	return extractReadSeq(readSeqLen, interval->onReadStart, interval->isReverse, read, revComp);
@@ -1854,36 +1854,49 @@ void AlignmentBuffer::alignSingleOrMultipleIntervals(MappedRead * read, Interval
 
 int AlignmentBuffer::computeMappingQuality(Align const & alignment,
 		int readLength) {
+
 	std::vector<IntervalTree::Interval<int> > results;
 
-	readCoordsTree->findOverlapping(alignment.QStart,
-			readLength - alignment.QEnd, results);
-	int mq = 0;
+		readCoordsTree->findOverlapping(alignment.QStart,
+				readLength - alignment.QEnd, results);
+		int mqSum = 0;
+		int mqCount = 0;
+		for (int j = 0; j < results.size(); ++j) {
+			mqSum += results[j].value;
+			mqCount += 1;
+		}
+		return (int) (mqSum * 1.0f / mqCount);
 
-	verbose(0, true, "Computing mq (readlength %d): ", readLength);
-	int * mqs = new int[results.size()];
-	for (int j = 0; j < results.size(); ++j) {
-		mqs[j] = results[j].value;
-		verbose(1, false, "%d, ", mqs[j]);
-	}
-	std::sort(mqs, mqs + results.size(), std::greater<int>());
-
-	int length = std::min((int)results.size(), std::max(2, (int)(results.size() * 0.2f + 0.5f)));
-	verbose(1, false, "\nUsing (%d): ", length);
-
-	int mqSum = 0;
-	int mqCount = 0;
-	for (int j = 0; j < length; ++j) {
-		mqSum += mqs[j];
-		mqCount += 1;
-		verbose(0, false, "%d, ", mqs[j]);
-	}
-	mq = (int) (mqSum * 1.0f / mqCount);
-	verbose(1, true, "\nMapping quality: %d", mq);
-
-	delete[] mqs; mqs = 0;
-
-	return mq;
+//		std::vector<IntervalTree::Interval<int> > results;
+//
+//	readCoordsTree->findOverlapping(alignment.QStart,
+//			readLength - alignment.QEnd, results);
+//	int mq = 0;
+//
+//	verbose(0, true, "Computing mq (readlength %d): ", readLength);
+//	int * mqs = new int[results.size()];
+//	for (int j = 0; j < results.size(); ++j) {
+//		mqs[j] = results[j].value;
+//		verbose(1, false, "%d, ", mqs[j]);
+//	}
+//	std::sort(mqs, mqs + results.size(), std::greater<int>());
+//
+//	int length = std::min((int)results.size(), std::max(2, (int)(results.size() * 0.2f + 0.5f)));
+//	verbose(1, false, "\nUsing (%d): ", length);
+//
+//	int mqSum = 0;
+//	int mqCount = 0;
+//	for (int j = 0; j < length; ++j) {
+//		mqSum += mqs[j];
+//		mqCount += 1;
+//		verbose(0, false, "%d, ", mqs[j]);
+//	}
+//	mq = (int) (mqSum * 1.0f / mqCount);
+//	verbose(1, true, "\nMapping quality: %d", mq);
+//
+//	delete[] mqs; mqs = 0;
+//
+//	return mq;
 }
 
 bool sortMappedSegements(Interval * a,

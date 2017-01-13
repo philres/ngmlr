@@ -258,10 +258,10 @@ public:
 
 	int estimateCorridor(Interval const * interval);
 
-	unique_ptr<char const []> extractReadSeq(int const readSeqLen,
+	unique_ptr<char []> extractReadSeq(int const readSeqLen,
 			Interval const * interval, MappedRead* read, bool const revComp = false);
 
-	unique_ptr<char const []> extractReadSeq(int const readSeqLen,
+	unique_ptr<char []> extractReadSeq(int const readSeqLen,
 			int const onReadStart, bool const isReverse, MappedRead* read,
 			bool const revComp);
 
