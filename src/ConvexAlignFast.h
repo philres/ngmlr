@@ -126,7 +126,7 @@ private:
 	 * aligment corridor visualization
 	 * to stdout
 	 */
-	bool const stdoutPrintAlignCorridor;
+	int const stdoutPrintAlignCorridor;
 
 	/**
 	 * Debug
