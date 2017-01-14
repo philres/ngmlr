@@ -1195,12 +1195,12 @@ int AlignmentBuffer::checkForSV(Align const * const align, Interval const * inte
 				printf(">%s_%d/1\n%s\n", read->name, inversionNumber, refSeq);
 				printf(">%s_%d/2\n%s\n", read->name, inversionNumber, revreadSeq);
 			}
-			IAlignment * lqCheckAligner = new EndToEndAffine();
-//			IAlignment* aligner = new StrippedSW();
+//			IAlignment * lqCheckAligner = new EndToEndAffine();
+			IAlignment * lqCheckAligner = new StrippedSW();
 
 			float scoreFwd = 0.0f;
 			float scoreRev = 0.0f;
-			static const float minScore = Config.getScoreMatch() * 1.0f * readCheckLength / 4.0f;
+			static const float minScore = 1.0f * readCheckLength / 4.0f;
 			//Formula from Moritz -> p-val > 0.05 for Match:1, mismacth: -4, gap open: -2, gap extend -1
 //			const float minScore = 15.0f;
 			lqCheckAligner->SingleScore(10, 0, refSeq, readSeq, scoreFwd, 0);
@@ -1208,7 +1208,9 @@ int AlignmentBuffer::checkForSV(Align const * const align, Interval const * inte
 
 			delete lqCheckAligner;
 			lqCheckAligner = 0;
-			if (scoreRev >= scoreFwd && scoreRev > minScore) {
+
+			if ((scoreRev / scoreFwd) > Config.getInvScoreRatio() && scoreRev > minScore) {
+//			if (scoreRev >= scoreFwd && scoreRev > minScore) {
 				svType = SV_INVERSION;
 			} else if (scoreRev < minScore && scoreFwd < minScore && !noLowQualSplit) {
 

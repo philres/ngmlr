@@ -51,6 +51,7 @@ protected:
 	int stdoutMode = 0;
 	int subreadaligner = 2;
 
+	float invScoreRatio = 1.0f;
 	float scoreMatch = 2.0f;
 	float scoreMismatch = -5.0f;
 	float scoreGapOpen = -5.0f;
@@ -171,6 +172,11 @@ public:
 	auto getReadPartLength() const {
 		return readPartLength;
 	}
+
+	auto getInvScoreRatio() const {
+		return invScoreRatio;
+	}
+
 
 	auto getScoreMatch() const {
 		return scoreMatch;
