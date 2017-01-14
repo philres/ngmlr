@@ -50,6 +50,7 @@ protected:
 	int readPartLength = 256;
 	int stdoutMode = 0;
 	int subreadaligner = 2;
+	int threads = 1;
 
 	float invScoreRatio = 1.0f;
 	float scoreMatch = 2.0f;
@@ -58,7 +59,6 @@ protected:
 	float scoreGapExtendMax = -5.0f;
 	float scoreGapExtendMin = -1.0f;
 	float scoreGapDecay = 0.15f;
-	float threads = 1;
 
 	bool bam = false;
 	bool color = false;
@@ -113,156 +113,155 @@ public:
 		return vcfFile;
 	}
 
-	auto getMinIdentity() const {
+	float getMinIdentity() const {
 		return minIdentity;
 	}
 
-	auto getMinResidues() const {
+	float getMinResidues() const {
 		return minResidues;
 	}
 
-	auto getSensitivity() const {
+	float getSensitivity() const {
 		return sensitivity;
 	}
 
-	auto getBinSize() const {
+	int getBinSize() const {
 		return binSize;
 	}
 
-	auto getCsSearchTableLength() const {
+	int getCsSearchTableLength() const {
 		return csSearchTableLength;
 	}
 
-	auto getKmerLength() const {
+	int getKmerLength() const {
 		return kmerLength;
 	}
 
-	auto getKmerSkip() const {
+	int getKmerSkip() const {
 		return kmerSkip;
 	}
 
-	auto getLogLevel() const {
+	int getLogLevel() const {
 		return logLevel;
 	}
 
-	auto getMinInversionLength() const {
+	int getMinInversionLength() const {
 		return minInversionLength;
 	}
 
-	auto getMinKmerHits() const {
+	int getMinKmerHits() const {
 		return minKmerHits;
 	}
 
-	auto getMaxInitialSegments() const {
+	int getMaxInitialSegments() const {
 		return maxInitialSegments;
 	}
 
-	auto getMaxCLISRuns() const {
+	int getMaxCLISRuns() const {
 		return maxCLISRuns;
 	}
 
-	auto getMaxCMRs() const {
+	int getMaxCMRs() const {
 		return maxCMRs;
 	}
 
-	auto getReadPartCorridor() const {
+	int getReadPartCorridor() const {
 		return readPartCorridor;
 	}
 
-	auto getReadPartLength() const {
+	int getReadPartLength() const {
 		return readPartLength;
 	}
 
-	auto getInvScoreRatio() const {
+	float getInvScoreRatio() const {
 		return invScoreRatio;
 	}
 
-
-	auto getScoreMatch() const {
+	float getScoreMatch() const {
 		return scoreMatch;
 	}
 
-	auto getScoreMismatch() const {
+	float getScoreMismatch() const {
 		return scoreMismatch;
 	}
 
-	auto getScoreGapOpen() const {
+	float getScoreGapOpen() const {
 		return scoreGapOpen;
 	}
 
-	auto getScoreExtendMax() const {
+	float getScoreExtendMax() const {
 		return scoreGapExtendMax;
 	}
 
-	auto getScoreExtendMin() const {
+	float getScoreExtendMin() const {
 		return scoreGapExtendMin;
 	}
 
-	auto getScoreGapDecay() const {
+	float getScoreGapDecay() const {
 		return scoreGapDecay;
 	}
 
-	auto getStdoutMode() const {
+	int getStdoutMode() const {
 		return stdoutMode;
 	}
 
-	auto getSubreadAligner() const {
+	int getSubreadAligner() const {
 		return subreadaligner;
 	}
 
-	auto getThreads() const {
+	int getThreads() const {
 		return threads;
 	}
 
-	auto getNoSSE() const {
+	bool getNoSSE() const {
 		return nosse;
 	}
 
-	auto getBAM() const {
+	bool getBAM() const {
 		return bam;
 	}
 
-	auto getColor() const {
+	bool getColor() const {
 		return color;
 	}
 
-	auto getHardClip() const {
+	bool getHardClip() const {
 		return hardClip;
 	}
 
-	auto getLog() const {
+	bool getLog() const {
 		return log;
 	}
 
-	auto getLowQualitySplit() const {
+	bool getLowQualitySplit() const {
 		return lowQualitySplit;
 	}
 
-	auto getSmallInversionDetection() const {
+	bool getSmallInversionDetection() const {
 		return smallInversionDetection;
 	}
 
-	auto getPrtintAll() const {
+	bool getPrtintAll() const {
 		return printAllAlignments;
 	}
 
-	auto getProgress() const {
+	bool getProgress() const {
 		return progress;
 	}
 
-	auto getSkipSave() const {
+	bool getSkipSave() const {
 		return skipSave;
 	}
 
-	auto getUpdateCheck() const {
+	bool getUpdateCheck() const {
 		return updateCheck;
 	}
 
-	auto getVerbose() const {
+	bool getVerbose() const {
 		return verbose;
 	}
 
-	auto getWriteUnampped() const {
+	bool getWriteUnampped() const {
 		return writeUnmapped;
 	}
 
