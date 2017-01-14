@@ -28,10 +28,8 @@
 #include "ReadProvider.h"
 #include "PlainFileWriter.h"
 #include "SAMWriter.h"
-//#include "BAMWriter.h"
 #include "Timing.h"
 #include "BitpalAligner.h"
-#include "EndToEndAffine.h"
 #include "StrippedSW.h"
 
 #undef module_name
@@ -371,9 +369,6 @@ IAlignment * _NGM::CreateAlignment(int const mode) {
 	switch (Config.getSubreadAligner()) {
 	case 0:
 		instance = new BitpalAligner();
-		break;
-	case 1:
-		instance = new EndToEndAffine();
 		break;
 	case 2:
 		instance = new StrippedSW();

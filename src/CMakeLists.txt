@@ -36,7 +36,6 @@ add_executable(ngmlr
 					ReadProvider.cpp
 					SamParser.cpp
 					SAMWriter.cpp
-					EndToEndAffine.cpp
 					SequenceProvider.cpp	
 					OutputReadBuffer.cpp	
 					ScoreBuffer.cpp

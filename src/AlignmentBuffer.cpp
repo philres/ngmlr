@@ -26,7 +26,6 @@
 #include <float.h> //Eclipse
 
 #include "Timing.h"
-#include "EndToEndAffine.h"
 #include "StrippedSW.h"
 #include "OutputReadBuffer.h"
 
@@ -1195,7 +1194,6 @@ int AlignmentBuffer::checkForSV(Align const * const align, Interval const * inte
 				printf(">%s_%d/1\n%s\n", read->name, inversionNumber, refSeq);
 				printf(">%s_%d/2\n%s\n", read->name, inversionNumber, revreadSeq);
 			}
-//			IAlignment * lqCheckAligner = new EndToEndAffine();
 			IAlignment * lqCheckAligner = new StrippedSW();
 
 			float scoreFwd = 0.0f;
