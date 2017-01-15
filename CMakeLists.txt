@@ -9,9 +9,9 @@ set( NGM_VERSION_MAJOR 0 )
 set( NGM_VERSION_MINOR 2 )
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Building in debug mode!")
-    set( NGM_VERSION_BUILD 2-debug )
+    set( NGM_VERSION_BUILD 3-debug )
 else()
-  set( NGM_VERSION_BUILD 2 )
+  set( NGM_VERSION_BUILD 3 )
 ENDIF()
 
 find_package( ZLIB REQUIRED )
@@ -33,8 +33,9 @@ file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 
 # Set a default build type for single-configuration
 # CMake generators if no build type is set.
+# RELEASE, RELWITHDEBINFO, DEBUG
 IF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-  message(STATUS "No build type specified. Using 'RELWITHDEBINFO'")
-  SET(CMAKE_BUILD_TYPE RELWITHDEBINFO)
+  message(STATUS "No build type specified. Using 'RELEASE'")
+  SET(CMAKE_BUILD_TYPE RELEASE)
 ENDIF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 add_subdirectory(src)
