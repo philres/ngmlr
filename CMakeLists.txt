@@ -3,6 +3,8 @@ project(NextGenMap-LR)
 
 include(CheckCXXCompilerFlag)
 
+option(STATIC "Build static binary" ON)
+
 set( NGM_VERSION_MAJOR 0 )
 set( NGM_VERSION_MINOR 2 )
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
