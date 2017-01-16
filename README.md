@@ -1,9 +1,12 @@
 ### Quick start
 
-Download [binary](https://github.com/philres/ngmlr/releases/tag/v0.2.1) from github
+Download [binary](https://github.com/philres/ngmlr/releases/tag/v0.2.1) from github and unzip or [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/ngmlr/README.html)
 ```bash
-tar xvzf ngmlr-0.2.1-beta-linux-x86_64.tar.gz
-ngmlr-0.2.1/ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam
+ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam
+```
+or install from [bioconda](http://bioconda.github.io/recipes/ngmlr/README.html)
+```
+conda install ngmlr
 ```
 
 ### Intorduction
@@ -76,8 +79,8 @@ Advanced:
 ```
 
 ### Building ngmlr from source
-OS: Linux and Mac OSX (experimental):
-Requirements: zlib-dev, cmake, gcc/g++ (>=5.1)
+OS: Linux and Mac OSX:
+Requirements: zlib-dev, cmake, gcc/g++ (>=4.8.2)
 
 ```bash
 git clone https://github.com/philres/ngmlr.git
@@ -96,5 +99,5 @@ cd ../bin/ngmlr-*/
 git clone https://github.com/philres/ngmlr.git
 mkdir -p ngmlr/build
 docker run -v `pwd`/ngmlr:/ngmlr philres/nextgenmaplr-buildenv bash -c "cd /ngmlr/build && cmake .. &&  make"
-`pwd`/ngmlr/bin/ngmlr-0.2.1/ngmlr
+`pwd`/ngmlr/bin/ngmlr-*/ngmlr
 ```
