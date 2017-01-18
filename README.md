@@ -1,6 +1,7 @@
 ### Quick start
 
 Download [binary](https://github.com/philres/ngmlr/releases/tag/v0.2.1) from github and unzip or [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/ngmlr/README.html) or pull docker [![Docker Repository on Quay](https://quay.io/repository/philres/ngmlr/status "Docker Repository on Quay")](https://quay.io/repository/philres/ngmlr)
+
 For Pacbio data run:
 ```bash
 ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam
