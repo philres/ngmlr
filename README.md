@@ -1,6 +1,6 @@
 ### Quick start
 
-Download [binary](https://github.com/philres/ngmlr/releases/tag/v0.2.1) from github and unzip or [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/ngmlr/README.html) or pull docker [![Docker Repository on Quay](https://quay.io/repository/philres/ngmlr/status "Docker Repository on Quay")](https://quay.io/repository/philres/ngmlr)
+Download [binary](https://github.com/philres/ngmlr/releases/tag/v0.2.2) from github and unzip or [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/ngmlr/README.html) or pull docker [![Docker Repository on Quay](https://quay.io/repository/philres/ngmlr/status "Docker Repository on Quay")](https://quay.io/repository/philres/ngmlr)
 
 For Pacbio data run:
 ```bash
@@ -78,6 +78,11 @@ Advanced:
         Length of fragments reads are split into [256]
     --subread-corridor <int>
         Length of corridor sub-reads are aligned with [40]
+```
+
+### Running with docker
+```bash
+docker run -ti -v /home/user/data/:/home/user/data/ quay.io/philres/ngmlr ngmlr -r /home/user/data/ref.fa -q /home/user/data/reads.fasta -o /home/user/data/output.sam
 ```
 
 ### Building ngmlr from source
