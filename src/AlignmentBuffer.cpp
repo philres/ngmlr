@@ -26,6 +26,7 @@
 #include <float.h> //Eclipse
 
 #include "Timing.h"
+#include "SequenceProvider.h"
 #include "StrippedSW.h"
 #include "OutputReadBuffer.h"
 
@@ -778,6 +779,14 @@ bool AlignmentBuffer::canSpanDeletionInsertion(Interval const * a, Interval cons
 		 */
 	}
 	return merge;
+}
+
+bool AlignmentBuffer::spansChromosomeBorder(Interval const * a, Interval const * b) {
+
+	_SequenceProvider::Chromosome chrA = SequenceProvider.getChrStart(a->onRefStart);
+	_SequenceProvider::Chromosome chrB = SequenceProvider.getChrStart(b->onRefStart);
+
+	return chrA.start != chrB.start;
 }
 
 bool AlignmentBuffer::isContained(Interval const * a, Interval const * b) {
@@ -3049,7 +3058,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 						 */
 						REAL const corridorSize = std::min(4096, std::min(currentInterval->lengthOnRead(), lastInterval->lengthOnRead()));
 						verbose(2, true, "IsContained in corridor of %f.", corridorSize);
-						if (canSpanDeletionInsertion(currentInterval, lastInterval, corridorSize)) {
+						if (canSpanDeletionInsertion(currentInterval, lastInterval, corridorSize) && !spansChromosomeBorder(currentInterval, lastInterval)) {
 							/**
 							 *  Deletion or insertion small enough for alignment without split
 							 */
@@ -3061,7 +3070,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 							/**
 							 * Deletion, insertion or gap
 							 */
-							verbose(2, true, "Diagonal offset between intervals too big (max %f).", corridorSize);
+							verbose(2, true, "Diagonal offset between intervals too big (max %f) or spans chromosome border.", corridorSize);
 							verbose(2, true, "Saving last interval. Using current to go on.");
 
 							if (isFirstInterval) {

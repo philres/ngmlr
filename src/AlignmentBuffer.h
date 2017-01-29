@@ -146,6 +146,11 @@ public:
 	 */
 	bool canSpanDeletionInsertion(Interval const * a, Interval const * b, REAL corridorSize);
 
+	/**
+	 * Checks whether the gap between two intervals spans a chromosome border
+	 */
+	bool spansChromosomeBorder(Interval const * a, Interval const * b);
+
 	void addAnchorAsInterval(Anchor const & anchor, MappedSegment & segment);
 	Interval * toInterval(Anchor const & anchor);
 
