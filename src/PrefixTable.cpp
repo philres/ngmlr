@@ -1,20 +1,5 @@
 /**
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/**
- * Contact: philipp.rescheneder@univie.ac.at
+ * Contact: philipp.rescheneder@gmail.com
  */
 
 #include "PrefixTable.h"
@@ -126,14 +111,6 @@ CompactPrefixTable::CompactPrefixTable(bool const dualStrand, bool const skip) :
 		Log.Message("Building reference table");
 		kmerCountMinLocation = 0;
 		kmerCountMaxLocation = c_tableLocMax;
-
-		if( Config.getVcfFile() != 0 )
-		{
-			vcf.open(Config.getVcfFile());
-			Log.Message("Loaded VCF (%u variations)",vcf.length());
-
-			BuildSNPTable();
-		}
 
 		uloc genomeSize = SequenceProvider.GetConcatRefLen();
 		m_UnitCount = 1 + genomeSize / c_tableLocMax;
@@ -250,21 +227,6 @@ int * CompactPrefixTable::CountKmerFreq(uint length) {
 		}
 	}
 
-	//Add SNPmers to index
-	for(int i = 0; i < snps.size(); ++ i)
-	{
-		SNPRegion& reg = snps[i];
-		
-		lastPrefix = 111111;
-		lastBin = -1;
-
-		if(skipRep) {
-			CS::PrefixIteration(reg.buffer.c_str(), reg.buffer.size(), &CompactPrefixTable::CountKmer, 0, 0, freq, m_RefSkip, reg.ref_offset);
-		} else {
-			CS::PrefixIteration(reg.buffer.c_str(), reg.buffer.size(), &CompactPrefixTable::CountKmerwoSkip, 0, 0, freq, m_RefSkip, reg.ref_offset);
-		}
-	}
-
 	return freq;
 }
 
@@ -294,17 +256,6 @@ void CompactPrefixTable::Generate() {
 			Log.Verbose("Create table for chr %d. Start: %d, Length: %u (%.2fs)", m_CurGenSeq, 0, len, t.ET());
 			delete[] seq;
 			seq = 0;
-		}
-	}
-
-	//Add SNPmer locations
-	for(int i = 0; i < snps.size(); ++ i)
-	{
-		SNPRegion& reg = snps[i];
-		if(skipRep) {
-			CS::PrefixIteration(reg.buffer.c_str(), reg.buffer.size(), &CompactPrefixTable::BuildPrefixTable, 0, 0, this, m_RefSkip, reg.ref_offset);
-		} else {
-			CS::PrefixIteration(reg.buffer.c_str(), reg.buffer.size(), &CompactPrefixTable::BuildPrefixTablewoSkip, 0, 0, this, m_RefSkip, reg.ref_offset);
 		}
 	}
 
@@ -367,88 +318,6 @@ uint CompactPrefixTable::createRefTableIndex(uint const length) {
 	Log.Message("\tIndex size: %d byte (%d x %d)", length * sizeof(Index), length, sizeof(Index));
 	Log.Message("\tGenerating index took %.2fs", t.ET());
 	return next;
-}
-
-
-void CompactPrefixTable::BuildSNPTable()
-{
-	uint snp_c=0;
-	uint indel_c=0;
-	uint ign_c=0;
-
-	//Iterate over all SNPs from the VCF
-	for(uint i = 0; i < vcf.length(); i ++ ) {
-		//Get SNP position and changed base
-		const VcfSNP& snp = vcf.get(i);
-
-		//Extract from the reference the sequence surrounding the SNP
-		int region_extension = (snp.ref.size()+snp.alt.size()) - 2;
-		int region_len = 2 * (m_PrefixLength + region_extension);
-
-		char * buffer_tmp = new char[region_len + 1];
-		memset(buffer_tmp, 0, sizeof(char) * (region_len + 1));
-		SequenceProvider.DecodeRefSequence(buffer_tmp,0, snp.pos - region_len / 2, region_len);
-		buffer_tmp[region_len] = 0;
-
-		std::string buffer = buffer_tmp;
-		delete[] buffer_tmp;
-
-		int buffer_snp_pos = region_len / 2 - 1;
-
-		if( snp.ref.size() == 1 && snp.alt.size() == 1 )
-		{
-			if( buffer[ buffer_snp_pos ] == snp.alt[0] ) //Reference already equals SNP
-			{
-				ign_c ++;
-				continue;
-			}
-
-			//Simple SNP
-			//Apply the SNP to the reference region
-			buffer[ buffer_snp_pos ] = snp.alt[0];
-			snp_c ++;
-
-		} else {
-			std::string new_buffer;
-
-			for( int i = 0; i < buffer_snp_pos; ++ i )
-			{
-				new_buffer.push_back(buffer[i]);
-			}
-
-			bool ignore = false;
-			for( int i = 0; i < snp.ref.size(); ++ i )
-			{
-				if( snp.ref[ i ] != buffer[ buffer_snp_pos + i ] )
-				{
-					Log.Message("SNP ref does not match reference at SNP %llu",snp.pos);
-					ign_c ++;
-					ignore = true;
-					break;
-				}
-			}
-
-			if( ignore )
-				break;
-
-			new_buffer += snp.alt;
-
-			for( int i = buffer_snp_pos + snp.ref.size(); i < buffer.size(); ++ i )
-			{
-				new_buffer.push_back(buffer[i]);
-			}
-
-			indel_c ++;
-			buffer = new_buffer;
-		}
-
-		SNPRegion reg;
-		reg.buffer = buffer;
-		reg.ref_offset = snp.pos - region_len / 2;
-		snps.push_back(reg);
-	}
-
-	Log.Message("Built SNP region table (%u SNPs, %u indels, %u ignored)",snp_c,indel_c,ign_c);
 }
 
 void CompactPrefixTable::CreateTable(uint const length) {

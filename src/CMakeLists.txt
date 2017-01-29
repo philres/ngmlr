@@ -19,9 +19,7 @@ endif()
 add_executable(ngmlr
                     AlignmentMatrix.cpp
                     AlignmentMatrixFast.cpp
-                    ArgParser.cpp
-					BitpalAligner.cpp
-					VcfParser.cpp																					
+                    ArgParser.cpp																					
 					CS.cpp					
 					CSstatic.cpp
 					ConvexAlign.cpp
@@ -31,7 +29,6 @@ add_executable(ngmlr
 					MappedRead.cpp
 					main.cpp
 					NGM.cpp
-					#UpdateCheck.cpp
 					NGMTask.cpp
 					AlignmentBuffer.cpp
 					PrefixTable.cpp														

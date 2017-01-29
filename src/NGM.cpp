@@ -1,20 +1,5 @@
 /**
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/**
- * Contact: philipp.rescheneder@univie.ac.at
+ * Contact: philipp.rescheneder@gmail.com
  */
 
 #include "NGM.h"
@@ -29,7 +14,6 @@
 #include "PlainFileWriter.h"
 #include "SAMWriter.h"
 #include "Timing.h"
-#include "BitpalAligner.h"
 #include "StrippedSW.h"
 
 #undef module_name
@@ -367,9 +351,6 @@ IAlignment * _NGM::CreateAlignment(int const mode) {
 	IAlignment * instance = 0;
 
 	switch (Config.getSubreadAligner()) {
-	case 0:
-		instance = new BitpalAligner();
-		break;
 	case 2:
 		instance = new StrippedSW();
 		break;
