@@ -19,7 +19,7 @@ class IParser {
 
 public:
 
-	static size_t const MAX_READNAME_LENGTH = 100;
+	static size_t const MAX_READNAME_LENGTH = 500;
 
 	IParser(int const qrymaxlen) :
 			qryMaxLen(qrymaxlen) {
