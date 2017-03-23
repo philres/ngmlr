@@ -29,13 +29,17 @@ protected:
 	int minInversionLength = 70; //Advanced
 	int minKmerHits = 0;
 	int maxCMRs = INT_MAX;
-	int maxInitialSegments = 10;
+
+	int maxSegmentNumberPerKb = 1;
+
 	int maxCLISRuns = 100;
+
 	int readPartCorridor = 40;
 	int readPartLength = 256;
 	int stdoutMode = 0;
 	int subreadaligner = 2;
 	int threads = 1;
+	int maxReadNameLength = 500;
 
 	float invScoreRatio = 1.0f;
 	float scoreMatch = 2.0f;
@@ -138,8 +142,8 @@ public:
 		return minKmerHits;
 	}
 
-	int getMaxInitialSegments() const {
-		return maxInitialSegments;
+	int getMaxSegmentNumberPerKb() const {
+		return maxSegmentNumberPerKb;
 	}
 
 	int getMaxCLISRuns() const {
@@ -196,6 +200,10 @@ public:
 
 	int getThreads() const {
 		return threads;
+	}
+
+	int getMaxReadNameLength() const {
+		return maxReadNameLength;
 	}
 
 	bool getNoSSE() const {
