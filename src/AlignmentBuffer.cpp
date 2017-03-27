@@ -2264,7 +2264,7 @@ bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
 
 	int maxSplits = Config.getMaxSegmentNumberPerKb(read->length);
 	mapped = mapped && segmentCount < maxSplits;
-	Log.Message("mapped segments: %d < %d = %d (%d)", segmentCount, maxSplits, mapped, read->length);
+	verbose(0, true, "mapped segments: %d < %d = %d (%d)", segmentCount, maxSplits, mapped, read->length);
 
 	// Delete all mapped segments
 	for (int i = 0; i < mappedSegements.size(); ++i) {
@@ -2820,78 +2820,96 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 //	delete[] bestScores;
 //	bestScores = 0;
 
+	Log.Message("Read: %s", group->fullRead->name);
+	Log.Message("Parts: %d", group->readNumber);
 	for (int j = 0; j < group->readNumber; ++j) {
 		MappedRead * part = group->reads[j];
 
 		int positionOnRead = j * readPartLength;
 
-		/**
-		 * Add mapped read parts + mapping quality.
-		 * Used to estimate MQ for read(part)s
-		 */
-		treeIntervals.push_back(IntervalTree::Interval<int>(positionOnRead, positionOnRead + readPartLength, part->mappingQlty));
+		Log.Message("\tPart %d:", j);
+		Log.Message("\t\tName: %s", part->name);
+		Log.Message("\t\tMappings: %d", part->numScores());
+		Log.Message("\t\tQuality: %d", part->mappingQlty);
+
+		for (int k = 0; k < part->numScores(); ++k) {
+			Log.Message("\t\t\t%d, %llu, %f", positionOnRead, part->Scores[k].Location.m_Location, part->Scores[k].Score.f );
+		}
+
+	}
+
+	for (int j = 0; j < group->readNumber; ++j) {
+		MappedRead * part = group->reads[j];
+
+		int positionOnRead = j * readPartLength;
 
 		verbose(1, false, "%d: ", positionOnRead);
 
 		if (part->numScores() < maxNumScores) {
-			for (int k = 0; k < part->numScores(); ++k) {
-
-				if (stdoutPrintScores) {
-					printf("%f\n", part->Scores[k].Score.f);
-				}
+			if (part->numScores() > 0) {
 
 				/**
-				 * Anchor is valid and will be used
+				 * Add mapped read parts + mapping quality.
+				 * Used to estimate MQ for read(part)s
 				 */
-				if (anchorFwdIndex >= (maxAnchorNumber - 1)) {
-					verbose(0, true, "Anchor array too small - reallocating.");
-					maxAnchorNumber = maxAnchorNumber * 2;
-					Anchor * anchorsTmp = new Anchor[maxAnchorNumber];
-					memcpy(anchorsTmp, anchorsFwd, anchorFwdIndex * sizeof(Anchor));
-					delete[] anchorsFwd;
-					anchorsFwd = anchorsTmp;
+				treeIntervals.push_back(IntervalTree::Interval<int>(positionOnRead, positionOnRead + readPartLength, part->mappingQlty));
+
+				for (int k = 0; k < part->numScores(); ++k) {
+
+					if (stdoutPrintScores) {
+						printf("%f\n", part->Scores[k].Score.f);
+					}
+
+					/**
+					 * Anchor is valid and will be used
+					 */
+					if (anchorFwdIndex >= (maxAnchorNumber - 1)) {
+						verbose(0, true, "Anchor array too small - reallocating.");
+						maxAnchorNumber = maxAnchorNumber * 2;
+						Anchor * anchorsTmp = new Anchor[maxAnchorNumber];
+						memcpy(anchorsTmp, anchorsFwd, anchorFwdIndex * sizeof(Anchor));
+						delete[] anchorsFwd;
+						anchorsFwd = anchorsTmp;
+					}
+					Anchor & anchor = anchorsFwd[anchorFwdIndex++];
+
+					anchor.score = part->Scores[k].Score.f;
+					anchor.isReverse = part->Scores[k].Location.isReverse();
+					anchor.type = DP_STATUS_OK;
+					anchor.isUnique = part->numScores() == 1; // || anchor.score > minScore;
+
+					/**
+					 * It would be best to convert reads or read parts that map to the negative strand
+					 * Immediately to plus strand.
+					 * If somebody tells me how to do this properly, I'll happily change this.
+					 * For now Anchors can be on the plus or minus strand!
+					 * Problem: Transforming coordinates from negative anchors to plus strand
+					 * is not possible without knowing if the read originates from the plus
+					 * or the minus strand. This is difficult for reads with few matching anchors
+					 * and reads that originate from e.g. an inverted translocation.
+					 */
+					anchor.onRead = positionOnRead;
+					anchor.onRef = part->Scores[k].Location.m_Location;
+					if (anchor.isReverse) {
+						printDotPlotLine(group->fullRead->ReadId, group->fullRead->name, anchor.onRead, anchor.onRead + readPartLength, part->Scores[k].Location.m_Location + readPartLength, part->Scores[k].Location.m_Location, part->Scores[k].Score.f,
+								part->Scores[k].Location.isReverse(),
+								DP_TYPE_UNFILTERED, anchor.isUnique ? DP_STATUS_OK : DP_STATUS_LOWSCORE);
+					} else {
+						printDotPlotLine(group->fullRead->ReadId, group->fullRead->name, anchor.onRead, anchor.onRead + readPartLength, part->Scores[k].Location.m_Location, part->Scores[k].Location.m_Location + readPartLength, part->Scores[k].Score.f,
+								part->Scores[k].Location.isReverse(),
+								DP_TYPE_UNFILTERED, anchor.isUnique ? DP_STATUS_OK : DP_STATUS_LOWSCORE);
+					}
+
+					if (k < 3) {
+						verbose(0, false, "%f at %llu, ", part->Scores[k].Score.f, part->Scores[k].Location.m_Location);
+					} else if (k == 3) {
+						verbose(0, false, "... (%d)", part->numScores());
+					}
 				}
-				Anchor & anchor = anchorsFwd[anchorFwdIndex++];
-
-				anchor.score = part->Scores[k].Score.f;
-				anchor.isReverse = part->Scores[k].Location.isReverse();
-				anchor.type = DP_STATUS_OK;
-				anchor.isUnique = part->numScores() == 1; // || anchor.score > minScore;
-
-				/**
-				 * It would be best to convert reads or read parts that map to the negative strand
-				 * Immediately to plus strand.
-				 * If somebody tells me how to do this properly, I'll happily change this.
-				 * For now Anchors can be on the plus or minus strand!
-				 * Problem: Transforming coordinates from negative anchors to plus strand
-				 * is not possible without knowing if the read originates from the plus
-				 * or the minus strand. This is difficult for reads with few matching anchors
-				 * and reads that originate from e.g. an inverted translocation.
-				 */
-				anchor.onRead = positionOnRead;
-				anchor.onRef = part->Scores[k].Location.m_Location;
-				if (anchor.isReverse) {
-					printDotPlotLine(group->fullRead->ReadId, group->fullRead->name, anchor.onRead, anchor.onRead + readPartLength, part->Scores[k].Location.m_Location + readPartLength, part->Scores[k].Location.m_Location, part->Scores[k].Score.f,
-							part->Scores[k].Location.isReverse(),
-							DP_TYPE_UNFILTERED, anchor.isUnique ? DP_STATUS_OK : DP_STATUS_LOWSCORE);
-				} else {
-					printDotPlotLine(group->fullRead->ReadId, group->fullRead->name, anchor.onRead, anchor.onRead + readPartLength, part->Scores[k].Location.m_Location, part->Scores[k].Location.m_Location + readPartLength, part->Scores[k].Score.f,
-							part->Scores[k].Location.isReverse(),
-							DP_TYPE_UNFILTERED, anchor.isUnique ? DP_STATUS_OK : DP_STATUS_LOWSCORE);
-				}
-
-				if (k < 3) {
-					verbose(0, false, "%f at %llu, ", part->Scores[k].Score.f, part->Scores[k].Location.m_Location);
-				} else if (k == 3) {
-					verbose(0, false, "... (%d)", part->numScores());
-				}
-			}
-
-			if (part->numScores() == 0) {
+				verbose(0, true, "");
+			} else {
 				verbose(0, true, "no hits found");
 				printDotPlotLine(group->fullRead->ReadId, group->fullRead->name, positionOnRead, positionOnRead + readPartLength, 0, 0, 0.0f, 0, DP_TYPE_UNFILTERED, DP_STATUS_NOHIT);
-			} else {
-				verbose(0, true, "");
 			}
 		} else {
 			verbose(0, true, "too many hits found");

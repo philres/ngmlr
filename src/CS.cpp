@@ -281,32 +281,38 @@ void CS::SendToBuffer(MappedRead * read, ScoreBuffer * sw,
 
 	int count = read->numScores();
 	if (read->group != 0) {
+		/*
+		 * Read is a long read (long enough for splitting)
+		 */
 		if (count == 0) {
+			/*
+			 * Current sub-read does not have mapping locations
+			 */
 			read->Calculated = 0;
+			read->mappingQlty = 0;
 			read->group->readsFinished += 1;
+
 			if (read->group->readsFinished == read->group->readNumber) {
-				//			out->processLongReadLIS(group);
-				out->WriteRead(read->group->fullRead, false);
+				out->processLongReadLIS(read->group);
 			}
-//		out->addRead(read, -1);
 		} else {
+			/*
+			 * Current sub-read has mapping locations
+			 *  -> compute scores
+			 */
 			read->Calculated = 0;
 			sw->addRead(read, count);
-			++m_WrittenReads;
-//		read->group->readsFinished += 1;
-//		if (read->group->readsFinished == read->group->readNumber) {
-//			//			out->processLongReadLIS(group);
-//			out->WriteRead(read->group->fullRead, false);
-//		}
 		}
+
 	} else {
+		/*
+		 * Read length is too short for splitting
+		 */
 		if (count == 0) {
 			out->WriteRead(read, false);
 		} else {
 			read->Calculated = 0;
-			//out->processShortRead(read);
 			sw->scoreShortRead(read);
-			++m_WrittenReads;
 		}
 	}
 }
@@ -503,7 +509,7 @@ void CS::Init() {
 
 CS::CS(bool useBuffer) :
 		m_CSThreadID((useBuffer) ? (AtomicInc(&s_ThreadCount) - 1) : -1), m_BatchSize(
-				cBatchSize), m_ProcessedReads(0), m_WrittenReads(0), m_DiscardedReads(
+				cBatchSize), m_ProcessedReads(0), m_DiscardedReads(
 				0), m_Overflows(0), m_entry(0), m_PrefixBaseSkip(
 				0), m_Fallback(false), alignmentBuffer(0), c_SrchTableLen(0), rListLength(0), m_CurrentSeq(0), c_SrchTableBitLen(0), oclAligner(0),
 				m_CurrentReadLength(0), hpoc(0), m_CsSensitivity(0.0f), maxHitNumber(0.0f), rList(0), m_entryCount(0), c_BitShift(0), m_RefProvider(0), currentThresh(0.0f)

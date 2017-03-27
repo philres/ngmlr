@@ -50,7 +50,6 @@ protected:
 	int m_CurrentSeq;
 	int m_CurrentReadLength;
 	int m_ProcessedReads;
-	int m_WrittenReads;
 	int m_DiscardedReads;
 	//	volatile int m_Candidates;
 
