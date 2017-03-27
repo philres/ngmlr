@@ -13,3 +13,4 @@ lib/libgff
 /cshl.sh
 /Release/
 /build-linux/
+test_env.sh
