@@ -2,4 +2,5 @@
 
 bash test/test_1.sh
 bash test/test_2.sh
+bash test/test_3.sh
 
