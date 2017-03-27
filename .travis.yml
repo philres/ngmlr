@@ -1,14 +1,7 @@
 language: cpp
 
-#sudo: false
-sudo: required
+sudo: false
 dist: trusty
-
-#addons:
-#    apt:
-#        packages:
-#            - gcc-4.8
-#            - g++-4.8
 
 compiler: g++
 
@@ -19,6 +12,8 @@ before_script:
 
 script:
     - make
-    - bin/ngmlr*/ngmlr -h
+    - pwd
+    - ls
+#    - bin/ngmlr*/ngmlr -h
 
 
