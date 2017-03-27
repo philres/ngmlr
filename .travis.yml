@@ -22,9 +22,7 @@ before_script:
 
 script:
     - make && cd ..
-    - pwd
-    - ls
-    - bin/ngmlr*/ngmlr -h
+#    - bin/ngmlr*/ngmlr -h
     - test/test_travis.sh
 
 
