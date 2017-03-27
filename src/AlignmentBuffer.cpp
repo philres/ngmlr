@@ -861,7 +861,9 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 	std::sort(allFwdAnchors, allFwdAnchors + allFwdAnchorsLength,
 			sortAnchorOnRead);
 
-	int const maxcLISRunNumber = Config.getMaxSegmentNumberPerKb(read->length) * 2;
+	// Change lo
+	maxSegmentCount = std::max(10, Config.getMaxSegmentNumberPerKb(read->length) * 2);
+	int const maxcLISRunNumber = maxSegmentCount;
 	Interval * * intervals = new Interval * [maxcLISRunNumber];
 	intervalsIndex = 0;
 
@@ -2263,14 +2265,16 @@ bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
 	}
 
 	int maxSplits = Config.getMaxSegmentNumberPerKb(read->length);
-	mapped = mapped && segmentCount < maxSplits;
-	verbose(0, true, "mapped segments: %d < %d = %d (%d)", segmentCount, maxSplits, mapped, read->length);
+	mapped = mapped && (segmentCount - 1) <= maxSplits;
+	verbose(0, true, "Splits detected: %d < %d = %d (%d)", segmentCount - 1, maxSplits, mapped, read->length);
 
 	// Delete all mapped segments
 	for (int i = 0; i < mappedSegements.size(); ++i) {
 		delete mappedSegements[i];
 		mappedSegements[i] = 0;
 	}
+
+	verbose(0, true, "Read %s mapped: %d", read->name, mapped);
 
 	return mapped;
 }
@@ -2820,23 +2824,23 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 //	delete[] bestScores;
 //	bestScores = 0;
 
-	Log.Message("Read: %s", group->fullRead->name);
-	Log.Message("Parts: %d", group->readNumber);
-	for (int j = 0; j < group->readNumber; ++j) {
-		MappedRead * part = group->reads[j];
-
-		int positionOnRead = j * readPartLength;
-
-		Log.Message("\tPart %d:", j);
-		Log.Message("\t\tName: %s", part->name);
-		Log.Message("\t\tMappings: %d", part->numScores());
-		Log.Message("\t\tQuality: %d", part->mappingQlty);
-
-		for (int k = 0; k < part->numScores(); ++k) {
-			Log.Message("\t\t\t%d, %llu, %f", positionOnRead, part->Scores[k].Location.m_Location, part->Scores[k].Score.f );
-		}
-
-	}
+//	Log.Message("Read: %s", group->fullRead->name);
+//	Log.Message("Parts: %d", group->readNumber);
+//	for (int j = 0; j < group->readNumber; ++j) {
+//		MappedRead * part = group->reads[j];
+//
+//		int positionOnRead = j * readPartLength;
+//
+//		Log.Message("\tPart %d:", j);
+//		Log.Message("\t\tName: %s", part->name);
+//		Log.Message("\t\tMappings: %d", part->numScores());
+//		Log.Message("\t\tQuality: %d", part->mappingQlty);
+//
+//		for (int k = 0; k < part->numScores(); ++k) {
+//			Log.Message("\t\t\t%d, %llu, %f", positionOnRead, part->Scores[k].Location.m_Location, part->Scores[k].Score.f );
+//		}
+//
+//	}
 
 	for (int j = 0; j < group->readNumber; ++j) {
 		MappedRead * part = group->reads[j];
@@ -3015,10 +3019,10 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 	verbose(0, true, "\n\nMerging segments:\n");
 	// Final interval list
-	intervals = new Interval *[Config.getMaxSegmentNumberPerKb(read->length) * 2 + 1];
+	intervals = new Interval *[maxSegmentCount + 1];
 	nIntervals = 0;
 
-	Interval * * delIntervals = new Interval *[Config.getMaxSegmentNumberPerKb(read->length) * 2 + 1];
+	Interval * * delIntervals = new Interval *[maxSegmentCount + 1];
 	int nDelIntervals = 0;
 
 	verbose(0, true, "Joining segments to intervals:");

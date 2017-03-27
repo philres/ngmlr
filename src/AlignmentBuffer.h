@@ -75,6 +75,7 @@ private:
 
 	int const readPartLength;
 
+	int maxSegmentCount;
 //	float const maxIntervalNumberPerKb;
 //	int intervalBufferIndex;
 //	Interval ** intervalBuffer;
@@ -310,7 +311,7 @@ public:
 	REAL const m, REAL const b, REAL const r, float const score, bool const isReverse, int const type, int const status);
 
 	AlignmentBuffer(const char* const filename) :
-			pacbioDebug(Config.getVerbose()), readCoordsTree(0), readPartLength(Config.getReadPartLength())/*, maxIntervalNumberPerKb(Config.getMaxSegmentNumberPerKb())*/ {
+			pacbioDebug(Config.getVerbose()), readCoordsTree(0), readPartLength(Config.getReadPartLength()), maxSegmentCount(0)/*, maxIntervalNumberPerKb(Config.getMaxSegmentNumberPerKb())*/ {
 
 		m_Writer = (GenericReadWriter*) new SAMWriter((FileWriter*) NGM.getWriter());
 
