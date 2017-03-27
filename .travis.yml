@@ -1,12 +1,14 @@
 language: cpp
 
-sudo: false
+#sudo: false
+sudo: required
+dist: trusty
 
-addons:
-    apt:
-        packages:
-            - gcc-4.8
-            - g++-4.8
+#addons:
+#    apt:
+#        packages:
+#            - gcc-4.8
+#            - g++-4.8
 
 compiler: g++
 
