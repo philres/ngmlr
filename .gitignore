@@ -9,7 +9,6 @@
 lib/libgff
 /docs/
 .DS_Store
-/test/
 /cibiv.sh
 /cshl.sh
 /Release/
