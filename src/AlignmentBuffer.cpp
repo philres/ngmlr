@@ -2542,7 +2542,7 @@ void AlignmentBuffer::processShortRead(MappedRead * read) {
 
 			}
 
-			if (align != 0 && align->Score > 0.0f) {
+			if (align != 0 && align->Score > 0.0f && ((read->length - align->QStart - align->QEnd) * 1.0f / read->length) > Config.getMinResidues()) {
 				align->clearNmPerPosition();
 
 				align->MQ = read->mappingQlty;
