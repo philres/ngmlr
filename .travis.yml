@@ -9,10 +9,9 @@ before_script:
     - mkdir build
     - cd build
     - cmake ..
-    - cd ..
 
 script:
-    - make
+    - make && cd ..
     - pwd
     - ls
     - bin/ngmlr*/ngmlr -h
