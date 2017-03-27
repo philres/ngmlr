@@ -1846,20 +1846,23 @@ void AlignmentBuffer::alignSingleOrMultipleIntervals(MappedRead * read, Interval
 	}
 }
 
-int AlignmentBuffer::computeMappingQuality(Align const & alignment,
-		int readLength) {
+int AlignmentBuffer::computeMappingQuality(Align const & alignment, int readLength) {
 
 	std::vector<IntervalTree::Interval<int> > results;
 
-		readCoordsTree->findOverlapping(alignment.QStart,
-				readLength - alignment.QEnd, results);
-		int mqSum = 0;
-		int mqCount = 0;
-		for (int j = 0; j < results.size(); ++j) {
-			mqSum += results[j].value;
-			mqCount += 1;
-		}
-		return (int) (mqSum * 1.0f / mqCount);
+	verbose(0, true, "Computing mapping quality:");
+
+	readCoordsTree->findOverlapping(alignment.QStart, readLength - alignment.QEnd, results);
+	int mqSum = 0;
+	int mqCount = 0;
+	for (int j = 0; j < results.size(); ++j) {
+		verbose(1, false, "%d, ", results[j].value);
+		mqSum += results[j].value;
+		mqCount += 1;
+	}
+	verbose(1, true, "");
+	verbose(1, true, "%d / %d = %d", mqSum, mqCount, (int) (mqSum * 1.0f / mqCount));
+	return (int) (mqSum * 1.0f / mqCount);
 
 //		std::vector<IntervalTree::Interval<int> > results;
 //

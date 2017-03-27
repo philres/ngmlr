@@ -1,6 +1,14 @@
 language: cpp
 
-compiler: gcc
+sudo: false
+
+addons:
+    apt:
+        packages:
+            - gcc-4.8
+            - g++-4.8
+
+compiler: g++
 
 before_script:
     - mkdir build
