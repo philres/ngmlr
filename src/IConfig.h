@@ -142,8 +142,10 @@ public:
 		return minKmerHits;
 	}
 
-	int getMaxSegmentNumberPerKb() const {
-		return maxSegmentNumberPerKb;
+	int getMaxSegmentNumberPerKb(int const readLength) const {
+		//int maxSplits = int((read->length / 1000.0) * Config.getMaxSegmentNumberPerKb() + 0.5);
+		int maxSegments = (int)((readLength / 1000.0) * maxSegmentNumberPerKb + 0.5);
+		return maxSegments < 1 ? 1 : maxSegments;
 	}
 
 	int getMaxCLISRuns() const {

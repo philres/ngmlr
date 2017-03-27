@@ -861,7 +861,7 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 	std::sort(allFwdAnchors, allFwdAnchors + allFwdAnchorsLength,
 			sortAnchorOnRead);
 
-	int const maxcLISRunNumber = maxIntervalNumber;
+	int const maxcLISRunNumber = Config.getMaxSegmentNumberPerKb(read->length) * 2;
 	Interval * * intervals = new Interval * [maxcLISRunNumber];
 	intervalsIndex = 0;
 
@@ -2166,9 +2166,10 @@ bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
 		alignedBpSum += (mappedSegements[index]->onReadStop - mappedSegements[index]->onReadStart);
 		if(mappedSegements[index]->score > topFragmentScore) {
 			fragmentWithHighestScore = index;
+			topFragmentScore = mappedSegements[index]->score;
 		}
 	}
-	// Set the alignment with the higest score as primary
+	// Set the alignment with the highest score as primary
 	if(bestSegments.size() > 0) {
 		read->Alignments[mappedSegements[fragmentWithHighestScore]->id].primary = true;
 	}
@@ -2198,7 +2199,7 @@ bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
 		Interval * a = mappedSegements[i];
 		if (a->isProcessed) {
 			verbose(1, "Testee: ", a);
-			bool keep = a->lengthOnRead() > minOnReadLength;
+			bool keep = a->lengthOnRead() > std::min(minOnReadLength, (int)(read->length * 0.5f));
 			for (int j = 0; j < mappedSegements.size() && !keep; ++j) {
 				Interval * b = mappedSegements[j];
 				if (b != 0 && b->isProcessed) {
@@ -2206,7 +2207,7 @@ bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
 					int distance = getDistanceOnRead(a, b);
 					loc distanceOnRef = (b->onRefStart < a->onRefStart) ? std::max(0ll, a->onRefStart - b->onRefStop) : std::max(0ll, b->onRefStart - a->onRefStop);
 					loc const maxDistance = a->lengthOnRead();
-					keep = (distance < maxDistance || distanceOnRef < maxDistance) && b->lengthOnRead() > minOnReadLength;
+					keep = (distance < maxDistance || distanceOnRef < maxDistance) && b->lengthOnRead() > std::min(minOnReadLength, (int)(read->length * 0.5f));
 					verbose(2, true, "dist: %d, a length * 2: %d, b length: %d -> %d", distance, a->lengthOnRead() * 2, b->lengthOnRead(), keep);
 				}
 			}
@@ -2224,6 +2225,7 @@ bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
 		}
 	}
 
+	int segmentCount = 0;
 	// Set 0x1 (full read is aligned) + debug code
 	for (int i = 0; i < read->Calculated; ++i) {
 		if (!read->Alignments[mappedSegements[i]->id].skip) {
@@ -2232,6 +2234,7 @@ bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
 				read->Alignments[mappedSegements[i]->id].setBitFlag(0x2);
 			}
 
+			segmentCount += 1;
 			if (!readIsReverse) {
 				printDotPlotLine(read->ReadId, read->name,
 						mappedSegements[i]->onReadStart,
@@ -2256,6 +2259,9 @@ bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
 		}
 	}
 
+	int maxSplits = Config.getMaxSegmentNumberPerKb(read->length);
+	mapped = mapped && segmentCount < maxSplits;
+	Log.Message("mapped segments: %d < %d = %d (%d)", segmentCount, maxSplits, mapped, read->length);
 
 	// Delete all mapped segments
 	for (int i = 0; i < mappedSegements.size(); ++i) {
@@ -2917,7 +2923,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	 * Intervals that are contained in others will be deleted. All the others
 	 * will be added to a segment
 	 */
-	int const maxMappedSegementCount = maxIntervalNumber;
+	int const maxMappedSegementCount = nIntervals + 1;
 	MappedSegment * segments = new MappedSegment[maxMappedSegementCount];
 	size_t segementsIndex = 0;
 	for (int i = 0; i < nIntervals; ++i) {
@@ -2988,10 +2994,10 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 	verbose(0, true, "\n\nMerging segments:\n");
 	// Final interval list
-	intervals = new Interval *[maxIntervalNumber + 1];
+	intervals = new Interval *[Config.getMaxSegmentNumberPerKb(read->length) * 2 + 1];
 	nIntervals = 0;
 
-	Interval * * delIntervals = new Interval *[maxIntervalNumber + 1];
+	Interval * * delIntervals = new Interval *[Config.getMaxSegmentNumberPerKb(read->length) * 2 + 1];
 	int nDelIntervals = 0;
 
 	verbose(0, true, "Joining segments to intervals:");
