@@ -106,6 +106,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	TCLAP::SwitchArg lowqualitysplitArg("", "no-lowqualitysplit", "Split alignments with poor quality", cmd, false);
 	TCLAP::SwitchArg nosmallInversionArg("", "no-smallinv", "Don't detect small inversions", cmd, false);
 	TCLAP::SwitchArg printAllAlignmentsArg("", "print-all", "Print all alignments. Disable filtering. (debug)", cmd, false);
+	TCLAP::SwitchArg skipWriteArg("", "skip-write", "Don't write reference index to disk", cmd, skipSave);
 	//skipSave = false;
 	//updateCheck = false;
 	//writeUnmapped = true;
@@ -205,6 +206,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	lowQualitySplit = !lowqualitysplitArg.getValue();
 	smallInversionDetection = !nosmallInversionArg.getValue();
 	printAllAlignments = printAllAlignmentsArg.getValue();
+	skipSave = skipWriteArg.getValue();
 	nosse = noSSEArg.getValue();
 
 	if (presetArgs.getValue() == "pacbio") {
