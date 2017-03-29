@@ -36,6 +36,8 @@ Input/Output:
         (required)  Path to the read file (FASTA/Q)
     -o <file>,  --output <file>
         Path to output file [stdout]
+    --skip-write
+        Don't write reference index to disk [false]
 
 General:
     -t <int>,  --threads <int>
@@ -45,15 +47,15 @@ General:
     -i <0-1>,  --min-identity <0-1>
         Alignments with an identity lower than this threshold will be discarded [0.65]
     -R <int/float>,  --min-residues <int/float>
-        Alignments containing less than <int> or (<float> * read length) residues will be discarded [50]
+        Alignments containing less than <int> or (<float> * read length) residues will be discarded [0.25]
     --no-smallinv
-        Do not detect small inversions [false]
+        Don't detect small inversions [false]
     --no-lowqualitysplit
-        Do not split alignments with poor quality [false]
+        Split alignments with poor quality [false]
     --verbose
         Debug output [false]
     --no-progress
-        Do not print progress info while mapping [false]
+        Don't print progress info while mapping [false]
 
 Advanced:
     --match <float>
@@ -74,6 +76,8 @@ Advanced:
         Number of k-mers to skip when building the lookup table from the reference [2]
     --bin-size <int>
         Sets the size of the grid used during candidate search [4]
+    --max-segments <int>
+        Max number of segments allowed for a read per kb [1]
     --subread-length <int>
         Length of fragments reads are split into [256]
     --subread-corridor <int>
