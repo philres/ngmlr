@@ -9,6 +9,7 @@
 #    docker build --build-arg VERSION_ARG="" -f Dockerfile.git -t ${IMAGE_NAME} .
 #  else
 echo "Building :$DOCKER_TAG, with VERSION_ARG=\"--vers $DOCKER_TAG\""
-docker build --build-arg VERSION_ARG="--vers $DOCKER_TAG" -t ${IMAGE_NAME} .
+#docker build --build-arg VERSION_ARG="--vers $DOCKER_TAG" -t ${IMAGE_NAME} .
+docker build --build-arg VERSION_ARG="$DOCKER_TAG" -t ${IMAGE_NAME} .
 #  fi
 #fi
