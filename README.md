@@ -86,7 +86,7 @@ Advanced:
 
 ### Running with docker
 ```bash
-docker run -ti -v /home/user/data/:/home/user/data/ quay.io/philres/ngmlr ngmlr -r /home/user/data/ref.fa -q /home/user/data/reads.fasta -o /home/user/data/output.sam
+docker run -ti -v /home/user/data/:/home/user/data/ philres/ngmlr ngmlr -r /home/user/data/ref.fa -q /home/user/data/reads.fasta -o /home/user/data/output.sam
 ```
 
 ### Building ngmlr from source
