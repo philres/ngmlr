@@ -6,7 +6,7 @@ ARG VERSION_ARG
 
 # Install curl
 RUN apk --update upgrade && \
-    apk add curl ca-certificates && \
+    apk add git curl ca-certificates && \
     update-ca-certificates && \
     rm -rf /var/cache/apk/*
 
