@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+if [ "$DOCKER_TAG" = "latest" ]; then
+  echo "Building :latest, without VERSION_ARG"
+  docker build --build-arg VERSION_ARG="" -t ${IMAGE_NAME} .
+else
+  if [ "$DOCKER_TAG" = "master" ]; then
+    echo "Building :$DOCKER_TAG, from git"
+    docker build --build-arg VERSION_ARG="" -f Dockerfile.git -t ${IMAGE_NAME} .
+  else
+    echo "Building :$DOCKER_TAG, with VERSION_ARG=\"--vers $DOCKER_TAG\""
+    docker build --build-arg VERSION_ARG="--vers $DOCKER_TAG" -t ${IMAGE_NAME} .
+  fi
+fi
