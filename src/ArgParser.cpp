@@ -120,6 +120,8 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	printParameter<std::string>(usage, refArg);
 	printParameter<std::string>(usage, queryArg);
 	printParameter<std::string>(usage, outArg);
+	printParameter(usage, skipWriteArg);
+
 	usage << "" << std::endl;
 	usage << "General:" << std::endl;
 	printParameter<int>(usage, threadsArg);
