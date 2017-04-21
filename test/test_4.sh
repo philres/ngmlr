@@ -3,7 +3,7 @@
 #set -x
 
 NAME="primary alignment test"
-BIN=`ls bin/ | grep -v "debug" | grep "[0-9]$" | sort -n | tail -n 1`
+BIN="ngmlr-"`grep -o "set( NGM_VERSION_MAJOR [0-9]* )" CMakeLists.txt | cut -d " " -f 3`"."`grep -o "set( NGM_VERSION_MINOR [0-9]* )" CMakeLists.txt | cut -d " " -f 3`"."`grep -o "set( NGM_VERSION_BUILD [0-9]* )" CMakeLists.txt | cut -d " " -f 3`
 PARAMETER=" --skip-write -x pacbio --no-progress -t 4 "
 
 echo "Test: $NAME"

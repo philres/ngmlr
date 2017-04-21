@@ -3,10 +3,10 @@
 #set -x
 
 NAME="deterministic mapping quality"
-BIN=`ls bin/ | grep -v "debug" | grep "[0-9]$" | sort -n | tail -n 1`
+BIN="ngmlr-"`grep -o "set( NGM_VERSION_MAJOR [0-9]* )" CMakeLists.txt | cut -d " " -f 3`"."`grep -o "set( NGM_VERSION_MINOR [0-9]* )" CMakeLists.txt | cut -d " " -f 3`"."`grep -o "set( NGM_VERSION_BUILD [0-9]* )" CMakeLists.txt | cut -d " " -f 3`
 PARAMETER=" --skip-write -x pacbio --no-progress -t 4 -R 0.01 "
 
-echo "Test: $NAME"
+echo "Test: $NAME ($BIN)"
 
 bin/${BIN}/ngmlr $PARAMETER -r test/data/test_3/reference.fasta.gz -q test/data/test_3/read.fa.gz 2> /dev/null | samtools view -Sb - 2> /dev/null | bedtools bamtobed | sort > test/data/test_3/expected.bed
 for i in {1..5}
