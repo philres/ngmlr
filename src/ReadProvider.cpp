@@ -189,45 +189,48 @@ IParser * ReadProvider::DetermineParser(char const * fileName,
 
 	IParser * parser = 0;
 
-	gzFile fp = gzopen(fileName, "r");
-	if (fp == 0) {
-		//File does not exist
-		Log.Error("File %s does not exist!",fileName);
-		throw "File not found.";
-	} else {
-		char * buffer = new char[1000];
-		while (gzgets(fp, buffer, 1000) > 0 && buffer[0] == '@') {
-		}
+	parser = new FastXParser(qryMaxLen);
+	parser->init(fileName);
 
-		int count = 0;
-		for (size_t i = 0; i < 1000 && buffer[i] != '\0' && buffer[i] != '\n';
-				i++) {
-			if (buffer[i] == '\t') {
-				count++;
-			}
-		}
-		if (count >= 10) {
-			Log.Message("Input is SAM");
-			parser = new SamParser(qryMaxLen);
-		} else {
-			if (strncmp(buffer, "BAM", 3) == 0) {
-//			Log.Message("Input is BAM");
-//			parser= new BamParser(qryMaxLen);
-				Log.Error("BAM input is currently not supported!");
-			} else {
-				if (buffer[0] == '>') {
-					Log.Message("Input is Fasta");
-				} else {
-					Log.Message("Input is Fastq");
-				}
-				parser = new FastXParser(qryMaxLen);
-			}
-		}
-		gzclose(fp);
-		delete[] buffer;
-		buffer = 0;
-		parser->init(fileName);
-	}
+//	gzFile fp = gzopen(fileName, "r");
+//	if (fp == 0) {
+//		//File does not exist
+//		Log.Error("File %s does not exist!",fileName);
+//		throw "File not found.";
+//	} else {
+//		char * buffer = new char[1000];
+//		while (gzgets(fp, buffer, 1000) > 0 && buffer[0] == '@') {
+//		}
+//
+//		int count = 0;
+//		for (size_t i = 0; i < 1000 && buffer[i] != '\0' && buffer[i] != '\n';
+//				i++) {
+//			if (buffer[i] == '\t') {
+//				count++;
+//			}
+//		}
+//		if (count >= 10) {
+//			Log.Message("Input is SAM");
+//			parser = new SamParser(qryMaxLen);
+//		} else {
+//			if (strncmp(buffer, "BAM", 3) == 0) {
+////			Log.Message("Input is BAM");
+////			parser= new BamParser(qryMaxLen);
+//				Log.Error("BAM input is currently not supported!");
+//			} else {
+//				if (buffer[0] == '>') {
+//					Log.Message("Input is Fasta");
+//				} else {
+//					Log.Message("Input is Fastq");
+//				}
+//				parser = new FastXParser(qryMaxLen);
+//			}
+//		}
+//		gzclose(fp);
+//		delete[] buffer;
+//		buffer = 0;
+//		parser->init(fileName);
+//	}
 	return parser;
 }
 
