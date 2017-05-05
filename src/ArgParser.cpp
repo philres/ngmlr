@@ -111,6 +111,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	//updateCheck = false;
 	//writeUnmapped = true;
 	TCLAP::SwitchArg noSSEArg("", "nosse", "Debug switch (don't use if you don't know what you are doing)", cmd, false);
+	TCLAP::SwitchArg bamFixArg("", "bam-fix", "Report reads with > 64k CIGAR operations as unmapped. Required to be compatibel to BAM format", cmd, false);
 
 	std::stringstream usage;
 	usage << "" << std::endl;
@@ -121,6 +122,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	printParameter<std::string>(usage, queryArg);
 	printParameter<std::string>(usage, outArg);
 	printParameter(usage, skipWriteArg);
+	printParameter(usage, bamFixArg);
 
 	usage << "" << std::endl;
 	usage << "General:" << std::endl;
@@ -210,6 +212,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	printAllAlignments = printAllAlignmentsArg.getValue();
 	skipSave = skipWriteArg.getValue();
 	nosse = noSSEArg.getValue();
+	bamCigarFix = bamFixArg.getValue();
 
 	if (presetArgs.getValue() == "pacbio") {
 		//Do nothing. Defaults are for Pacbio

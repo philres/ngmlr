@@ -35,8 +35,10 @@ protected:
 
 	bool writeUnmapped;
 
-	static int const BUFFER_SIZE =  3200000;
-	static int const BUFFER_LIMIT = 1600000;
+	// See you soon! Fixing it for good would have been a
+	// better idea then changing it from 3.2 mb to 100 mb
+	static int const BUFFER_SIZE =  100000000;
+	static int const BUFFER_LIMIT =  10000000;
 
 	char * writeBuffer;
 	int bufferPosition;
@@ -79,8 +81,16 @@ public:
 
 		bool mappedOnce = false;
 		for (int i = 0; i < read->Calculated && mapped; ++i) {
-			mappedOnce = mappedOnce || !read->Alignments[i].skip;
-			if(!read->Alignments[i].skip) {
+			bool mappedCurrent = !read->Alignments[i].skip;
+			if(Config.getBamCigarFix() && mappedCurrent) {
+				int const maxInBAM = 64000;
+				mappedCurrent = mappedCurrent && read->Alignments[i].cigarOpCount < maxInBAM;
+				if (!mappedCurrent) {
+					Log.Message("Skipping alignment %d for %s: number of CIGAR operations %d > 64k.", i, read->name, read->Alignments[i].cigarOpCount);
+				}
+			}
+			mappedOnce = mappedOnce || mappedCurrent;
+			if(mappedCurrent) {
 				DoWriteRead(read, i);
 			}
 		}

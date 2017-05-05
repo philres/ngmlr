@@ -62,6 +62,7 @@ protected:
 	bool verbose = false;
 	bool writeUnmapped = true;
 	bool nosse = false; //Debug
+	bool bamCigarFix = false;
 
 	char * queryFile = 0;
 	char * referenceFile = 0;
@@ -210,6 +211,10 @@ public:
 
 	bool getNoSSE() const {
 		return nosse;
+	}
+
+	bool getBamCigarFix() const {
+		return bamCigarFix;
 	}
 
 	bool getBAM() const {

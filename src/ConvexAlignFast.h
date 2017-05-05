@@ -95,10 +95,18 @@ private:
 	 */
 	int * binaryCigar;
 
+
+	/**
+	 * Default Max length of binaryCigar
+	 */
+	int const defaultMaxBinaryCigarLength;
+
 	/**
 	 * Max length of binaryCigar
+	 * If too small -> reallocate -> align -> set back to default
 	 */
-	int const maxBinaryCigarLength;
+	int maxBinaryCigarLength;
+
 
 	/**
 	 * Debug flag
@@ -122,7 +130,7 @@ private:
 	 * Print CIGAR element to cigar string
 	 * Helper function used by convertCigar
 	 */
-	int printCigarElement(char const op, int const length, char * cigar);
+	int printCigarElement(char const op, int const length, char * cigar, int & cigarOpCount, int cigarMaxLength);
 
 	/**
 	 * Forward step of alignment

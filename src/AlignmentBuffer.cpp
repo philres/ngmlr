@@ -264,8 +264,9 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 			int const minAlignedBp = 0.05f * std::min((int) readLength, refSeqLen);
 
 			//initialize arrays for CIGAR and MD string
-			align->pBuffer1 = new char[readLength * 4];
-			align->pBuffer2 = new char[readLength * 4];
+			align->maxBufferLength = readLength * 4;
+			align->pBuffer1 = new char[align->maxBufferLength];
+			align->pBuffer2 = new char[align->maxBufferLength];
 			align->pBuffer1[0] = '\0';
 			align->pBuffer2[0] = '\0';
 			align->nmPerPostionLength = (readLength + 1) * 2;
@@ -851,6 +852,12 @@ bool sortIntervalsByScore(Interval const * a, Interval const * b) {
 	return a->score > b->score;
 }
 
+/**
+ * - Sort sub-reads by read position
+ * - Compute max. number of HSP (based on read length)
+ * - Run cLIS algorithm on reference positions to retrieve HSP
+ * - If isUnique, build Interval from sub-read set and compute regression
+ */
 Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anchor * allFwdAnchors, int allFwdAnchorsLength, Anchor * allRevAnchors, int allRevAnchorsLength, MappedRead * read) {
 
 	if (pacbioDebug) {
@@ -868,7 +875,7 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 	intervalsIndex = 0;
 
 	int cLISRunNumber = 0;
-	int const maxRunNumber = Config.getMaxCLISRuns();
+	int const maxRunNumber = std::min(maxcLISRunNumber, Config.getMaxCLISRuns());
 	int runNumber = 0;
 	bool finished = false;
 	// TODO: find better stop criteria!
@@ -2469,6 +2476,7 @@ float AlignmentBuffer::scoreInterval(Interval * interval, MappedRead * read) {
 
 		auto readSeq = extractReadSeq(interval->lengthOnRead(), onReadStart, interval->isReverse, read, false);
 		if (readSeq != nullptr) {
+			verbose(0, "", interval);
 			loc onRefStart = interval->isReverse ? interval->onRefStop : interval->onRefStart;
 			loc onRefStop = interval->isReverse ? interval->onRefStart : interval->onRefStop;
 
@@ -2603,11 +2611,16 @@ bool AlignmentBuffer::gapOverlapsWithInterval(Interval * first, Interval * secon
 	gap.onReadStart = first->onReadStop + 1;
 	gap.onReadStop = std::max(0, second->onReadStart - 1);
 
-	gap.onRefStart = first->isReverse ? first->onRefStart : first->onRefStop;
-	gap.onRefStop = first->isReverse ? second->onRefStop : second->onRefStart;
+	gap.onRefStart = first->onRefStop;
+	//gap.onRefStart = first->isReverse ? first->onRefStart : first->onRefStop;
+	gap.onRefStop = second->onRefStart;
+	//gap.onRefStop = first->isReverse ? second->onRefStop : second->onRefStart;
 
 	gap.isReverse = first->isReverse;
 
+//	verbose(0, "First: ", first);
+//	verbose(0, "Second: ", second);
+//	verbose(0, "Gap: ", &gap);
 
 	return gapOverlapsWithInterval(&gap, intervalsTree, read);
 
@@ -2796,6 +2809,8 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	 */
 	std::vector<IntervalTree::Interval<int> > treeIntervals;
 
+//	Log.Message("Processing LongReadLIS: %d - %s (length %d)", read->ReadId, read->name, read->length);
+
 	verbose(0, true, "Processing LongReadLIS: %d - %s (length %d)", read->ReadId, read->name, read->length);
 	verbose(0, true, "Anchor list:");
 
@@ -2842,6 +2857,12 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 //
 //	}
 
+
+	/**
+	 * Collect sub-read mapping locations and
+	 * build interval tree with read locations
+	 * plus mapping quality
+	 */
 	for (int j = 0; j < group->readNumber; ++j) {
 		MappedRead * part = group->reads[j];
 
@@ -2905,7 +2926,13 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 					}
 
 					if (k < 3) {
-						verbose(0, false, "%f at %llu, ", part->Scores[k].Score.f, part->Scores[k].Location.m_Location);
+						double const K = 1 / 3;
+						double  const lambda = 1.098612;
+						double const n = 256;
+						double const m = 3000000000;
+						double const Y = part->Scores[k].Score.f;
+						double pVal = 1 - exp(-K * n * m * exp(-lambda * Y));
+						verbose(0, false, "%f (%f) at %llu, ", part->Scores[k].Score.f, pVal, part->Scores[k].Location.m_Location);
 					} else if (k == 3) {
 						verbose(0, false, "... (%d)", part->numScores());
 					}
@@ -2929,6 +2956,13 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	 */
 	readCoordsTree = new IntervalTree::IntervalTree<int>(treeIntervals);
 
+	/**
+	 * Build HSP from sub read mappings (cLIS)
+	 * - Sort sub-reads by read position
+	 * - Compute max. number of HSP (based on read length)
+	 * - Run cLIS algorithm on reference positions to retrieve HSP
+	 * - If isUnique, build Interval from sub-read set and compute regression
+	 */
 	int nIntervals = 0;
 	Interval * * intervals = getIntervalsFromAnchors(nIntervals, anchorsFwd, anchorFwdIndex, anchorsRev, anchorRevIndex, group->fullRead);
 
@@ -3025,6 +3059,15 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	Interval * * delIntervals = new Interval *[maxSegmentCount + 1];
 	int nDelIntervals = 0;
 
+
+	/**
+	 * Joins segments to full length alignments
+	 *  - try to identify all segments that fall into an alignment corridor
+	 *  - merge segments that are separated by regions with high error rate
+	 *  - merge segments that are separated by small indels (only if both segments are long enough to compensate the score penalty of the deletion)
+	 *  - Extend unmerged segments to cover the full read an compensate for missed subread mappings
+	 *  - Don't merge segments if separated by a read part that maps to a different place on the genome or is inverted (balanced translocation)
+	 */
 	verbose(0, true, "Joining segments to intervals:");
 	for (int i = 0; i < segementsIndex; ++i) {
 
@@ -3171,6 +3214,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	verbose(0, true, "Sorting intervals by read start");
 	std::sort(intervals, intervals + nIntervals, sortIntervalsInSegment);
 
+
 	if (nIntervals > 0) {
 		Interval * lastInterval = intervals[0];
 		for (int i = 1; i < nIntervals; ++i) {
@@ -3193,6 +3237,13 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 		}
 	}
 
+	/**
+	 * Sort intervals by score
+	 * Important because, we trust intervals with higher
+	 * score more. Thus we align them first. Aligned intervals
+	 * are considered fixed. Therefore, all unangliend intervals will
+	 * be trimmed in order to not overlap with fixed intervals.
+	 */
 	verbose(0, true, "Sorting intervals by score");
 	std::sort(intervals, intervals + nIntervals, sortIntervalsByScore);
 
@@ -3221,6 +3272,9 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 	}
 
+	/**
+	 * Align final intervals to the reference
+	 */
 	if (nIntervals != 0) {
 
 		// Since we don't know how many segments of the read we have to align in the
@@ -3242,6 +3296,10 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 		for (int i = 0; i < nIntervals; ++i) {
 			Interval * currentInterval = intervals[i];
 
+			/**
+			 * Adjust unanglined intervals to not overlap with already
+			 * aligned intervals
+			 */
 			verbose(0, "Aligning interval: ", currentInterval);
 			for (int j = 0; j < nTempAlignments; ++j) {
 				Interval * alignedInterval = tmpAlingments[j].mappedInterval;
@@ -3263,7 +3321,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			verbose(0, "New interval: ", currentInterval);
 
 			/**
-			 * Convert intervals on reverse strand to farward strand
+			 * Convert intervals on reverse strand to forward strand
 			 */
 			if (currentInterval->onRefStart > currentInterval->onRefStop) {
 				loc tmp = currentInterval->onRefStart;
@@ -3286,6 +3344,10 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 		delete[] tmpLocationScores;
 		tmpLocationScores = 0;
 
+		/**
+		 * Process alignments: removed short alignments, choos combination of aligned segments
+		 * that have the highest score and cover the read best
+		 */
 		if (read->Calculated > 0) {
 			bool mapped = reconcileRead(group);
 			if (mapped) {

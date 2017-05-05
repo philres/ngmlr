@@ -118,7 +118,7 @@ public:
 	Align() :
 			pBuffer1(0), pBuffer2(0), mappedInterval(0), nmPerPosition(0), nmPerPostionLength(0), alignmentLength(
 					0), PositionOffset(0), QStart(0), QEnd(0), Score(0.0f), Identity(
-					0.0f), NM(0), MQ(0), skip(false), primary(false), svType(0) {
+					0.0f), NM(0), MQ(0), cigarOpCount(0), maxBufferLength(20000), skip(false), primary(false), svType(0) {
 
 	}
 
@@ -142,6 +142,8 @@ public:
 	float Identity;
 	int NM;
 	int MQ;
+	int cigarOpCount;
+	int maxBufferLength;
 	bool skip;
 	bool primary;
 	/**
