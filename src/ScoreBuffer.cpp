@@ -207,7 +207,6 @@ void ScoreBuffer::addRead(MappedRead * read, int count) {
 		scores[iScores].read = read;
 		scores[iScores++].scoreId = i;
 		if(iScores == swBatchSize) {
-			//Log.Error("Read %s: scorebuffer begin %d/%d", read->name, iScores, swBatchSize);
 			DoRun();
 			iScores = 0;
 		}
