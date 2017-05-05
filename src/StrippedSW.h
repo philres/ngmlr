@@ -38,10 +38,10 @@ public:
 		for (m = 0; m < 5; ++m)
 			mat[k++] = 0;
 
-		num = (int8_t*) malloc(100000); // the read sequence represented in numbers
-		ref_num = (int8_t*) malloc(100000); // the read sequence represented in numbers
-		memset(num, 0, 100000);
-		memset(ref_num, 0, 100000);
+		num = (int8_t*) malloc(maxSeqLen); // the read sequence represented in numbers
+		ref_num = (int8_t*) malloc(maxSeqLen); // the read sequence represented in numbers
+		memset(num, 0, maxSeqLen);
+		memset(ref_num, 0, maxSeqLen);
 
 	}
 	virtual ~StrippedSW() {
@@ -83,6 +83,8 @@ private:
 
 	int8_t* num;
 	int8_t* ref_num;
+
+	int const maxSeqLen = 100000;
 };
 
 #endif /* STRIPPEDSW_H_ */

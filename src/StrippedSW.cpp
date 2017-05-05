@@ -130,27 +130,30 @@ int StrippedSW::BatchScore(int const mode, int const batchSize,
 		int read_len = strlen(read_seq) + 1;
 		int ref_len = strlen(ref_seq) + 1;
 
-		s_profile* profile;
-		s_align* result;
+		if (read_len >= maxSeqLen || ref_len >= maxSeqLen) {
+			results[i] = -1.0f;
+		} else {
+			s_profile* profile;
+			s_align* result;
 
-		for (int32_t m = 0; m < read_len; ++m)
-			num[m] = nt_table[(int) read_seq[m]];
-		num[read_len] = nt_table[(int) '\0'];
+			for (int32_t m = 0; m < read_len; ++m)
+				num[m] = nt_table[(int) read_seq[m]];
+			num[read_len] = nt_table[(int) '\0'];
 
-		profile = ssw_init(num, read_len, mat, 5, 1);
-		for (int32_t m = 0; m < ref_len; ++m)
-			ref_num[m] = nt_table[(int) ref_seq[m]];
-		ref_num[ref_len] = nt_table[(int) '\0'];
+			profile = ssw_init(num, read_len, mat, 5, 1);
+			for (int32_t m = 0; m < ref_len; ++m)
+				ref_num[m] = nt_table[(int) ref_seq[m]];
+			ref_num[ref_len] = nt_table[(int) '\0'];
 
-		// Only the 8 bit of the flag is setted. ssw_align will always return the best alignment beginning position and cigar.
-		result = ssw_align(profile, ref_num, ref_len, gap_open, gap_extension,
-				0, 0, 0, 0);
-		//ssw_write(result, ref_seq, read_seq, nt_table);
-		//fprintf(stderr, "%d\n", result->score1);
-		results[i] = result->score1;
+			// Only the 8 bit of the flag is setted. ssw_align will always return the best alignment beginning position and cigar.
+			result = ssw_align(profile, ref_num, ref_len, gap_open, gap_extension, 0, 0, 0, 0);
+			//ssw_write(result, ref_seq, read_seq, nt_table);
+			//fprintf(stderr, "%d\n", result->score1);
+			results[i] = result->score1;
 
-		align_destroy(result);
-		init_destroy(profile);
+			align_destroy(result);
+			init_destroy(profile);
+		}
 
 	}
 	return batchSize;
@@ -167,6 +170,11 @@ int StrippedSW::SingleScore(int const mode, int const corridor,
 
 	int read_len = strlen(read_seq) + 1;
 	int ref_len = strlen(ref_seq) + 1;
+
+	if(read_len >= maxSeqLen || ref_len >= maxSeqLen) {
+		resultScore = -1.0f;
+		return 0;
+	}
 
 	s_profile* profile;
 	s_align * result;
