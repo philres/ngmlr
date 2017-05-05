@@ -141,7 +141,7 @@ MappedRead * ReadProvider::NextRead(IParser * parser, int const id) {
 		static int const qryMaxLen = readPartLength + 16;
 		MappedRead * read = new MappedRead(id, qryMaxLen);
 		l = parser->parseRead(read);
-//			Log.Message("Parsing next read: %s (%d)", read->name, read->ReadId);
+//		Log.Message("Parsing next read: %s (%d)", read->name, read->length);
 		if (l >= 0) {
 
 			Log.Debug(2, "READ_%d\tINPUT\t%s", id, read->name);
@@ -253,7 +253,7 @@ bool ReadProvider::GenerateRead(int const readid1, MappedRead * & read1,
 }
 
 void ReadProvider::DisposeRead(MappedRead * read) {
-	Log.Verbose("Disposing read %s", read->name);
+//	Log.Message("Disposing read %s", read->name);
 	if (read->group != 0) {
 		for (int j = 0; j < read->group->readNumber; ++j) {
 			if (read->group->reads[j] != 0) {
