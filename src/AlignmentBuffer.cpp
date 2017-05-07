@@ -2289,8 +2289,7 @@ bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
 	}
 
 	if(mapped) {
-		verbose(0, true, "Read %s mapped: %d", read->name, mapped);
-		Log.Message("%s (%d) mapped %f with %d fragments", read->name, read->length, aligned * 100.0f, segmentCount);
+		verbose(0, true, "%s (%d) mapped %f with %d fragments", read->name, read->length, aligned * 100.0f, segmentCount);
 	}
 	return mapped;
 }
@@ -3370,16 +3369,15 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			if (mapped) {
 				sortRead(group);
 			} else {
-				Log.Message("%s (%d) not mapped", read, read->length);
+				verbose(0, true, "%s (%d) not mapped", read, read->length);
 			}
 			WriteRead(group->fullRead, mapped);
 		} else {
-			Log.Message("%s (%d) not mapped", read, read->length);
+			verbose(0, true, "%s (%d) not mapped", read, read->length);
 			WriteRead(group->fullRead, false);
 		}
 	} else {
-		Log.Message("%s (%d) not mapped", read, read->length);
-		verbose(0, true, "No candidates found for read: unmapped.");
+		verbose(0, true, "%s (%d) not mapped. No candidates found for read: unmapped.", read, read->length);
 		//No candidates found for read
 		WriteRead(group->fullRead, false);
 	}

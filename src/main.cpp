@@ -95,6 +95,10 @@ int main(int argc, char * argv[]) {
 			Log.Message("No progress information (use --progress)");
 		}
 		Log.Message("Mapping reads...");
+		if(Config.isStdIn()) {
+			Log.Message("Waiting for data from stdin");
+		}
+
 
 		NGM.MainLoop();
 

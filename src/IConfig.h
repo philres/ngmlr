@@ -6,6 +6,7 @@
 #define __ICONF_H__
 
 #include <climits>
+#include <cstring>
 
 class IConfig {
 
@@ -268,6 +269,10 @@ public:
 
 	bool getWriteUnampped() const {
 		return writeUnmapped;
+	}
+
+	bool isStdIn() const {
+		return strcmp(getQueryFile(), "/dev/stdin") == 0;
 	}
 
 	IConfig() {
