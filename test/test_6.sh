@@ -8,7 +8,7 @@ PARAMETER=" --skip-write -x pacbio --no-progress -t 4 "
 
 echo "Test: $NAME ($BIN)"
 
-LEN=`zcat test/data/test_6/read.fa.gz | bin/${BIN}/ngmlr $PARAMETER -r test/data/test_6/reference.fasta.gz -q /dev/stdin 2> /dev/null | samtools view -Sc - 2> /dev/null`
+LEN=`zcat test/data/test_6/read.fa.gz | bin/${BIN}/ngmlr $PARAMETER -r test/data/test_6/reference.fasta.gz 2> /dev/null | samtools view -Sc - 2> /dev/null`
 
 if [ "$LEN" -eq 5 ]
 then
