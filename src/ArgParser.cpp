@@ -112,6 +112,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	//writeUnmapped = true;
 	TCLAP::SwitchArg noSSEArg("", "nosse", "Debug switch (don't use if you don't know what you are doing)", cmd, false);
 	TCLAP::SwitchArg bamFixArg("", "bam-fix", "Report reads with > 64k CIGAR operations as unmapped. Required to be compatibel to BAM format", cmd, false);
+	TCLAP::SwitchArg skipAlignArg("", "skip-align", "Skip alignment step. Only for debugging purpose", cmd, false);
 
 	std::stringstream usage;
 	usage << "" << std::endl;
@@ -213,18 +214,19 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	skipSave = skipWriteArg.getValue();
 	nosse = noSSEArg.getValue();
 	bamCigarFix = bamFixArg.getValue();
+	skipAlign = skipAlignArg.getValue();
 
 	if (presetArgs.getValue() == "pacbio") {
 		//Do nothing. Defaults are for Pacbio
 	} else if (presetArgs.getValue() == "ont") {
 		lowQualitySplit = (lowqualitysplitArg.isSet()) ? lowQualitySplit : false;
 		smallInversionDetection = (nosmallInversionArg.isSet()) ? smallInversionDetection : false;
-		scoreMatch = (scoreMatchArg.isSet()) ? scoreMatch : 3;
-		scoreMismatch = (scoreMatchArg.isSet()) ? scoreMismatch : -7;
+		scoreMatch = (scoreMatchArg.isSet()) ? scoreMatch : 5;
+		scoreMismatch = (scoreMatchArg.isSet()) ? scoreMismatch : -3;
 		//scoreGapOpen = (scoreGapOpenArg.isSet()) ? scoreGapOpen : -1;
 		//scoreGapExtendMax = (scoreGapExtendMaxArg.isSet()) ? scoreGapExtendMax : -1;
 		//scoreGapExtendMax = (scoreGapExtendMinArg.isSet()) ? scoreGapExtendMin : -0.5;
-		scoreGapDecay = (scoreGapDecayArg.isSet()) ? scoreGapDecay : 0.10;
+		scoreGapDecay = (scoreGapDecayArg.isSet()) ? scoreGapDecay : 0.15;
 	} else {
 		std::cerr << "Preset " << presetArgs.getValue() << " not found" << std::endl;
 	}

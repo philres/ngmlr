@@ -9,6 +9,7 @@
 #include <cmath>
 #include <vector>
 #include <float.h> //Eclipse
+#include <limits.h>
 
 #include "Timing.h"
 #include "SequenceProvider.h"
@@ -125,7 +126,7 @@ CorridorLine * getCorridorEndpoints(Interval const * interval,
 	return corridorLines;
 }
 
-CorridorLine * getCorridorEndpointsWithAnchors(Interval const * interval,
+CorridorLine * AlignmentBuffer::getCorridorEndpointsWithAnchors(Interval const * interval,
 		int const corridorMultiplier, char const * refSeq, char const * readSeq,
 		int & corridorHeight, int const externalQStart,
 		int const readPartLength, int const fullReadLength,
@@ -189,6 +190,8 @@ CorridorLine * getCorridorEndpointsWithAnchors(Interval const * interval,
 		corridorLines[i].offset = ((i - d_align) / k_align) - corridorRight;
 		corridorLines[i].length = corridorWidth;
 	}
+
+	verbose(0, true, "Corridor length estimated from anchors is: %d", corridorWidth);
 
 	return corridorLines;
 }
@@ -290,9 +293,9 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 
 				//Local alignment
 				if (pacbioDebug) {
-					Log.Message("Aligning %d bp to %d bp (corridor %d)", readLength, refSeqLen, corridor * corridorMultiplier);
-					Log.Message("Ref: %s", refSeq);
-					Log.Message("Read: %s", readSeq);
+					Log.Message("Aligning %d bp to %d bp", readLength, refSeqLen);
+					Log.Message("Ref: %.*s ... %.*s", 250, refSeq, 250, refSeq + refSeqLen - 250);
+					Log.Message("Read: %.*s ... %.*s", 250, readSeq, 250, readSeq - readLength - 250);
 				}
 
 				int corridorHeight = 0;
@@ -306,6 +309,7 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 							corridorHeight);
 				} else {
 					if(shortRead) {
+						verbose(0, true, "Corridor width: %d", corridor * corridorMultiplier);
 						corridorLines = getCorridorLinear(corridor * corridorMultiplier, readSeq,
 								corridorHeight);
 					} else {
@@ -313,6 +317,7 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 							corridorLines = getCorridorEndpointsWithAnchors(interval,
 									corridorMultiplier, refSeq, readSeq, corridorHeight, externalQStart, readPartLength, fullReadLength, realign);
 						} else {
+							verbose(0, true, "Corridor width: %d", corridor * corridorMultiplier);
 							corridorLines = getCorridorEndpoints(interval,
 									corridor * corridorMultiplier, refSeq, readSeq, corridorHeight, realign);
 						}
@@ -397,8 +402,8 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 
 				if (pacbioDebug) {
 					Log.Message("Aligning took %f seconds", algnTimer.ET());
-					Log.Message("CIGAR: %s", align->pBuffer1);
-					Log.Message("MD:    %s", align->pBuffer2);
+					Log.Message("CIGAR: %.*s", 250, align->pBuffer1);
+					Log.Message("MD:    %.*s", 250, align->pBuffer2);
 				}
 				delete[] corridorLines;
 				corridorLines = 0;
@@ -892,10 +897,10 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 				finished = true;
 			} else {
 
-				int minOnRead = 999999;
+				int minOnRead = INT_MAX;
 				int maxOnRead = 0;
 
-				loc minOnRef = 999999999999;
+				loc minOnRef = LLONG_MAX;
 				loc maxOnRef = 0;
 
 				bool isReverse = false;
@@ -1499,8 +1504,8 @@ unique_ptr<char []> AlignmentBuffer::extractReadSeq(int const readSeqLen,
 		int const onReadStart, bool const isReverse, MappedRead* read,
 		bool const revComp) {
 
-	// > 500000 very basic check for overflows
-	if(readSeqLen <= 0 || readSeqLen > 500000) {
+	// > 500000 very basic check for overflows (this is terrible)
+	if(readSeqLen <= 0 || readSeqLen > 200000000) {
 		return 0;
 	}
 
@@ -1774,11 +1779,11 @@ void AlignmentBuffer::alignSingleOrMultipleIntervals(MappedRead * read, Interval
 
 	int readSeqLen = interval->onReadStop - interval->onReadStart;
 	auto readPartSeq = extractReadSeq(readSeqLen, interval, read);
+
 	if (readPartSeq != 0) {
 		Align * align = alignInterval(read, interval, readPartSeq.get(), readSeqLen, false, false);
 		if (align != 0) {
 			if (align->Score > 0.0f) {
-
 				int svType = SV_NONE;
 
 				if (Config.getSmallInversionDetection() || Config.getLowQualitySplit()) {
@@ -1852,6 +1857,8 @@ void AlignmentBuffer::alignSingleOrMultipleIntervals(MappedRead * read, Interval
 				verbose(0, true, "Alignment failed");
 			}
 		}
+	} else {
+		Log.Message("Extracting read sequence failed for read %s. Please report this on https://github.com/philres/ngmlr", read->name);
 	}
 }
 
@@ -1865,11 +1872,11 @@ int AlignmentBuffer::computeMappingQuality(Align const & alignment, int readLeng
 	int mqSum = 0;
 	int mqCount = 0;
 	for (int j = 0; j < results.size(); ++j) {
-		verbose(1, false, "%d, ", results[j].value);
+		//verbose(1, false, "%d, ", results[j].value);
 		mqSum += results[j].value;
 		mqCount += 1;
 	}
-	verbose(1, true, "");
+//	verbose(1, true, "");
 	verbose(1, true, "%d / %d = %d", mqSum, mqCount, (int) (mqSum * 1.0f / mqCount));
 	return (int) (mqSum * 1.0f / mqCount);
 
@@ -2281,8 +2288,10 @@ bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
 		mappedSegements[i] = 0;
 	}
 
-	verbose(0, true, "Read %s mapped: %d", read->name, mapped);
-
+	if(mapped) {
+		verbose(0, true, "Read %s mapped: %d", read->name, mapped);
+		Log.Message("%s (%d) mapped %f with %d fragments", read->name, read->length, aligned * 100.0f, segmentCount);
+	}
 	return mapped;
 }
 
@@ -2716,7 +2725,9 @@ void AlignmentBuffer::closeGapOnRead(Interval * first, Interval * second, int co
 
 		int distance = getDistanceOnRead(first, second);
 
-		if (distance > 0) {
+		int maxDistance = (int)(0.25f * readLength); //2 * std::max(first->lengthOnRead(), second->lengthOnRead());
+
+		if (distance > 0 && distance < maxDistance) {
 			verbose(3, true, "Closing gap of %d bp", distance);
 			verbose(3, "First:  ", first);
 			verbose(3, "Second: ", second);
@@ -2726,6 +2737,8 @@ void AlignmentBuffer::closeGapOnRead(Interval * first, Interval * second, int co
 
 			verbose(3, "New first:  ", first);
 			verbose(3, "New second: ", second);
+		} else {
+			verbose(3, true, "Not closing gap distance > %d", maxDistance);
 		}
 	}
 }
@@ -3329,7 +3342,11 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 				currentInterval->onRefStop = tmp;
 			}
 
-			alignSingleOrMultipleIntervals(read, currentInterval, tmpLocationScores, tmpAlingments, nTempAlignments);
+			if (!Config.getSkipalign()) {
+				alignSingleOrMultipleIntervals(read, currentInterval, tmpLocationScores, tmpAlingments, nTempAlignments);
+			} else {
+				Log.Message("Skipping alignment computation.");
+			}
 			if (nTempAlignments > 0) {
 				verbose(0, "Aligned interval: ", tmpAlingments[nTempAlignments - 1].mappedInterval);
 			}
@@ -3352,12 +3369,16 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			bool mapped = reconcileRead(group);
 			if (mapped) {
 				sortRead(group);
+			} else {
+				Log.Message("%s (%d) not mapped", read, read->length);
 			}
 			WriteRead(group->fullRead, mapped);
 		} else {
+			Log.Message("%s (%d) not mapped", read, read->length);
 			WriteRead(group->fullRead, false);
 		}
 	} else {
+		Log.Message("%s (%d) not mapped", read, read->length);
 		verbose(0, true, "No candidates found for read: unmapped.");
 		//No candidates found for read
 		WriteRead(group->fullRead, false);

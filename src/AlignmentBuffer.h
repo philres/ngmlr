@@ -230,6 +230,13 @@ public:
 	 */
 	void extendToReadStop(Interval * interval, int const readLength, IntervalTree::IntervalTree<Interval *> * intervalsTree, MappedRead * read);
 
+
+	/**
+	 * Compute alignment band with fixed length from anchors
+	 */
+	CorridorLine * getCorridorEndpointsWithAnchors(Interval const * interval, int const corridorMultiplier, char const * refSeq, char const * readSeq, int & corridorHeight, int const externalQStart, int const readPartLength,
+			int const fullReadLength, bool const realign);
+
 	Interval * mergeIntervals(Interval * a, Interval * b);
 	Interval * * infereCMRsfromAnchors(int & intervalsIndex,
 			Anchor * allFwdAnchors, int allFwdAnchorsLength,

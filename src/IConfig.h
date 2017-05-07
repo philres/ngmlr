@@ -63,6 +63,7 @@ protected:
 	bool writeUnmapped = true;
 	bool nosse = false; //Debug
 	bool bamCigarFix = false;
+	bool skipAlign = false;
 
 	char * queryFile = 0;
 	char * referenceFile = 0;
@@ -215,6 +216,10 @@ public:
 
 	bool getBamCigarFix() const {
 		return bamCigarFix;
+	}
+
+	bool getSkipalign() const {
+		return skipAlign;
 	}
 
 	bool getBAM() const {
