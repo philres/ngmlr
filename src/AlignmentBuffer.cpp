@@ -865,9 +865,7 @@ bool sortIntervalsByScore(Interval const * a, Interval const * b) {
  */
 Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anchor * allFwdAnchors, int allFwdAnchorsLength, Anchor * allRevAnchors, int allRevAnchorsLength, MappedRead * read) {
 
-	if (pacbioDebug) {
-		Log.Message("Finding LIS for read %d", read->ReadId);
-	}
+	verbose(0, true, "Finding LIS for read %d", read->ReadId);
 
 	//Sort by position on read. Probably not necessary!!
 	std::sort(allFwdAnchors, allFwdAnchors + allFwdAnchorsLength,
@@ -880,7 +878,9 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 	intervalsIndex = 0;
 
 	int cLISRunNumber = 0;
-	int const maxRunNumber = std::min(maxcLISRunNumber, Config.getMaxCLISRuns());
+	//int const maxRunNumber = std::min(maxcLISRunNumber, Config.getMaxCLISRuns());
+	int const maxRunNumber = Config.getMaxCLISRuns();
+	verbose(0, true, "maxRunNumber: %d, maxcLISRunNumber: %d, MaxCLISRuns: %d", maxRunNumber, maxcLISRunNumber, Config.getMaxCLISRuns());
 	int runNumber = 0;
 	bool finished = false;
 	// TODO: find better stop criteria!
@@ -1088,6 +1088,7 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 				allFwdAnchorsLength = allRevAnchorsLength;
 				allRevAnchors = tmp;
 				allRevAnchorsLength = 0;
+
 			}
 
 			lisLength = 0;
@@ -1097,6 +1098,7 @@ Interval * * AlignmentBuffer::getIntervalsFromAnchors(int & intervalsIndex, Anch
 			// If no unprocessed anchors are found anymore
 			finished = true;
 		}
+		verbose(0, true, "cLISRunNumber %d < maxcLISRunNumber %d && !finished %d && ++runNumber %d < maxRunNumber %d", cLISRunNumber, maxcLISRunNumber, !finished, runNumber, maxRunNumber);
 	}
 	return intervals;
 
