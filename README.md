@@ -1,6 +1,6 @@
 ### Quick start
 
-Download [binary](https://github.com/philres/ngmlr/releases/tag/v0.2.3) from github and unzip or [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/ngmlr/README.html) or pull docker [![Docker Automated buil](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/philres/ngmlr/). For updates follow [![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&style=plastic)](https://twitter.com/philres1)
+Download [binary](https://github.com/philres/ngmlr/releases/tag/v0.2.4) from github and unzip or [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/ngmlr/README.html) or pull docker [![Docker Automated buil](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/philres/ngmlr/). For updates follow [![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&style=plastic)](https://twitter.com/philres1)
 
 For Pacbio data run:
 ```bash
@@ -13,8 +13,8 @@ ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam -x ont
 
 ### Intorduction
  
-The coNvex Gap-cost alignMent for Long Reads (ngmlr) is a long-read mapper desigend to sensitively align PacBilo or Oxford Nanopore to (large) reference genomes. It was desigend to correctly align reads spanning (complex) structural variations. Ngmlr uses an SV aware k-mer search to find approximate mapping locations for a read and a banded Smith-Waterman alignment algorithm with a non-affine gap model that penalizes gap extensions for longer gaps less than for shorter ones to compute precise alignments. The gap model allows ngmlr to account for both the sequencing error and real genomic variations at the same time and makes it especially effective at more precisely identifying the position of breakpoints stemming from (complex) structural variations. The k-mer search helps to detect and split reads that cannot be aligned linearly, enabling ngmlr to reliably align reads to a wide range of different structural variations including nested SVs (e.g. inversions flanked by deletions).
-Currently ngmlr takes about 60 minutes (on a AMD Opteron 6348) and 10 GB RAM for aligning 1Gbp of Pacbio Reads when using 10 threads.
+CoNvex Gap-cost alignMents for Long Reads (ngmlr) is a long-read mapper designed to sensitively align PacBilo or Oxford Nanopore to (large) reference genomes. It was designed to correctly align reads spanning (complex) structural variations. Ngmlr uses an SV aware k-mer search to find approximate mapping locations for a read and a banded Smith-Waterman alignment algorithm with a convex gap cost model that penalizes gap extensions for longer gaps less than for shorter ones to compute precise alignments. The gap model allows ngmlr to account for both the sequencing error and real genomic variations at the same time and makes it especially effective at more precisely identifying the position of breakpoints stemming from structural variations. The k-mer search helps to detect and split reads that cannot be aligned linearly, enabling ngmlr to reliably align reads to a wide range of different structural variations including nested SVs (e.g. inversions flanked by deletions).
+With 10 cores (AMD Opteron 6348), ngmlr currently takes about 90 minutes and 10 GB RAM for aligning 3Gbp (~ 1x human data) of Pacbio reads.
 
 **Poster & Talks:**
 
@@ -33,11 +33,13 @@ Input/Output:
     -r <file>,  --reference <file>
         (required)  Path to the reference genome (FASTA/Q, can be gzipped)
     -q <file>,  --query <file>
-        (required)  Path to the read file (FASTA/Q)
+        Path to the read file (FASTA/Q) [/dev/stdin]
     -o <file>,  --output <file>
         Path to output file [stdout]
     --skip-write
         Don't write reference index to disk [false]
+    --bam-fix
+        Report reads with > 64k CIGAR operations as unmapped. Required to be compatibel to BAM format [false]
 
 General:
     -t <int>,  --threads <int>
