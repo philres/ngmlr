@@ -53,7 +53,7 @@ public:
 		}
 	};
 
-	AlignmentMatrixFast();
+	AlignmentMatrixFast(ulong const pMaxMatrixSizeMB);
 
 	virtual ~AlignmentMatrixFast();
 
@@ -173,7 +173,7 @@ public:
 	 * Allocates memory and sets up the corridor layout
 	 * Has to be called before filling the matrix
 	 */
-	void prepare(int const width, int const height, CorridorLine * corridor,
+	bool prepare(int const width, int const height, CorridorLine * corridor,
 			int const corridorHeight);
 
 	/**
@@ -279,6 +279,11 @@ public:
 	 * defines the alignment corridor
 	 */
 	CorridorLine * corridorLines;
+
+	/**
+	 * Maximums allowed memory for matrix in MB
+	 */
+	ulong maxMatrixSizeMB;
 
 };
 

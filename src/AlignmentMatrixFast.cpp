@@ -11,8 +11,8 @@ using std::cerr;
 
 namespace Convex {
 
-AlignmentMatrixFast::AlignmentMatrixFast() :
-		STOP(CIGAR_STOP), defaultMatrixSize((ulong) 30000 * (ulong) 9000) {
+AlignmentMatrixFast::AlignmentMatrixFast(ulong const pMaxMatrixSizeMB) :
+		STOP(CIGAR_STOP), defaultMatrixSize((ulong) 30000 * (ulong) 9000), maxMatrixSizeMB(pMaxMatrixSizeMB) {
 	privateMatrixHeight = 0;
 	privateMatrixWidth = 0;
 	corridorLines = 0;
@@ -27,7 +27,7 @@ AlignmentMatrixFast::AlignmentMatrixFast() :
 
 }
 
-void AlignmentMatrixFast::prepare(int const width, int const height,
+bool AlignmentMatrixFast::prepare(int const width, int const height,
 		CorridorLine * corridor, int const corridorHeight) {
 	privateMatrixHeight = height;
 	privateMatrixWidth = width;
@@ -42,17 +42,21 @@ void AlignmentMatrixFast::prepare(int const width, int const height,
 		maxCorridorLength = std::max(maxCorridorLength,
 				corridorLines[i].length);
 	}
-	if (matrixSize > privateMatrixSize) {
-//		fprintf(stderr, "Reallocating matrix for alignment (size %llu)\n\n", matrixSize);
-		delete[] directionMatrix;
-		directionMatrix = 0;
-		directionMatrix = new char[matrixSize];
-		privateMatrixSize = matrixSize;
+	if ((ulong) (matrixSize * sizeof(char) / 1000.0f / 1000.0f) < maxMatrixSizeMB) {
+		if (matrixSize > privateMatrixSize) {
+			fprintf(stderr, "Reallocating matrix for alignment (size %llu)\n\n", (long long) (matrixSize * sizeof(char) / 1000.0f / 1000.0f));
+			delete[] directionMatrix;
+			directionMatrix = 0;
+			directionMatrix = new char[matrixSize];
+			privateMatrixSize = matrixSize;
+		}
+		currentLine = new MatrixElement[maxCorridorLength];
+		lastLine = new MatrixElement[maxCorridorLength];
+	} else {
+		fprintf(stderr, "Warning: Couldn't allocate alignment matrix. Required memory (%llu) > max matrix size (%llu)\n\n", (long long) (matrixSize * sizeof(char) / 1000.0f / 1000.0f), maxMatrixSizeMB);
+		return false;
 	}
-
-	currentLine = new MatrixElement[maxCorridorLength];
-	lastLine = new MatrixElement[maxCorridorLength];
-
+	return true;
 }
 
 void AlignmentMatrixFast::clean() {

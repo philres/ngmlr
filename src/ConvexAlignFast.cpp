@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <x86intrin.h>
 
-//#include "IConfig.h"
+#include "IConfig.h"
 
 //TODO: remove
 #define pRef pBuffer1
@@ -46,7 +46,7 @@ ConvexAlignFast::ConvexAlignFast(int const stdOutMode,
 		fprintf(stderr, "mat: %f mis: %f gap_open_read: %f gap_open_ref: %f gap_ext: %f gap_decay: %f gapExtendMin: %f\n", mat, mis, gap_open_read, gap_open_ref, gap_ext, gap_decay, gapExtendMin);
 	}
 
-	matrix = new AlignmentMatrixFast();
+	matrix = new AlignmentMatrixFast(Config.getMaxMatrixSizeMB());
 
 	maxBinaryCigarLength = defaultMaxBinaryCigarLength;
 	binaryCigar = new int[maxBinaryCigarLength];
@@ -94,6 +94,18 @@ void ConvexAlignFast::addPosition(Align & result, int & nmIndex, int posInRef, i
 		result.nmPerPosition[nmIndex].refPosition = posInRef - 16;
 		result.nmPerPosition[nmIndex].nm = Yi;
 		nmIndex += 1;
+	}
+}
+
+void ConvexAlignFast::checkMdBufferLength(int md_offset, Align& result, int const minDiff) {
+	if (md_offset > (int) ((result.maxMdBufferLength * 0.9f)) || minDiff > (result.maxMdBufferLength - md_offset)) {
+		result.maxMdBufferLength *= 2;
+		char* tmp = new char[result.maxMdBufferLength];
+		memcpy(tmp, result.pQry, sizeof(char) * (result.maxMdBufferLength / 2));
+		delete[] result.pQry;
+		result.pQry = tmp;
+		tmp = 0;
+		fprintf(stderr, "Reallocating MD buffer (%d)\n", result.maxMdBufferLength);
 	}
 }
 
@@ -172,6 +184,7 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, int const refSeqLen
 			//Produces: 	[0-9]+(([A-Z]+|\^[A-Z]+)[0-9]+)*
 			//instead of: 	[0-9]+(([A-Z]|\^[A-Z]+)[0-9]+)*
 			for (int k = 0; k < cigarOpLength; ++k) {
+				checkMdBufferLength(md_offset, result, 100);
 				md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
 				md_eq_length = 0;
 				md_offset += sprintf(result.pQry + md_offset, "%c",
@@ -216,6 +229,7 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, int const refSeqLen
 			cigar_offset += printCigarElement('D', cigarOpLength,
 					result.pRef + cigar_offset, cigarOpCount, result.maxBufferLength);
 
+			checkMdBufferLength(md_offset, result, 100 + cigarOpLength);
 			md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
 			md_eq_length = 0;
 			result.pQry[md_offset++] = '^';
@@ -266,6 +280,7 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, int const refSeqLen
 	//*********************//
 	//Print last element
 	//*********************//
+	checkMdBufferLength(md_offset, result, 100);
 	md_offset += sprintf(result.pQry + md_offset, "%d", md_eq_length);
 	if (cigar_m_length > 0) {
 		cigar_offset += printCigarElement('M', cigar_m_length,
@@ -285,8 +300,10 @@ int ConvexAlignFast::convertCigar(char const * const refSeq, int const refSeqLen
 	finalCigarLength += result.QEnd;
 
 //	fprintf(stderr, "CIGAR: %d, MD: %d, Length: %d\n", cigar_offset, md_offset, result.maxBufferLength);
-	if(cigar_offset > result.maxBufferLength || md_offset > result.maxBufferLength) {
-		fprintf(stderr, "CIGAR/MD buffer not long enough. Please report this!\n");
+	if(cigar_offset > result.maxBufferLength || md_offset > result.maxMdBufferLength) {
+		fprintf(stderr, "CIGAR/MD buffer not long enough (%d %d > %d %d). Please report this!\n", cigar_offset, md_offset, result.maxBufferLength, result.maxMdBufferLength);
+		fprintf(stderr, "CIGAR; %s\n", result.pBuffer1);
+		fprintf(stderr, "MD; %s\n", result.pBuffer2);
 		throw 1;
 	}
 	result.Identity = matches * 1.0f / alignmentLength;
@@ -432,10 +449,7 @@ int ConvexAlignFast::BatchAlign(int const mode, int const batchSize,
 	return 0;
 }
 
-int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines,
-		int const corridorHeight, char const * const refSeq,
-		char const * const qrySeq, Align & align, int const externalQStart,
-		int const externalQEnd, void * extData) {
+int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines, int const corridorHeight, char const * const refSeq, char const * const qrySeq, Align & align, int const externalQStart, int const externalQEnd, void * extData) {
 
 	alignmentId = align.svType;
 
@@ -446,26 +460,27 @@ int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines,
 
 //	try {
 
-		int const refLen = strlen(refSeq);
-		int const qryLen = strlen(qrySeq);
+	int const refLen = strlen(refSeq);
+	int const qryLen = strlen(qrySeq);
 
-		matrix->prepare(refLen, qryLen, corridorLines, corridorHeight);
+	bool allocated = matrix->prepare(refLen, qryLen, corridorLines, corridorHeight);
 
+	if (allocated) {
 		align.pBuffer2[0] = '\0';
 
 		FwdResults fwdResults;
 
 		// Debug: rscript convex-align-vis.r
 		if (stdoutPrintAlignCorridor == 6) {
-			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, refLen, qryLen,
-					-1);
+			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, refLen, qryLen, -1);
 		}
 
 		AlignmentMatrixFast::Score score = fwdFillMatrixSSESimple(refSeq, qrySeq, fwdResults, mode);
 
-		if(maxBinaryCigarLength < qryLen) {
+		if (maxBinaryCigarLength < qryLen) {
 			maxBinaryCigarLength = qryLen + 1;
-			delete[] binaryCigar; binaryCigar = 0;
+			delete[] binaryCigar;
+			binaryCigar = 0;
 			binaryCigar = new int[maxBinaryCigarLength];
 		}
 
@@ -512,7 +527,6 @@ int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines,
 				align.setBitFlag(0x1);
 			}
 
-
 		} else {
 //			matrix->printMatrix(refSeq, qrySeq);
 //			fprintf(stderr, "%d, %d, %d, %d\n", fwdResults.best_read_index, fwdResults.best_ref_index, fwdResults.ref_position, fwdResults.alignment_offset);
@@ -524,20 +538,20 @@ int ConvexAlignFast::SingleAlign(int const mode, CorridorLine * corridorLines,
 			finalCigarLength = -1;
 		}
 		if (stdoutPrintAlignCorridor == 6) {
-			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, (int) score,
-					finalCigarLength, -3);
+			printf("%d\t%d\t%d\t%d\t%d\n", mode, alignmentId, (int) score, finalCigarLength, -3);
 		}
+	}
 //	} catch (...) {
 //		fprintf(stderr, "Exception in singlealign\n");
 //		align.Score = -1.0f;
 //		finalCigarLength = -1;
 //	}
-
 	matrix->clean();
 
 	if (maxBinaryCigarLength != defaultMaxBinaryCigarLength) {
 		maxBinaryCigarLength = defaultMaxBinaryCigarLength;
-		delete[] binaryCigar; binaryCigar = 0;
+		delete[] binaryCigar;
+		binaryCigar = 0;
 		binaryCigar = new int[maxBinaryCigarLength];
 	}
 

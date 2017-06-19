@@ -268,8 +268,9 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 
 			//initialize arrays for CIGAR and MD string
 			align->maxBufferLength = readLength * 4;
+			align->maxMdBufferLength = readLength * 4;
 			align->pBuffer1 = new char[align->maxBufferLength];
-			align->pBuffer2 = new char[align->maxBufferLength];
+			align->pBuffer2 = new char[align->maxMdBufferLength];
 			align->pBuffer1[0] = '\0';
 			align->pBuffer2[0] = '\0';
 			align->nmPerPostionLength = (readLength + 1) * 2;
@@ -2986,7 +2987,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	}
 	verbose(0, true, "");
 
-
+	std::sort(intervals, intervals + nIntervals, sortIntervalsInSegment);
 
 	std::vector<IntervalTree::Interval<Interval *> > intervalList;
 

@@ -623,7 +623,7 @@ private:
 	int NumberOfSetBits(uint32_t i);
 
 	void addPosition(Align & result, int & nmIndex, int posInRef, int posInRead, int Yi);
-
+	void checkMdBufferLength(int md_offset, Align& result, int const minDiff = 0);
 };
 
 #endif /* CONVEXALIGN_H_ */

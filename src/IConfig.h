@@ -5,6 +5,8 @@
 #ifndef __ICONF_H__
 #define __ICONF_H__
 
+#include "Types.h"
+
 #include <climits>
 #include <cstring>
 
@@ -41,6 +43,8 @@ protected:
 	int subreadaligner = 2;
 	int threads = 1;
 	int maxReadNameLength = 500;
+
+	ulong maxMatrixSizeMB = 10000;
 
 	float invScoreRatio = 1.0f;
 	float scoreMatch = 2.0f;
@@ -209,6 +213,10 @@ public:
 
 	int getMaxReadNameLength() const {
 		return maxReadNameLength;
+	}
+
+	ulong getMaxMatrixSizeMB() const {
+		return maxMatrixSizeMB;
 	}
 
 	bool getNoSSE() const {
