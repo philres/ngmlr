@@ -53,7 +53,7 @@ bool AlignmentMatrixFast::prepare(int const width, int const height,
 		currentLine = new MatrixElement[maxCorridorLength];
 		lastLine = new MatrixElement[maxCorridorLength];
 	} else {
-		fprintf(stderr, "Warning: Couldn't allocate alignment matrix. Required memory (%llu) > max matrix size (%llu)\n\n", (long long) (matrixSize * sizeof(char) / 1000.0f / 1000.0f), maxMatrixSizeMB);
+		fprintf(stderr, "Warning: Couldn't allocate alignment matrix. Required memory (%llu) > max matrix size (%lu)\n\n", (long long) (matrixSize * sizeof(char) / 1000.0f / 1000.0f), maxMatrixSizeMB);
 		return false;
 	}
 	return true;
