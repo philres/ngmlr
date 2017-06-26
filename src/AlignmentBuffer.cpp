@@ -211,6 +211,7 @@ char const * const AlignmentBuffer::extractReferenceSequenceForAlignment(loc con
 		//TODO: check why decoded/SequenceProvider writes outside of refSeqLen: This makes + 100 necessary
 		refSeq = new char[refSeqLength + 100];
 		//decode reference refSeqLength
+		verbose(0, true, "RefStart: %llu, RefLength: %d", onRefStart, refSeqLength);
 		if (!SequenceProvider.DecodeRefSequenceExact(refSeq, onRefStart, refSeqLength, 0)) {
 			//Log.Warning("Could not decode reference for alignment (read: %s): %llu, %d", cur_read->Scores[scoreID].Location.m_Location - (corridor >> 1), cur_read->length + corridor, cur_read->name);
 			Log.Warning("Could not decode reference for alignment");
@@ -429,7 +430,7 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 				delete alignFast; alignFast = 0;
 			#endif
 		} else {
-			Log.Error("Could not align reference sequence for read %s.", read->name);
+			Log.Error("Could not extract reference sequence for read %s.", read->name);
 			validAlignment = false;
 		}
 
@@ -760,15 +761,16 @@ bool AlignmentBuffer::canSpanDeletionInsertion(Interval const * a, Interval cons
 	verbose(3, true, "DistOnRef: %llu, DistOnRead: %d, Corridor: %f", distanceOnRef, distanceOnRead, corridorSize);
 	if(distanceOnRead < (2 * readPartLength)) {
 		//Possible deletion
-		merge = (distanceOnRef - distanceOnRead) < corridorSize;
+		merge = abs(distanceOnRef - distanceOnRead) < corridorSize;
 	} else if(distanceOnRef < (2 * readPartLength)) {
 		//Possible insertion
-		merge = (distanceOnRead - distanceOnRef) < corridorSize;
+		merge = abs(distanceOnRead - distanceOnRef) < corridorSize;
 	} else {
 		/**
 		 * Do nothing, intervals show a larger gap. Probably, poor quality read.
 		 * Better to merge than to risk fragmented alignments
 		 */
+		merge = abs(distanceOnRead - distanceOnRef) < corridorSize;
 	}
 	return merge;
 }
@@ -2378,15 +2380,20 @@ void AlignmentBuffer::verbose(int const tabs, bool const newLine, char const * c
 bool AlignmentBuffer::extendIntervalStop(Interval * interval, int const readBp, int const readLength) {
 	bool extended = false;
 
+	_SequenceProvider::Chromosome chr = SequenceProvider.getChrBorders(interval->onRefStart, interval->onRefStop);
+
+	verbose(0, true, "extendIntervalStop - Located on chr %llu %llu", chr.start, chr.end);
+
+
 	double lengthRatio = std::min(1.0f, interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f);
 //	lengthRatio = 1.0;
 
 	int extendOnRead = std::min(readLength - interval->onReadStop, readBp);
 	int extendOnRef = (int) round(extendOnRead / lengthRatio);
 
-	loc maxExtendOnRef = SequenceProvider.GetConcatRefLen() - interval->onRefStop;
+	loc maxExtendOnRef = interval->onRefStop > chr.end ? 0 : chr.end - interval->onRefStop;
 	if (interval->isReverse) {
-		maxExtendOnRef = interval->onRefStop;
+		maxExtendOnRef = interval->onRefStop < chr.start ? 0 : interval->onRefStop - chr.start;
 	}
 
 	if (extendOnRef > maxExtendOnRef) {
@@ -2394,6 +2401,7 @@ bool AlignmentBuffer::extendIntervalStop(Interval * interval, int const readBp, 
 		extendOnRead = std::min(extendOnRead, std::max(0, (int) round(extendOnRef * lengthRatio) - 1));
 	}
 
+	verbose(1, true, "Min/Max extend on ref: %d/%lld", extendOnRef, maxExtendOnRef);
 	interval->onReadStop += extendOnRead;
 	extended = true;
 	if (interval->isReverse) {
@@ -2408,16 +2416,22 @@ bool AlignmentBuffer::extendIntervalStop(Interval * interval, int const readBp, 
 bool AlignmentBuffer::extendIntervalStart(Interval * interval, int const readBp) {
 	bool extended = false;
 
+	_SequenceProvider::Chromosome chr = SequenceProvider.getChrBorders(interval->onRefStart, interval->onRefStop);
+
+	verbose(0, true, "extendIntervalStart - Located on chr %llu %llu", chr.start, chr.end);
+
+
 	double lengthRatio = std::min(1.0f, interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f);
 //	lengthRatio = 1.0;
 
 	int extendOnRead = std::min(interval->onReadStart, readBp);
 	int extendOnRef = (int) round(extendOnRead / lengthRatio);
 
-	loc maxExtendOnRef = interval->onRefStart;
+	loc maxExtendOnRef = interval->onRefStart < chr.start ? 0 : interval->onRefStart - chr.start;
 	if (interval->isReverse) {
-		maxExtendOnRef = SequenceProvider.GetConcatRefLen() - interval->onRefStart;
+		maxExtendOnRef = interval->onRefStart > chr.end ? 0 :  chr.end - interval->onRefStart;
 	}
+	verbose(1, true, "Min/Max extend on ref: %d/%lld", extendOnRef, maxExtendOnRef);
 	if (extendOnRef > maxExtendOnRef) {
 		extendOnRef = maxExtendOnRef;
 		extendOnRead = std::min(extendOnRead, std::max(0, (int) round(extendOnRef * lengthRatio) - 1));
@@ -2465,6 +2479,8 @@ bool AlignmentBuffer::shortenIntervalEnd(Interval * interval, int const readBp) 
 //		lengthRatio = 1.1;
 
 		int refBp = (int) round(readBp / lengthRatio);
+
+		verbose(1, true, "%llu %d", interval->onRefStop, refBp);
 
 		if (readBp < interval->lengthOnRead() && refBp < interval->lengthOnRef()) {
 
@@ -3344,6 +3360,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 				currentInterval->onRefStop = tmp;
 			}
 
+			verbose(0, "Aligning interval: ", currentInterval);
 			if (!Config.getSkipalign()) {
 				alignSingleOrMultipleIntervals(read, currentInterval, tmpLocationScores, tmpAlingments, nTempAlignments);
 			} else {

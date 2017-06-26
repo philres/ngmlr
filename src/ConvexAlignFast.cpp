@@ -105,7 +105,7 @@ void ConvexAlignFast::checkMdBufferLength(int md_offset, Align& result, int cons
 		delete[] result.pQry;
 		result.pQry = tmp;
 		tmp = 0;
-		fprintf(stderr, "Reallocating MD buffer (%d)\n", result.maxMdBufferLength);
+//		fprintf(stderr, "Reallocating MD buffer (%d)\n", result.maxMdBufferLength);
 	}
 }
 

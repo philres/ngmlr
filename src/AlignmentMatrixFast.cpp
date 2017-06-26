@@ -44,7 +44,7 @@ bool AlignmentMatrixFast::prepare(int const width, int const height,
 	}
 	if ((ulong) (matrixSize * sizeof(char) / 1000.0f / 1000.0f) < maxMatrixSizeMB) {
 		if (matrixSize > privateMatrixSize) {
-			fprintf(stderr, "Reallocating matrix for alignment (size %llu)\n\n", (long long) (matrixSize * sizeof(char) / 1000.0f / 1000.0f));
+//			fprintf(stderr, "Reallocating matrix for alignment (size %llu)\n\n", (long long) (matrixSize * sizeof(char) / 1000.0f / 1000.0f));
 			delete[] directionMatrix;
 			directionMatrix = 0;
 			directionMatrix = new char[matrixSize];

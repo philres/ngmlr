@@ -112,6 +112,42 @@ static inline char dec4Low(unsigned char c) {
 	return dec4(c & 0xF);
 }
 
+_SequenceProvider::Chromosome _SequenceProvider::getChrBorders(
+		loc start, loc stop) {
+
+	if(start > stop) {
+		loc tmp = start;
+		start = stop;
+		stop = tmp;
+	}
+
+	if(start < 1000) {
+		start = 1001;
+	}
+
+//	Log.Message("Detecting chromosome for: %lld %lld", start, stop);
+
+	uloc * upperStart = std::upper_bound(refStartPos, refStartPos + (refCount / 2) + 1, start);
+	if ((*upperStart - start) < 1000) {
+		upperStart += 1;
+	}
+	uloc * upperStop= std::upper_bound(refStartPos, refStartPos + (refCount / 2) + 1, stop);
+	// if ((*upperStop - stop) < 1000) don't do anything. Probably still same chromosome
+
+//	Log.Message("Upper: %llu - %llu", upperStart, upperStop);
+
+	Chromosome chr;
+	if(upperStart == upperStop) {
+		chr.start = *(upperStart - 1);
+		chr.end = *(upperStart) - 1000;
+	} else {
+		Log.Error("Could not determine chromosome for interval.");
+		throw "Could not determine chromosome for interval.";
+	}
+
+	return chr;
+}
+
 _SequenceProvider::Chromosome _SequenceProvider::getChrStart(
 		uloc const position) {
 	if (position < 1000) {

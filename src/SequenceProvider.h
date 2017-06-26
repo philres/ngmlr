@@ -40,6 +40,7 @@ public:
 
 	bool convert(SequenceLocation & m_Location);
 
+	Chromosome getChrBorders(loc start, loc stop);
 	Chromosome getChrStart(uloc const position);
 
 private:
