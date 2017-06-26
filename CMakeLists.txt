@@ -3,7 +3,7 @@ project(NextGenMap-LR)
 
 include(CheckCXXCompilerFlag)
 
-option(STATIC "Build static binary" ON)
+option(STATIC "Build static binary" OFF)
 
 set( NGM_VERSION_MAJOR 0 )
 set( NGM_VERSION_MINOR 2 )
