@@ -123,6 +123,7 @@ _SequenceProvider::Chromosome _SequenceProvider::getChrBorders(
 
 	if(start < 1000) {
 		start = 1001;
+		stop = std::max(1002ll, stop);
 	}
 
 //	Log.Message("Detecting chromosome for: %lld %lld", start, stop);
@@ -130,19 +131,24 @@ _SequenceProvider::Chromosome _SequenceProvider::getChrBorders(
 	uloc * upperStart = std::upper_bound(refStartPos, refStartPos + (refCount / 2) + 1, start);
 	if ((*upperStart - start) < 1000) {
 		upperStart += 1;
+//		Log.Message("Start in spacer");
 	}
 	uloc * upperStop= std::upper_bound(refStartPos, refStartPos + (refCount / 2) + 1, stop);
 	// if ((*upperStop - stop) < 1000) don't do anything. Probably still same chromosome
 
-//	Log.Message("Upper: %llu - %llu", upperStart, upperStop);
+//	Log.Message("Upper: %llu - %llu", *upperStart, *upperStop);
 
 	Chromosome chr;
 	if(upperStart == upperStop) {
 		chr.start = *(upperStart - 1);
 		chr.end = *(upperStart) - 1000;
+//		Log.Message("## Chr: %llu - %llu", chr.start, chr.end);
 	} else {
-		Log.Error("Could not determine chromosome for interval.");
-		throw "Could not determine chromosome for interval.";
+//		throw "Could not determine chromosome for interval.";
+		chr.start = 0;
+		chr.end = 0;
+//		Log.Message("## Chr1: %llu - %llu", *(upperStart - 1), *(upperStart) - 1000);
+//		Log.Message("## Chr1: %llu - %llu", *(upperStop - 1), *(upperStop) - 1000);
 	}
 
 	return chr;

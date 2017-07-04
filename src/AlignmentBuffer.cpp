@@ -777,8 +777,14 @@ bool AlignmentBuffer::canSpanDeletionInsertion(Interval const * a, Interval cons
 
 bool AlignmentBuffer::spansChromosomeBorder(Interval const * a, Interval const * b) {
 
-	_SequenceProvider::Chromosome chrA = SequenceProvider.getChrStart(a->onRefStart);
-	_SequenceProvider::Chromosome chrB = SequenceProvider.getChrStart(b->onRefStart);
+	_SequenceProvider::Chromosome chrA = SequenceProvider.getChrStart((a->onRefStop + a->onRefStart) / 2);
+	_SequenceProvider::Chromosome chrB = SequenceProvider.getChrStart((b->onRefStop + b->onRefStart) / 2);
+
+	verbose(0, true, "#### Intervals on same chr:");
+	verbose(0, true, "#### 1: %llu", (a->onRefStop + a->onRefStart) / 2);
+	verbose(0, true, "#### 2: %llu", (b->onRefStop + b->onRefStart) / 2);
+	verbose(0, true, "#### Chr1: %llu - %llu", chrA.start, chrA.end);
+	verbose(0, true, "#### Chr2: %llu - %llu", chrB.start, chrB.end);
 
 	return chrA.start != chrB.start;
 }
@@ -2380,34 +2386,43 @@ void AlignmentBuffer::verbose(int const tabs, bool const newLine, char const * c
 bool AlignmentBuffer::extendIntervalStop(Interval * interval, int const readBp, int const readLength) {
 	bool extended = false;
 
+	verbose(0, true, "## Extending interval stop:");
+	verbose(0, "## ", interval);
+
 	_SequenceProvider::Chromosome chr = SequenceProvider.getChrBorders(interval->onRefStart, interval->onRefStop);
 
-	verbose(0, true, "extendIntervalStop - Located on chr %llu %llu", chr.start, chr.end);
 
+	//verbose(0, true, "extendIntervalEnd fro %llu - %llu by %d -- Located on chr %llu - %llu", interval->onRefStart, interval->onRefStop, readBp, chr.start, chr.end);
 
-	double lengthRatio = std::min(1.0f, interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f);
-//	lengthRatio = 1.0;
+	if (chr.start != 0 || chr.end != 0) {
+		verbose(0, true, "extendIntervalStop - Located on chr %llu %llu", chr.start, chr.end);
 
-	int extendOnRead = std::min(readLength - interval->onReadStop, readBp);
-	int extendOnRef = (int) round(extendOnRead / lengthRatio);
+		double lengthRatio = std::min(1.0f, interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f);
 
-	loc maxExtendOnRef = interval->onRefStop > chr.end ? 0 : chr.end - interval->onRefStop;
-	if (interval->isReverse) {
-		maxExtendOnRef = interval->onRefStop < chr.start ? 0 : interval->onRefStop - chr.start;
-	}
+		int extendOnRead = std::min(readLength - interval->onReadStop, readBp);
+		int extendOnRef = (int) round(extendOnRead / lengthRatio);
 
-	if (extendOnRef > maxExtendOnRef) {
-		extendOnRef = maxExtendOnRef;
-		extendOnRead = std::min(extendOnRead, std::max(0, (int) round(extendOnRef * lengthRatio) - 1));
-	}
+		loc maxExtendOnRef = interval->onRefStop > chr.end ? 0 : chr.end - interval->onRefStop;
+		if (interval->isReverse) {
+			maxExtendOnRef = interval->onRefStop < chr.start ? 0 : interval->onRefStop - chr.start;
+		}
 
-	verbose(1, true, "Min/Max extend on ref: %d/%lld", extendOnRef, maxExtendOnRef);
-	interval->onReadStop += extendOnRead;
-	extended = true;
-	if (interval->isReverse) {
-		interval->onRefStop -= extendOnRef;
+		if (extendOnRef > maxExtendOnRef) {
+			extendOnRef = maxExtendOnRef;
+			extendOnRead = std::min(extendOnRead, std::max(0, (int) round(extendOnRef * lengthRatio) - 1));
+		}
+
+		verbose(1, true, "Min/Max extend on ref: %d/%lld", extendOnRef, maxExtendOnRef);
+		interval->onReadStop += extendOnRead;
+		extended = true;
+		if (interval->isReverse) {
+			interval->onRefStop -= extendOnRef;
+		} else {
+			interval->onRefStop += extendOnRef;
+		}
 	} else {
-		interval->onRefStop += extendOnRef;
+		verbose(0, true, "Could not get chromosome for interval");
+		getchar();
 	}
 
 	return extended;
@@ -2418,31 +2433,35 @@ bool AlignmentBuffer::extendIntervalStart(Interval * interval, int const readBp)
 
 	_SequenceProvider::Chromosome chr = SequenceProvider.getChrBorders(interval->onRefStart, interval->onRefStop);
 
-	verbose(0, true, "extendIntervalStart - Located on chr %llu %llu", chr.start, chr.end);
+	verbose(0, true, "extendIntervalStart fro %llu - %llu by %d -- Located on chr %llu - %llu", interval->onRefStart, interval->onRefStop, readBp, chr.start, chr.end);
 
+	if (chr.start != 0 || chr.end != 0) {
 
-	double lengthRatio = std::min(1.0f, interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f);
-//	lengthRatio = 1.0;
+		double lengthRatio = std::min(1.0f, interval->lengthOnRead() * 1.0f / interval->lengthOnRef() * 1.0f);
 
-	int extendOnRead = std::min(interval->onReadStart, readBp);
-	int extendOnRef = (int) round(extendOnRead / lengthRatio);
+		int extendOnRead = std::min(interval->onReadStart, readBp);
+		int extendOnRef = (int) round(extendOnRead / lengthRatio);
 
-	loc maxExtendOnRef = interval->onRefStart < chr.start ? 0 : interval->onRefStart - chr.start;
-	if (interval->isReverse) {
-		maxExtendOnRef = interval->onRefStart > chr.end ? 0 :  chr.end - interval->onRefStart;
-	}
-	verbose(1, true, "Min/Max extend on ref: %d/%lld", extendOnRef, maxExtendOnRef);
-	if (extendOnRef > maxExtendOnRef) {
-		extendOnRef = maxExtendOnRef;
-		extendOnRead = std::min(extendOnRead, std::max(0, (int) round(extendOnRef * lengthRatio) - 1));
-	}
+		loc maxExtendOnRef = interval->onRefStart < chr.start ? 0 : interval->onRefStart - chr.start;
+		if (interval->isReverse) {
+			maxExtendOnRef = interval->onRefStart > chr.end ? 0 : chr.end - interval->onRefStart;
+		}
+		verbose(1, true, "Min/Max extend on ref: %d/%lld", extendOnRef, maxExtendOnRef);
+		if (extendOnRef > maxExtendOnRef) {
+			extendOnRef = maxExtendOnRef;
+			extendOnRead = std::min(extendOnRead, std::max(0, (int) round(extendOnRef * lengthRatio) - 1));
+		}
 
-	interval->onReadStart -= extendOnRead;
-	extended = true;
-	if (interval->isReverse) {
-		interval->onRefStart += extendOnRef;
+		interval->onReadStart -= extendOnRead;
+		extended = true;
+		if (interval->isReverse) {
+			interval->onRefStart += extendOnRef;
+		} else {
+			interval->onRefStart -= extendOnRef;
+		}
 	} else {
-		interval->onRefStart -= extendOnRef;
+		verbose(0, true, "Could not get chromosome for interval");
+//		getchar();
 	}
 
 	return extended;
