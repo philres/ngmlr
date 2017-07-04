@@ -11,7 +11,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Building in debug mode!")
     set( NGM_VERSION_BUILD 5-debug )
 else()
-  set( NGM_VERSION_BUILD 5 )
+  set( NGM_VERSION_BUILD 6 )
 ENDIF()
 
 find_package( ZLIB REQUIRED )
