@@ -253,17 +253,21 @@ void _SequenceProvider::writeEncRefToFile(char const * fileName,
 		wtmr.ST();
 		Log.Message("Writing encoded reference to %s", fileName);
 		FILE *fp;
-		fp = fopen(fileName, "wb");
-		fwrite(&refEncCookie, sizeof(uint), 1, fp);
-		fwrite(&refCount, sizeof(uint), 1, fp);
-		fwrite(&binRefIndex, sizeof(uloc), 1, fp);
-		fwrite(&encRefSize, sizeof(uloc), 1, fp);
 
-		fwrite(binRefIdx, sizeof(RefIdx), refCount, fp);
-		fwrite(binRef, sizeof(char), encRefSize, fp);
+		if (!(fp = fopen(fileName, "wb"))) {
+			Log.Warning("WARNING: Could not write encoded reference file to disk: Unable to open output file %s. Please check file permissions.", fileName);
+		} else {
+			fwrite(&refEncCookie, sizeof(uint), 1, fp);
+			fwrite(&refCount, sizeof(uint), 1, fp);
+			fwrite(&binRefIndex, sizeof(uloc), 1, fp);
+			fwrite(&encRefSize, sizeof(uloc), 1, fp);
 
-		fclose(fp);
-		Log.Message("Writing to disk took %.2fs", wtmr.ET());
+			fwrite(binRefIdx, sizeof(RefIdx), refCount, fp);
+			fwrite(binRef, sizeof(char), encRefSize, fp);
+
+			fclose(fp);
+			Log.Message("Writing to disk took %.2fs", wtmr.ET());
+		}
 	}
 }
 
@@ -315,7 +319,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 		}
 
 		uloc const binRefSize = ((size / 2) | 1) + 1;
-		Log.Message("Allocating %llu (%llu) bytes for the reference.", binRefSize, FileSize(Config.getReferenceFile()));
+		Log.Verbose("Allocating %llu (%llu) bytes for the reference.", binRefSize, FileSize(Config.getReferenceFile()));
 		binRef = new char[binRefSize];
 
 		gzFile gzfp;
@@ -374,7 +378,7 @@ void _SequenceProvider::Init(bool dualstrand) {
 			}
 		}
 		refCount = j;
-		Log.Message("BinRef length: %ull (elapsed %f)", binRefIndex, tt.ET());
+		Log.Verbose("BinRef length: %ull (elapsed %f)", binRefIndex, tt.ET());
 		Log.Message("%d reference sequences were skipped (length < %d).", skipped, minRefSeqLen);
 		kseq_destroy(seq);
 		gzclose(gzfp);
