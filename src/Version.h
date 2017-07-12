@@ -3,7 +3,7 @@
  
 #define VERSION_MAJOR "0"
 #define VERSION_MINOR "2"
-#define VERSION_BUILD "6"
+#define VERSION_BUILD "7"
 
 #endif // VERSION_H
 
