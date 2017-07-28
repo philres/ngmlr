@@ -17,6 +17,12 @@ CoNvex Gap-cost alignMents for Long Reads (ngmlr) is a long-read mapper designed
 
 With 10 cores (AMD Opteron 6348), ngmlr currently takes about 90 minutes and 10 GB RAM for aligning 3Gbp (~ 1x human data) of Pacbio reads.
 
+
+### Citation:
+Please see and cite our preprint:
+http://www.biorxiv.org/content/early/2017/07/28/169557
+
+
 **Poster & Talks:**
 
 [Accurate and fast detection of complex and nested structural variations using long read technologies](http://schatzlab.cshl.edu/presentations/2016/2016.10.28.BIODATA.PacBioSV.pdf)<br>
