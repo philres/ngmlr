@@ -121,3 +121,14 @@ mkdir -p ngmlr/build
 docker run -v `pwd`/ngmlr:/ngmlr philres/nextgenmaplr-buildenv bash -c "cd /ngmlr/build && cmake .. &&  make"
 `pwd`/ngmlr/bin/ngmlr-*/ngmlr
 ```
+
+
+### Datasets using in the mansucript:
+We provide the NGMLR aligned reads and the Sniffles calls for the data sets used:  
+[Arabidopsis trio](http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/Arabidopsis_trio) . 
+[GiaB](ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/HG002_NA24385_son/PacBio_MtSinai_NIST/Baylor_NGMLR_bam_GRCh37/) . 
+[NA12878 Pacbio + Oxford Nanopore](http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/NA12878/) .     
+[SKBR3](http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/Skbr3/) . 
+
+
+
