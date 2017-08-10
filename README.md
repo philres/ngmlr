@@ -131,7 +131,7 @@ Arabidopsis trio: [http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/S
 Genome in the Bottle trio: 
 + Mappings: [ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/HG002_NA24385_son/PacBio_MtSinai_NIST/Baylor_NGMLR_bam_GRCh37/](ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/HG002_NA24385_son/PacBio_MtSinai_NIST/Baylor_NGMLR_bam_GRCh37/) . 
 
-+ SV calls: [/sonas-hs/schatz/hpc/data/www-data/fsedlaze/Sniffles/GiaB](/sonas-hs/schatz/hpc/data/www-data/fsedlaze/Sniffles/GiaB)
++ SV calls: [http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/GiaB/](/http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/GiaB/)
 
 NA12878: [http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/NA12878/](http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/NA12878/) .  
 
