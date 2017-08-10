@@ -123,7 +123,7 @@ docker run -v `pwd`/ngmlr:/ngmlr philres/nextgenmaplr-buildenv bash -c "cd /ngml
 ```
 
 
-### Datasets using in the mansucript:
+### Datasets used in the mansucript:
 We provide the NGMLR aligned reads and the Sniffles calls for the data sets used:  
 
 Arabidopsis trio: [http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/Arabidopsis_trio](http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/Arabidopsis_trio) . 
