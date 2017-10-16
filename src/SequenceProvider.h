@@ -12,6 +12,7 @@
 #include "NGMThreads.h"
 #include "SequenceLocation.h"
 #include "MappedRead.h"
+#include "intervaltree/IntervalTree.h"
 
 class _SequenceProvider {
 public:
@@ -42,6 +43,10 @@ public:
 
 	Chromosome getChrBorders(loc start, loc stop);
 	Chromosome getChrStart(uloc const position);
+
+	IntervalTree::IntervalTree<int> * getNOnlyRegionsTree();
+
+	IntervalTree::IntervalTree<int> * nOnlyRegionsTree;
 
 private:
 
@@ -82,6 +87,13 @@ private:
 			uloc const encRefSize);
 	int readEncRefFromFile(char const * fileName, const uloc maxLen);
 	uloc decode(uloc startPosition, uloc endPosition, char* const sequence);
+
+	/**
+	 * Scan reference sequence for stretches of N and store coordinates as
+	 * interval tree
+	 */
+	IntervalTree::IntervalTree<int> * findNregionsOnReference();
+
 };
 
 #define SequenceProvider _SequenceProvider::Instance()

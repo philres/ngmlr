@@ -99,7 +99,7 @@ static inline char dec4(char c) {
 	case 3:
 		return 'C';
 	case 4:
-		return 'N';
+		return 'X';
 	}
 	throw "Error in ref encoding!";
 }
@@ -111,6 +111,71 @@ static inline char dec4High(unsigned char c) {
 static inline char dec4Low(unsigned char c) {
 	return dec4(c & 0xF);
 }
+
+IntervalTree::IntervalTree<int> * _SequenceProvider::findNregionsOnReference() {
+
+	int const maxN = 50;
+	Log.Message("\tScanning for >%d N in reference sequence", maxN);
+//
+	std::vector<IntervalTree::Interval<int> > nOnlyIntervals;
+
+
+
+	for (int i = 0; i < SequenceProvider.GetRefCount(); ++i) {
+//		lastPrefix = 111111;
+//		lastBin = -1;
+		int m_CurGenSeq = i;
+//
+//		Log.Message("%d", i);
+		if (!DualStrand || !(m_CurGenSeq % 2)) {
+//
+			uloc offset = SequenceProvider.GetRefStart(m_CurGenSeq);
+			uloc len = SequenceProvider.GetRefLen(m_CurGenSeq);
+//			Log.Message("%d: %llu %llu", i, offset, len);
+			char * seq = new char[len + 2];
+			SequenceProvider.DecodeRefSequence(seq, m_CurGenSeq, offset, len);
+
+			bool N = false;
+			int nStart = -1;
+			for(int j = 0; j < len; ++j) {
+				bool currentN = seq[j] == 'X';
+				if(currentN && N) {
+					// Do nothing
+				} else if(!N) {
+					nStart = j;
+					N = true;
+				} else {
+					int refnamelen = 0;
+					char const * refname = SequenceProvider.GetRefName(i, refnamelen);
+					if((j - nStart) > maxN) {
+//						fprintf(stdout, "%s\t%d\t%d\n", refname, nStart, j);
+						Log.Message("%s\t%llu\t%llu\n", refname, offset + nStart, offset + j);
+						nOnlyIntervals.push_back(IntervalTree::Interval<int>(offset + nStart, offset + j, (j - nStart)));
+					}
+					N = false;
+					nStart = -1;
+				}
+			}
+			if(N) {
+				int refnamelen = 0;
+				char const * refname = SequenceProvider.GetRefName(i, refnamelen);
+				if((len - nStart) > maxN) {
+//					fprintf(stdout, "%s\t%d\t%llu\n", refname, nStart, len);
+					Log.Message("%s\t%llu\t%llu\n", refname, offset + nStart, offset + len);
+					nOnlyIntervals.push_back(IntervalTree::Interval<int>(offset + nStart, offset + len, (len - nStart)));
+				}
+			}
+
+			delete[] seq;
+			seq = 0;
+		}
+	}
+
+	return new IntervalTree::IntervalTree<int>(nOnlyIntervals);
+
+
+}
+
 
 _SequenceProvider::Chromosome _SequenceProvider::getChrBorders(
 		loc start, loc stop) {
@@ -289,6 +354,10 @@ uloc getSize(char const * const file) {
 	return size;
 }
 
+IntervalTree::IntervalTree<int> * _SequenceProvider::getNOnlyRegionsTree() {
+	return nOnlyRegionsTree;
+}
+
 void _SequenceProvider::Init(bool dualstrand) {
 	DualStrand = dualstrand;
 	Log.Verbose("Init sequence provider.");
@@ -422,6 +491,9 @@ void _SequenceProvider::Init(bool dualstrand) {
 	}
 	//Add artificial start position as upper bound for all all reads that map to the last chromosome
 	refStartPos[j] = refStartPos[j - 1] + SequenceProvider.GetRefLen(refCount - 1) + 1000;
+
+
+	nOnlyRegionsTree = findNregionsOnReference();
 
 //	//Test decode
 //	char * sequence = new char[10000];

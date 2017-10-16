@@ -296,8 +296,10 @@ Align * AlignmentBuffer::computeAlignment(Interval const * interval,
 				//Local alignment
 				if (pacbioDebug) {
 					Log.Message("Aligning %d bp to %d bp", readLength, refSeqLen);
-					Log.Message("Ref: %.*s ... %.*s", 250, refSeq, 250, refSeq + refSeqLen - 250);
-					Log.Message("Read: %.*s ... %.*s", 250, readSeq, 250, readSeq - readLength - 250);
+//					Log.Message("Ref: %.*s ... %.*s", 250, refSeq, 250, refSeq + refSeqLen - 250);
+//					Log.Message("Read: %.*s ... %.*s", 250, readSeq, 250, readSeq - readLength - 250);
+					Log.Message("Ref:  %s", refSeq);
+					Log.Message("Read: %s", readSeq);
 				}
 
 				int corridorHeight = 0;
@@ -590,7 +592,7 @@ bool isAnchorInCorridor(REAL k, REAL d, REAL corridor, Anchor const & testee) {
 }
 
 bool AlignmentBuffer::isIntervalInCorridor(REAL k, REAL d, REAL corridor,
-		Interval const * testee, bool const switched) {
+		Interval const * testee, bool const switched, loc & distance) {
 
 	loc onRefStart = testee->onRefStart;
 	loc onRefStop = testee->onRefStop;
@@ -604,12 +606,15 @@ bool AlignmentBuffer::isIntervalInCorridor(REAL k, REAL d, REAL corridor,
 	REAL y = testee->onReadStart;
 	loc upperRefStart = (loc) round((y - (d + corridor)) / k);
 	loc lowerRefStart = (loc) round((y - (d - corridor)) / k);
+	loc midRefStart = (loc) round((y - (d)) / k);
 
 	if (upperRefStart < lowerRefStart) {
 		REAL tmp = upperRefStart;
 		upperRefStart = lowerRefStart;
 		lowerRefStart = tmp;
 	}
+
+	distance = abs(midRefStart - onRefStart);
 
 	verbose(3, true, "%llu <= %llu && %llu >= %llu", onRefStart, upperRefStart, onRefStart, lowerRefStart);
 	verbose(3, true, "onRefStart <= upperRefStart = %d, onRefStart >= lowerRefStart = %d", onRefStart <= upperRefStart, onRefStart >= lowerRefStart);
@@ -620,12 +625,15 @@ bool AlignmentBuffer::isIntervalInCorridor(REAL k, REAL d, REAL corridor,
 	y = testee->onReadStop;
 	loc upperRefStop = (loc) round((y - (d + corridor)) / k);
 	loc lowerRefStop = (loc) round((y - (d - corridor)) / k);
+	loc midRefStop = (loc) round((y - (d)) / k);
 
 	if (upperRefStop < lowerRefStop) {
 		REAL tmp = upperRefStop;
 		upperRefStop = lowerRefStop;
 		lowerRefStop = tmp;
 	}
+
+	distance = (distance + abs(midRefStop - onRefStop)) / 2;
 
 	inCorridor = inCorridor
 			&& (onRefStop <= upperRefStop && onRefStop >= lowerRefStop);
@@ -706,8 +714,9 @@ void AlignmentBuffer::addAnchorAsInterval(Anchor const & anchor,
 
 // Checks whether a is compatible (is located in the "corridor"
 // of b.
-bool AlignmentBuffer::isCompatible(Interval const * a, Interval const * b, REAL corridorSize) {
+bool AlignmentBuffer::isCompatible(Interval const * a, Interval const * b, REAL corridorSize, loc & avgDistance) {
 
+	loc distance = 0;
 	bool isCompatible = false;
 	// Trade off (at the moment):
 	// Bigger corridor: higher chance that alignment won't span event (score too low)
@@ -723,7 +732,8 @@ bool AlignmentBuffer::isCompatible(Interval const * a, Interval const * b, REAL 
 		if (a->isReverse == b->isReverse) {
 			// a and b are on the same strand
 			isCompatible = isIntervalInCorridor(b->m, b->b, corridorSize, a,
-					false);
+					false, distance);
+			avgDistance = distance;
 		} else {
 			if (pacbioDebug) {
 				Log.Message("Intervals not on same strand");
@@ -739,14 +749,29 @@ bool AlignmentBuffer::isCompatible(Interval const * a, Interval const * b, REAL 
 			 */
 
 			// Switches the direction of the testee
-			isCompatible = isIntervalInCorridor(b->m, b->b, corridorSize, a, true);
+			isCompatible = isIntervalInCorridor(b->m, b->b, corridorSize, a, true, distance);
+			avgDistance = distance;
 
 			// Switches the direction of the tester and uses the testeee regression
 			// to check whether both are compatible
-			isCompatible = isCompatible || isIntervalInCorridor(a->m, a->b, corridorSize, b, true);
+			isCompatible = isCompatible || isIntervalInCorridor(a->m, a->b, corridorSize, b, true, distance);
+			avgDistance = std::min(avgDistance, distance);
 		}
 
 	}
+
+//	if(isCompatible) {
+//		/*
+//		 * Overlap check. Avoid merging intervals that overlap on the read
+//		 * but are far appart on the reference
+//		 */
+//		int overlapOnRead = getOverlapOnRead(a, b);
+//		loc distanceOnRef = getDistanceOnRef(a, b);
+//		if(overlapOnRead >= std::min(a->lengthOnRead(), b->lengthOnRead()) && distanceOnRef >= (2 * readPartLength)) {
+//			isCompatible = false;
+//		}
+//		verbose(3, true, "Overlap on read %d, distance on ref %llu -> %d", overlapOnRead, distanceOnRef, isCompatible);
+//	}
 
 	return isCompatible;
 }
@@ -773,6 +798,30 @@ bool AlignmentBuffer::canSpanDeletionInsertion(Interval const * a, Interval cons
 		merge = abs(distanceOnRead - distanceOnRef) < corridorSize;
 	}
 	return merge;
+}
+
+bool AlignmentBuffer::spansNRegion(Interval const * a, Interval const * b) {
+
+
+	std::vector<IntervalTree::Interval<int> > results;
+
+	uloc start = std::min(a->onRefStart, a->onRefStop);
+	uloc stop = std::min(b->onRefStart, b->onRefStop);
+
+	if(start > stop) {
+		uloc tmp = start;
+		start = stop;
+		stop = tmp;
+	}
+
+	nOnlyRegions->findOverlapping(start, stop, results);
+
+	verbose(0, true, "### Spans N region ###");
+	verbose(0, true, "#### Gap: %llu - %llu", start, stop);
+	verbose(0, true, "#### Overlap: %d", results.size());
+
+	return results.size() > 0;
+
 }
 
 bool AlignmentBuffer::spansChromosomeBorder(Interval const * a, Interval const * b) {
@@ -2952,7 +3001,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 					anchor.score = part->Scores[k].Score.f;
 					anchor.isReverse = part->Scores[k].Location.isReverse();
 					anchor.type = DP_STATUS_OK;
-					anchor.isUnique = part->numScores() == 1; // || anchor.score > minScore;
+					anchor.isUnique = part->numScores() <= 3; // || anchor.score > minScore;
 
 					/**
 					 * It would be best to convert reads or read parts that map to the negative strand
@@ -3034,12 +3083,21 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	 * will be added to a segment
 	 */
 	int const maxMappedSegementCount = nIntervals + 1;
+
+	MappedSegment * initialSegments = new MappedSegment[maxMappedSegementCount];
+
+
+
+
 	MappedSegment * segments = new MappedSegment[maxMappedSegementCount];
 	size_t segementsIndex = 0;
 	for (int i = 0; i < nIntervals; ++i) {
 		Interval * interval = intervals[i];
 		bool intervalProcessed = false;
 		verbose(0, "Current interval: ", interval);
+
+		int bestJ = -1;
+		loc bestDistance = LLONG_MAX;
 
 		for (int j = 0; j < segementsIndex && !intervalProcessed; ++j) {
 			verbose(1, true, "Checking segment %d", j);
@@ -3056,20 +3114,30 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 					intervals[i] = 0;
 					interval = 0;
 				} else {
-					if (isCompatible(interval, processedInterval)) {
-						verbose(3, true, "Is compatible");
-						// Interval fits corridor of segment
-						if (segments[j].length < segments[j].maxLength) {
-							segments[j].list[segments[j].length++] = interval;
-							intervalProcessed = true;
-							intervalList.push_back(IntervalTree::Interval<Interval *>(interval->onReadStart, interval->onReadStop, interval));
+					loc distance = 0;
+					if (isCompatible(interval, processedInterval, 8192ll, distance)) {
+						verbose(3, true, "Is compatible. Distance: %lld", distance);
+						//if (bestJ == -1) {
+						if (distance < bestDistance) {
+							bestJ = j;
+							bestDistance = distance;
 						}
 					} else {
 						verbose(3, true, "Not contained and not compatible");
 					}
 				}
 			}
+		}
 
+		//TODO: add
+		if (bestJ > -1 && !intervalProcessed) {
+			verbose(1, true, "Merging with %d", bestJ);
+			// Interval fits corridor of segment
+			if (segments[bestJ].length < segments[bestJ].maxLength) {
+				segments[bestJ].list[segments[bestJ].length++] = interval;
+				intervalProcessed = true;
+				intervalList.push_back(IntervalTree::Interval<Interval *>(interval->onReadStart, interval->onReadStop, interval));
+			}
 		}
 
 		if (!intervalProcessed) {
@@ -3169,7 +3237,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 						 */
 						REAL const corridorSize = std::min(4096, std::min(currentInterval->lengthOnRead(), lastInterval->lengthOnRead()));
 						verbose(2, true, "IsContained in corridor of %f.", corridorSize);
-						if (canSpanDeletionInsertion(currentInterval, lastInterval, corridorSize) && !spansChromosomeBorder(currentInterval, lastInterval)) {
+						if (canSpanDeletionInsertion(currentInterval, lastInterval, corridorSize) && !spansChromosomeBorder(currentInterval, lastInterval) && !spansNRegion(currentInterval, lastInterval)) {
 							/**
 							 *  Deletion or insertion small enough for alignment without split
 							 */
@@ -3278,7 +3346,8 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			if (currentIntervl->anchorLength > 1) {
 				verbose(1, "a:", lastInterval);
 				verbose(1, "b: ", currentIntervl);
-				if (!isCompatible(lastInterval, currentIntervl) && getDistanceOnRead(lastInterval, currentIntervl) > 0 && (currentIntervl->anchorLength > 2 || lastInterval->anchorLength > 2)) {
+				loc distance = 0;
+				if (!isCompatible(lastInterval, currentIntervl, 8192ll, distance) && getDistanceOnRead(lastInterval, currentIntervl) > 0 && (currentIntervl->anchorLength > 2 || lastInterval->anchorLength > 2)) {
 					verbose(1, true, "Closing gap between:");
 					closeGapOnRead(lastInterval, currentIntervl, read->length);
 				} else {
@@ -3296,7 +3365,7 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 	 * Sort intervals by score
 	 * Important because, we trust intervals with higher
 	 * score more. Thus we align them first. Aligned intervals
-	 * are considered fixed. Therefore, all unangliend intervals will
+	 * are considered fixed. Therefore, all unaligned intervals will
 	 * be trimmed in order to not overlap with fixed intervals.
 	 */
 	verbose(0, true, "Sorting intervals by score");
@@ -3386,6 +3455,9 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 			verbose(0, "Aligning interval: ", currentInterval);
 			if (!Config.getSkipalign()) {
+				currentInterval->onRefStart -= 50;
+				currentInterval->onRefStop += 50;
+
 				alignSingleOrMultipleIntervals(read, currentInterval, tmpLocationScores, tmpAlingments, nTempAlignments);
 			} else {
 				Log.Message("Skipping alignment computation.");

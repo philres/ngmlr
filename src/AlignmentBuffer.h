@@ -73,6 +73,8 @@ private:
 
 	IntervalTree::IntervalTree<int> * readCoordsTree;
 
+	IntervalTree::IntervalTree<int> * nOnlyRegions;
+
 	int const readPartLength;
 
 	int maxSegmentCount;
@@ -137,6 +139,12 @@ public:
 	 */
 	bool spansChromosomeBorder(Interval const * a, Interval const * b);
 
+	/**
+	 * Checks whether the gap between two intervals spans a N only region on the
+	 * reference sequence
+	 */
+	bool spansNRegion(Interval const * a, Interval const * b);
+
 	void addAnchorAsInterval(Anchor const & anchor, MappedSegment & segment);
 	Interval * toInterval(Anchor const & anchor);
 
@@ -144,9 +152,11 @@ public:
 	 * Test if interval is contained in corridor
 	 */
 	bool isIntervalInCorridor(REAL k, REAL d, REAL corridor,
-			Interval const * testee, bool const switched);
+			Interval const * testee, bool const switched, loc & distance);
 
-	bool isCompatible(Interval const * a, Interval const * b, REAL corridorSize = 8192.0);
+	//bool isCompatible(Interval const * a, Interval const * b, REAL corridorSize = 8192.0);
+	bool isCompatible(Interval const * a, Interval const * b, REAL corridorSize, loc & distance);
+
 //	bool isCompatible(Anchor const & anchor, MappedSegment const & segment);
 //	bool isCompatible(Anchor const & anchor, Interval const * interval);
 	bool isContained(Interval const * a, Interval const * b);
@@ -339,6 +349,8 @@ public:
 		stdoutPrintAlignCorridor = Config.getStdoutMode() == 6;
 		stdoutPrintScores = Config.getStdoutMode() == 7;
 
+		nOnlyRegions = SequenceProvider.getNOnlyRegionsTree();
+
 		Log.Verbose("Alignment batchsize = %i", batchSize);
 
 		//	IAlignment * aligner = new StrippedSW();
@@ -366,6 +378,7 @@ public:
 #endif
 
 		overlapCheckAligner = new StrippedSW();
+
 	}
 
 	virtual ~AlignmentBuffer() {
