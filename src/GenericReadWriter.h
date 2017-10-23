@@ -83,9 +83,8 @@ public:
 		for (int i = 0; i < read->Calculated && mapped; ++i) {
 			bool mappedCurrent = !read->Alignments[i].skip;
 			if(Config.getBamCigarFix() && mappedCurrent) {
-				int const maxInBAM = 64000;
-				mappedCurrent = mappedCurrent && read->Alignments[i].cigarOpCount < maxInBAM;
-				if (!mappedCurrent) {
+				int const maxInBAM = 0x10000;
+				if (read->Alignments[i].cigarOpCount >= maxInBAM) {
 					Log.Message("Skipping alignment %d for %s: number of CIGAR operations %d > 64k.", i, read->name, read->Alignments[i].cigarOpCount);
 				}
 			}
