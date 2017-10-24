@@ -118,7 +118,14 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 //	Print("%d\t", mappingQlty);
 	Print("%d\t", read->Alignments[scoreID].MQ);
 
-	Print("%s\t", read->Alignments[scoreID].pBuffer1);
+	int printLongCigar = (Config.getBamCigarFix() && !read->Alignments[scoreID].skip && read->Alignments[scoreID].cigarOpCount >= 0x10000);
+	if (printLongCigar) { // write <readLength>S
+		int clip_length = read->length;
+		if (hardClip) clip_length = read->length - read->Alignments[scoreID].QStart - read->Alignments[scoreID].QEnd;
+		Print("%dS\t", clip_length);
+	} else {
+		Print("%s\t", read->Alignments[scoreID].pBuffer1);
+	}
 	Print("%s\t", pRefName);//Ref. name of the mate/next fragment
 	Print("%u\t", pLoc + report_offset);//Position of the mate/next fragment
 	Print("%d\t", pDist);//observed Template LENgth
@@ -197,6 +204,26 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 
 	float scorePer100Bp = read->Alignments[scoreID].Score * 100.0f / read->length;
 	Print("SB:f:%f", scorePer100Bp);
+
+	if (printLongCigar) { // write the real CIGAR at the CG:B,I tag
+		Print("\tCG:B:I");
+		char *p = read->Alignments[scoreID].pBuffer1;
+		for (int i = 0; i < read->Alignments[scoreID].cigarOpCount; ++i) {
+			long len = strtol(p, &p, 10);
+			int op = 0;
+			if (*p == 'M') op = 0;
+			else if (*p == 'I') op = 1;
+			else if (*p == 'D') op = 2;
+			else if (*p == 'N') op = 3;
+			else if (*p == 'S') op = 4;
+			else if (*p == 'H') op = 5;
+			else if (*p == '=') op = 7;
+			else if (*p == 'X') op = 8;
+			++p;
+			unsigned int cigar1 = (unsigned int)len<<4 | op; // this is the binary representation of a CIGAR operation
+			Print(",%d", cigar1);
+		}
+	}
 
 	Print("\n");
 
