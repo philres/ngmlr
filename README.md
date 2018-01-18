@@ -2,6 +2,13 @@
 
 Download [binary](https://github.com/philres/ngmlr/releases/tag/v0.2.6) from github and unzip or [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/ngmlr/README.html) or pull docker [![Docker Automated buil](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/philres/ngmlr/). For updates follow [![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&style=plastic)](https://twitter.com/philres1)
 
+Download precompiled version:
+```bash
+wget https://github.com/philres/ngmlr/releases/tag/v0.2.6
+tar xvzf ngmlr-0.2.6-beta-linux-x86_64.tar.gz
+cd ngmlr-0.2.6-beta-linux-x86_64
+```
+
 For Pacbio data run:
 ```bash
 ngmlr -t 4 -r reference.fasta -q reads.fastq -o test.sam
