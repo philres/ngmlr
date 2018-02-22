@@ -86,18 +86,11 @@ void LogToConsole(bool color, int lvl, char const * const title, char const * co
 		lvl = 0;
 	rwl();
 
-//	if (title != 0) {
-//		if (lvl > 0 && color)
-//			SetConsoleColor((ConsoleColor) (MessageTitle + (lvl * 2)));
-//		fprintf(stderr, "[%s] ", title);
-//	}
-
 	if (color)
 		SetConsoleColor((ConsoleColor) (Message + (lvl * 2)));
-	#//f (iargs != nullptr) 
-		vfprintf(stderr, s, args);
-	//else
-	//	fprintf(stderr, "%s", s);
+	
+	vfprintf(stderr, s, args);
+	
 	if (color)
 		ResetConsoleColor();
 	fprintf(stderr, "\n");

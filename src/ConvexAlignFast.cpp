@@ -8,7 +8,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <algorithm>
-//#include <x86intrin.h>
 #include <emmintrin.h>
 
 #include "IConfig.h"
