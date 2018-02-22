@@ -4,7 +4,8 @@ project(NextGenMap-LR)
 include_directories (../lib/seqan-library-2.2.0/include)
 include_directories (../lib/Complete-Striped-Smith-Waterman-Library/src)
 include_directories (../lib)
-include_directories( ${ZLIB_INCLUDE_DIRS} )
+include_directories (../lib/sse2neon)
+include_directories ( ${ZLIB_INCLUDE_DIRS} )
 
 configure_file( Version.h.in ${CMAKE_SOURCE_DIR}/src/Version.h )
 
@@ -15,6 +16,8 @@ IF(NOT APPLE)
         SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
     ENDIF()
 endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftree-vectorize")
 
 add_executable(ngmlr
                     AlignmentMatrix.cpp
