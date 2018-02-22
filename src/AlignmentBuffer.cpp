@@ -834,7 +834,7 @@ Interval * AlignmentBuffer::mergeIntervals(Interval * a, Interval * b) {
  * a and b must be on same strand!
  */
 bool AlignmentBuffer::isDuplication(Interval const * a,
-		Interval const * b) {
+		Interval const * b, loc & dupLength) {
 
 	verbose(3, true, "isDuplication:");
 	verbose(3, "", a);
@@ -853,6 +853,7 @@ bool AlignmentBuffer::isDuplication(Interval const * a,
 	verbose(2, true, "overlap on read: %d, overlap on ref: %lld", overlapOnRead, overlapOnRef);
 
 	loc overlapDiff = std::max(0ll, overlapOnRef - overlapOnRead);
+	dupLength = overlapDiff;
 
 	return overlapOnRef >= (int) (1.0f * readPartLength)
 			&& overlapOnRead <= (int) (readPartLength * 1.0f) && overlapDiff > 0ll; // overlapDiff > (int)round(readPartLength / 2.0);
@@ -3142,7 +3143,8 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 			verbose(1, "Current: ", currentInterval);
 			if (isSameDirection(currentInterval, lastInterval)) {
 				verbose(2, true, "Same direction.");
-				if (!isDuplication(currentInterval, lastInterval)) {
+				loc dupLength = 0;
+				if (!isDuplication(currentInterval, lastInterval, dupLength)) {
 
 					if(gapOverlapsWithInterval(lastInterval, currentInterval, intervalsTree, read)) {
 						/***
@@ -3206,8 +3208,11 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 					}
 					closeGapOnRead(lastInterval, currentInterval, read->length);
 					// Extension necessary since border can be wrong even if there is no gap on the read
-					extendIntervalStop(lastInterval, 2 * readPartLength, read->length);
-					extendIntervalStart(currentInterval, 2 * readPartLength);
+					int maxExtend = std::min(std::max(currentInterval->onReadStart - lastInterval->onReadStop + (int)dupLength, 0), 2 * readPartLength);
+					verbose(2, true, "Duplication stats: %d - %d + %d, %d => %d", currentInterval->onReadStart, lastInterval->onReadStop, (int)dupLength, 2 * readPartLength, maxExtend);
+//					int maxExtend = 2 * readPartLength;
+					extendIntervalStop(lastInterval, maxExtend, read->length);
+					extendIntervalStart(currentInterval, maxExtend);
 
 					//Add lastInterval
 					intervals[nIntervals++] = lastInterval;

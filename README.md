@@ -1,6 +1,6 @@
 ### Quick start
 
-Download [binary](https://github.com/philres/ngmlr/releases/tag/v0.2.6) from github and unzip or [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/ngmlr/README.html) or pull docker [![Docker Automated buil](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/philres/ngmlr/). For updates follow [![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&style=plastic)](https://twitter.com/philres1)
+Download [binary](https://github.com/philres/ngmlr/releases/tag/v0.2.7) from github and unzip or [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/ngmlr/README.html) or pull docker [![Docker Automated buil](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/philres/ngmlr/). For updates follow [![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&style=plastic)](https://twitter.com/philres1)
 
 Download precompiled version:
 ```bash
@@ -129,6 +129,18 @@ docker run -v `pwd`/ngmlr:/ngmlr philres/nextgenmaplr-buildenv bash -c "cd /ngml
 `pwd`/ngmlr/bin/ngmlr-*/ngmlr
 ```
 
+### NGMLR progress information
+Example:
+```
+Processed: 92198 (0.66), R/S: 37.44, RL: 8857, Time: 2.00 5.00 11.62, Align: 0.96, 490, 0.81
+```
+
+92198 reads were processed so far
+66 % of the 92198 reads were mapped (with > 25 % of their bp mapped)
+37.44 are mapped on average per second
+8857 is the average read length so far
+
+"Time" and "Align" are for debugging purpose and will be removed.
 
 ### Datasets used in the mansucript:
 We provide the NGMLR aligned reads and the Sniffles calls for the data sets used:  
@@ -143,6 +155,4 @@ Genome in the Bottle trio:
 NA12878: [http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/NA12878/](http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/NA12878/) .  
 
 SKBR3: [http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/Skbr3/](http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/Skbr3/) . 
-
-
 

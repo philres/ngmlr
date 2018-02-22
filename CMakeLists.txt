@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(NextGenMap-LR)
+project(ngmlr)
 
 include(CheckCXXCompilerFlag)
 
@@ -9,9 +9,9 @@ set( NGM_VERSION_MAJOR 0 )
 set( NGM_VERSION_MINOR 2 )
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Building in debug mode!")
-    set( NGM_VERSION_BUILD 5-debug )
+    set( NGM_VERSION_BUILD 7-debug )
 else()
-  set( NGM_VERSION_BUILD 6 )
+  set( NGM_VERSION_BUILD 7 )
 ENDIF()
 
 find_package( ZLIB REQUIRED )
@@ -38,4 +38,5 @@ IF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type specified. Using 'RELWITHDEBINFO'")
   SET(CMAKE_BUILD_TYPE RELWITHDEBINFO)
 ENDIF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+
 add_subdirectory(src)

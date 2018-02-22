@@ -221,8 +221,8 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	} else if (presetArgs.getValue() == "ont") {
 //		lowQualitySplit = (lowqualitysplitArg.isSet()) ? lowQualitySplit : false;
 //		smallInversionDetection = (nosmallInversionArg.isSet()) ? smallInversionDetection : false;
-		scoreMatch = (scoreMatchArg.isSet()) ? scoreMatch : 3;
-		scoreMismatch = (scoreMatchArg.isSet()) ? scoreMismatch : -3;
+//		scoreMatch = (scoreMatchArg.isSet()) ? scoreMatch : 3;
+//		scoreMismatch = (scoreMatchArg.isSet()) ? scoreMismatch : -3;
 		//scoreGapOpen = (scoreGapOpenArg.isSet()) ? scoreGapOpen : -1;
 		//scoreGapExtendMax = (scoreGapExtendMaxArg.isSet()) ? scoreGapExtendMax : -1;
 		//scoreGapExtendMax = (scoreGapExtendMinArg.isSet()) ? scoreGapExtendMin : -0.5;

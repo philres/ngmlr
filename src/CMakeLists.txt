@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(NextGenMap-LR)
+project(ngmlr)
 
 include_directories (../lib/seqan-library-2.2.0/include)
 include_directories (../lib/Complete-Striped-Smith-Waterman-Library/src)
@@ -9,13 +9,14 @@ include_directories ( ${ZLIB_INCLUDE_DIRS} )
 
 configure_file( Version.h.in ${CMAKE_SOURCE_DIR}/src/Version.h )
 
-IF(NOT APPLE)
-    IF(STATIC)
-        SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-        SET(BUILD_SHARED_LIBRARIES OFF)
-        SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+IF(STATIC)
+    IF(APPLE)
+        message(FATAL_ERROR "MacOSX does not support static linking. Please use -DSTATIC=OFF")
     ENDIF()
-endif()
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")    
+    SET(BUILD_SHARED_LIBRARIES OFF)
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+ENDIF()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftree-vectorize")
 

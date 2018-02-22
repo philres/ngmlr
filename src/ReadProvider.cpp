@@ -39,6 +39,8 @@ uint ReadProvider::init() {
 
 	Log.Verbose("Initializing ReadProvider");
 
+	Log.Message("Opening query file %s", fileName1);
+
 	size_t maxLen = readPartLength + 16;
 	parser1 = DetermineParser(fileName1, maxLen);
 

@@ -151,7 +151,7 @@ public:
 //	bool isCompatible(Anchor const & anchor, Interval const * interval);
 	bool isContained(Interval const * a, Interval const * b);
 	bool isSameDirection(Interval const * a, Interval const * b);
-	bool isDuplication(Interval const *, Interval const *);
+	bool isDuplication(Interval const *, Interval const *, loc & dupLength);
 
 	/**
 	 * Distance between two intervals on read
