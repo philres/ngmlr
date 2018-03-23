@@ -45,7 +45,7 @@ _NGM::_NGM() : Stats(new NGMStats()), m_ActiveThreads(0), m_NextThread(0), m_Cur
 	if (output_name != 0) {
 		Log.Message("Opening for output (SAM): %s", output_name);
 	} else {
-		Log.Message("Wrinting output (SAM) to stdout");
+		Log.Message("Writing output (SAM) to stdout");
 	}
 
 	m_Output = new PlainFileWriter(output_name);
