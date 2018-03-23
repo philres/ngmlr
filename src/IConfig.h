@@ -73,6 +73,19 @@ protected:
 	char * queryFile = 0;
 	char * referenceFile = 0;
 	char * outputFile = 0;
+	char * rgId = 0;
+	char * rgSm = 0;
+	char * rgLb = 0;
+	char * rgPl = 0;
+	char * rgDs = 0;
+	char * rgDt = 0;
+	char * rgPu = 0;
+	char * rgPi = 0;
+	char * rgPg = 0;
+	char * rgCn = 0;
+	char * rgFo = 0;
+	char * rgKs = 0;
+
 	/*
 	 * If specified, only reads in the regions specified
 	 * by the BED file are read from the input BAM file
@@ -100,6 +113,55 @@ public:
 	char const * const getOutputFile() const {
 		return outputFile;
 	}
+
+	char const * const getRgId() const {
+		return rgId;
+	}
+
+	char const * const getRgSm() const {
+		return rgSm;
+	}
+
+	char const * const getRgLb() const {
+		return rgLb;
+	}
+
+	char const * const getRgPl() const {
+		return rgPl;
+	}
+
+	char const * const getRgDs() const {
+		return rgDs;
+	}
+
+	char const * const getRgDt() const {
+		return rgDt;
+	}
+
+	char const * const getRgPu() const {
+		return rgPu;
+	}
+
+	char const * const getRgPi() const {
+		return rgPi;
+	}
+
+	char const * const getRgPg() const {
+		return rgPg;
+	}
+
+	char const * const getRgCn() const {
+		return rgCn;
+	}
+
+	char const * const getRgFo() const {
+		return rgFo;
+	}
+
+	char const * const getRgKs() const {
+		return rgKs;
+	}
+
 
 	char const * const getFullCommandLineCall() const {
 		return fullCommandLineCall;

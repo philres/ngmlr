@@ -66,9 +66,22 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 
 	TCLAP::ValueArg<std::string> queryArg("q", "query", "Path to the read file (FASTA/Q)", false, "/dev/stdin", "file", cmd);
 	TCLAP::ValueArg<std::string> refArg("r", "reference", "Path to the reference genome (FASTA/Q, can be gzipped)", true, noneDefault, "file", cmd);
-	TCLAP::ValueArg<std::string> outArg("o", "output", "Path to output file", false, outDefault, "file", cmd);
+	TCLAP::ValueArg<std::string> outArg("o", "output", "Adds RG:Z:<string> to all alignments in SAM/BAM", false, noneDefault, "string", cmd);
 	TCLAP::ValueArg<std::string> vcfArg("", "vcf", "SNPs will be taken into account when building reference index", false, noneDefault, "file", cmd);
 	TCLAP::ValueArg<std::string> bedfilterArg("", "bed-filter", "Only reads in the regions specified by the BED file are read from the input file (requires BAM input)", false, noneDefault, "file", cmd);
+
+	TCLAP::ValueArg<std::string> rgIdArg("", "rg-id", "Adds RG:Z:<string> to all alignments in SAM/BAM", false, noneDefault, "string", cmd);
+	TCLAP::ValueArg<std::string> rgSmArg("", "rg-sm", "RG header: Sample", false, noneDefault, "string", cmd);
+	TCLAP::ValueArg<std::string> rgLbArg("", "rg-lb", "RG header: Library", false, noneDefault, "string", cmd);
+	TCLAP::ValueArg<std::string> rgPlArg("", "rg-pl", "RG header: Platform", false, noneDefault, "string", cmd);
+	TCLAP::ValueArg<std::string> rgDsArg("", "rg-ds", "RG header: Description", false, noneDefault, "string", cmd);
+	TCLAP::ValueArg<std::string> rgDtArg("", "rg-dt", "RG header: Date (format: YYYY-MM-DD)", false, noneDefault, "string", cmd);
+	TCLAP::ValueArg<std::string> rgPuArg("", "rg-pu", "RG header: Platform unit", false, noneDefault, "string", cmd);
+	TCLAP::ValueArg<std::string> rgPiArg("", "rg-pi", "RG header: Median insert size", false, noneDefault, "string", cmd);
+	TCLAP::ValueArg<std::string> rgPgArg("", "rg-pg", "RG header: Programs", false, noneDefault, "string", cmd);
+	TCLAP::ValueArg<std::string> rgCnArg("", "rg-cn", "RG header: sequencing center", false, noneDefault, "string", cmd);
+	TCLAP::ValueArg<std::string> rgFoArg("", "rg-fo", "RG header: Flow order", false, noneDefault, "string", cmd);
+	TCLAP::ValueArg<std::string> rgKsArg("", "rg-ks", "RG header: Key sequence", false, noneDefault, "string", cmd);
 
 	TCLAP::ValueArg<std::string> presetArgs("x", "presets", "Parameter presets for different sequencing technologies", false, "pacbio", "pacbio, ont", cmd);
 
@@ -124,6 +137,18 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	printParameter<std::string>(usage, outArg);
 	printParameter(usage, skipWriteArg);
 	printParameter(usage, bamFixArg);
+	printParameter<std::string>(usage, rgIdArg);
+	printParameter<std::string>(usage, rgSmArg);
+	printParameter<std::string>(usage, rgLbArg);
+	printParameter<std::string>(usage, rgPlArg);
+	printParameter<std::string>(usage, rgDsArg);
+	printParameter<std::string>(usage, rgDtArg);
+	printParameter<std::string>(usage, rgPuArg);
+	printParameter<std::string>(usage, rgPiArg);
+	printParameter<std::string>(usage, rgPgArg);
+	printParameter<std::string>(usage, rgCnArg);
+	printParameter<std::string>(usage, rgFoArg);
+	printParameter<std::string>(usage, rgKsArg);
 
 	usage << "" << std::endl;
 	usage << "General:" << std::endl;
@@ -161,6 +186,18 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 	outputFile = fromString(outArg.getValue());
 	vcfFile = fromString(vcfArg.getValue());
 	bedFile = fromString(bedfilterArg.getValue());
+	rgId = fromString(rgIdArg.getValue());
+	rgSm = fromString(rgSmArg.getValue());
+	rgLb = fromString(rgLbArg.getValue());
+	rgPl = fromString(rgPlArg.getValue());
+	rgDs = fromString(rgDsArg.getValue());
+	rgDt = fromString(rgDtArg.getValue());
+	rgPu = fromString(rgPuArg.getValue());
+	rgPi = fromString(rgPiArg.getValue());
+	rgPg = fromString(rgPgArg.getValue());
+	rgCn = fromString(rgCnArg.getValue());
+	rgFo = fromString(rgFoArg.getValue());
+	rgKs = fromString(rgKsArg.getValue());
 
 	minIdentity = minIdentityArg.getValue();
 	minResidues = minResiduesArg.getValue();

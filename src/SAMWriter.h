@@ -16,7 +16,7 @@ public:
 //		if(Config.Exists(RG_ID)) {
 //			RG = Config.GetString(RG_ID);
 //		} else {
-			RG = 0;
+			rgId = 0;
 //		}
 		m_Writer = writer;
 	}
@@ -39,7 +39,7 @@ private:
 
 	FileWriter * m_Writer;
 
-	char const * RG;
+	char const * rgId;
 };
 
 #endif

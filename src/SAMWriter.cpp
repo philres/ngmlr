@@ -36,43 +36,46 @@ void SAMWriter::DoWriteProlog() {
 	version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
 	Print("@PG\tID:ngmlr\tPN:nextgenmap-lr\tVN:%s\tCL:%s\n", version.str().c_str(), Config.getFullCommandLineCall());
 
-//	if (RG != 0) {
-//		Print("@RG\tID:%s", RG);
-//		if (Config.Exists(RG_CN))
-//			Print("\tCN:%s", Config.GetString(RG_CN));
-//
-//		if (Config.Exists(RG_DS))
-//			Print("\tDS:%s", Config.GetString(RG_DS));
-//
-//		if (Config.Exists(RG_DT))
-//			Print("\tDT:%s", Config.GetString(RG_DT));
-//
-//		if (Config.Exists(RG_FO))
-//			Print("\tFO:%s", Config.GetString(RG_FO));
-//
-//		if (Config.Exists(RG_KS))
-//			Print("\tKS:%s", Config.GetString(RG_KS));
-//
-//		if (Config.Exists(RG_LB))
-//			Print("\tLB:%s", Config.GetString(RG_LB));
-//
-//		if (Config.Exists(RG_PG))
-//			Print("\tPG:%s", Config.GetString(RG_PG));
-//
-//		if (Config.Exists(RG_PI))
-//			Print("\tPI:%s", Config.GetString(RG_PI));
-//
-//		if (Config.Exists(RG_PL))
-//			Print("\tPL:%s", Config.GetString(RG_PL));
-//
-//		if (Config.Exists(RG_PU))
-//			Print("\tPU:%s", Config.GetString(RG_PU));
-//
-//		if (Config.Exists(RG_SM))
-//			Print("\tSM:%s", Config.GetString(RG_SM));
-//
-//		Print("\n");
-//	}
+	rgId = Config.getRgId();
+	if (rgId != 0) {
+		Print("@RG\tID:%s", rgId);
+
+		char const * rgSm = Config.getRgSm();
+		if(rgSm != 0)
+			Print("\tSM:%s", rgSm);
+		char const * rgLb = Config.getRgLb();
+		if(rgLb != 0)
+			Print("\tLB:%s", rgLb);
+		char const * rgPl = Config.getRgPl();
+		if(rgPl != 0)
+			Print("\tPL:%s", rgPl);
+		char const * rgDs = Config.getRgDs();
+		if(rgDs != 0)
+			Print("\tDS:%s", rgDs);
+		char const * rgDt = Config.getRgDt();
+		if(rgDt != 0)
+			Print("\tDT:%s", rgDt);
+		char const * rgPu = Config.getRgPu();
+		if(rgPu != 0)
+			Print("\tPU:%s", rgPu);
+		char const * rgPi = Config.getRgPi();
+		if(rgPi != 0)
+			Print("\tPI:%s", rgPi);
+		char const * rgPg = Config.getRgPg();
+		if(rgPg != 0)
+			Print("\tPG:%s", rgPg);
+		char const * rgCn = Config.getRgCn();
+		if(rgCn != 0)
+			Print("\tCN:%s", rgCn);
+		char const * rgFo = Config.getRgFo();
+		if(rgFo != 0)
+			Print("\tFO:%s", rgFo);
+		char const * rgKs = Config.getRgKs();
+		if(rgKs != 0)
+			Print("\tKS:%s", rgKs);
+
+		Print("\n");
+	}
 
 	m_Writer->Flush(bufferPosition, BUFFER_LIMIT, writeBuffer, true);
 }
@@ -149,8 +152,8 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 	}
 
 	//Optional fields
-	if(RG != 0) {
-		Print("RG:Z:%s\t", RG);
+	if(rgId != 0) {
+		Print("RG:Z:%s\t", rgId);
 	}
 	Print("AS:i:%d\t", (int) read->Scores[scoreID].Score.f);
 	Print("NM:i:%d\t", read->Alignments[scoreID].NM);
@@ -197,13 +200,13 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 	float covered = (read->length - clipped) * 100.0f / read->length;
 	Print("CV:f:%f\t", covered);
 
-	Print("ID:i:%d\t", read->ReadId);
+//	Print("ID:i:%d\t", read->ReadId);
 
-	float kmerPer100Bp = read->Scores[scoreID].Score.f * 100.0f / read->length;
-	Print("KB:f:%f\t", kmerPer100Bp);
+//	float kmerPer100Bp = read->Scores[scoreID].Score.f * 100.0f / read->length;
+//	Print("KB:f:%f\t", kmerPer100Bp);
 
-	float scorePer100Bp = read->Alignments[scoreID].Score * 100.0f / read->length;
-	Print("SB:f:%f", scorePer100Bp);
+//	float scorePer100Bp = read->Alignments[scoreID].Score * 100.0f / read->length;
+//	Print("SB:f:%f", scorePer100Bp);
 
 	if (printLongCigar) { // write the real CIGAR at the CG:B,I tag
 		Print("\tCG:B:I");
@@ -354,8 +357,8 @@ void SAMWriter::DoWriteUnmappedReadGeneric(MappedRead const * const read,
 			Print("*");
 		}
 
-		if(RG != 0) {
-			Print("\tRG:Z:%s", RG);
+		if(rgId != 0) {
+			Print("\tRG:Z:%s", rgId);
 		}
 
 		Print("\n");
