@@ -26,8 +26,8 @@ With 10 cores (AMD Opteron 6348), ngmlr currently takes about 90 minutes and 10 
 
 
 ### Citation:
-Please see and cite our preprint:
-http://www.biorxiv.org/content/early/2017/07/28/169557
+Please see and cite our paper:
+https://www.nature.com/articles/s41592-018-0001-7
 
 
 **Poster & Talks:**
