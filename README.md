@@ -4,9 +4,9 @@ Download [binary](https://github.com/philres/ngmlr/releases/tag/v0.2.6) from git
 
 Download precompiled version:
 ```bash
-wget https://github.com/philres/ngmlr/releases/tag/v0.2.6
-tar xvzf ngmlr-0.2.6-beta-linux-x86_64.tar.gz
-cd ngmlr-0.2.6-beta-linux-x86_64
+wget https://github.com/philres/ngmlr/releases/download/v0.2.7/ngmlr-0.2.7-linux-x86_64.tar.gz
+tar xvzf ngmlr-0.2.7-linux-x86_64.tar.gz
+cd ngmlr-0.2.7/
 ```
 
 For Pacbio data run:
