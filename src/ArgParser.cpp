@@ -66,7 +66,7 @@ void ArgParser::ParseArguments(int argc, char const * argv[]) {
 
 	TCLAP::ValueArg<std::string> queryArg("q", "query", "Path to the read file (FASTA/Q)", false, "/dev/stdin", "file", cmd);
 	TCLAP::ValueArg<std::string> refArg("r", "reference", "Path to the reference genome (FASTA/Q, can be gzipped)", true, noneDefault, "file", cmd);
-	TCLAP::ValueArg<std::string> outArg("o", "output", "Adds RG:Z:<string> to all alignments in SAM/BAM", false, noneDefault, "string", cmd);
+	TCLAP::ValueArg<std::string> outArg("o", "output", "Path to output file", false, noneDefault, "string", cmd);
 	TCLAP::ValueArg<std::string> vcfArg("", "vcf", "SNPs will be taken into account when building reference index", false, noneDefault, "file", cmd);
 	TCLAP::ValueArg<std::string> bedfilterArg("", "bed-filter", "Only reads in the regions specified by the BED file are read from the input file (requires BAM input)", false, noneDefault, "file", cmd);
 
