@@ -48,12 +48,36 @@ Input/Output:
         (required)  Path to the reference genome (FASTA/Q, can be gzipped)
     -q <file>,  --query <file>
         Path to the read file (FASTA/Q) [/dev/stdin]
-    -o <file>,  --output <file>
+    -o <string>,  --output <string>
         Path to output file [stdout]
     --skip-write
         Don't write reference index to disk [false]
     --bam-fix
         Report reads with > 64k CIGAR operations as unmapped. Required to be compatibel to BAM format [false]
+    --rg-id <string>
+        Adds RG:Z:<string> to all alignments in SAM/BAM [none]
+    --rg-sm <string>
+        RG header: Sample [none]
+    --rg-lb <string>
+        RG header: Library [none]
+    --rg-pl <string>
+        RG header: Platform [none]
+    --rg-ds <string>
+        RG header: Description [none]
+    --rg-dt <string>
+        RG header: Date (format: YYYY-MM-DD) [none]
+    --rg-pu <string>
+        RG header: Platform unit [none]
+    --rg-pi <string>
+        RG header: Median insert size [none]
+    --rg-pg <string>
+        RG header: Programs [none]
+    --rg-cn <string>
+        RG header: sequencing center [none]
+    --rg-fo <string>
+        RG header: Flow order [none]
+    --rg-ks <string>
+        RG header: Key sequence [none]
 
 General:
     -t <int>,  --threads <int>
@@ -147,7 +171,7 @@ We provide the NGMLR aligned reads and the Sniffles calls for the data sets used
 
 Arabidopsis trio: [http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/Arabidopsis_trio](http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/Arabidopsis_trio) . 
 
-Genome in the Bottle trio: 
+Genome in a Bottle trio: 
 + Mappings: [ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/HG002_NA24385_son/PacBio_MtSinai_NIST/Baylor_NGMLR_bam_GRCh37/](ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/HG002_NA24385_son/PacBio_MtSinai_NIST/Baylor_NGMLR_bam_GRCh37/) . 
 
 + SV calls: [http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/GiaB/](http://labshare.cshl.edu/shares/schatzlab/www-data/fsedlaze/Sniffles/GiaB/)
