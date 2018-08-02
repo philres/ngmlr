@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+  cmake_minimum_required(VERSION 2.8)
 project(ngmlr)
 
 include(CheckCXXCompilerFlag)
@@ -9,9 +9,9 @@ set( NGM_VERSION_MAJOR 0 )
 set( NGM_VERSION_MINOR 2 )
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Building in debug mode!")
-    set( NGM_VERSION_BUILD 7-debug )
+    set( NGM_VERSION_BUILD 8-debug )
 else()
-  set( NGM_VERSION_BUILD 7 )
+  set( NGM_VERSION_BUILD 8-dev )
 ENDIF()
 
 find_package( ZLIB REQUIRED )
