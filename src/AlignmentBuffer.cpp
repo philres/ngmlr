@@ -2372,10 +2372,7 @@ void AlignmentBuffer::verbose(int const tabs, bool const newLine, char const * c
 		va_list args;
 
 		va_start(args, s);
-		if (args != 0)
-			vfprintf(stderr, s, args);
-		else
-			fprintf(stderr, "%s", s);
+		vfprintf(stderr, s, args);
 		va_end(args);
 
 		if(newLine) {

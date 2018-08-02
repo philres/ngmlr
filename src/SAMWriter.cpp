@@ -36,7 +36,6 @@ void SAMWriter::DoWriteProlog() {
 	version << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_BUILD;
 	Print("@PG\tID:ngmlr\tPN:nextgenmap-lr\tVN:%s\tCL:%s\n", version.str().c_str(), Config.getFullCommandLineCall());
 
-	rgId = Config.getRgId();
 	if (rgId != 0) {
 		Print("@RG\tID:%s", rgId);
 
