@@ -13,11 +13,7 @@ public:
 	SAMWriter(FileWriter * writer) :
 			GenericReadWriter() {
 
-//		if(Config.Exists(RG_ID)) {
-//			RG = Config.GetString(RG_ID);
-//		} else {
-			rgId = 0;
-//		}
+		rgId = Config.getRgId();
 		m_Writer = writer;
 	}
 
