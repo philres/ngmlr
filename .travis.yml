@@ -1,7 +1,7 @@
 language: cpp
 
 sudo: false
-dist: precise
+dist: trusty
 
 cache:
     apt: true
