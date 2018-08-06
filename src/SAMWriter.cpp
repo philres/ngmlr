@@ -197,15 +197,7 @@ void SAMWriter::DoWriteReadGeneric(MappedRead const * const read,
 
 	int clipped = read->Alignments[scoreID].QStart + read->Alignments[scoreID].QEnd;
 	float covered = (read->length - clipped) * 100.0f / read->length;
-	Print("CV:f:%f\t", covered);
-
-//	Print("ID:i:%d\t", read->ReadId);
-
-//	float kmerPer100Bp = read->Scores[scoreID].Score.f * 100.0f / read->length;
-//	Print("KB:f:%f\t", kmerPer100Bp);
-
-//	float scorePer100Bp = read->Alignments[scoreID].Score * 100.0f / read->length;
-//	Print("SB:f:%f", scorePer100Bp);
+	Print("CV:f:%f", covered);
 
 	if (printLongCigar) { // write the real CIGAR at the CG:B,I tag
 		Print("\tCG:B:I");
