@@ -2208,7 +2208,8 @@ bool AlignmentBuffer::reconcileRead(ReadGroup * group) {
 	if(pacbioDebug) {
 		Log.Message("Aligned %.2f%% of read", aligned * 100.0f);
 	}
-	mapped = aligned > Config.getMinResidues();
+	mapped = (Config.getMinResidues() < 1.0) ? aligned > Config.getMinResidues() : alignedBpSum > Config.getMinResidues();
+
 	if (pacbioDebug) {
 		Log.Message("%f > %f = %d", aligned, Config.getMinResidues(), mapped);
 	}
@@ -2594,7 +2595,17 @@ void AlignmentBuffer::processShortRead(MappedRead * read) {
 
 			}
 
-			if (align != 0 && align->Score > 0.0f && ((read->length - align->QStart - align->QEnd) * 1.0f / read->length) > Config.getMinResidues()) {
+
+			bool mapped = align != 0 && align->Score > 0.0f;
+			if(mapped) {
+				if (Config.getMinResidues() < 1.0) {
+					mapped = ((read->length - align->QStart - align->QEnd) * 1.0f / read->length) >
+							 Config.getMinResidues();
+				} else {
+					mapped = (read->length - align->QStart - align->QEnd) > Config.getMinResidues();
+				}
+			}
+			if (mapped) {
 				align->clearNmPerPosition();
 
 				align->MQ = read->mappingQlty;
@@ -3310,7 +3321,8 @@ void AlignmentBuffer::processLongReadLIS(ReadGroup * group) {
 
 	float aligned = readBpCovered * 1.0f / read->length;
 	verbose(0, true, "Intervals cover %.2f%% of read", aligned * 100.0f);
-	if (aligned < Config.getMinResidues()) {
+	bool mapped = (Config.getMinResidues() < 1.0) ? aligned > Config.getMinResidues() : readBpCovered > Config.getMinResidues();
+	if (!mapped) {
 		verbose(0, true, "Clearing intervals -> read unmapped");
 		for (int i = 0; i < nIntervals; ++i) {
 			if (intervals[i] != 0) {
