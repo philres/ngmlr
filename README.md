@@ -53,7 +53,7 @@ Input/Output:
     --skip-write
         Don't write reference index to disk [false]
     --bam-fix
-        Report reads with > 64k CIGAR operations as unmapped. Required to be compatibel to BAM format [false]
+        Report reads with > 64k CIGAR operations as unmapped. Required to be compatible with the BAM format [false]
     --rg-id <string>
         Adds RG:Z:<string> to all alignments in SAM/BAM [none]
     --rg-sm <string>
