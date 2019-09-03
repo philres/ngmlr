@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(ngmlr)
 
-include_directories (../lib/seqan-library-2.2.0/include)
 include_directories (../lib/Complete-Striped-Smith-Waterman-Library/src)
 include_directories (../lib)
 include_directories( ${ZLIB_INCLUDE_DIRS} )
