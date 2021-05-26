@@ -1889,6 +1889,7 @@ int AlignmentBuffer::computeMappingQuality(Align const & alignment, int readLeng
 		mqCount += 1;
 	}
 //	verbose(1, true, "");
+	if (mqCount == 0) return 0;
 	verbose(1, true, "%d / %d = %d", mqSum, mqCount, (int) (mqSum * 1.0f / mqCount));
 	return (int) (mqSum * 1.0f / mqCount);
 
