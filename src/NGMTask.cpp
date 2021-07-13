@@ -20,7 +20,7 @@ void NGMTask::Run() {
 	try {
 		DoRun();
 	} catch (std::bad_alloc & ex) {
-		Log.Error("Exception bad_alloc occured in thread %i. This usually means you ran out of physical or virtual memory (try ulimit -v)", m_TID);
+		Log.Error("Exception bad_alloc occurred in thread %i. This usually means you ran out of physical or virtual memory (try ulimit -v)", m_TID);
 	}
 	catch (...)
 	{
