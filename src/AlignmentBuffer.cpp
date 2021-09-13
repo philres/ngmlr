@@ -2551,7 +2551,7 @@ void AlignmentBuffer::processShortRead(MappedRead * read) {
 	// Read is shorter then anchor length
 
 	verbose(0, true, "Read too short for long read cLIS");
-	verbose(0, true, "Processing ShortRead: %d - %s (lenght %d)", read->ReadId, read->name, read->length);
+	verbose(0, true, "Processing ShortRead: %d - %s (length %d)", read->ReadId, read->name, read->length);
 
 	if (read->numScores() > 0) {
 
