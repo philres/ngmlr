@@ -8,7 +8,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <algorithm>
+#if defined(__aarch64__)
+#include <SSE2NEON.h>
+#else
 #include <x86intrin.h>
+#endif
 
 #include "IConfig.h"
 

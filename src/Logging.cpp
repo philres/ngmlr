@@ -94,7 +94,7 @@ void LogToConsole(bool color, int lvl, char const * const title, char const * co
 
 	if (color)
 		SetConsoleColor((ConsoleColor) (Message + (lvl * 2)));
-	if (args != 0)
+	if (va_arg(args, char *) != 0)
 		vfprintf(stderr, s, args);
 	else
 		fprintf(stderr, "%s", s);
